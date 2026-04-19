@@ -1,0 +1,2006 @@
+\documentclass[11pt,a4paper,openany]{book}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,multirow,array,tabularx}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,shapes.geometric}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=green!40!black,
+  urlcolor=blue!70!black
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  showstringspaces=false
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cross-Platform Research Development Assistant}
+\rhead{Technical Design Monograph}
+\cfoot{\thepage}
+\setlength{\headheight}{14pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{assumption}[definition]{Assumption}
+
+\title{\Huge\textbf{Technical Design Monograph}\\[8pt]
+\Large Cross-Platform Research Development Assistant for Mathematical Finance, Macroeconomics, and Institutional Model Engineering}
+\author{Prepared for Management Review}
+\date{\today}
+
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+\mainmatter
+
+%======================================================================
+\chapter{Executive Summary and Recommendation}
+%======================================================================
+
+\section{Executive Summary}
+
+This monograph proposes a shared research-development assistant for a division of approximately fifty economists, mathematical-finance researchers, and research engineers who build mathematically sophisticated, code-intensive systems for large institutional users such as central banks and financial institutions.
+
+The proposal responds to a concrete workflow failure that is now common across modern research-engineering environments:
+\begin{itemize}[nosep]
+  \item paper tools such as SciSpace help with literature reading but are not code-aware;
+  \item coding assistants such as Claude Code, Cursor, and Copilot help with implementation but lack durable structured research memory;
+  \item manual copy-paste workflows create context loss, fragile documentation, and repeated trivial errors;
+  \item there is no shared system that knows how papers, equations, code, tests, and reviewer-facing explanations fit together.
+\end{itemize}
+
+The proposed system is not an assistant replacement.  It is a \textbf{shared research intelligence layer} that sits beneath all assistants and exposes consistent research context across them.  Its core responsibilities are:
+\begin{enumerate}[nosep]
+  \item ingest and structure papers;
+  \item maintain literature-aware research memory;
+  \item connect literature, equations, code, tests, and technical documents;
+  \item expose this context to Claude Code, Cursor, and Copilot;
+  \item support reviewer-facing, auditable technical writing.
+\end{enumerate}
+
+The architectural recommendation is explicit:
+\begin{quote}
+\textbf{Build a shared backend and multiple assistant adapters, rather than a tool tied to any one AI assistant.}
+\end{quote}
+
+The first implementation should be local-first, file-first, inspectable,
+and incremental.  The system should begin as a structured paper store plus
+retrieval/query layer, then evolve toward richer group-wide use only after
+it proves useful in real workflows.
+
+\section{Recommendation}
+
+The recommendation is to approve a phased build of a \textbf{Cross-Platform
+Research Development Assistant} with the following strategic properties:
+\begin{itemize}[nosep]
+  \item assistant-agnostic core architecture;
+  \item local-first and inspectable data model;
+  \item explicit support for paper-to-code traceability;
+  \item rigorous reviewer-oriented documentation workflows;
+  \item bounded MVP scope with strong immediate value;
+  \item deliberate engineering simplicity in the first version.
+\end{itemize}
+
+The rest of this monograph justifies that recommendation in technical,
+operational, and organizational detail.
+
+%======================================================================
+\chapter{Problem Definition}
+%======================================================================
+
+\section{The actual problem is not ``paper search'' or ``AI coding''}
+
+The division's workflow challenge is often misdescribed as a search or
+summarization problem.  That framing is too weak.  The actual problem is
+better stated as follows:
+\begin{quote}
+How can a research-engineering organization maintain a shared, auditable,
+code-aware understanding of the literature, equations, implementation
+choices, failure modes, and documentation obligations behind mathematically
+sophisticated institutional software?
+\end{quote}
+
+This is a different problem from simply:
+\begin{itemize}[nosep]
+  \item reading papers,
+  \item writing code,
+  \item or using a chat assistant.
+\end{itemize}
+
+It is a systems problem in research memory, traceability, assistant
+interoperability, and reviewer confidence.
+
+\section{Why the existing tool stack is insufficient}
+
+\subsection{Paper tools}
+
+Tools such as SciSpace are useful for reading, annotation, and local Q\&A
+about papers.  But they do not deeply integrate with:
+\begin{itemize}[nosep]
+  \item repository structure,
+  \item implementation status,
+  \item test coverage,
+  \item monograph chapters,
+  \item production failure modes,
+  \item or equation-to-code traceability.
+\end{itemize}
+
+\subsection{Coding assistants}
+
+Claude Code, Cursor, and Copilot are useful for implementation assistance.
+But absent a structured research backend, they lack:
+\begin{itemize}[nosep]
+  \item durable project-level literature memory,
+  \item validated citation support,
+  \item paper-to-code linkage,
+  \item reviewer-facing technical synthesis,
+  \item and a shared state across assistants.
+\end{itemize}
+
+\subsection{Manual notes}
+
+Private notes, copied summaries, and ad hoc documents do not scale to a
+team of fifty.  They also do not provide a reliable machine-readable layer
+that assistants can query.
+
+\section{Field-specific severity of the problem}
+
+This is especially serious in mathematical finance, macroeconomics, DSGE
+modeling, and structural estimation because work in these fields combines:
+\begin{itemize}[nosep]
+  \item mathematical derivation,
+  \item econometric assumptions,
+  \item numerical methods,
+  \item simulation and estimation,
+  \item code implementation,
+  \item and skeptical technical review.
+\end{itemize}
+
+A tool that ignores any one of those layers becomes much less useful.
+
+%======================================================================
+\chapter{Design Goals and Non-Goals}
+%======================================================================
+
+\section{Primary design goals}
+
+The system should:
+\begin{enumerate}[nosep]
+  \item preserve structured research memory;
+  \item connect papers, equations, code, tests, and documentation;
+  \item work across Claude Code, Cursor, and Copilot;
+  \item remain auditable by researchers and engineers;
+  \item support skeptical reviewer-facing output generation;
+  \item reduce repeated context reconstruction;
+  \item improve maintainability of mathematically sophisticated production code.
+\end{enumerate}
+
+\section{Non-goals for the initial phases}
+
+The first versions should \emph{not} attempt to be:
+\begin{itemize}[nosep]
+  \item a full enterprise knowledge-management platform,
+  \item a perfect paper-understanding engine,
+  \item a general-purpose theorem prover,
+  \item a replacement for all assistants,
+  \item a multi-user web product from day one,
+  \item or a system that requires heavy infrastructure before delivering value.
+\end{itemize}
+
+These non-goals are important because they constrain the initial scope and
+improve feasibility.
+
+%======================================================================
+\chapter{System Overview}
+%======================================================================
+
+\section{One-sentence architectural summary}
+
+The proposed system is a \textbf{shared research intelligence backend} with
+multiple thin assistant adapters.
+
+\section{Core architectural principle}
+
+The most important architectural decision is the separation:
+\begin{equation*}
+\text{shared research backend} + \text{assistant-specific adapters}
+\end{equation*}
+This is the only design that is robust to the division's multi-assistant
+environment.
+
+\section{High-level layered architecture}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.6cm,
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=12cm, minimum height=1.0cm, align=center},
+  smallbox/.style={draw, rounded corners, fill=green!5, minimum width=3.4cm, minimum height=0.9cm, align=center}
+]
+
+\node[box] (assistants) {\textbf{Assistant Integration Layer}\\ Claude Code \quad Cursor \quad Copilot \quad CLI \quad Optional UI};
+\node[box, below=of assistants] (query) {\textbf{Query and Retrieval Layer}\\ paper lookup, citation graph, claim support audit, paper-to-code links, reviewer synthesis};
+\node[box, below=of query] (store) {\textbf{Structured Research Store}\\ metadata, extracted text, summaries, links, reviewer notes, project overlays};
+\node[box, below=of store] (ingest) {\textbf{Paper Ingestion Layer}\\ PDF extraction, metadata resolution, DOI/arXiv/OpenAlex/Crossref, text normalization};
+
+\draw[-{Latex[length=3mm]}] (assistants) -- (query);
+\draw[-{Latex[length=3mm]}] (query) -- (store);
+\draw[-{Latex[length=3mm]}] (ingest) -- (store);
+\end{tikzpicture}
+\end{center}
+
+\section{System context diagram}
+
+The following diagram shows the system boundary.  The important point is
+that neither Claude Code, Cursor, nor Copilot owns the canonical research
+state.  They query a shared backend.  This is what makes the design usable
+across tools and robust to assistant changes.
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.9cm,
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=3.4cm, minimum height=0.9cm, align=center},
+  ext/.style={draw, rounded corners, fill=gray!12, minimum width=3.4cm, minimum height=0.9cm, align=center},
+  store/.style={draw, rounded corners, fill=green!8, minimum width=4.2cm, minimum height=0.9cm, align=center}
+]
+\node[ext] (researcher) {Researcher /\\ Engineer};
+\node[box, right=1.4cm of researcher] (backend) {Research Assistant\\ Backend};
+\node[store, below=0.9cm of backend] (store2) {Structured Research\\ Store};
+\node[ext, above right=0.4cm and 1.4cm of backend] (sources) {Public Literature\\ APIs and PDFs};
+\node[ext, below right=0.4cm and 1.4cm of backend] (ides) {Claude Code\\ Cursor\\ Copilot};
+
+\draw[-{Latex[length=2.5mm]}] (researcher) -- node[above]{queries / curation} (backend);
+\draw[-{Latex[length=2.5mm]}] (backend) -- node[left]{read/write} (store2);
+\draw[-{Latex[length=2.5mm]}] (sources) -- node[above]{metadata / text} (backend);
+\draw[-{Latex[length=2.5mm]}] (ides) -- node[below]{adapter calls} (backend);
+\draw[-{Latex[length=2.5mm]}] (backend) -- (ides);
+\end{tikzpicture}
+\end{center}
+
+\section{Primary data flow}
+
+A typical request flows as follows:
+\begin{enumerate}[nosep]
+  \item An assistant or user asks a research-aware question.
+  \item The adapter converts the request into a backend query.
+  \item The backend retrieves structured paper summaries, code links, and metadata.
+  \item The backend returns structured context rather than free-form hidden state.
+  \item The assistant uses that context to write code, documentation, or an audit.
+\end{enumerate}
+
+\section{Why this architecture is the right one}
+
+This architecture is chosen because it directly addresses the main risks:
+\begin{itemize}[nosep]
+  \item \textbf{Assistant lock-in risk}: removed by separating backend from assistants.
+  \item \textbf{Opaque state risk}: reduced by keeping the research store inspectable.
+  \item \textbf{Cross-platform integration risk}: controlled by using multiple adapters.
+  \item \textbf{Maintenance risk}: reduced by keeping the backend narrow and explicit.
+\end{itemize}
+
+%======================================================================
+\chapter{Detailed Component Design}
+%======================================================================
+
+\section{Component inventory}
+
+The system should initially consist of the following components:
+\begin{enumerate}[nosep]
+  \item \texttt{paper\_ingest}: import PDF, DOI, URL, arXiv.
+  \item \texttt{metadata\_resolve}: query OpenAlex, Crossref, arXiv.
+  \item \texttt{text\_extract}: PDF-to-text extraction and normalization.
+  \item \texttt{summary\_builder}: generate structured summary records.
+  \item \texttt{link\_manager}: maintain paper-to-code and paper-to-doc links.
+  \item \texttt{query\_engine}: answer retrieval queries.
+  \item \texttt{audit\_engine}: citation support and claim validation.
+  \item \texttt{assistant\_adapters}: MCP, CLI, file-based, optional HTTP.
+\end{enumerate}
+
+\section{Proposed repository layout}
+
+The file layout below is intended to be specific enough that an engineer or
+Claude Code session could begin implementation directly from it.  The
+design separates source code, research data, generated artifacts, and tests.
+
+\begin{lstlisting}
+research-assistant/
+  README.md
+  pyproject.toml
+  requirements.txt
+  .gitignore
+  src/
+    research_assistant/
+      __init__.py
+      config.py
+      paths.py
+      errors.py
+      logging.py
+      ingest/
+        __init__.py
+        pdf_extract.py
+        metadata_resolve.py
+        normalize_text.py
+        deduplicate.py
+        source_manifest.py
+      schemas/
+        __init__.py
+        paper_record.py
+        link_record.py
+        audit_record.py
+        review_record.py
+      storage/
+        __init__.py
+        file_store.py
+        index_store.py
+        cache_store.py
+      summarize/
+        __init__.py
+        draft_summary.py
+        claim_support.py
+        reviewer_notes.py
+        synthesis.py
+      links/
+        __init__.py
+        paper_code_links.py
+        paper_doc_links.py
+        equation_links.py
+      query/
+        __init__.py
+        paper_lookup.py
+        citation_graph.py
+        related_work.py
+        search_index.py
+      adapters/
+        __init__.py
+        mcp_server.py
+        cli.py
+        workspace_exports.py
+        http_api.py
+      tests/
+        test_ingest.py
+        test_metadata.py
+        test_query.py
+        test_claim_support.py
+        test_paths.py
+        test_links.py
+        test_adapters.py
+  research/
+    papers/
+      raw/
+      extracted/
+    metadata/
+    summaries/
+    links/
+    reviews/
+    schemas/
+    indices/
+    caches/
+  docs/
+    design/
+    usage/
+    schemas/
+    runbooks/
+\end{lstlisting}
+
+\subsection{File-by-file implementation intent}
+
+\begin{longtable}{@{}p{4.0cm}p{9.5cm}@{}}
+\toprule
+\textbf{File or module} & \textbf{Intended responsibility} \\
+\midrule
+\texttt{config.py} & Global settings, environment resolution, path roots, optional API keys and local service configuration. \\
+\texttt{paths.py} & Canonical path normalization across Linux, Windows, and WSL2. \\
+\texttt{errors.py} & Typed exceptions for ingestion, metadata, adapter, and audit failures. \\
+\texttt{pdf\_extract.py} & PDF to text extraction, fallbacks, extraction status, and provenance capture. \\
+\texttt{metadata\_resolve.py} & OpenAlex / Crossref / arXiv resolution and metadata reconciliation. \\
+\texttt{normalize\_text.py} & Text cleanup, whitespace normalization, header/footer stripping, and chunking support. \\
+\texttt{deduplicate.py} & Duplicate DOI/title/arXiv detection and canonical paper ID assignment. \\
+\texttt{source\_manifest.py} & Record the source origin, fetch date, and ingestion provenance of each paper. \\
+\texttt{paper\_record.py} & Validation and serialization for paper summary schema. \\
+\texttt{link\_record.py} & Validation and serialization for paper-to-code and paper-to-doc links. \\
+\texttt{audit\_record.py} & Validation and serialization for claim-support audit results. \\
+\texttt{review\_record.py} & Structured reviewer-facing synthesis and rebuttal notes. \\
+\texttt{file\_store.py} & Read/write operations for file-based research store. \\
+\texttt{index\_store.py} & Lightweight indices for search and lookup. \\
+\texttt{cache\_store.py} & Cache external metadata/API responses with provenance and expiry policy. \\
+\texttt{draft\_summary.py} & Generate first-pass structured summaries from extracted text and metadata. \\
+\texttt{claim\_support.py} & Determine whether a citation directly, indirectly, or weakly supports a claim. \\
+\texttt{reviewer\_notes.py} & Store reviewer objections, limitations, and caveats for a paper or method. \\
+\texttt{synthesis.py} & Produce literature review drafts and structured synthesis across multiple papers. \\
+\texttt{paper\_code\_links.py} & Create and update explicit mappings from papers to repository files and modules. \\
+\texttt{paper\_doc\_links.py} & Map papers to LaTeX/Markdown documentation sections. \\
+\texttt{equation\_links.py} & Optional mapping from equations or method identifiers to code or docs. \\
+\texttt{paper\_lookup.py} & Query papers by title, DOI, arXiv, or semantic topic. \\
+\texttt{citation\_graph.py} & Retrieve citations, cited-by relationships, and neighboring literature. \\
+\texttt{related\_work.py} & Group papers by method family or implementation relevance. \\
+\texttt{search\_index.py} & Search over extracted text, summaries, and notes. \\
+\texttt{mcp\_server.py} & MCP tool definitions and request routing for Claude Code or compatible tools. \\
+\texttt{cli.py} & Command-line entry points usable from any environment. \\
+\texttt{workspace\_exports.py} & Generate assistant-agnostic context files in the repo/workspace. \\
+\texttt{http\_api.py} & Optional local HTTP service for future integrations. \\
+\bottomrule
+\end{longtable}
+
+\section{Data ownership by component}
+
+\begin{center}
+\begin{tabular}{@{}p{3.4cm}p{5.2cm}p{5.2cm}@{}}
+\toprule
+\textbf{Component} & \textbf{Writes} & \textbf{Reads} \\
+\midrule
+paper\_ingest & raw PDF, source manifest & URLs, DOI, arXiv IDs \\
+metadata\_resolve & metadata records & source manifest \\
+text\_extract & extracted text files & raw PDFs \\
+summary\_builder & summary drafts & metadata + extracted text \\
+link\_manager & paper/code/doc link files & summaries + repo paths \\
+query\_engine & query responses (ephemeral) & all structured stores \\
+audit\_engine & audit notes & summaries, citations, documents \\
+assistant adapters & no canonical state by default & query layer and research store \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%======================================================================
+\chapter{Data Model and Schemas}
+%======================================================================
+
+\section{Why explicit schemas are necessary}
+
+A research system that relies only on free-form notes is difficult to query,
+validate, and maintain.  Explicit schemas are therefore necessary to:
+\begin{itemize}[nosep]
+  \item reduce assistant hallucination,
+  \item support consistent retrieval,
+  \item allow manual inspection,
+  \item and make the system auditable.
+\end{itemize}
+
+\section{Paper record schema}
+
+A paper record should contain fields such as:
+
+\begin{lstlisting}
+{
+  "id": "string",
+  "title": "string",
+  "authors": ["string"],
+  "year": 2026,
+  "doi": "string|null",
+  "arxiv_id": "string|null",
+  "source_url": "string",
+  "abstract": "string",
+  "method_family": ["string"],
+  "main_contribution": "string",
+  "mathematical_core": "string",
+  "assumptions": ["string"],
+  "exactness_status": "direct|indirect|none|unknown",
+  "invertibility_mechanism": "string|null",
+  "jacobian_handling": "string|null",
+  "known_defects": ["string"],
+  "known_remedies": ["string"],
+  "scientific_relevance": "string",
+  "domain_relevance": "string",
+  "implementation_implications": ["string"],
+  "linked_code_files": ["string"],
+  "linked_doc_sections": ["string"],
+  "reviewer_objections": ["string"],
+  "reviewer_responses": ["string"],
+  "confidence_level": "high|medium|low",
+  "curation_status": "draft|reviewed|approved"
+}
+\end{lstlisting}
+
+\section{Formal schema constraints}
+
+The first implementation should also define formal validation rules.  A
+compact version of the core schema constraints is:
+
+\begin{lstlisting}
+PaperRecord:
+  required:
+    - id
+    - title
+    - authors
+    - year
+    - source_url
+    - main_contribution
+    - confidence_level
+    - curation_status
+  constraints:
+    id: nonempty string, unique
+    title: nonempty string
+    authors: nonempty list of strings
+    year: integer in [1900, 2100]
+    confidence_level: one of {high, medium, low}
+    curation_status: one of {draft, reviewed, approved}
+
+LinkRecord:
+  required:
+    - id
+    - paper_id
+    - target_type
+    - target
+    - relationship
+  constraints:
+    target_type: one of {code_file, document_section, equation, issue, test}
+
+AuditRecord:
+  required:
+    - id
+    - claim
+    - cited_papers
+    - support_classification
+  constraints:
+    support_classification:
+      one of {direct_support, indirect_support, background_only,
+              unsupported, insufficient_evidence}
+\end{lstlisting}
+
+\section{Schema evolution policy}
+
+To keep the system stable for a team of fifty, schema evolution should be
+explicitly governed:
+\begin{enumerate}[nosep]
+  \item schema version numbers must be stored in records;
+  \item backward-incompatible changes require migration scripts;
+  \item adapters must reject unknown mandatory fields unless compatibility is
+        explicitly declared;
+  \item changes to paper, link, or audit schemas should require review by
+        both the engineer-owner and a domain reviewer.
+\end{enumerate}
+
+\section{Link record schema}
+
+A separate link record should represent many-to-many relationships such as:
+\begin{itemize}[nosep]
+  \item paper $\leftrightarrow$ code file,
+  \item paper $\leftrightarrow$ document section,
+  \item equation $\leftrightarrow$ file/function,
+  \item criticism $\leftrightarrow$ mitigation implementation.
+\end{itemize}
+
+\section{Audit record schema}
+
+An audit record should store:
+\begin{itemize}[nosep]
+  \item claim text,
+  \item cited paper IDs,
+  \item support classification,
+  \item uncertainty notes,
+  \item reviewer comments,
+  \item timestamp and origin.
+\end{itemize}
+
+\section{Concrete record examples}
+
+The following examples are intentionally concrete.  They are included so
+that an implementation can begin from the document without inventing record
+formats later.
+
+\subsection{Example paper record}
+
+\begin{lstlisting}
+{
+  "id": "paper_hoffman_2021_neutra",
+  "title": "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport",
+  "authors": ["Matthew D. Hoffman", "Pavel Sountsov", "Joshua V. Dillon"],
+  "year": 2021,
+  "doi": null,
+  "arxiv_id": "1903.03704",
+  "source_url": "https://arxiv.org/abs/1903.03704",
+  "method_family": ["HMC", "transport maps", "normalizing flows"],
+  "main_contribution": "Uses an invertible neural transport as a preconditioner for exact HMC in transformed coordinates.",
+  "mathematical_core": "Run HMC on U(T(z)) - log|det J_T(z)| rather than on U(q) directly.",
+  "exactness_status": "exact after transformed-target HMC correction",
+  "invertibility_mechanism": "inverse autoregressive flow",
+  "jacobian_handling": "tractable log determinant from flow architecture",
+  "known_defects": ["transport objective may not align with HMC efficiency", "tail behavior must be audited"],
+  "known_remedies": ["shell diagnostics", "identity initialization", "bounded scale outputs"],
+  "domain_relevance": "directly relevant to learned transport for posterior geometry",
+  "confidence_level": "high",
+  "curation_status": "reviewed"
+}
+\end{lstlisting}
+
+\subsection{Example link record}
+
+\begin{lstlisting}
+{
+  "id": "link_neutra_transport_chapter",
+  "paper_id": "paper_hoffman_2021_neutra",
+  "target_type": "document_section",
+  "target": "docs/chapters/ch16_transport_foundations.tex#sec:tf:exact_hmc",
+  "relationship": "supports transformed-target HMC transport idea",
+  "confidence_level": "high",
+  "review_status": "reviewed"
+}
+\end{lstlisting}
+
+\subsection{Example claim-support audit record}
+
+\begin{lstlisting}
+{
+  "id": "audit_transport_exactness_001",
+  "claim": "An imperfect but invertible transport does not bias the final HMC chain if exact HMC is run on the transformed target including the Jacobian term.",
+  "cited_papers": ["paper_hoffman_2021_neutra", "paper_papamakarios_2021_flows"],
+  "support_classification": "direct_support",
+  "evidence_summary": "NeuTra uses learned transport followed by HMC in warped space; normalizing-flow review supports exact change-of-variables density evaluation.",
+  "limitations": ["Does not guarantee improved efficiency", "Requires exact Jacobian and stable gradients"],
+  "reviewer_note": "Claim is about asymptotic correctness, not performance guarantee."
+}
+\end{lstlisting}
+
+%======================================================================
+\chapter{Paper Ingestion and Metadata Resolution Pipeline}
+%======================================================================
+
+\section{Ingestion goals}
+
+The ingestion layer should turn an external reference into a reproducible local research artifact.
+
+\section{Ingestion pipeline}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.8cm,
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=12cm, minimum height=0.9cm, align=center}
+]
+\node[box] (input) {User input: DOI / arXiv / URL / PDF};
+\node[box, below=of input] (raw) {Store raw source and assign canonical local paper ID};
+\node[box, below=of raw] (meta) {Resolve metadata from OpenAlex / Crossref / arXiv};
+\node[box, below=of meta] (extract) {Extract PDF text and normalize};
+\node[box, below=of extract] (summary) {Generate draft structured summary};
+\node[box, below=of summary] (review) {Human or assistant review and curation};
+
+\draw[-{Latex[length=3mm]}] (input) -- (raw);
+\draw[-{Latex[length=3mm]}] (raw) -- (meta);
+\draw[-{Latex[length=3mm]}] (meta) -- (extract);
+\draw[-{Latex[length=3mm]}] (extract) -- (summary);
+\draw[-{Latex[length=3mm]}] (summary) -- (review);
+\end{tikzpicture}
+\end{center}
+
+\section{Ingestion pseudocode}
+
+\begin{lstlisting}
+def ingest_paper(source):
+    paper_id = assign_canonical_id(source)
+    raw_path = store_raw_source(source, paper_id)
+
+    metadata = resolve_metadata(source)
+    extracted_text = extract_text(raw_path)
+    normalized_text = normalize_text(extracted_text)
+
+    summary = build_draft_summary(
+        paper_id=paper_id,
+        metadata=metadata,
+        text=normalized_text,
+    )
+
+    write_metadata(paper_id, metadata)
+    write_extracted_text(paper_id, normalized_text)
+    write_summary_draft(paper_id, summary)
+
+    return paper_id
+\end{lstlisting}
+
+\subsection{Ingestion pipeline responsibilities by stage}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Canonical ID assignment.}  The system assigns a stable internal paper ID before any downstream processing.  This avoids path drift when metadata later changes.
+  \item \textbf{Raw source preservation.}  The original PDF or fetched representation is stored unchanged for reproducibility.
+  \item \textbf{Metadata resolution.}  DOI, arXiv, title, authors, year, and source provenance are retrieved from multiple services and reconciled.
+  \item \textbf{Text extraction and normalization.}  Extracted text is normalized but never treated as a replacement for the raw source.
+  \item \textbf{Draft summary creation.}  A first-pass structured summary is generated and marked as draft, not authoritative.
+  \item \textbf{Curation handoff.}  The paper remains in draft state until reviewed by a human or a validated assistant workflow.
+\end{enumerate}
+
+\section{Ingestion sequence diagram}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.55cm,
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=11.5cm, minimum height=0.75cm, align=center}
+]
+\node[box] (s1) {1. Receive source: DOI / arXiv / URL / PDF};
+\node[box, below=of s1] (s2) {2. Assign canonical paper ID and store raw source};
+\node[box, below=of s2] (s3) {3. Resolve metadata from Crossref, arXiv, OpenAlex};
+\node[box, below=of s3] (s4) {4. Extract text with status and provenance};
+\node[box, below=of s4] (s5) {5. Normalize text and create searchable chunks};
+\node[box, below=of s5] (s6) {6. Generate draft structured summary};
+\node[box, below=of s6] (s7) {7. Run validation: schema, duplicate, extraction status};
+\node[box, below=of s7] (s8) {8. Mark record as draft and await curation};
+\foreach \a/\b in {s1/s2,s2/s3,s3/s4,s4/s5,s5/s6,s6/s7,s7/s8}
+  \draw[-{Latex[length=2.5mm]}] (\a) -- (\b);
+\end{tikzpicture}
+\end{center}
+
+\section{Failure handling in ingestion}
+
+The ingestion pipeline must never silently pretend success.  Each stage
+should return an explicit status:
+\begin{itemize}[nosep]
+  \item \texttt{ok},
+  \item \texttt{partial},
+  \item \texttt{failed},
+  \item \texttt{requires\_manual\_review}.
+\end{itemize}
+
+A paper with failed PDF extraction may still have useful metadata, but it
+should not be treated as fully ingested.  This distinction is important for
+reviewer trust.
+
+\subsection{Metadata reconciliation pseudocode}
+
+\begin{lstlisting}
+def resolve_metadata(source):
+    candidates = []
+
+    if has_doi(source):
+        candidates.append(fetch_crossref(source.doi))
+    if has_arxiv_id(source):
+        candidates.append(fetch_arxiv(source.arxiv_id))
+
+    candidates.append(fetch_openalex(source))
+
+    merged = merge_metadata_candidates(candidates)
+    validate_required_fields(merged)
+    return merged
+\end{lstlisting}
+
+\subsection{Deduplication pseudocode}
+
+\begin{lstlisting}
+def assign_canonical_id(source):
+    matches = []
+    matches += lookup_by_doi(source)
+    matches += lookup_by_arxiv(source)
+    matches += lookup_by_normalized_title(source)
+
+    if len(matches) == 1:
+        return matches[0].paper_id
+    if len(matches) > 1:
+        return resolve_duplicate_conflict(matches)
+    return mint_new_paper_id(source)
+\end{lstlisting}
+
+\section{Metadata reconciliation}
+
+A single source should not be treated as authoritative in all cases.
+
+Recommended preference ordering:
+\begin{enumerate}[nosep]
+  \item DOI/Crossref for publication metadata,
+  \item arXiv for preprint metadata,
+  \item OpenAlex for citation graph and broad work relationships,
+  \item local human curation for final correctness if sources conflict.
+\end{enumerate}
+
+%======================================================================
+\chapter{Research Store and Retrieval Layer}
+%======================================================================
+
+\section{Why file-first storage is preferred initially}
+
+A file-first research store is preferred because it is:
+\begin{itemize}[nosep]
+  \item transparent,
+  \item easy to version-control,
+  \item robust to tool changes,
+  \item debuggable by researchers,
+  \item and suitable for local-first development.
+\end{itemize}
+
+\section{Retrieval operations}
+
+The query layer should support operations such as:
+\begin{itemize}[nosep]
+  \item find paper by title/DOI/arXiv/topic,
+  \item list citations and citing works,
+  \item find papers related to a method family,
+  \item read structured summary,
+  \item find papers linked to code files,
+  \item generate synthesis across a set of papers,
+  \item audit support for a claim.
+\end{itemize}
+
+\section{Retrieval pseudocode}
+
+\begin{lstlisting}
+def find_related_papers(topic, filters=None):
+    candidate_ids = search_index(topic, filters)
+    papers = load_paper_records(candidate_ids)
+    ranked = rank_by_relevance(papers, topic)
+    return ranked
+
+
+def claim_support_audit(claim, cited_paper_ids):
+    papers = [load_paper_record(pid) for pid in cited_paper_ids]
+    evidence = extract_relevant_support(papers, claim)
+    classification = classify_support(evidence, claim)
+    return {
+        "claim": claim,
+        "papers": cited_paper_ids,
+        "evidence": evidence,
+        "classification": classification,
+    }
+\end{lstlisting}
+
+%======================================================================
+\chapter{Assistant Integration Strategy}
+%======================================================================
+
+\section{Why multiple adapters are necessary}
+
+Claude Code, Cursor, and Copilot differ significantly in:
+\begin{itemize}[nosep]
+  \item tool invocation capability,
+  \item persistence model,
+  \item editor integration,
+  \item and how much structured context they can consume.
+\end{itemize}
+
+Therefore, the backend must expose more than one interface.
+
+\section{Recommended access paths}
+
+\begin{enumerate}[nosep]
+  \item \textbf{MCP server} for Claude Code and any compatible environment.
+  \item \textbf{CLI tools} for universal availability.
+  \item \textbf{Workspace-generated files} for visibility inside all editors.
+  \item \textbf{Optional HTTP API} for future richer integrations.
+\end{enumerate}
+
+\section{Illustrative MCP tool surface}
+
+Possible MCP tools:
+\begin{lstlisting}
+find_paper(query)
+get_paper_summary(paper_id)
+papers_citing(paper_id)
+papers_cited_by(paper_id)
+related_papers(topic)
+paper_code_links(paper_id)
+claim_support_audit(claim, paper_ids)
+reviewer_synthesis(topic, paper_ids)
+\end{lstlisting}
+
+\subsection{Proposed MCP tool contracts}
+
+To reduce ambiguity, the first implementation should define a stable tool
+contract.  An illustrative version is:
+
+\begin{lstlisting}
+find_paper(
+  query: string,
+  filters?: {
+    year_min?: int,
+    year_max?: int,
+    method_family?: [string],
+    curated_only?: bool
+  }
+) -> [
+  {
+    paper_id: string,
+    title: string,
+    year: int,
+    relevance_score: float,
+    curation_status: string
+  }
+]
+
+get_paper_summary(
+  paper_id: string
+) -> {
+  metadata: object,
+  summary: object,
+  links: [object]
+}
+
+claim_support_audit(
+  claim: string,
+  paper_ids: [string]
+) -> {
+  classification: string,
+  evidence: [string],
+  limitations: [string],
+  confidence: string
+}
+\end{lstlisting}
+
+\subsection{MCP implementation responsibilities}
+
+The MCP adapter should be thin.  It should:
+\begin{itemize}[nosep]
+  \item validate inputs,
+  \item call the backend query functions,
+  \item normalize outputs into assistant-friendly structures,
+  \item avoid embedding business logic that belongs in the backend.
+\end{itemize}
+
+\section{CLI equivalents}
+
+The same operations should also exist as CLI commands so the backend remains useful outside any specific assistant.
+
+\subsection{Illustrative CLI commands}
+
+\begin{lstlisting}
+ra paper find --query "neural transport hmc"
+ra paper show --paper-id paper_hoffman_2021_neutra
+ra paper citing --paper-id paper_hoffman_2021_neutra
+ra audit claim --claim-file claim.txt --papers p1 p2 p3
+ra links add --paper-id p1 --target src/foo.py --relationship "implements"
+ra review synthesize --topic "transport maps for posterior geometry"
+\end{lstlisting}
+
+\subsection{Why CLI parity matters}
+
+CLI parity is essential because it ensures the backend remains usable even in
+assistant environments that do not support rich tool orchestration.  It also
+supports scripting, CI validation, and debugging outside IDEs.
+
+%======================================================================
+\chapter{Version 2 Architecture: Multi-Parser Reading and Citation-Graph Discovery}
+%======================================================================
+
+\section{Why the architecture needs a Version 2 layer}
+
+The personal POC revealed an important limitation: metadata APIs and simple
+PDF text extraction are not enough for robust local paper ingestion.  A
+Google Scholar-like experience requires two separate capabilities:
+\begin{enumerate}[nosep]
+  \item \textbf{strong document understanding} for papers already in the
+        local library;
+  \item \textbf{fast citation-graph discovery} for finding relevant papers
+        beyond the local library.
+\end{enumerate}
+
+These are different subsystems and should not be conflated.  Local parsing
+answers ``what does this paper say?''  Citation graph discovery answers
+``which papers should I read next?''
+
+\section{Multi-parser paper understanding subsystem}
+
+No single open-source PDF parser is expected to be foolproof.  Therefore the
+recommended design is a multi-parser consensus pipeline:
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.55cm,
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=11.5cm, minimum height=0.75cm, align=center}
+]
+\node[box] (pdf) {PDF input};
+\node[box, below=of pdf] (parsers) {Run parsers in parallel: pdftotext, Marker, GROBID, MinerU, MarkItDown};
+\node[box, below=of parsers] (normalize) {Normalize outputs into ParsedDocument records};
+\node[box, below=of normalize] (compare) {Compare title, authors, abstract, sections, references};
+\node[box, below=of compare] (reconcile) {Reconcile by agreement scoring and confidence rules};
+\node[box, below=of reconcile] (store) {Store parser outputs, consensus record, and disagreement report};
+\foreach \a/\b in {pdf/parsers,parsers/normalize,normalize/compare,compare/reconcile,reconcile/store}
+  \draw[-{Latex[length=2.5mm]}] (\a) -- (\b);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Parser output schema}
+
+Each parser should return the same abstract object:
+\begin{lstlisting}
+ParsedDocument:
+  parser_name: string
+  parser_version: string
+  title_candidates: [string]
+  authors: [string]
+  abstract: string
+  body_text: string
+  body_markdown: string
+  section_headings: [string]
+  references: [string]
+  diagnostics: object
+  parse_status: ok|partial|failed
+\end{lstlisting}
+
+\subsection{Consensus output schema}
+
+The reconciler should produce:
+\begin{lstlisting}
+ReconciledDocument:
+  consensus_title: string|null
+  consensus_authors: [string]
+  consensus_abstract: string|null
+  parser_agreement: object
+  disagreements: [string]
+  parse_confidence: high|medium|low
+  requires_manual_review: bool
+\end{lstlisting}
+
+\subsection{Voting is not naive majority voting}
+
+The system should use evidence-weighted reconciliation rather than raw
+majority voting.  For example:
+\begin{itemize}[nosep]
+  \item title strings should be normalized and clustered by similarity;
+  \item author lists should be compared by name overlap;
+  \item abstracts should be checked for length and location sanity;
+  \item parsers with corrupt or extremely short output should be penalized;
+  \item disagreement should be preserved rather than hidden.
+\end{itemize}
+
+\section{Semantic Scholar / OpenAlex discovery subsystem}
+
+The discovery subsystem should use external scholarly indices for breadth.
+The recommended order is:
+\begin{enumerate}[nosep]
+  \item Semantic Scholar as the primary citation graph provider;
+  \item OpenAlex as fallback and enrichment;
+  \item Crossref and arXiv for metadata validation;
+  \item optional later integration with Scite or Lens if institutional access
+        justifies it.
+\end{enumerate}
+
+\subsection{Discovery commands}
+
+The CLI and MCP surfaces should eventually support:
+\begin{lstlisting}
+ra discover --query "neural transport hmc posterior geometry"
+ra citing --paper-id paper_hoffman_2021_neutra --depth 1
+ra citing --paper-id paper_hoffman_2021_neutra --depth 2
+ra references --paper-id paper_hoffman_2021_neutra
+ra cluster-literature --seed paper_hoffman_2021_neutra --depth 2
+ra survey-draft --topic "defects and remedies of NeuTra-style transport"
+\end{lstlisting}
+
+\section{Survey-generation workflow}
+
+The intended literature-survey workflow is:
+\begin{enumerate}[nosep]
+  \item start from a seed paper or topic;
+  \item traverse citation graph to depth 1 or 2;
+  \item rank papers by relevance, citation relationship, recency, and local
+        availability;
+  \item ingest or parse selected papers;
+  \item summarize and classify them;
+  \item draft a survey organized by method family, defects, remedies, and
+        applicability;
+  \item keep human review as the final authority.
+\end{enumerate}
+
+\section{Why this is better than manually using Google Scholar}
+
+Google Scholar is excellent for discovery, but it is not code-aware and is
+not easily automatable.  The proposed system does not attempt to replace
+Google Scholar globally.  Instead, it combines:
+\begin{itemize}[nosep]
+  \item Semantic Scholar / OpenAlex for citation graph traversal;
+  \item local parsers for deep paper reading;
+  \item structured research memory for curation;
+  \item Claude Code / CLI integration for code-aware documentation.
+\end{itemize}
+
+This is the architecture most likely to help researchers read and triage
+hundreds of papers while still connecting the output to implementation and
+technical documentation.
+
+%======================================================================
+\chapter{Code-Aware Research Workflows}
+%======================================================================
+
+\section{Paper-to-code linking workflow}
+
+\begin{enumerate}[nosep]
+  \item researcher identifies a method paper,
+  \item system retrieves or creates paper record,
+  \item assistant or user proposes candidate code files,
+  \item explicit links are stored,
+  \item documentation can later cite both the paper and the implementation location.
+\end{enumerate}
+
+\section{Equation-to-code linking workflow}
+
+The system should support links of the form:
+\begin{itemize}[nosep]
+  \item equation label → monograph section,
+  \item monograph section → code file/function,
+  \item code file/function → paper or method family.
+\end{itemize}
+
+This is critical for skeptical review and maintainability.
+
+\section{Reviewer-facing synthesis workflow}
+
+\begin{enumerate}[nosep]
+  \item user asks for a literature/design section,
+  \item system retrieves curated summaries,
+  \item assistant generates draft synthesis,
+  \item claim-support audit is run,
+  \item researcher reviews and finalizes.
+\end{enumerate}
+
+%======================================================================
+\chapter{Engineering Realities and Platform Risk Assessment}
+%======================================================================
+
+\section{Why this section matters}
+
+For a research-engineering team, engineering detail is not secondary.  It is
+one of the main determinants of whether a good idea becomes a reliable tool
+or an expensive maintenance burden.  This section therefore surfaces the
+platform and systems risks explicitly rather than minimizing them.
+
+\section{WSL2-specific issues}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item path translation between Windows host and Linux guest,
+  \item slow file watching on mounted Windows filesystems,
+  \item inconsistent permission behavior,
+  \item intermittent DNS/network issues,
+  \item tool behavior differences between files under `/home/...` and `/mnt/c/...`,
+  \item IDE host/guest integration quirks.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item prefer storing active research stores under Linux-native paths,
+  \item normalize all paths internally,
+  \item avoid watcher-heavy architecture in the MVP,
+  \item support explicit re-index commands,
+  \item test WSL2 explicitly as a first-class environment.
+\end{itemize}
+
+\section{Windows-specific issues}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item path separator differences,
+  \item quoting and shell behavior differences,
+  \item PowerShell vs bash command semantics,
+  \item long path and Unicode path issues,
+  \item local dependency install inconsistency.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item use Python path abstractions internally,
+  \item avoid shell-specific logic in the core backend,
+  \item provide CLI wrappers that are shell-agnostic where possible,
+  \item document supported environment assumptions clearly.
+\end{itemize}
+
+\section{Linux-specific issues}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item distro-level package differences,
+  \item missing system utilities,
+  \item user-level installation drift across machines.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item keep core dependencies minimal,
+  \item prefer Python-based implementation where practical,
+  \item document a reproducible setup process.
+\end{itemize}
+
+\section{Python environment fragmentation}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item conda vs system python vs venv,
+  \item package-version conflicts,
+  \item institution-specific proxy/network restrictions,
+  \item dependency drift between users.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item pin dependencies,
+  \item provide one supported environment recipe,
+  \item isolate the tool in its own environment,
+  \item keep optional dependencies clearly separated.
+\end{itemize}
+
+\section{PDF and literature ingestion problems}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item malformed PDFs,
+  \item scanned PDFs requiring OCR,
+  \item inconsistent metadata across sources,
+  \item duplicate paper resolution,
+  \item incomplete citation graph coverage,
+  \item brittle Google Scholar behavior.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item keep raw PDF, extracted text, and curated summaries separate,
+  \item use multiple metadata sources,
+  \item prefer OpenAlex/Crossref/arXiv over brittle scraping,
+  \item mark uncertainty explicitly.
+\end{itemize}
+
+\section{Assistant integration inconsistency}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item Claude Code has richer tool integration than Copilot,
+  \item Cursor may differ across versions/configurations,
+  \item not every assistant will support the same retrieval path.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item backend must be independent,
+  \item MCP is only one access path, not the only path,
+  \item CLI and workspace files serve as universal fallback.
+\end{itemize}
+
+\section{Operational and maintenance risk}
+
+Potential issues:
+\begin{itemize}[nosep]
+  \item schema drift,
+  \item stale summaries,
+  \item broken links to code after refactors,
+  \item low team adoption if workflow is too heavy,
+  \item unclear ownership.
+\end{itemize}
+
+Mitigation:
+\begin{itemize}[nosep]
+  \item explicit schemas,
+  \item curation status fields,
+  \item periodic stale-link audits,
+  \item low-friction MVP,
+  \item explicit operational ownership.
+\end{itemize}
+
+%======================================================================
+\chapter{Testing and Validation Strategy}
+%======================================================================
+
+\section{Why testing matters unusually strongly here}
+
+This system sits between literature, code, and documentation.  Silent errors
+can therefore propagate into reviewer-facing documents and implementation
+choices.  Testing is therefore not optional.
+
+\section{Test categories}
+
+\subsection{Unit tests}
+- metadata parsing
+- path normalization
+- schema validation
+- duplicate detection
+- CLI command behavior
+
+\subsection{Integration tests}
+- DOI/arXiv/PDF ingestion end-to-end
+- PDF extraction on known sample papers
+- summary file creation
+- paper-to-code link resolution
+- claim-support audit generation
+
+\subsection{Platform tests}
+- Linux-native paths
+- WSL2 Linux paths
+- Windows path-handling assumptions where applicable
+
+\subsection{Failure-case tests}
+- malformed PDF
+- missing metadata
+- duplicate DOI
+- bad Unicode path
+- stale link to code file
+
+\subsection{Assistant adapter tests}
+- MCP tool schema correctness
+- CLI output consistency
+- workspace export file generation
+
+\section{Representative fixture set}
+
+The system should ship with a small fixture library of papers used for repeated testing:
+\begin{itemize}[nosep]
+  \item one clean arXiv paper,
+  \item one DOI journal paper,
+  \item one malformed PDF,
+  \item one scanned/OCR-requiring PDF,
+  \item one paper with many citations,
+  \item one paper with ambiguous metadata.
+\end{itemize}
+
+\section{Subsystem failure-mode appendix summary}
+
+The proposal should explicitly acknowledge that the main engineering risk is
+not algorithmic elegance but operational brittleness.  The table below is a
+compressed failure-mode register; a full implementation should keep the same
+logic in a machine-readable issue or runbook format.
+
+\begin{longtable}{@{}p{3.5cm}p{4.5cm}p{4.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Subsystem} & \textbf{Failure mode} & \textbf{Likely consequence} & \textbf{Mitigation class} \\
+\midrule
+Paper ingestion & malformed or encrypted PDF & missing or corrupted extracted text & preserve raw PDF, mark extraction status, allow manual fallback \\
+Metadata resolver & conflicting DOI/OpenAlex/arXiv records & wrong title/authors/year, duplicate papers & reconciliation rules + human review path \\
+Deduplication & two records for one paper or one ID for two papers & broken links and synthesis errors & canonical ID rules + duplicate conflict resolution \\
+Structured summary & overconfident generated summary & misleading literature synthesis & draft status, curation, claim-support audit \\
+Paper-code links & stale file paths after refactor & false traceability & periodic stale-link checks \\
+Query layer & stale or incomplete index & missing search results & explicit reindex and cache invalidation \\
+MCP adapter & tool schema drift & assistant integration failure & adapter conformance tests \\
+CLI adapter & path or shell incompatibility & non-portable workflows & shell-agnostic command design \\
+Workspace exports & stale generated context files & assistants reading old context & export versioning and refresh commands \\
+Shared store & unauthorized edits or accidental corruption & trust loss in research memory & append-only logs / backups / review workflow \\
+\bottomrule
+\end{longtable}
+
+\section{Platform test matrix}
+
+A practical implementation should maintain a visible platform test matrix.
+A minimum starting matrix is:
+
+\begin{center}
+\begin{tabular}{@{}p{3cm}p{4cm}p{6cm}@{}}
+\toprule
+\textbf{Platform} & \textbf{Execution mode} & \textbf{Critical checks} \\
+\midrule
+Linux & native & ingestion, metadata resolution, CLI, MCP, file permissions \\
+WSL2 & Linux guest on Windows host & path normalization, file watching, DNS/network, mounted-drive behavior \\
+Windows & optional direct support or constrained support statement & path quoting, PowerShell handling, workspace exports \\
+Mixed IDE setup & VS Code / Cursor / Copilot clients & adapter invocation, generated context visibility, shared store access \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%======================================================================
+\chapter{Security, Privacy, and Governance}
+%======================================================================
+
+\section{Security posture}
+
+The default stance should be local-first and least-privilege.  Public paper
+metadata can be fetched externally, but internal notes, code links, and
+institution-specific project interpretations should remain under internal
+control.
+
+\section{Security and trust-boundary diagram}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.9cm,
+  internal/.style={draw, rounded corners, fill=green!10, minimum width=4.4cm, minimum height=0.9cm, align=center},
+  external/.style={draw, rounded corners, fill=red!8, minimum width=4.0cm, minimum height=0.9cm, align=center},
+  boundary/.style={draw, dashed, rounded corners, inner sep=0.35cm}
+]
+\node[internal] (backend) {Internal Research Backend};
+\node[internal, below=of backend] (store) {Structured Research Store};
+\node[internal, right=2.0cm of backend] (assist) {Assistant Adapters};
+\node[external, left=2.0cm of backend] (public) {Public Metadata and PDF Sources};
+\node[external, below=of public] (userpdf) {User-Supplied PDFs};
+
+\node[boundary, fit=(backend)(store)(assist), label=above:{Internal Trust Boundary}] {};
+
+\draw[-{Latex[length=2.5mm]}] (public) -- node[above]{public metadata only} (backend);
+\draw[-{Latex[length=2.5mm]}] (userpdf) -- node[below]{local ingestion only} (backend);
+\draw[-{Latex[length=2.5mm]}] (backend) -- (store);
+\draw[-{Latex[length=2.5mm]}] (assist) -- (backend);
+\end{tikzpicture}
+\end{center}
+
+\section{Governance requirements}
+
+The system should support:
+\begin{itemize}[nosep]
+  \item separation of public and internal content,
+  \item explicit curation status,
+  \item traceability of generated summaries,
+  \item ownership of shared indices,
+  \item and documented escalation paths for bugs and schema changes.
+\end{itemize}
+
+\section{Security design rules}
+
+The first implementation should obey at least the following rules:
+\begin{enumerate}[nosep]
+  \item raw papers and extracted text remain local by default;
+  \item only public metadata queries go to external APIs unless explicitly approved otherwise;
+  \item internal code paths, notes, and review artifacts are never sent to public literature services;
+  \item assistant adapters are not allowed to invent persistent state outside the backend-defined store;
+  \item every generated summary must preserve provenance fields.
+\end{enumerate}
+
+%======================================================================
+\chapter{Delivery Plan and Operational Ownership}
+%======================================================================
+
+\section{Phase 1: local MVP}
+
+Deliverables:
+\begin{itemize}[nosep]
+  \item ingestion scripts,
+  \item structured schema,
+  \item paper store,
+  \item metadata resolution,
+  \item extracted text,
+  \item summary drafts,
+  \item CLI queries.
+\end{itemize}
+
+\section{Personal desktop POC chapter}
+
+Before division-wide rollout, the most practical proof-of-concept is a
+fully functional personal version for Claude Code on one desktop, with
+optional use from a Cursor terminal on the same machine.  This smaller
+scope is strategically useful because it reduces the hardest engineering
+variables while still demonstrating the core value of the system.
+
+\subsection{Why the personal POC is the right first build}
+
+The personal POC removes several difficult classes of problems:
+\begin{itemize}[nosep]
+  \item no multi-user consistency or permissions coordination,
+  \item no central shared service requirement,
+  \item no mandatory Copilot parity in the first release,
+  \item no organization-wide schema governance before the workflow is proven,
+  \item and much simpler operational debugging.
+\end{itemize}
+
+At the same time, the POC should remain \emph{functionally complete}, so that
+it demonstrates the real workflow rather than a toy subset.
+
+\subsection{Functional scope of the personal POC}
+
+The personal POC should support all of the following on a single machine:
+\begin{enumerate}[nosep]
+  \item ingest paper from PDF / DOI / arXiv / URL,
+  \item extract text and resolve metadata,
+  \item create a structured paper summary,
+  \item create and query paper-to-code and paper-to-document links,
+  \item expose retrieval through CLI,
+  \item expose retrieval through Claude Code via MCP,
+  \item allow Cursor-terminal usage through the same CLI,
+  \item generate claim-support audits,
+  \item generate reviewer-facing mini syntheses.
+\end{enumerate}
+
+This scope is deliberately narrow enough to be buildable, but broad enough to
+prove the actual concept.
+
+\subsection{POC-specific file layout}
+
+A personal version can simplify the larger architecture by co-locating the
+research store with the user's working environment:
+
+\begin{lstlisting}
+research-assistant-poc/
+  README.md
+  pyproject.toml
+  src/
+    research_assistant/
+      ingest/
+      schemas/
+      storage/
+      summarize/
+      links/
+      query/
+      adapters/
+      tests/
+  local_research/
+    papers/
+      raw/
+      extracted/
+    metadata/
+    summaries/
+    links/
+    reviews/
+    indices/
+  examples/
+  docs/
+\end{lstlisting}
+
+\subsection{POC command surface}
+
+The personal version should feel complete from day one.  A minimum useful
+command surface is:
+\begin{lstlisting}
+ra ingest --pdf paper.pdf
+ra ingest --doi 10.xxxx/xxxxx
+ra ingest --arxiv 1903.03704
+ra find --query "transport maps hmc"
+ra show --paper-id paper_hoffman_2021_neutra
+ra citing --paper-id paper_hoffman_2021_neutra
+ra link add --paper-id p1 --target docs/monograph.tex --relationship supports
+ra link add --paper-id p1 --target src/model.py --relationship implements
+ra audit-claim --claim-file claim.txt --papers p1 p2
+ra synthesize --topic "transport maps for posterior geometry"
+\end{lstlisting}
+
+\subsection{POC MCP surface for Claude Code}
+
+The Claude Code integration should initially expose only the most useful
+operations:
+\begin{itemize}[nosep]
+  \item \texttt{find\_paper}
+  \item \texttt{get\_paper\_summary}
+  \item \texttt{papers\_citing}
+  \item \texttt{paper\_code\_links}
+  \item \texttt{claim\_support\_audit}
+  \item \texttt{reviewer\_synthesis}
+\end{itemize}
+
+This is enough to make the assistant meaningfully research-aware without
+making the first implementation too broad.
+
+\subsection{POC success criteria}
+
+A personal POC should be judged successful if it can support the following
+end-to-end demo:
+\begin{enumerate}[nosep]
+  \item ingest a real research paper,
+  \item create a usable structured summary,
+  \item link the paper to a code file and a monograph section,
+  \item answer a Claude Code query about the paper and its implementation relevance,
+  \item audit whether a paragraph is supported by citations,
+  \item generate a reviewer-facing technical note.
+\end{enumerate}
+
+If that demo works well on a single machine, the case for group expansion is
+substantially stronger.
+
+\subsection{Why this POC remains aligned with the larger architecture}
+
+The personal POC is not a throwaway prototype.  It should be built with the
+same schemas, module boundaries, and retrieval interfaces planned for the
+larger system.  The difference is only deployment scope and operational
+complexity.
+
+\subsection{Suggested staffing model}
+
+A realistic initial staffing model is:
+\begin{itemize}[nosep]
+  \item \textbf{one primary engineer-owner} responsible for architecture, code integration, and release discipline;
+  \item \textbf{one or two research-domain reviewers} who validate paper summaries, claim-support rules, and field-specific usefulness;
+  \item \textbf{optional part-time platform advisor} for infrastructure or security review if group policy requires it.
+\end{itemize}
+
+This staffing model is designed to be achievable in a research division.  It does not assume a dedicated full-scale platform team.
+
+\subsection{Operational ownership model}
+
+The following ownership categories should be defined explicitly from the start:
+\begin{center}
+\begin{tabular}{@{}p{4.0cm}p{8.5cm}@{}}
+\toprule
+\textbf{Area} & \textbf{Recommended owner} \\
+\midrule
+Core backend code & primary engineer-owner \\
+Schema changes & primary engineer-owner + research reviewer sign-off \\
+Paper curation conventions & research reviewers \\
+Dependency updates & primary engineer-owner \\
+Assistant adapter compatibility & primary engineer-owner, with user feedback from each tool community \\
+Support and bug triage & shared queue, but one named owner \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{MVP sprint-by-sprint execution plan}
+
+A practical MVP can be broken into short implementation sprints.
+
+\paragraph{Sprint 1: core paper store and ingestion.}
+Implement:
+\begin{itemize}[nosep]
+  \item file layout,
+  \item paper ID assignment,
+  \item raw PDF storage,
+  \item metadata resolution,
+  \item text extraction,
+  \item draft summary file creation.
+\end{itemize}
+
+\paragraph{Sprint 2: retrieval and CLI.}
+Implement:
+\begin{itemize}[nosep]
+  \item paper lookup,
+  \item summary retrieval,
+  \item citation graph lookup,
+  \item link creation,
+  \item CLI commands.
+\end{itemize}
+
+\paragraph{Sprint 3: audit and review workflows.}
+Implement:
+\begin{itemize}[nosep]
+  \item claim-support audit,
+  \item reviewer synthesis generation,
+  \item curation-status transitions,
+  \item stale-link check.
+\end{itemize}
+
+\paragraph{Sprint 4: Claude Code adapter and workspace exports.}
+Implement:
+\begin{itemize}[nosep]
+  \item MCP tools,
+  \item workspace export files,
+  \item integration tests.
+\end{itemize}
+
+\paragraph{Sprint 5: cross-tool validation.}
+Validate:
+\begin{itemize}[nosep]
+  \item Cursor workflow,
+  \item Copilot workflow via CLI/workspace files,
+  \item WSL2/Linux path handling,
+  \item user onboarding instructions.
+\end{itemize}
+
+\section{Phase 2: assistant integration}
+
+Deliverables:
+\begin{itemize}[nosep]
+  \item MCP server,
+  \item CLI adapter for all environments,
+  \item workspace export files,
+  \item minimal shared conventions.
+\end{itemize}
+
+\section{Phase 3: review and audit workflows}
+
+Deliverables:
+\begin{itemize}[nosep]
+  \item claim-support audit engine,
+  \item paper-to-code traceability workflows,
+  \item reviewer synthesis generation,
+  \item stale-link checks.
+\end{itemize}
+
+\section{Phase 4: group scaling}
+
+Deliverables:
+\begin{itemize}[nosep]
+  \item shared repository templates,
+  \item optional central index,
+  \item onboarding documentation,
+  \item optional web UI.
+\end{itemize}
+
+\chapter{Version 2 Roadmap: Multi-Parser Reading and Citation Discovery}
+%======================================================================
+
+\section{Why the architecture needs a Version 2 layer}
+
+The personal POC revealed a key limitation: simple PDF text extraction plus a
+single metadata API result is not reliable enough for research-grade paper
+understanding.  At the same time, manual literature graph traversal is too
+painful for large survey work.  Therefore the next version should explicitly
+separate two problems:
+\begin{enumerate}[nosep]
+  \item \textbf{document understanding}: what does this paper say?
+  \item \textbf{literature discovery}: which papers should I read next?
+\end{enumerate}
+
+These are different subsystems and should be engineered separately.
+
+\section{Subsystem A: multi-parser document understanding}
+
+No single open-source parser is reliable enough for all scholarly PDFs.  The
+recommended architecture is therefore a multi-parser pipeline:
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.55cm,
+  box/.style={draw, rounded corners, fill=blue!5, minimum width=11.5cm, minimum height=0.75cm, align=center}
+]
+\node[box] (pdf) {PDF input};
+\node[box, below=of pdf] (parsers) {Run parsers in parallel: pdftotext, Marker, GROBID, MinerU, optional MarkItDown};
+\node[box, below=of parsers] (normalize) {Normalize outputs into ParsedDocument records};
+\node[box, below=of normalize] (compare) {Compare title, authors, abstract, sections, references};
+\node[box, below=of compare] (reconcile) {Reconcile by agreement scoring and confidence rules};
+\node[box, below=of reconcile] (store) {Store parser outputs, consensus record, and disagreement report};
+\foreach \a/\b in {pdf/parsers,parsers/normalize,normalize/compare,compare/reconcile,reconcile/store}
+  \draw[-{Latex[length=2.5mm]}] (\a) -- (\b);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Design rationale}
+
+This subsystem is needed because scholarly PDFs are not semantic documents in
+any simple sense.  They are layout-heavy artifacts, and different tools are
+stronger on different aspects:
+\begin{itemize}[nosep]
+  \item some are better at plain text extraction,
+  \item some are better at scholarly structure,
+  \item some are better at OCR or scanned pages,
+  \item some are better at formulas, figures, or tables.
+\end{itemize}
+
+Instead of trusting one parser, the system should compare multiple parser
+outputs and surface agreement, disagreement, and confidence.
+
+\subsection{Initial parser candidates}
+
+The planned open-source parser set is:
+\begin{itemize}[nosep]
+  \item \texttt{pdftotext} as simple fallback,
+  \item Marker,
+  \item GROBID,
+  \item MinerU,
+  \item optional MarkItDown as an auxiliary low-fidelity signal.
+\end{itemize}
+
+\subsection{Parser output contract}
+
+Every parser should produce a common object, e.g.:
+\begin{lstlisting}
+ParsedDocument:
+  parser_name: string
+  parser_version: string
+  title_candidates: [string]
+  authors: [string]
+  abstract: string
+  body_text: string
+  body_markdown: string
+  section_headings: [string]
+  references: [string]
+  diagnostics: object
+  parse_status: ok|partial|failed
+\end{lstlisting}
+
+\subsection{Reconciled output contract}
+
+The reconciliation layer should produce:
+\begin{lstlisting}
+ReconciledDocument:
+  consensus_title: string|null
+  consensus_authors: [string]
+  consensus_abstract: string|null
+  parser_agreement: object
+  disagreements: [string]
+  parse_confidence: high|medium|low
+  requires_manual_review: bool
+\end{lstlisting}
+
+\subsection{Important design rule}
+
+This should not be naive majority voting on strings.  It should be
+normalization + clustering + weighted agreement scoring.  The point is not to
+hide disagreement; it is to make disagreement useful.
+
+\section{Subsystem B: citation-graph discovery engine}
+
+The second major addition is a discovery subsystem for fast literature search
+and graph traversal.
+
+\subsection{Primary and secondary discovery backends}
+
+Recommended design:
+\begin{itemize}[nosep]
+  \item \textbf{Primary}: Semantic Scholar for citation graph traversal and related works.
+  \item \textbf{Secondary}: OpenAlex for fallback, enrichment, and cross-checking.
+  \item \textbf{Metadata support}: Crossref and arXiv where needed.
+\end{itemize}
+
+\subsection{Why this matters}
+
+The point is to reduce painful manual workflows such as:
+- finding all papers citing a seed paper,
+- finding papers citing those papers,
+- triaging the resulting literature,
+- and extracting the subset that matters for a survey or implementation decision.
+
+\subsection{Illustrative discovery commands}
+
+\begin{lstlisting}
+ra discover --query "neural transport hmc posterior geometry"
+ra citing --paper-id paper_hoffman_2021_neutra --depth 1
+ra citing --paper-id paper_hoffman_2021_neutra --depth 2
+ra references --paper-id paper_hoffman_2021_neutra
+ra cluster-literature --seed paper_hoffman_2021_neutra --depth 2
+ra survey-draft --topic "defects and remedies of NeuTra-style transport"
+\end{lstlisting}
+
+\section{Subsystem C: download, classify, and organize workflow}
+
+The third addition addresses a practical pain point: downloading, renaming,
+and organizing papers into a local research library.
+
+\subsection{Recommended workflow}
+
+\begin{enumerate}[nosep]
+  \item discover papers from a query or citation graph,
+  \item retrieve open versions where legally available,
+  \item download them into an inbox,
+  \item classify and propose canonical filename/folder/tags,
+  \item require user review before moving into the main library.
+\end{enumerate}
+
+\subsection{Why approval is required}
+
+The tool should propose, not silently reorganize the library.  This is a
+trustworthy research workflow, not an uncontrolled file automation system.
+
+\subsection{Illustrative commands}
+
+\begin{lstlisting}
+ra discover-download --seed paper_hoffman_2021_neutra --depth 2 --max-papers 100
+ra organize-inbox ~/GoogleDrivePapers/_inbox
+ra review-proposals
+ra apply-proposals
+\end{lstlisting}
+
+\section{Expected impact on literature survey workflows}
+
+If built well, the v2 system should allow a researcher to:
+\begin{enumerate}[nosep]
+  \item start from a seed paper or topic,
+  \item traverse the citation graph,
+  \item ingest selected papers,
+  \item parse and summarize them,
+  \item classify them by contribution or criticism,
+  \item and draft a literature survey or review-oriented memo.
+\end{enumerate}
+
+This is the direct path from today’s painful manual search process to a much
+more scalable AI-assisted literature workflow.
+
+\section{Why this remains aligned with the original architecture}
+
+These additions do not replace the original backend.  They extend it.
+The core design remains:
+\begin{itemize}[nosep]
+  \item assistant-agnostic backend,
+  \item structured research store,
+  \item explicit schemas,
+  \item local-first operation,
+  \item and thin adapters for assistants.
+\end{itemize}
+
+The Version 2 additions should therefore be understood as:
+\begin{itemize}[nosep]
+  \item parser subsystem,
+  \item discovery subsystem,
+  \item and paper-organization subsystem,
+\end{itemize}
+all attached to the same research memory foundation.
+
+
+\section{Ownership model}
+
+At minimum, the system needs explicit ownership for:
+\begin{itemize}[nosep]
+  \item schema changes,
+  \item dependency updates,
+  \item ingestion failures,
+  \item integration bugs,
+  \item and onboarding/support.
+\end{itemize}
+
+%======================================================================
+\chapter{Anticipated Skeptical Questions and Preemptive Answers}
+%======================================================================
+
+\section{Why not just use SciSpace?}
+
+Because SciSpace is paper-aware but not code-aware.  It does not know our
+repositories, implementation files, tests, or reviewer-facing technical
+traceability obligations.
+
+\section{Why not just use Claude Code or Cursor better?}
+
+Because the missing layer is not only better prompting.  The missing layer is durable, structured, shared research memory.
+
+\section{Why should this be cross-platform?}
+
+Because the division already uses multiple assistants, and a single-assistant design would reduce adoption and create lock-in.
+
+\section{Can this team realistically build it?}
+
+Yes, if the first version is deliberately simple:
+\begin{itemize}[nosep]
+  \item file-first,
+  \item schema-driven,
+  \item backend-plus-adapters,
+  \item local-first,
+  \item phased delivery,
+  \item narrow MVP.
+\end{itemize}
+The proposal is intentionally designed to reduce platform complexity early, not increase it.
+
+\section{Why should management believe this is not vaporware?}
+
+Because the proposal deliberately exposes implementation details, platform risks, module boundaries, file layout, testing strategy, and phased delivery constraints.  It is designed to be close to implementation, not merely visionary.
+
+\section{How Claude Code could implement from this document}
+
+This document is intentionally written at a level where Claude Code or a human engineer could begin implementation directly from it.  Specifically, the document now contains:
+\begin{itemize}[nosep]
+  \item a repository/module tree,
+  \item file-by-file responsibilities,
+  \item formal record constraints,
+  \item MCP and CLI contracts,
+  \item ingestion pseudocode,
+  \item metadata reconciliation and deduplication pseudocode,
+  \item subsystem failure modes,
+  \item platform test matrix,
+  \item and a sprint-by-sprint MVP sequence.
+\end{itemize}
+
+The intended usage is not blind code generation from prose.  Rather, the proposal is sufficiently structured that a coding assistant can implement one subsystem at a time without inventing the architecture on the fly.
+
+\subsection{Suggested implementation appendix workflow}
+
+A practical execution pattern using Claude Code would be:
+\begin{enumerate}[nosep]
+  \item implement schemas and file-store primitives first;
+  \item implement ingestion and metadata resolution second;
+  \item add CLI retrieval commands third;
+  \item add MCP adapters only after the backend is testable;
+  \item validate each subsystem with fixture papers before enabling broader team use.
+\end{enumerate}
+
+This ordering matters.  It prevents assistant integrations from being built on top of unstable backend assumptions.
+
+\chapter{Decision Memo for Management Review}
+%======================================================================
+
+\section{Decision requested}
+
+Approve a phased build of a shared, assistant-agnostic research-development backend for the division.
+
+\section{What approval enables}
+
+Approval would authorize:
+\begin{enumerate}[nosep]
+  \item MVP implementation of the local-first backend;
+  \item pilot integration with Claude Code and one additional assistant workflow;
+  \item schema and retrieval layer validation on real research projects;
+  \item preparation for broader team rollout if pilot value is demonstrated.
+\end{enumerate}
+
+\section{What approval does not yet commit the division to}
+
+Approval of this proposal does \emph{not} commit the division to:
+\begin{itemize}[nosep]
+  \item building a full enterprise platform immediately,
+  \item mandatory adoption by all teams,
+  \item a web product or central service in phase 1,
+  \item replacing existing assistants or paper tools.
+\end{itemize}
+
+\section{Recommended decision}
+
+Approve the MVP phase with the explicit understanding that:
+\begin{itemize}[nosep]
+  \item the design is backend-first and cross-platform by construction,
+  \item the MVP is deliberately narrow and auditable,
+  \item platform and environment risks are recognized in advance,
+  \item and continuation beyond the MVP should depend on demonstrated workflow value.
+\end{itemize}
+
+\backmatter
+\end{document}
