@@ -14,6 +14,24 @@ This first proof-of-concept supports:
 - workspace export generation for assistant-friendly context;
 - thin MCP-wrapper-ready backend functions.
 
+## New v2 scaffolding now present
+
+The codebase now also includes early scaffolding for:
+- multi-parser document understanding
+- parser reconciliation and confidence reporting
+- discovery query support
+
+Current parser scaffold includes:
+- `pdftotext`
+- Marker (placeholder)
+- GROBID (placeholder)
+- MinerU (placeholder)
+- MarkItDown (placeholder)
+
+Current discovery scaffold includes:
+- OpenAlex-backed `discover`
+- placeholder citation graph module for future Semantic Scholar/OpenAlex expansion
+
 ## Directory layout
 
 - `src/research_assistant/` — source code
@@ -79,19 +97,31 @@ ra link-add --paper-id paper_foo_bar_12345678 --target docs/chapter.tex --target
 ra audit-claim --claim "This paper proposes an invertible transport for exact HMC" --papers paper_foo_bar_12345678
 ```
 
+### Run parser consensus on a PDF
+
+```bash
+ra parse-pdf --pdf /path/to/paper.pdf
+```
+
+### Discover papers by topic
+
+```bash
+ra discover --query "neural transport hmc posterior geometry" --limit 10
+```
+
 ## Current limitations
 
 This is still a POC. Current limitations include:
-- OpenAlex is the strongest metadata source in the current workflow; Crossref/arXiv enrichment is basic;
-- no true citation-graph CLI yet;
+- OpenAlex is the strongest active discovery/metadata source in the current workflow;
+- citation graph traversal is not fully implemented yet;
 - claim-support audit is still summary-based and conservative rather than full evidence extraction;
-- no formal test runner has been exercised inside this session;
-- the MCP adapter is still a thin wrapper layer and not yet a full protocol implementation.
+- parser scaffold exists but only `pdftotext` is operational today;
+- MCP adapter remains a thin wrapper layer and not yet a full protocol implementation.
 
 ## Recommended next steps
 
-1. add richer citation graph queries;
-2. add stronger summary generation with provenance and extraction status;
-3. add proper local tests and fixtures;
-4. implement a fuller MCP server once backend functions stabilize;
-5. add explicit paper-to-code and paper-to-doc query commands.
+1. implement parser adapters for Marker / GROBID / MinerU / MarkItDown;
+2. build parser reconciliation and disagreement-aware metadata extraction into ingest;
+3. add Semantic Scholar-backed citation graph queries;
+4. add discovery-download and paper-organization proposal workflow;
+5. strengthen claim-support audit once parser quality improves.

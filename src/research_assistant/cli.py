@@ -14,6 +14,8 @@ from research_assistant.summarize.draft_summary import build_draft_summary
 from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
+from research_assistant.query.discovery import discover_papers
+from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
@@ -76,6 +78,21 @@ def cmd_audit_claim(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_discover(args: argparse.Namespace) -> int:
+    import json
+    results = discover_papers(args.query, per_page=args.limit)
+    print(json.dumps(results, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_parse_pdf(args: argparse.Namespace) -> int:
+    import json
+    outputs = parse_with_all(Path(args.pdf).expanduser())
+    reconciled = reconcile_parsed_documents(outputs)
+    print(json.dumps(reconciled.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='ra')
     parser.add_argument('--root', help='Research assistant project root')
@@ -107,6 +124,15 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument('--claim-file')
     audit.add_argument('--papers', nargs='*')
     audit.set_defaults(func=cmd_audit_claim)
+
+    discover = sub.add_parser('discover')
+    discover.add_argument('--query', required=True)
+    discover.add_argument('--limit', type=int, default=10)
+    discover.set_defaults(func=cmd_discover)
+
+    parse_pdf = sub.add_parser('parse-pdf')
+    parse_pdf.add_argument('--pdf', required=True)
+    parse_pdf.set_defaults(func=cmd_parse_pdf)
 
     return parser
 
