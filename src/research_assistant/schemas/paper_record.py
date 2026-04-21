@@ -34,6 +34,9 @@ class PaperRecord:
     confidence_level: str = "low"
     curation_status: str = "draft"
     metadata_confidence: str = "low"
+    identity_source: str = "unknown"
+    requires_manual_review: bool = True
+    candidate_metadata_sources: dict[str, Any] = field(default_factory=dict)
     merge_notes: list[str] = field(default_factory=list)
     provenance: dict[str, str] = field(default_factory=dict)
 

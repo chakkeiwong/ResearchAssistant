@@ -26,9 +26,20 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
     crossref = metadata.get('crossref', {})
     arxiv = metadata.get('arxiv', {})
     provenance = metadata.get('provenance', {})
+    parser_hints = metadata.get('parser_hints', {})
+    metadata_confidence = metadata.get('metadata_confidence', 'low')
+    parser_confidence = parser_hints.get('parse_confidence', 'low')
+
+    parser_title = parser_hints.get('consensus_title')
+    parser_authors = parser_hints.get('consensus_authors', [])
+
+    use_parser_primary = bool(parser_title) and metadata_confidence == 'low' and parser_confidence in {'medium', 'high'}
 
     title_source = 'arxiv'
     title = arxiv.get('title')
+    if not title and use_parser_primary:
+        title = parser_title
+        title_source = 'parser_consensus'
     if not title:
         title = openalex.get('display_name')
         title_source = 'openalex'
@@ -47,6 +58,9 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
 
     authors_source = 'arxiv'
     authors = arxiv.get('authors', [])
+    if not authors and use_parser_primary and parser_authors:
+        authors = parser_authors
+        authors_source = 'parser_consensus'
     if not authors:
         authors = _authors_from_openalex(openalex)
         authors_source = 'openalex'
@@ -64,9 +78,24 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
                 words.append((pos, word))
         abstract = ' '.join(word for pos, word in sorted(words))
         abstract_source = 'openalex'
+    if not abstract and use_parser_primary:
+        parser_outputs = parser_hints.get('parser_outputs', [])
+        for output in parser_outputs:
+            body = output.get('body_markdown') or output.get('body_text') or ''
+            if body.strip():
+                abstract = body[:1500].strip()
+                abstract_source = 'parser_excerpt'
+                break
 
     source_url = openalex.get('id') or metadata.get('source')
     doi = openalex.get('doi') or crossref.get('DOI')
+
+    identity_source = title_source if use_parser_primary else ('arxiv' if arxiv else ('openalex' if openalex else ('crossref' if crossref else 'fallback')))
+    requires_manual_review = bool(use_parser_primary or metadata_confidence == 'low')
+    candidate_metadata_sources = {
+        'openalex_candidates': metadata.get('openalex_candidates', []),
+        'crossref_candidates': metadata.get('crossref_candidates', []),
+    }
 
     summary = PaperRecord(
         id=paper_id,
@@ -80,7 +109,10 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
         main_contribution=(abstract[:500] if abstract else text[:500]).strip(),
         confidence_level='low',
         curation_status='draft',
-        metadata_confidence=metadata.get('metadata_confidence', 'low'),
+        metadata_confidence=metadata_confidence,
+        identity_source=identity_source,
+        requires_manual_review=requires_manual_review,
+        candidate_metadata_sources=candidate_metadata_sources,
         merge_notes=metadata.get('merge_notes', []),
         provenance={
             **provenance,

@@ -54,6 +54,14 @@ This is a stronger and more realistic architecture than relying on:
 - one metadata API,
 - or one-step automatic ingest.
 
+### Benchmark stabilization requirement
+
+All major parser and metadata improvements should now be evaluated against a benchmark corpus, not only ad hoc real-paper testing.
+The benchmark corpus should have three classes:
+- synthetic LaTeX papers with exact ground truth,
+- arXiv source/PDF pairs where source-derived structure acts as near-ground truth,
+- real-world acceptance cases for manual validation.
+
 ---
 
 ## Hardening plan structure
@@ -136,6 +144,8 @@ Likely fixes:
 - normalize parser outputs
 - reconcile title/authors/abstract via agreement scoring rather than naive majority vote
 - preserve disagreement reports and parser provenance
+- build benchmark papers with exact expected title/authors/abstract/sections
+- add parser benchmark harness and fixture-based parser comparison tests
 
 ### Priority 2: Discovery and citation graph support
 Questions:

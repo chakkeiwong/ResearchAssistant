@@ -15,7 +15,9 @@ from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
 from research_assistant.query.discovery import discover_papers
+from research_assistant.query.downloads import download_to_inbox, propose_download
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
+from research_assistant.ingest.parser_preflight import preflight_all
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
@@ -26,12 +28,26 @@ def cmd_ingest(args: argparse.Namespace) -> int:
     paper_id = canonical_paper_id(source)
     text = ''
     filename_hints = None
+    parser_hints = None
     if args.pdf:
         raw_path = store_raw_source(args.pdf, paths.papers_raw, paper_id)
         text = normalize_extracted_text(extract_pdf_text(raw_path))
+        paths.papers_extracted.mkdir(parents=True, exist_ok=True)
         (paths.papers_extracted / f'{paper_id}.txt').write_text(text)
         filename_hints = parse_paper_filename(args.pdf).__dict__
-    metadata = resolve_metadata(args.query or source, arxiv_id=args.arxiv_id, extracted_text=text, filename_hints=filename_hints)
+        parsed_outputs = parse_with_all(raw_path)
+        reconciled = reconcile_parsed_documents(parsed_outputs)
+        parser_hints = {
+            'consensus_title': reconciled.consensus_title,
+            'consensus_authors': reconciled.consensus_authors,
+            'consensus_abstract': reconciled.consensus_abstract,
+            'parse_confidence': reconciled.parse_confidence,
+            'requires_manual_review': reconciled.requires_manual_review,
+            'parser_agreement': reconciled.parser_agreement,
+            'disagreements': reconciled.disagreements,
+            'parser_outputs': reconciled.parser_outputs,
+        }
+    metadata = resolve_metadata(args.query or source, arxiv_id=args.arxiv_id, extracted_text=text, filename_hints=filename_hints, parser_hints=parser_hints)
     summary = build_draft_summary(paper_id, metadata, text)
     store = FileStore(paths.local_research)
     store.write_json(paths.metadata / f'{paper_id}.json', metadata)
@@ -85,11 +101,38 @@ def cmd_discover(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_download_paper(args: argparse.Namespace) -> int:
+    import json
+    results = discover_papers(args.query, per_page=args.limit)
+    downloadable = [r for r in results if r.get('open_access_pdf_url')]
+    if not downloadable:
+        print(json.dumps({'query': args.query, 'downloaded': False, 'reason': 'no open access pdf found'}, indent=2, sort_keys=True))
+        return 0
+    chosen = downloadable[0]
+    proposal = propose_download(chosen, root=Path(args.root) if args.root else None)
+    downloaded_path = download_to_inbox(chosen['open_access_pdf_url'], filename_hint=proposal.proposed_name.removesuffix('.pdf'), root=Path(args.root) if args.root else None)
+    print(json.dumps({
+        'query': args.query,
+        'downloaded': True,
+        'result': chosen,
+        'proposal': proposal.to_dict(),
+        'downloaded_path': str(downloaded_path),
+    }, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_parse_pdf(args: argparse.Namespace) -> int:
     import json
     outputs = parse_with_all(Path(args.pdf).expanduser())
     reconciled = reconcile_parsed_documents(outputs)
     print(json.dumps(reconciled.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_parser_preflight(args: argparse.Namespace) -> int:
+    import json
+    checks = [c.to_dict() for c in preflight_all()]
+    print(json.dumps(checks, indent=2, sort_keys=True))
     return 0
 
 
@@ -130,9 +173,17 @@ def build_parser() -> argparse.ArgumentParser:
     discover.add_argument('--limit', type=int, default=10)
     discover.set_defaults(func=cmd_discover)
 
+    download_paper = sub.add_parser('download-paper')
+    download_paper.add_argument('--query', required=True)
+    download_paper.add_argument('--limit', type=int, default=10)
+    download_paper.set_defaults(func=cmd_download_paper)
+
     parse_pdf = sub.add_parser('parse-pdf')
     parse_pdf.add_argument('--pdf', required=True)
     parse_pdf.set_defaults(func=cmd_parse_pdf)
+
+    parser_preflight = sub.add_parser('parser-preflight')
+    parser_preflight.set_defaults(func=cmd_parser_preflight)
 
     return parser
 

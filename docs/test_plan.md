@@ -11,6 +11,11 @@ The point is to test the exact kinds of failures we already observed:
 - weak provenance,
 - and usability gaps.
 
+This plan now sits alongside a formal benchmark-corpus strategy:
+- synthetic LaTeX benchmarks,
+- arXiv source/PDF pairs,
+- and manual real-world acceptance cases.
+
 ---
 
 ## Recommended initial test set

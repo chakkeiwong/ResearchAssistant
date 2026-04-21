@@ -26,8 +26,13 @@ def title_similarity(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, normalize_title(a), normalize_title(b)).ratio()
 
 
-def extract_title_candidates(source: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None) -> list[str]:
+def extract_title_candidates(source: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> list[str]:
     candidates = [source]
+    if parser_hints:
+        if parser_hints.get('consensus_title'):
+            candidates.append(parser_hints['consensus_title'])
+        for output in parser_hints.get('parser_outputs', []):
+            candidates.extend(output.get('derived_title_candidates', [])[:3])
     if filename_hints:
         if filename_hints.get('probable_title'):
             candidates.append(filename_hints['probable_title'])
@@ -50,11 +55,11 @@ def score_candidate(title: str, anchors: list[str]) -> float:
     return max((title_similarity(anchor, title) for anchor in anchors), default=0.0)
 
 
-def choose_best_openalex_result(query: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+def choose_best_openalex_result(query: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     url = f"https://api.openalex.org/works?search={urllib.parse.quote(query)}&per-page=8"
     data = _fetch_json(url)
     results = data.get('results', [])
-    anchors = extract_title_candidates(query, extracted_text, filename_hints)
+    anchors = extract_title_candidates(query, extracted_text, filename_hints, parser_hints)
     scored = []
     for r in results:
         title = r.get('display_name', '')
@@ -78,10 +83,10 @@ def resolve_crossref_by_title(title: str) -> dict[str, Any]:
     return {'items': items}
 
 
-def choose_best_crossref_result(query: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+def choose_best_crossref_result(query: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     response = resolve_crossref_by_title(query)
     items = response.get('items', [])
-    anchors = extract_title_candidates(query, extracted_text, filename_hints)
+    anchors = extract_title_candidates(query, extracted_text, filename_hints, parser_hints)
     scored = []
     for r in items:
         title = (r.get('title') or [''])[0]
@@ -129,7 +134,7 @@ def should_merge_crossref(query: str, openalex: dict[str, Any], crossref: dict[s
     return False, f'title similarity {score:.3f} < {TITLE_SIMILARITY_THRESHOLD:.2f}; crossref kept as unmerged candidate', score
 
 
-def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, Any] | None = None, arxiv: dict[str, Any] | None = None, *, openalex_candidates: list[dict[str, Any]] | None = None, crossref_candidates: list[dict[str, Any]] | None = None, filename_hints: dict[str, Any] | None = None) -> dict[str, Any]:
+def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, Any] | None = None, arxiv: dict[str, Any] | None = None, *, openalex_candidates: list[dict[str, Any]] | None = None, crossref_candidates: list[dict[str, Any]] | None = None, filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> dict[str, Any]:
     crossref = crossref or {}
     arxiv = arxiv or {}
     merge_notes = []
@@ -158,6 +163,8 @@ def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, An
             merge_notes.append('openalex top candidate has weak similarity; manual review recommended')
     if filename_hints:
         provenance['filename'] = 'filename-derived title and optional author/year hints available'
+    if parser_hints:
+        provenance['parser_consensus'] = f"parse confidence {parser_hints.get('parse_confidence', 'unknown')}"
 
     return {
         'source': source,
@@ -168,6 +175,7 @@ def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, An
         'crossref_candidates': crossref_candidates or [],
         'arxiv': arxiv,
         'filename_hints': filename_hints or {},
+        'parser_hints': parser_hints or {},
         'merge_notes': merge_notes,
         'metadata_confidence': metadata_confidence,
         'provenance': provenance,
@@ -178,9 +186,9 @@ def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, An
     }
 
 
-def resolve_metadata(source: str, *, arxiv_id: str | None = None, extracted_text: str = '', filename_hints: dict[str, Any] | None = None) -> dict[str, Any]:
-    openalex, openalex_candidates = choose_best_openalex_result(source, extracted_text=extracted_text, filename_hints=filename_hints)
-    crossref, crossref_candidates = choose_best_crossref_result(source, extracted_text=extracted_text, filename_hints=filename_hints)
+def resolve_metadata(source: str, *, arxiv_id: str | None = None, extracted_text: str = '', filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> dict[str, Any]:
+    openalex, openalex_candidates = choose_best_openalex_result(source, extracted_text=extracted_text, filename_hints=filename_hints, parser_hints=parser_hints)
+    crossref, crossref_candidates = choose_best_crossref_result(source, extracted_text=extracted_text, filename_hints=filename_hints, parser_hints=parser_hints)
     arxiv = resolve_arxiv(arxiv_id) if arxiv_id else {}
     return merge_metadata(
         source,
@@ -190,4 +198,5 @@ def resolve_metadata(source: str, *, arxiv_id: str | None = None, extracted_text
         openalex_candidates=openalex_candidates,
         crossref_candidates=crossref_candidates,
         filename_hints=filename_hints,
+        parser_hints=parser_hints,
     )
