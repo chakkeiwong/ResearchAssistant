@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 from research_assistant.ingest.parser_base import DocumentParser
+from research_assistant.ingest.parser_frontmatter import extract_frontmatter
 from research_assistant.ingest.parser_preflight import check_command
 from research_assistant.schemas.parsed_document import ParsedDocument
 
@@ -31,12 +32,15 @@ class MarkerParser(DocumentParser):
             markdown_files = list(outdir.rglob('*.md'))
             text = markdown_files[0].read_text(errors='ignore') if markdown_files else ''
             lines = [line.strip() for line in text.splitlines() if line.strip()]
+            extracted = extract_frontmatter(lines)
             status = 'ok' if result.returncode == 0 and text.strip() else 'failed'
             return ParsedDocument(
                 parser_name=self.name,
-                title_candidates=lines[:8],
+                title_candidates=extracted.title_candidates,
+                authors=extracted.authors,
                 body_markdown=text,
                 body_text=text,
+                section_headings=extracted.section_headings,
                 diagnostics={
                     'returncode': result.returncode,
                     'stdout': result.stdout[-4000:],

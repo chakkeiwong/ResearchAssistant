@@ -22,3 +22,38 @@ def test_reconcile_multiple_agreeing_outputs_high_confidence() -> None:
     assert rec.consensus_title == 'A Test Paper'
     assert rec.parse_confidence == 'high'
     assert rec.requires_manual_review is False
+
+
+def test_reconcile_prefers_adapter_supplied_authors() -> None:
+    outputs = [
+        ParsedDocument(parser_name='marker', title_candidates=['A Test Paper'], authors=['Alice Example', 'Bob Example'], parse_status='ok'),
+        ParsedDocument(parser_name='markitdown', title_candidates=['A Test Paper'], authors=['Alice Example', 'Bob Example'], parse_status='ok'),
+    ]
+    rec = reconcile_parsed_documents(outputs)
+    assert rec.consensus_title == 'A Test Paper'
+    assert rec.consensus_authors == ['Alice Example', 'Bob Example']
+
+
+def test_reconcile_keeps_trusted_multi_author_list_when_other_parsers_are_partial() -> None:
+    outputs = [
+        ParsedDocument(
+            parser_name='marker',
+            title_candidates=['A Benchmark Paper with a Long Title and Subtitle: Evidence from a Synthetic Research Workflow'],
+            authors=['Carol Example', 'David Example', 'Eve Example'],
+            parse_status='ok',
+        ),
+        ParsedDocument(
+            parser_name='markitdown',
+            title_candidates=['A Benchmark Paper with a Long Title and Subtitle: Evidence from a Synthetic Research Workflow'],
+            authors=['Carol Example'],
+            parse_status='ok',
+        ),
+        ParsedDocument(
+            parser_name='pdftotext',
+            title_candidates=['A Benchmark Paper with a Long Title and Subtitle: Evidence from a Synthetic Research Workflow'],
+            authors=['Carol Example'],
+            parse_status='ok',
+        ),
+    ]
+    rec = reconcile_parsed_documents(outputs)
+    assert rec.consensus_authors == ['Carol Example', 'David Example', 'Eve Example']

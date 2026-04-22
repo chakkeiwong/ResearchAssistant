@@ -7,7 +7,7 @@ from research_assistant.ingest.parser_mineru import MinerUParser
 from research_assistant.ingest.parser_grobid import GROBIDParser
 from research_assistant.ingest.parser_marker import MarkerParser
 from research_assistant.ingest.parser_markitdown import MarkItDownParser
-from research_assistant.ingest.parser_preflight import preflight_all
+from research_assistant.ingest.parser_preflight import ParserPreflight, preflight_all
 from research_assistant.schemas.parsed_document import ParsedDocument
 
 
@@ -26,3 +26,13 @@ def test_parser_adapters_return_parsed_document_for_missing_file(tmp_path: Path)
 def test_preflight_outputs_match_parser_names() -> None:
     checks = {check.parser_name for check in preflight_all()}
     assert {'pdftotext', 'markitdown', 'marker', 'mineru', 'grobid'} <= checks
+
+
+def test_grobid_parser_returns_unavailable_when_health_check_fails(monkeypatch: object, tmp_path: Path) -> None:
+    def fake_check_http(name: str, url: str, timeout: int = 5) -> ParserPreflight:
+        return ParserPreflight(name, False, 'unavailable', ['connection refused'], {'url': url})
+
+    monkeypatch.setattr('research_assistant.ingest.parser_grobid.check_http', fake_check_http)
+    result = GROBIDParser().parse(tmp_path / 'paper.pdf')
+    assert result.parse_status == 'unavailable'
+    assert result.diagnostics['preflight'][0]['status'] == 'unavailable'

@@ -15,7 +15,8 @@ from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
 from research_assistant.query.discovery import discover_papers
-from research_assistant.query.downloads import download_to_inbox, propose_download
+from research_assistant.query.downloads import download_to_inbox, persist_download_proposal, propose_download
+from research_assistant.query.citation_graph import papers_cited_by, papers_citing
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 from research_assistant.ingest.parser_preflight import preflight_all
 
@@ -109,15 +110,31 @@ def cmd_download_paper(args: argparse.Namespace) -> int:
         print(json.dumps({'query': args.query, 'downloaded': False, 'reason': 'no open access pdf found'}, indent=2, sort_keys=True))
         return 0
     chosen = downloadable[0]
-    proposal = propose_download(chosen, root=Path(args.root) if args.root else None)
+    proposal = propose_download(chosen, root=Path(args.root) if args.root else None, query=args.query)
     downloaded_path = download_to_inbox(chosen['open_access_pdf_url'], filename_hint=proposal.proposed_name.removesuffix('.pdf'), root=Path(args.root) if args.root else None)
+    proposal_path = persist_download_proposal(proposal, root=Path(args.root) if args.root else None)
     print(json.dumps({
         'query': args.query,
         'downloaded': True,
         'result': chosen,
         'proposal': proposal.to_dict(),
+        'proposal_path': str(proposal_path),
         'downloaded_path': str(downloaded_path),
     }, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_papers_citing(args: argparse.Namespace) -> int:
+    import json
+    results = papers_citing(args.paper_id, limit=args.limit)
+    print(json.dumps(results, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_papers_cited_by(args: argparse.Namespace) -> int:
+    import json
+    results = papers_cited_by(args.paper_id, limit=args.limit)
+    print(json.dumps(results, indent=2, sort_keys=True))
     return 0
 
 
@@ -177,6 +194,16 @@ def build_parser() -> argparse.ArgumentParser:
     download_paper.add_argument('--query', required=True)
     download_paper.add_argument('--limit', type=int, default=10)
     download_paper.set_defaults(func=cmd_download_paper)
+
+    papers_citing_cmd = sub.add_parser('papers-citing')
+    papers_citing_cmd.add_argument('--paper-id', required=True)
+    papers_citing_cmd.add_argument('--limit', type=int, default=10)
+    papers_citing_cmd.set_defaults(func=cmd_papers_citing)
+
+    papers_cited_by_cmd = sub.add_parser('papers-cited-by')
+    papers_cited_by_cmd.add_argument('--paper-id', required=True)
+    papers_cited_by_cmd.add_argument('--limit', type=int, default=10)
+    papers_cited_by_cmd.set_defaults(func=cmd_papers_cited_by)
 
     parse_pdf = sub.add_parser('parse-pdf')
     parse_pdf.add_argument('--pdf', required=True)

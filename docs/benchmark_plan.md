@@ -36,11 +36,10 @@ This is much stronger than relying only on PDF text extraction or metadata APIs.
 ## Current benchmark status
 
 Currently present:
-- synthetic benchmark: simple transport paper
-- synthetic benchmark: long title / subtitle paper
-- synthetic benchmark: author-footnote paper
+- synthetic benchmark: simple transport paper with a compiled PDF fixture
+- synthetic benchmark: long title / subtitle paper with a compiled PDF fixture
+- synthetic benchmark: author-footnote paper with a compiled PDF fixture
+- parser benchmark scoring harness that preserves expected-record-only rows when PDFs are absent and scores parser outputs when PDFs are present
 
 Still missing:
-- compiled PDFs for those synthetic LaTeX fixtures
 - arXiv source/PDF benchmark pairs
-- parser benchmark scoring harness comparing extracted fields to expected records

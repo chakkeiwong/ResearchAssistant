@@ -62,3 +62,12 @@ def test_cli_download_paper_downloads_first_open_access_match(tmp_path: Path, mo
     assert rc == 0
     assert payload['downloaded'] is True
     assert payload['proposal']['proposed_name'] == 'downloadable_paper.pdf'
+    assert payload['proposal']['schema_version'] == 1
+    assert payload['proposal']['query'] == 'downloadable'
+    proposal_path = Path(payload['proposal_path'])
+    assert proposal_path.exists()
+    persisted = json.loads(proposal_path.read_text())
+    assert persisted['schema_version'] == 1
+    assert persisted['query'] == 'downloadable'
+    assert persisted['proposed_name'] == 'downloadable_paper.pdf'
+    assert persisted['result']['open_access_pdf_url'] == 'https://example.com/paper.pdf'
