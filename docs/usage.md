@@ -35,6 +35,54 @@ Current discovery scaffold includes:
 
 ## Useful commands
 
+### Ingest a local PDF
+
+```bash
+ra ingest --pdf /path/to/paper.pdf --query "paper title or identifying query"
+```
+
+### Search the local library
+
+```bash
+ra find --query "transport maps"
+```
+
+Search output is tab-separated:
+
+```text
+paper_id    year    review_status    title
+```
+
+### Show a paper record
+
+```bash
+ra show --paper-id paper_example
+```
+
+This returns summary, metadata, provenance, and links as JSON.
+
+### Review queue
+
+```bash
+ra review-list
+ra review-list --status needs_review
+ra review-show --paper-id paper_example
+ra review-mark --paper-id paper_example --status approved
+```
+
+Review statuses are `approved`, `needs_review`, and `rejected`. Marking a paper does not erase provenance or merge notes.
+
+### Discovery and inbox workflow
+
+```bash
+ra discover --query "transport maps HMC"
+ra download-paper --query "transport maps HMC"
+ra inbox-list
+ra inbox-show --proposed-name candidate_paper.pdf
+```
+
+Downloaded papers go to `local_research/inbox/`. Proposal metadata is saved under `local_research/inbox/metadata/`. The tool does not silently move papers into final library locations.
+
 ### Check parser readiness
 
 ```bash

@@ -8,6 +8,10 @@ from research_assistant.paths import slugify
 from research_assistant.storage.file_store import FileStore
 
 
+def _proposal_metadata_dir(root: Path | None = None) -> Path:
+    return get_paths(root).local_research / 'inbox' / 'metadata'
+
+
 class DownloadProposal:
     def __init__(self, *, title: str | None, source: str, pdf_url: str, inbox_path: Path, proposed_name: str, query: str | None = None, result: dict | None = None):
         self.title = title or 'paper'
@@ -43,10 +47,28 @@ def download_to_inbox(pdf_url: str, *, filename_hint: str, root: Path | None = N
 
 def persist_download_proposal(proposal: DownloadProposal, *, root: Path | None = None) -> Path:
     paths = get_paths(root)
-    metadata_dir = paths.local_research / 'inbox' / 'metadata'
+    metadata_dir = _proposal_metadata_dir(root)
     metadata_path = metadata_dir / f'{Path(proposal.proposed_name).stem}.proposal.json'
     FileStore(paths.local_research).write_json(metadata_path, proposal.to_dict())
     return metadata_path
+
+
+def list_download_proposals(*, root: Path | None = None) -> list[dict]:
+    paths = get_paths(root)
+    store = FileStore(paths.local_research)
+    rows = []
+    for path in sorted(_proposal_metadata_dir(root).glob('*.proposal.json')):
+        data = store.read_json(path)
+        data['proposal_path'] = str(path)
+        rows.append(data)
+    return rows
+
+
+def show_download_proposal(proposed_name: str, *, root: Path | None = None) -> dict:
+    paths = get_paths(root)
+    store = FileStore(paths.local_research)
+    stem = Path(proposed_name).stem
+    return store.read_json(_proposal_metadata_dir(root) / f'{stem}.proposal.json')
 
 
 def propose_download(result: dict, *, root: Path | None = None, query: str | None = None) -> DownloadProposal:

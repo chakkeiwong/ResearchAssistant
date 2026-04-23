@@ -18,6 +18,19 @@ def test_cli_find_empty_store(tmp_path: Path, capsys) -> None:
     assert captured.out == ''
 
 
+def test_cli_help_includes_review_and_inbox_commands(capsys) -> None:
+    try:
+        main(['--help'])
+    except SystemExit as exc:
+        assert exc.code == 0
+    captured = capsys.readouterr()
+    assert 'review-list' in captured.out
+    assert 'review-show' in captured.out
+    assert 'review-mark' in captured.out
+    assert 'inbox-list' in captured.out
+    assert 'inbox-show' in captured.out
+
+
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:
     root = tmp_path
     summaries = root / 'local_research' / 'summaries'
@@ -45,6 +58,42 @@ def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:
 
     assert rc == 0
     assert 'paper_a\t2020\tneeds_review\tCredit Risk and the Transmission of Interest Rate Shocks' in captured.out
+
+
+def test_cli_review_commands_update_status(tmp_path: Path, capsys) -> None:
+    root = tmp_path
+    summaries = root / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    (summaries / 'paper_a.json').write_text(json.dumps({
+        'id': 'paper_a',
+        'title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+        'authors': ['Berardino Palazzo'],
+        'year': 2020,
+        'abstract': '',
+        'main_contribution': 'Credit transmission result',
+        'review_status': 'needs_review',
+        'review_summary': {'status': 'needs_review'},
+        'requires_manual_review': True,
+        'candidate_metadata_sources': {},
+        'merge_notes': ['manual review recommended'],
+        'provenance': {'title': 'parser_consensus'},
+    }))
+
+    rc = main(['--root', str(root), 'review-list'])
+    listed = capsys.readouterr()
+    assert rc == 0
+    assert 'paper_a\t2020\tneeds_review' in listed.out
+
+    rc = main(['--root', str(root), 'review-show', '--paper-id', 'paper_a'])
+    shown = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown['provenance']['title'] == 'parser_consensus'
+
+    rc = main(['--root', str(root), 'review-mark', '--paper-id', 'paper_a', '--status', 'approved'])
+    marked = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert marked['review_status'] == 'approved'
+    assert marked['requires_manual_review'] is False
 
 
 def test_cli_ingest_palazzo_uses_parser_consensus(tmp_path: Path, capsys, monkeypatch) -> None:
@@ -97,3 +146,27 @@ def test_cli_download_paper_downloads_first_open_access_match(tmp_path: Path, mo
     assert persisted['query'] == 'downloadable'
     assert persisted['proposed_name'] == 'downloadable_paper.pdf'
     assert persisted['result']['open_access_pdf_url'] == 'https://example.com/paper.pdf'
+
+
+def test_cli_inbox_commands_show_persisted_proposals(tmp_path: Path, monkeypatch, capsys) -> None:
+    monkeypatch.setattr(cli, 'discover_papers', lambda query, per_page=10: [
+        {
+            'source': 'semanticscholar',
+            'title': 'Downloadable Paper',
+            'open_access_pdf_url': 'https://example.com/paper.pdf',
+        }
+    ])
+    monkeypatch.setattr(cli, 'download_to_inbox', lambda pdf_url, filename_hint, root=None: Path(root) / 'local_research' / 'inbox' / f'{filename_hint}.pdf')
+    main(['--root', str(tmp_path), 'download-paper', '--query', 'downloadable'])
+    capsys.readouterr()
+
+    rc = main(['--root', str(tmp_path), 'inbox-list'])
+    listed = capsys.readouterr()
+    assert rc == 0
+    assert 'downloadable_paper.pdf\tsemanticscholar\tDownloadable Paper' in listed.out
+
+    rc = main(['--root', str(tmp_path), 'inbox-show', '--proposed-name', 'downloadable_paper.pdf'])
+    shown = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown['query'] == 'downloadable'
+    assert shown['proposed_name'] == 'downloadable_paper.pdf'

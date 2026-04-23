@@ -132,11 +132,29 @@ def score_expected_record(data: dict, fixture_path: Path | None = None) -> dict:
     return row
 
 
+def build_release_report(results: list[dict[str, Any]]) -> dict[str, Any]:
+    scored = [row for row in results if row['status'] == 'scored']
+    missing_pdf = [row['id'] for row in results if row['status'] == 'expected_record_only']
+    title_scores = [row['reconciled']['scores']['title']['score'] for row in scored]
+    author_scores = [row['reconciled']['scores']['authors']['score'] for row in scored]
+    section_scores = [row['reconciled']['scores']['section_headings']['score'] for row in scored]
+    return {
+        'fixture_count': len(results),
+        'scored_count': len(scored),
+        'missing_pdf': missing_pdf,
+        'mean_title_score': sum(title_scores) / len(title_scores) if title_scores else 0.0,
+        'mean_author_score': sum(author_scores) / len(author_scores) if author_scores else 0.0,
+        'mean_section_heading_score': sum(section_scores) / len(section_scores) if section_scores else 0.0,
+        'ready_for_release_gate': bool(scored) and not missing_pdf,
+    }
+
+
 def main() -> int:
     bench_dir = ROOT / 'tests' / 'fixtures' / 'benchmark_papers' / 'synthetic'
     expected_files = sorted(bench_dir.glob('*.expected.json'))
     results = [score_expected_record(load_expected(exp), exp) for exp in expected_files]
-    print(json.dumps(results, indent=2, sort_keys=True))
+    payload = {'report': build_release_report(results), 'results': results}
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 

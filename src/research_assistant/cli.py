@@ -15,8 +15,9 @@ from research_assistant.summarize.draft_summary import build_draft_summary
 from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
+from research_assistant.query.review import list_review_items, mark_review_status, show_review_item
 from research_assistant.query.discovery import discover_papers
-from research_assistant.query.downloads import download_to_inbox, persist_download_proposal, propose_download
+from research_assistant.query.downloads import download_to_inbox, list_download_proposals, persist_download_proposal, propose_download, show_download_proposal
 from research_assistant.query.citation_graph import papers_cited_by, papers_citing
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 from research_assistant.ingest.parser_preflight import preflight_all
@@ -71,6 +72,31 @@ def cmd_show(args: argparse.Namespace) -> int:
     result = get_paper_summary(args.paper_id, root=paths.root)
     import json
     print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_review_list(args: argparse.Namespace) -> int:
+    import json
+    rows = list_review_items(root=Path(args.root) if args.root else None, status=args.status)
+    if args.json:
+        print(json.dumps(rows, indent=2, sort_keys=True))
+        return 0
+    for row in rows:
+        print(f"{row['paper_id']}\t{row['year']}\t{row['review_status']}\t{row['title']}")
+    return 0
+
+
+def cmd_review_show(args: argparse.Namespace) -> int:
+    import json
+    payload = show_review_item(args.paper_id, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_review_mark(args: argparse.Namespace) -> int:
+    import json
+    payload = mark_review_status(args.paper_id, args.status, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
@@ -140,6 +166,24 @@ def cmd_papers_cited_by(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_inbox_list(args: argparse.Namespace) -> int:
+    import json
+    rows = list_download_proposals(root=Path(args.root) if args.root else None)
+    if args.json:
+        print(json.dumps(rows, indent=2, sort_keys=True))
+        return 0
+    for row in rows:
+        print(f"{row['proposed_name']}\t{row['source']}\t{row['title']}")
+    return 0
+
+
+def cmd_inbox_show(args: argparse.Namespace) -> int:
+    import json
+    payload = show_download_proposal(args.proposed_name, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_parse_pdf(args: argparse.Namespace) -> int:
     import json
     outputs = parse_with_all(Path(args.pdf).expanduser())
@@ -174,6 +218,20 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument('--paper-id', required=True)
     show.set_defaults(func=cmd_show)
 
+    review_list = sub.add_parser('review-list')
+    review_list.add_argument('--status')
+    review_list.add_argument('--json', action='store_true')
+    review_list.set_defaults(func=cmd_review_list)
+
+    review_show = sub.add_parser('review-show')
+    review_show.add_argument('--paper-id', required=True)
+    review_show.set_defaults(func=cmd_review_show)
+
+    review_mark = sub.add_parser('review-mark')
+    review_mark.add_argument('--paper-id', required=True)
+    review_mark.add_argument('--status', required=True)
+    review_mark.set_defaults(func=cmd_review_mark)
+
     link = sub.add_parser('link-add')
     link.add_argument('--paper-id', required=True)
     link.add_argument('--target', required=True)
@@ -206,6 +264,14 @@ def build_parser() -> argparse.ArgumentParser:
     papers_cited_by_cmd.add_argument('--paper-id', required=True)
     papers_cited_by_cmd.add_argument('--limit', type=int, default=10)
     papers_cited_by_cmd.set_defaults(func=cmd_papers_cited_by)
+
+    inbox_list = sub.add_parser('inbox-list')
+    inbox_list.add_argument('--json', action='store_true')
+    inbox_list.set_defaults(func=cmd_inbox_list)
+
+    inbox_show = sub.add_parser('inbox-show')
+    inbox_show.add_argument('--proposed-name', required=True)
+    inbox_show.set_defaults(func=cmd_inbox_show)
 
     parse_pdf = sub.add_parser('parse-pdf')
     parse_pdf.add_argument('--pdf', required=True)

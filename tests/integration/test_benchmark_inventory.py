@@ -31,9 +31,11 @@ def test_parser_benchmark_script_reports_expected_fields() -> None:
         capture_output=True,
         text=True,
     )
-    rows = json.loads(result.stdout)
-    assert len(rows) >= 3
-    first = rows[0]
+    payload = json.loads(result.stdout)
+    assert 'report' in payload
+    assert 'results' in payload
+    assert len(payload['results']) >= 3
+    first = payload['results'][0]
     assert 'expected' in first
     assert 'parser_runs' in first
     assert 'status' in first
@@ -116,7 +118,7 @@ def test_parser_benchmark_scores_reconciled_section_heading_fields() -> None:
         capture_output=True,
         text=True,
     )
-    rows = json.loads(result.stdout)
-    ids = {row['id'] for row in rows}
+    payload = json.loads(result.stdout)
+    ids = {row['id'] for row in payload['results']}
     assert 'synthetic_long_title' in ids
     assert 'synthetic_author_footnotes' in ids

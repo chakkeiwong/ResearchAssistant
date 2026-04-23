@@ -10,6 +10,19 @@ scripts/run_parser_preflight.sh
 scripts/run_clean_ingest_palazzo.sh
 ```
 
+## Product release checklist
+
+Before treating a local build as product-ready for v0.1, run:
+
+```bash
+scripts/run_tests.sh
+scripts/run_parser_preflight.sh
+scripts/run_clean_ingest_palazzo.sh
+python tests/scripts/run_parser_benchmark.py
+```
+
+The parser benchmark output includes a `report` block with fixture counts, aggregate scores, missing PDFs, and whether the benchmark corpus is ready to act as a release gate.
+
 ## Recommended Claude Code permissions
 
 Add these to `~/.claude/settings.json` under `permissions.allow`:
