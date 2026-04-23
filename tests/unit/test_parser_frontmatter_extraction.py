@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from research_assistant.ingest.parser_frontmatter import extract_frontmatter
+from research_assistant.ingest.parser_frontmatter import clean_line, extract_frontmatter
 
 
-def test_extract_frontmatter_joins_wrapped_title_and_authors() -> None:
+
+
+def test_clean_line_removes_control_characters() -> None:
+    assert clean_line('Grace Example\x84') == 'Grace Example'
     lines = [
         'A Benchmark Paper with a Long Title and Subtitle: Evidence from a Synthetic Research',
         'Workflow',
@@ -22,7 +25,26 @@ def test_extract_frontmatter_joins_wrapped_title_and_authors() -> None:
     assert extracted.section_headings == ['Introduction', 'Method', 'Discussion']
 
 
-def test_extract_frontmatter_cleans_footnote_marked_authors() -> None:
+
+
+def test_extract_frontmatter_keeps_known_one_word_title_suffixes_only() -> None:
+    footnote = extract_frontmatter([
+        'A Benchmark Paper with Footnote-Marked',
+        'Authors',
+        'Frank Example Grace Example',
+        'Abstract',
+    ])
+    stray_name = extract_frontmatter([
+        'A Benchmark Paper with Footnote-Marked',
+        'Frank',
+        'Frank Example Grace Example',
+        'Abstract',
+    ])
+
+    assert footnote.title_candidates[0] == 'A Benchmark Paper with Footnote-Marked Authors'
+    assert stray_name.title_candidates[0] == 'A Benchmark Paper with Footnote-Marked'
+
+
     lines = [
         '# A Benchmark Paper with Footnote-Marked Authors',
         'Frank Example† Grace Example‡',

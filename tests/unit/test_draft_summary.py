@@ -64,5 +64,93 @@ def test_parser_consensus_overrides_weak_metadata() -> None:
     assert rec.provenance['title'] == 'parser_consensus'
     assert rec.provenance['authors'] == 'parser_consensus'
     assert rec.requires_manual_review is True
+    assert rec.review_status == 'needs_review'
+    assert rec.review_summary['metadata_confidence'] == 'low'
     assert rec.identity_source == 'parser_consensus'
     assert 'openalex_candidates' in rec.candidate_metadata_sources
+    assert 'semanticscholar_candidates' in rec.candidate_metadata_sources
+
+
+def test_parser_consensus_stays_canonical_when_identity_validation_conflicts() -> None:
+    metadata = {
+        'openalex': {
+            'display_name': 'House price cycles in emerging economies',
+            'publication_year': 2015,
+            'authorships': [
+                {'author': {'display_name': 'Alessio Ciarlone'}},
+            ],
+        },
+        'crossref': {},
+        'arxiv': {},
+        'metadata_confidence': 'low',
+        'merge_notes': ['openalex top candidate has weak similarity; manual review recommended'],
+        'provenance': {'openalex': 'best candidate score 0.382'},
+        'parser_hints': {
+            'consensus_title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+            'consensus_authors': ['Berardino Palazzo', 'Ram Yamarthy'],
+            'parse_confidence': 'medium',
+            'parser_outputs': [
+                {'body_markdown': 'Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy'}
+            ],
+        },
+        'identity_validation': {
+            'status': 'conflict',
+            'confidence': 'medium',
+            'requires_manual_review': True,
+            'citation_neighborhood': {
+                'status': 'skipped',
+                'reason': 'candidate not validated by title',
+            },
+            'notes': ['discovery candidate disagrees with parser consensus'],
+        },
+    }
+
+    rec = build_draft_summary('paper_credit', metadata, '')
+
+    assert rec.title == 'Credit Risk and the Transmission of Interest Rate Shocks'
+    assert rec.authors == ['Berardino Palazzo', 'Ram Yamarthy']
+    assert rec.identity_source == 'parser_consensus'
+    assert rec.requires_manual_review is True
+    assert rec.review_status == 'conflict'
+    assert 'identity validation is conflict' in rec.review_summary['warnings']
+    assert rec.provenance['identity_validation'] == 'conflict'
+    assert rec.provenance['citation_neighborhood'] == 'skipped'
+    assert 'identity validation: conflict' in rec.merge_notes
+    assert 'citation neighborhood: skipped' in rec.merge_notes
+    assert 'discovery candidate disagrees with parser consensus' in rec.merge_notes
+
+
+def test_summary_surfaces_citation_neighborhood_status() -> None:
+    metadata = {
+        'openalex': {},
+        'crossref': {},
+        'arxiv': {},
+        'metadata_confidence': 'low',
+        'merge_notes': [],
+        'provenance': {},
+        'parser_hints': {
+            'consensus_title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+            'consensus_authors': ['Berardino Palazzo', 'Ram Yamarthy'],
+            'parse_confidence': 'medium',
+            'parser_outputs': [
+                {'body_markdown': 'Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy'}
+            ],
+        },
+        'identity_validation': {
+            'status': 'validated',
+            'confidence': 'medium',
+            'requires_manual_review': False,
+            'citation_neighborhood': {
+                'status': 'corroborated',
+                'candidate_paper_id': 'sem-123',
+            },
+            'notes': ['external metadata title agrees with parser consensus'],
+        },
+    }
+
+    rec = build_draft_summary('paper_credit', metadata, '')
+
+    assert rec.provenance['identity_validation'] == 'validated'
+    assert rec.provenance['citation_neighborhood'] == 'corroborated'
+    assert rec.review_summary['citation_neighborhood'] == 'corroborated'
+    assert 'citation neighborhood: corroborated' in rec.merge_notes

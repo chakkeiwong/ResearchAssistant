@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
+from unittest.mock import patch
 
 from research_assistant.ingest.metadata_resolve import merge_metadata
+from research_assistant.ingest.identity_validate import validate_identity
 from research_assistant.summarize.draft_summary import build_draft_summary
 
 
@@ -40,3 +41,53 @@ def test_parser_consensus_controls_canonical_summary_when_metadata_is_weak() -> 
     assert rec.provenance['title'] == 'parser_consensus'
     assert rec.provenance['authors'] == 'parser_consensus'
     assert rec.metadata_confidence == 'low'
+
+
+@patch('research_assistant.ingest.identity_validate.citation_neighborhood')
+def test_semanticscholar_candidate_corroborates_without_replacing_parser_identity(mock_citation_neighborhood) -> None:
+    mock_citation_neighborhood.return_value = {
+        'paper_id': 'sem-123',
+        'citing': [],
+        'cited': [],
+        'citing_count': 0,
+        'cited_count': 0,
+        'status': 'empty',
+    }
+    parser_hints = {
+        'consensus_title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+        'consensus_authors': ['Berardino Palazzo', 'Ram Yamarthy'],
+        'parse_confidence': 'medium',
+        'parser_outputs': [
+            {
+                'parser_name': 'marker',
+                'body_markdown': 'Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy',
+            }
+        ],
+    }
+    metadata = merge_metadata(
+        'Credit Risk and the Transmission of Interest Rate Shocks Palazzo',
+        {'display_name': 'House price cycles in emerging economies', 'publication_year': 2015},
+        {},
+        {},
+        openalex_candidates=[{'score': 0.38, 'title': 'House price cycles in emerging economies'}],
+        semanticscholar_candidates=[
+            {
+                'source': 'semanticscholar',
+                'source_id': 'sem-123',
+                'title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+                'authors': ['Berardino Palazzo', 'Ram Yamarthy'],
+                'score': 1.0,
+            }
+        ],
+        parser_hints=parser_hints,
+    )
+    metadata['identity_validation'] = validate_identity(metadata)
+
+    rec = build_draft_summary('paper_credit', metadata, '')
+
+    assert metadata['identity_validation']['best_discovery_match']['source'] == 'semanticscholar'
+    assert metadata['identity_validation']['citation_neighborhood']['candidate_paper_id'] == 'sem-123'
+    assert rec.title == 'Credit Risk and the Transmission of Interest Rate Shocks'
+    assert rec.authors == ['Berardino Palazzo', 'Ram Yamarthy']
+    assert rec.identity_source == 'parser_consensus'
+    assert rec.provenance['citation_neighborhood'] == 'inconclusive'

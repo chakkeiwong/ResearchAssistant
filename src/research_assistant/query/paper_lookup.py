@@ -25,6 +25,8 @@ def find_paper(query: str, *, root: Path | None = None) -> list[dict[str, Any]]:
                 'title': rec.title,
                 'year': rec.year,
                 'curation_status': rec.curation_status,
+                'review_status': rec.review_status,
+                'requires_manual_review': rec.requires_manual_review,
             })
     return results
 

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from research_assistant import cli
 from research_assistant.cli import main
+from research_assistant.ingest import metadata_resolve
 from research_assistant.ingest.source_manifest import canonical_paper_id
 
 
@@ -17,14 +18,39 @@ def test_cli_find_empty_store(tmp_path: Path, capsys) -> None:
     assert captured.out == ''
 
 
-def test_cli_audit_claim_shape(capsys) -> None:
-    rc = main(['audit-claim', '--claim', 'test claim', '--papers', 'p1'])
+def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:
+    root = tmp_path
+    summaries = root / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    (summaries / 'paper_a.json').write_text(json.dumps({
+        'id': 'paper_a',
+        'title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+        'authors': ['Berardino Palazzo'],
+        'year': 2020,
+        'abstract': '',
+        'main_contribution': 'Credit transmission result',
+        'curation_status': 'draft',
+        'metadata_confidence': 'low',
+        'identity_source': 'parser_consensus',
+        'review_status': 'needs_review',
+        'review_summary': {'status': 'needs_review', 'warnings': ['metadata confidence is low']},
+        'requires_manual_review': True,
+        'candidate_metadata_sources': {},
+        'merge_notes': [],
+        'provenance': {},
+    }))
+
+    rc = main(['--root', str(root), 'find', '--query', 'credit'])
     captured = capsys.readouterr()
+
     assert rc == 0
-    assert 'classification' in captured.out
+    assert 'paper_a\t2020\tneeds_review\tCredit Risk and the Transmission of Interest Rate Shocks' in captured.out
 
 
-def test_cli_ingest_palazzo_uses_parser_consensus(tmp_path: Path, capsys) -> None:
+def test_cli_ingest_palazzo_uses_parser_consensus(tmp_path: Path, capsys, monkeypatch) -> None:
+    monkeypatch.setattr(metadata_resolve, '_fetch_json', lambda url: {'results': [], 'message': {'items': []}})
+    monkeypatch.setattr(metadata_resolve, 'choose_best_semanticscholar_result', lambda *args, **kwargs: ({}, []))
+
     pdf = Path('/home/chakwong/research-assistant/local_research/papers/raw/paper_credit_risk_and_the_transmission_of_interest_rate_shocks_palazzo_20_7e82ec19.pdf')
     query = 'Credit Risk and the Transmission of Interest Rate Shocks Palazzo'
     rc = main(['--root', str(tmp_path), 'ingest', '--pdf', str(pdf), '--query', query])

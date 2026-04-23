@@ -57,3 +57,20 @@ def test_reconcile_keeps_trusted_multi_author_list_when_other_parsers_are_partia
     ]
     rec = reconcile_parsed_documents(outputs)
     assert rec.consensus_authors == ['Carol Example', 'David Example', 'Eve Example']
+    outputs = [
+        ParsedDocument(
+            parser_name='marker',
+            title_candidates=['A Test Paper'],
+            section_headings=['Introduction', 'Method', 'Conclusion'],
+            parse_status='ok',
+        ),
+        ParsedDocument(
+            parser_name='markitdown',
+            title_candidates=['A Test Paper'],
+            section_headings=['1 Introduction', 'Method', 'Conclusion'],
+            parse_status='ok',
+        ),
+    ]
+    rec = reconcile_parsed_documents(outputs)
+    assert rec.consensus_section_headings == ['Introduction', 'Method', 'Conclusion']
+    assert rec.parser_agreement['section_heading_votes']['introduction'] == 2

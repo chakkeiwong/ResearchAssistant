@@ -30,6 +30,7 @@ class ParsedDocument:
 class ReconciledDocument:
     consensus_title: str | None = None
     consensus_authors: list[str] = field(default_factory=list)
+    consensus_section_headings: list[str] = field(default_factory=list)
     consensus_abstract: str | None = None
     parser_agreement: dict[str, Any] = field(default_factory=dict)
     disagreements: list[str] = field(default_factory=list)

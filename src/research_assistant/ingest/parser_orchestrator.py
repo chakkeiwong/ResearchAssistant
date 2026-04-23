@@ -162,6 +162,24 @@ def _split_joined_authors(line: str) -> list[str]:
     return [cleaned] if _looks_like_author(cleaned) else []
 
 
+def _normalize_section_heading(line: str) -> str:
+    cleaned = _clean_line(line)
+    cleaned = re.sub(r'^\d+(?:\.\d+)*\s+', '', cleaned).strip()
+    return cleaned
+
+
+def _collect_section_headings(headings: list[str]) -> list[str]:
+    seen = set()
+    out = []
+    for heading in headings:
+        normalized = _normalize_section_heading(heading)
+        key = normalized.lower()
+        if normalized and key not in seen:
+            seen.add(key)
+            out.append(normalized)
+    return out
+
+
 def _extract_authors(lines: list[str]) -> list[str]:
     authors = []
     cleaned_lines = [_clean_line(line) for line in lines[:25] if _clean_line(line)]
@@ -212,6 +230,8 @@ def reconcile_parsed_documents(outputs: list[ParsedDocument]) -> ReconciledDocum
     weighted_title_scores = Counter()
     author_votes = []
     weighted_author_scores = Counter()
+    section_heading_votes = []
+    section_heading_display = {}
     parser_outputs = []
 
     for out in outputs:
@@ -228,6 +248,7 @@ def reconcile_parsed_documents(outputs: list[ParsedDocument]) -> ReconciledDocum
         else:
             enriched_titles = _extract_title_candidates(lines)
         enriched_authors = out.authors or _extract_authors(lines)
+        enriched_section_headings = _collect_section_headings(out.section_headings)
 
         weight = PARSER_TITLE_WEIGHTS.get(out.parser_name, 1)
         if enriched_titles:
@@ -241,15 +262,21 @@ def reconcile_parsed_documents(outputs: list[ParsedDocument]) -> ReconciledDocum
             author = a.strip()
             author_votes.append(author)
             weighted_author_scores[author] += PARSER_AUTHOR_WEIGHTS.get(out.parser_name, 1)
+        for heading in enriched_section_headings:
+            key = heading.lower()
+            section_heading_votes.append(key)
+            section_heading_display.setdefault(key, heading)
 
         parser_outputs.append({
             **out.to_dict(),
             'derived_title_candidates': enriched_titles,
             'derived_authors': enriched_authors,
+            'derived_section_headings': enriched_section_headings,
         })
 
     title_counter = Counter(title_votes)
     author_counter = Counter(author_votes)
+    section_heading_counter = Counter(section_heading_votes)
 
     consensus_title = None
     if weighted_title_scores:
@@ -284,6 +311,12 @@ def reconcile_parsed_documents(outputs: list[ParsedDocument]) -> ReconciledDocum
     if not consensus_authors:
         consensus_authors = [name for name, count in author_counter.items() if count >= 1][:6]
 
+    consensus_section_headings = [
+        section_heading_display[key]
+        for key, count in section_heading_counter.items()
+        if count >= 2
+    ]
+
     ok_count = sum(1 for o in outputs if o.parse_status == 'ok')
     parse_confidence = 'low'
     if ok_count >= 2 and consensus_title:
@@ -302,10 +335,12 @@ def reconcile_parsed_documents(outputs: list[ParsedDocument]) -> ReconciledDocum
     return ReconciledDocument(
         consensus_title=consensus_title,
         consensus_authors=consensus_authors,
+        consensus_section_headings=consensus_section_headings,
         parser_agreement={
             'ok_parsers': ok_count,
             'title_votes': dict(title_counter),
             'author_votes': dict(author_counter),
+            'section_heading_votes': dict(section_heading_counter),
         },
         disagreements=disagreements,
         parse_confidence=parse_confidence,

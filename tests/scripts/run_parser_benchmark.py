@@ -74,7 +74,7 @@ def score_reconciled_output(expected: dict, reconciled: ReconciledDocument) -> d
     return {
         'title': _best_title_score(expected['title'], title_candidates),
         'authors': _overlap_score(expected['authors'], reconciled.consensus_authors),
-        'section_headings': {'matched': 0, 'expected': len(expected.get('section_headings', [])), 'score': 0.0, 'missing': [normalize_title(h) for h in expected.get('section_headings', [])]},
+        'section_headings': _overlap_score(expected.get('section_headings', []), reconciled.consensus_section_headings),
         'abstract_present': bool((reconciled.consensus_abstract or '').strip()),
     }
 
@@ -118,6 +118,7 @@ def score_expected_record(data: dict, fixture_path: Path | None = None) -> dict:
         'reconciled': {
             'consensus_title': reconciled.consensus_title,
             'consensus_authors': reconciled.consensus_authors,
+            'consensus_section_headings': reconciled.consensus_section_headings,
             'consensus_abstract_present': bool((reconciled.consensus_abstract or '').strip()),
             'parse_confidence': reconciled.parse_confidence,
             'requires_manual_review': reconciled.requires_manual_review,

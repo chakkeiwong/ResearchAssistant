@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import urllib.error
 import urllib.parse
+from typing import Any
 
 from research_assistant.query.discovery import SEMANTIC_SCHOLAR_FIELDS, _fetch_json, _normalize_semanticscholar_work, discover_papers
 
@@ -25,6 +26,30 @@ def papers_citing(paper_id: str, *, limit: int = 10) -> list[dict]:
 
 def papers_cited_by(paper_id: str, *, limit: int = 10) -> list[dict]:
     return _fetch_semanticscholar_citation_list(paper_id, 'references', limit=limit)
+
+
+def citation_neighborhood(paper_id: str, *, limit: int = 5) -> dict[str, Any]:
+    try:
+        citing = papers_citing(paper_id, limit=limit)
+        cited = papers_cited_by(paper_id, limit=limit)
+    except Exception:
+        return {
+            'paper_id': paper_id,
+            'citing': [],
+            'cited': [],
+            'citing_count': 0,
+            'cited_count': 0,
+            'status': 'unavailable',
+        }
+    status = 'available' if citing or cited else 'empty'
+    return {
+        'paper_id': paper_id,
+        'citing': citing,
+        'cited': cited,
+        'citing_count': len(citing),
+        'cited_count': len(cited),
+        'status': status,
+    }
 
 
 def related_papers(topic: str) -> list[dict]:

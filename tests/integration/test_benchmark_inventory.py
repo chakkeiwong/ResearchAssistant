@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 
-from research_assistant.schemas.parsed_document import ParsedDocument
+from research_assistant.schemas.parsed_document import ParsedDocument, ReconciledDocument
 
 ROOT = Path(__file__).resolve().parents[2]
 BENCHMARK_SCRIPT = ROOT / 'tests' / 'scripts' / 'run_parser_benchmark.py'
@@ -58,6 +58,7 @@ def test_parser_benchmark_scores_real_fixture_when_pdf_present() -> None:
     assert row['pdf'] == 'tests/fixtures/benchmark_papers/synthetic/synthetic_transport_simple.pdf'
     assert len(row['parser_runs']) >= 1
     assert 'reconciled' in row
+    assert 'consensus_section_headings' in row['reconciled']
     assert 'scores' in row['reconciled']
     assert row['diagnostics'] == []
 
@@ -88,7 +89,26 @@ def test_parser_benchmark_scores_parser_output_fields() -> None:
     assert scores['abstract_present'] is True
 
 
-def test_benchmark_inventory_includes_long_title_and_footnote_fixtures() -> None:
+
+
+def test_parser_benchmark_scores_reconciled_section_heading_fields() -> None:
+    expected = {
+        'title': 'A Simple Test of Transport Maps for Posterior Geometry',
+        'authors': ['Alice Example', 'Bob Example'],
+        'abstract': 'Synthetic abstract',
+        'section_headings': ['Introduction', 'Method', 'Conclusion'],
+    }
+    reconciled = ReconciledDocument(
+        consensus_title='A Simple Test of Transport Maps for Posterior Geometry',
+        consensus_authors=['Alice Example', 'Bob Example'],
+        consensus_section_headings=['Introduction', 'Conclusion'],
+    )
+
+    scores = run_parser_benchmark.score_reconciled_output(expected, reconciled)
+
+    assert scores['section_headings']['matched'] == 2
+    assert scores['section_headings']['expected'] == 3
+    assert scores['section_headings']['score'] == 2 / 3
     root = Path(__file__).resolve().parents[2]
     result = subprocess.run(
         ['python', str(root / 'tests' / 'scripts' / 'run_parser_benchmark.py')],

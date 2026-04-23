@@ -102,6 +102,30 @@ def choose_best_crossref_result(query: str, extracted_text: str = '', filename_h
     return best, scored
 
 
+def choose_best_semanticscholar_result(query: str, extracted_text: str = '', filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    from research_assistant.query.discovery import discover_semanticscholar
+
+    items = discover_semanticscholar(query, limit=8)
+    anchors = extract_title_candidates(query, extracted_text, filename_hints, parser_hints)
+    scored = []
+    for r in items:
+        title = r.get('title', '')
+        best = score_candidate(title, anchors)
+        scored.append({
+            'source': 'semanticscholar',
+            'source_id': r.get('source_id'),
+            'title': title,
+            'authors': r.get('authors', []),
+            'score': best,
+            'year': r.get('year'),
+            'doi': r.get('doi'),
+            'raw': r,
+        })
+    scored.sort(key=lambda x: x['score'], reverse=True)
+    best = scored[0]['raw'] if scored else {}
+    return best, scored
+
+
 def resolve_arxiv(arxiv_id: str) -> dict[str, Any]:
     url = f"http://export.arxiv.org/api/query?id_list={urllib.parse.quote(arxiv_id)}"
     with urllib.request.urlopen(url, timeout=30) as response:
@@ -134,7 +158,7 @@ def should_merge_crossref(query: str, openalex: dict[str, Any], crossref: dict[s
     return False, f'title similarity {score:.3f} < {TITLE_SIMILARITY_THRESHOLD:.2f}; crossref kept as unmerged candidate', score
 
 
-def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, Any] | None = None, arxiv: dict[str, Any] | None = None, *, openalex_candidates: list[dict[str, Any]] | None = None, crossref_candidates: list[dict[str, Any]] | None = None, filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> dict[str, Any]:
+def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, Any] | None = None, arxiv: dict[str, Any] | None = None, *, openalex_candidates: list[dict[str, Any]] | None = None, crossref_candidates: list[dict[str, Any]] | None = None, semanticscholar_candidates: list[dict[str, Any]] | None = None, filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> dict[str, Any]:
     crossref = crossref or {}
     arxiv = arxiv or {}
     merge_notes = []
@@ -173,6 +197,7 @@ def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, An
         'crossref': crossref if merge_crossref else {},
         'crossref_candidate': crossref if crossref and not merge_crossref else {},
         'crossref_candidates': crossref_candidates or [],
+        'semanticscholar_candidates': semanticscholar_candidates or [],
         'arxiv': arxiv,
         'filename_hints': filename_hints or {},
         'parser_hints': parser_hints or {},
@@ -189,6 +214,7 @@ def merge_metadata(source: str, openalex: dict[str, Any], crossref: dict[str, An
 def resolve_metadata(source: str, *, arxiv_id: str | None = None, extracted_text: str = '', filename_hints: dict[str, Any] | None = None, parser_hints: dict[str, Any] | None = None) -> dict[str, Any]:
     openalex, openalex_candidates = choose_best_openalex_result(source, extracted_text=extracted_text, filename_hints=filename_hints, parser_hints=parser_hints)
     crossref, crossref_candidates = choose_best_crossref_result(source, extracted_text=extracted_text, filename_hints=filename_hints, parser_hints=parser_hints)
+    _, semanticscholar_candidates = choose_best_semanticscholar_result(source, extracted_text=extracted_text, filename_hints=filename_hints, parser_hints=parser_hints)
     arxiv = resolve_arxiv(arxiv_id) if arxiv_id else {}
     return merge_metadata(
         source,
@@ -197,6 +223,7 @@ def resolve_metadata(source: str, *, arxiv_id: str | None = None, extracted_text
         arxiv,
         openalex_candidates=openalex_candidates,
         crossref_candidates=crossref_candidates,
+        semanticscholar_candidates=semanticscholar_candidates,
         filename_hints=filename_hints,
         parser_hints=parser_hints,
     )

@@ -38,6 +38,11 @@ SECTION_HEADINGS = {
     'appendix',
 }
 
+TITLE_SUFFIX_WORDS = {
+    'authors',
+    'workflow',
+}
+
 
 @dataclass
 class FrontMatterExtraction:
@@ -47,6 +52,7 @@ class FrontMatterExtraction:
 
 
 def clean_line(line: str) -> str:
+    line = ''.join(ch for ch in line if ch.isprintable() or ch.isspace())
     line = line.strip()
     line = re.sub(r'^!\[.*?\]\(.*?\)$', '', line)
     line = re.sub(r'^[#*\s]+', '', line)
@@ -69,7 +75,7 @@ def normalize_title_candidate(candidate: str) -> str:
 
 def looks_like_title_noise(line: str) -> bool:
     low = line.lower()
-    if len(line) < 8:
+    if len(line) < 8 and line.lower() not in TITLE_SUFFIX_WORDS:
         return True
     if low.startswith('this benchmark is designed'):
         return True
@@ -171,7 +177,12 @@ def extract_frontmatter(lines: list[str], limit: int = 30) -> FrontMatterExtract
         if seen_author:
             continue
         if not looks_like_title_noise(line) and not looks_like_section_heading(line):
+            if len(line.split()) == 1 and title_lines and line[:1].isupper() and line.lower() not in TITLE_SUFFIX_WORDS:
+                continue
             title_lines.append(line)
+
+    if title_lines and len(title_lines[-1].split()) == 1 and title_lines[-1].lower() not in TITLE_SUFFIX_WORDS:
+        title_lines = title_lines[:-1]
 
     title_candidates = []
     if title_lines:

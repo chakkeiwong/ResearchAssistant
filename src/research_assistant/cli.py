@@ -8,6 +8,7 @@ from research_assistant.ingest.source_manifest import canonical_paper_id, store_
 from research_assistant.ingest.pdf_extract import extract_pdf_text
 from research_assistant.ingest.normalize_text import normalize_extracted_text
 from research_assistant.ingest.metadata_resolve import resolve_metadata
+from research_assistant.ingest.identity_validate import validate_identity
 from research_assistant.ingest.filename_parse import parse_paper_filename
 from research_assistant.schemas.link_record import LinkRecord
 from research_assistant.summarize.draft_summary import build_draft_summary
@@ -49,6 +50,7 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             'parser_outputs': reconciled.parser_outputs,
         }
     metadata = resolve_metadata(args.query or source, arxiv_id=args.arxiv_id, extracted_text=text, filename_hints=filename_hints, parser_hints=parser_hints)
+    metadata['identity_validation'] = validate_identity(metadata)
     summary = build_draft_summary(paper_id, metadata, text)
     store = FileStore(paths.local_research)
     store.write_json(paths.metadata / f'{paper_id}.json', metadata)
@@ -60,7 +62,7 @@ def cmd_ingest(args: argparse.Namespace) -> int:
 def cmd_find(args: argparse.Namespace) -> int:
     paths = get_paths(Path(args.root) if args.root else None)
     for rec in find_paper(args.query, root=paths.root):
-        print(f"{rec['paper_id']}\t{rec['year']}\t{rec['title']}")
+        print(f"{rec['paper_id']}\t{rec['year']}\t{rec['review_status']}\t{rec['title']}")
     return 0
 
 

@@ -21,12 +21,40 @@ def _authors_from_crossref(crossref: dict) -> list[str]:
     return out
 
 
+def _build_review_summary(metadata_confidence: str, parser_confidence: str, identity_validation: dict, requires_manual_review: bool) -> dict:
+    validation_status = identity_validation.get('status') or 'none'
+    citation_status = (identity_validation.get('citation_neighborhood') or {}).get('status') or 'none'
+    status = 'ready'
+    if requires_manual_review:
+        status = 'needs_review'
+    if validation_status in {'conflict', 'ambiguous'}:
+        status = 'conflict'
+    warnings = []
+    if metadata_confidence == 'low':
+        warnings.append('metadata confidence is low')
+    if parser_confidence == 'low':
+        warnings.append('parser confidence is low')
+    if validation_status in {'conflict', 'ambiguous'}:
+        warnings.append(f'identity validation is {validation_status}')
+    if citation_status in {'skipped', 'unavailable', 'inconclusive'}:
+        warnings.append(f'citation neighborhood is {citation_status}')
+    return {
+        'status': status,
+        'metadata_confidence': metadata_confidence,
+        'parser_confidence': parser_confidence,
+        'identity_validation': validation_status,
+        'citation_neighborhood': citation_status,
+        'warnings': warnings,
+    }
+
+
 def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord:
     openalex = metadata.get('openalex', {})
     crossref = metadata.get('crossref', {})
     arxiv = metadata.get('arxiv', {})
     provenance = metadata.get('provenance', {})
     parser_hints = metadata.get('parser_hints', {})
+    identity_validation = metadata.get('identity_validation', {})
     metadata_confidence = metadata.get('metadata_confidence', 'low')
     parser_confidence = parser_hints.get('parse_confidence', 'low')
 
@@ -91,11 +119,21 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
     doi = openalex.get('doi') or crossref.get('DOI')
 
     identity_source = title_source if use_parser_primary else ('arxiv' if arxiv else ('openalex' if openalex else ('crossref' if crossref else 'fallback')))
-    requires_manual_review = bool(use_parser_primary or metadata_confidence == 'low')
+    requires_manual_review = bool(use_parser_primary or metadata_confidence == 'low' or identity_validation.get('requires_manual_review'))
+    merge_notes = list(metadata.get('merge_notes', []))
+    validation_status = identity_validation.get('status')
+    citation_status = (identity_validation.get('citation_neighborhood') or {}).get('status')
+    if validation_status:
+        merge_notes.append(f'identity validation: {validation_status}')
+        merge_notes.extend(identity_validation.get('notes', []))
+    if citation_status:
+        merge_notes.append(f'citation neighborhood: {citation_status}')
     candidate_metadata_sources = {
+        'semanticscholar_candidates': metadata.get('semanticscholar_candidates', []),
         'openalex_candidates': metadata.get('openalex_candidates', []),
         'crossref_candidates': metadata.get('crossref_candidates', []),
     }
+    review_summary = _build_review_summary(metadata_confidence, parser_confidence, identity_validation, requires_manual_review)
 
     summary = PaperRecord(
         id=paper_id,
@@ -111,11 +149,15 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
         curation_status='draft',
         metadata_confidence=metadata_confidence,
         identity_source=identity_source,
+        review_status=review_summary['status'],
+        review_summary=review_summary,
         requires_manual_review=requires_manual_review,
         candidate_metadata_sources=candidate_metadata_sources,
-        merge_notes=metadata.get('merge_notes', []),
+        merge_notes=merge_notes,
         provenance={
             **provenance,
+            'identity_validation': validation_status or 'none',
+            'citation_neighborhood': citation_status or 'none',
             'title': title_source,
             'authors': authors_source,
             'year': year_source,

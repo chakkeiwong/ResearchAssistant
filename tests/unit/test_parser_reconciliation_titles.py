@@ -66,15 +66,17 @@ def test_reconcile_does_not_treat_numbered_sections_as_authors() -> None:
     out = ParsedDocument(
         parser_name='markitdown',
         body_markdown='''A Simple Test of Transport Maps for Posterior Geometry\nAlice Example\nBob Example\n1 Introduction\n2 Method\n3 Experiment\n4 Conclusion\n''',
+        section_headings=['1 Introduction', '2 Method', '3 Experiment', '4 Conclusion'],
         parse_status='ok',
     )
 
-    rec = reconcile_parsed_documents([out])
+    rec = reconcile_parsed_documents([out, out])
 
     assert 'Alice Example' in rec.consensus_authors
     assert 'Bob Example' in rec.consensus_authors
     assert '2 Method' not in rec.consensus_authors
     assert '3 Experiment' not in rec.consensus_authors
+    assert rec.consensus_section_headings == ['Introduction', 'Method', 'Experiment', 'Conclusion']
 
 
 def test_reconcile_splits_joined_author_lines() -> None:
