@@ -7,6 +7,35 @@ import shutil
 import urllib.request
 
 
+PARSER_CAPABILITIES = {
+    'pdftotext': {
+        'section_headings': 'partial',
+        'equations': 'unreliable',
+        'citations': 'unreliable',
+    },
+    'markitdown': {
+        'section_headings': 'partial',
+        'equations': 'unreliable',
+        'citations': 'unreliable',
+    },
+    'marker': {
+        'section_headings': 'partial',
+        'equations': 'unreliable',
+        'citations': 'unreliable',
+    },
+    'mineru': {
+        'section_headings': 'partial',
+        'equations': 'unreliable',
+        'citations': 'unreliable',
+    },
+    'grobid': {
+        'section_headings': 'partial',
+        'equations': 'unreliable',
+        'citations': 'unreliable',
+    },
+}
+
+
 @dataclass
 class ParserPreflight:
     parser_name: str
@@ -23,11 +52,28 @@ class ParserPreflight:
 
 
 
+def parser_capabilities(name: str) -> dict[str, str]:
+    return PARSER_CAPABILITIES.get(name, {
+        'section_headings': 'unknown',
+        'equations': 'unknown',
+        'citations': 'unknown',
+    })
+
+
+
+def _with_capabilities(name: str, details: dict) -> dict:
+    return {
+        **details,
+        'capabilities': parser_capabilities(name),
+    }
+
+
+
 def check_command(name: str, command: str) -> ParserPreflight:
     path = shutil.which(command)
     if path:
-        return ParserPreflight(name, True, 'available', [f'{command} found'], {'path': path, 'command': command})
-    return ParserPreflight(name, False, 'unavailable', [f'{command} not found in PATH'], {'command': command})
+        return ParserPreflight(name, True, 'available', [f'{command} found'], _with_capabilities(name, {'path': path, 'command': command}))
+    return ParserPreflight(name, False, 'unavailable', [f'{command} not found in PATH'], _with_capabilities(name, {'command': command}))
 
 
 
@@ -42,9 +88,9 @@ def check_http(name: str, url: str, timeout: int = 5) -> ParserPreflight:
     try:
         with urllib.request.urlopen(url, timeout=timeout) as response:
             body = response.read().decode('utf-8', errors='ignore')
-        return ParserPreflight(name, True, 'available', [f'{url} responded'], {'url': url, 'body': body.strip()})
+        return ParserPreflight(name, True, 'available', [f'{url} responded'], _with_capabilities(name, {'url': url, 'body': body.strip()}))
     except Exception as exc:
-        return ParserPreflight(name, False, 'unavailable', [str(exc)], {'url': url})
+        return ParserPreflight(name, False, 'unavailable', [str(exc)], _with_capabilities(name, {'url': url}))
 
 
 
@@ -77,7 +123,7 @@ def preflight_all() -> list[ParserPreflight]:
             True,
             'available',
             ['magic-pdf found', f"{mineru_config.details['path']} exists", 'Run magic-pdf --path <pdf> --output-dir <dir> --method auto for validation.'],
-            {'cli': mineru_cli.to_dict(), 'config': mineru_config.to_dict()},
+            _with_capabilities('mineru', {'cli': mineru_cli.to_dict(), 'config': mineru_config.to_dict()}),
         )
     elif mineru_cli.available:
         mineru = ParserPreflight(
@@ -85,7 +131,7 @@ def preflight_all() -> list[ParserPreflight]:
             False,
             'misconfigured',
             ['magic-pdf found', f"{mineru_config.details['path']} not found", 'Create the MinerU config file before running parser validation.'],
-            {'cli': mineru_cli.to_dict(), 'config': mineru_config.to_dict()},
+            _with_capabilities('mineru', {'cli': mineru_cli.to_dict(), 'config': mineru_config.to_dict()}),
         )
     else:
         mineru = ParserPreflight(
@@ -93,7 +139,7 @@ def preflight_all() -> list[ParserPreflight]:
             False,
             'unavailable',
             ['magic-pdf not found in PATH', 'Install MinerU before running parser validation.'],
-            {'cli': mineru_cli.to_dict(), 'config': mineru_config.to_dict()},
+            _with_capabilities('mineru', {'cli': mineru_cli.to_dict(), 'config': mineru_config.to_dict()}),
         )
 
     if grobid.available:

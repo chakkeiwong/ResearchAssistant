@@ -6,6 +6,7 @@ import re
 
 from research_assistant.schemas.parsed_document import ParsedDocument, ReconciledDocument
 from research_assistant.ingest.metadata_resolve import title_similarity
+from research_assistant.ingest.parser_preflight import parser_capabilities
 from research_assistant.ingest.parser_pdftotext import PdftotextParser
 from research_assistant.ingest.parser_marker import MarkerParser
 from research_assistant.ingest.parser_grobid import GROBIDParser
@@ -269,6 +270,7 @@ def reconcile_parsed_documents(outputs: list[ParsedDocument]) -> ReconciledDocum
 
         parser_outputs.append({
             **out.to_dict(),
+            'capabilities': parser_capabilities(out.parser_name),
             'derived_title_candidates': enriched_titles,
             'derived_authors': enriched_authors,
             'derived_section_headings': enriched_section_headings,

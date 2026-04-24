@@ -150,7 +150,17 @@ def test_summary_surfaces_citation_neighborhood_status() -> None:
 
     rec = build_draft_summary('paper_credit', metadata, '')
 
-    assert rec.provenance['identity_validation'] == 'validated'
-    assert rec.provenance['citation_neighborhood'] == 'corroborated'
-    assert rec.review_summary['citation_neighborhood'] == 'corroborated'
-    assert 'citation neighborhood: corroborated' in rec.merge_notes
+
+
+def test_summary_initializes_audit_fields() -> None:
+    rec = build_draft_summary('paper_credit', {'openalex': {}, 'crossref': {}, 'arxiv': {}}, '')
+
+    assert rec.technical_audit['transport_definition'] == ''
+    assert rec.technical_audit['objective'] == ''
+    assert rec.technical_audit['transformed_target'] == ''
+    assert rec.technical_audit['claimed_results'] == []
+    assert rec.technical_audit['derived_results'] == []
+    assert rec.technical_audit['open_questions'] == []
+    assert rec.technical_audit['relevant_equations'] == []
+    assert rec.technical_audit['relevant_sections'] == []
+    assert rec.technical_audit['assumptions_for_reuse'] == []

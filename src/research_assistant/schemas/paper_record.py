@@ -27,6 +27,7 @@ class PaperRecord:
     scientific_relevance: str = ""
     domain_relevance: str = ""
     implementation_implications: list[str] = field(default_factory=list)
+    technical_audit: dict[str, Any] = field(default_factory=dict)
     linked_code_files: list[str] = field(default_factory=list)
     linked_doc_sections: list[str] = field(default_factory=list)
     reviewer_objections: list[str] = field(default_factory=list)

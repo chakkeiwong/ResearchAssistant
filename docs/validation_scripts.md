@@ -54,7 +54,7 @@ python -m pytest tests/unit tests/integration -q
 ```
 
 ### `run_parser_preflight.sh`
-Runs parser availability diagnostics:
+Runs parser availability diagnostics and reports each parser's current capability limits for section headings, equations, and citations:
 
 ```bash
 ra parser-preflight

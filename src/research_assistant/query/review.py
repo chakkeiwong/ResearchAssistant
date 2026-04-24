@@ -15,6 +15,30 @@ def _summary_paths(root: Path | None = None) -> list[Path]:
     return sorted(paths.summaries.glob('*.json'))
 
 
+def _technical_audit_defaults() -> dict[str, Any]:
+    return {
+        'transport_definition': '',
+        'objective': '',
+        'transformed_target': '',
+        'claimed_results': [],
+        'derived_results': [],
+        'open_questions': [],
+        'relevant_equations': [],
+        'relevant_sections': [],
+        'assumptions_for_reuse': [],
+    }
+
+
+def _summary_with_defaults(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **summary,
+        'technical_audit': {
+            **_technical_audit_defaults(),
+            **(summary.get('technical_audit') or {}),
+        },
+    }
+
+
 def list_review_items(*, root: Path | None = None, status: str | None = None) -> list[dict[str, Any]]:
     paths = get_paths(root)
     store = FileStore(paths.local_research)
@@ -39,7 +63,7 @@ def list_review_items(*, root: Path | None = None, status: str | None = None) ->
 def show_review_item(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     store = FileStore(paths.local_research)
-    summary = store.read_json(paths.summaries / f'{paper_id}.json')
+    summary = _summary_with_defaults(store.read_json(paths.summaries / f'{paper_id}.json'))
     return {
         'paper_id': paper_id,
         'review_status': summary.get('review_status', 'needs_review'),
@@ -58,7 +82,7 @@ def mark_review_status(paper_id: str, status: str, *, root: Path | None = None) 
     paths = get_paths(root)
     store = FileStore(paths.local_research)
     summary_path = paths.summaries / f'{paper_id}.json'
-    data = store.read_json(summary_path)
+    data = _summary_with_defaults(store.read_json(summary_path))
     data['review_status'] = status
     data['requires_manual_review'] = status != 'approved'
     review_summary = dict(data.get('review_summary') or {})

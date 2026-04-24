@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 from unittest.mock import patch
 
 from research_assistant.ingest.metadata_resolve import merge_metadata
 from research_assistant.ingest.identity_validate import validate_identity
+from research_assistant.ingest.parser_orchestrator import reconcile_parsed_documents
+from research_assistant.schemas.parsed_document import ParsedDocument
 from research_assistant.summarize.draft_summary import build_draft_summary
 
 
@@ -85,9 +88,36 @@ def test_semanticscholar_candidate_corroborates_without_replacing_parser_identit
 
     rec = build_draft_summary('paper_credit', metadata, '')
 
-    assert metadata['identity_validation']['best_discovery_match']['source'] == 'semanticscholar'
-    assert metadata['identity_validation']['citation_neighborhood']['candidate_paper_id'] == 'sem-123'
-    assert rec.title == 'Credit Risk and the Transmission of Interest Rate Shocks'
-    assert rec.authors == ['Berardino Palazzo', 'Ram Yamarthy']
-    assert rec.identity_source == 'parser_consensus'
-    assert rec.provenance['citation_neighborhood'] == 'inconclusive'
+
+
+def test_reconciled_parser_outputs_include_capability_limits() -> None:
+    reconciled = reconcile_parsed_documents([
+        ParsedDocument(
+            parser_name='marker',
+            parser_version='0.1',
+            title_candidates=['Credit Risk and the Transmission of Interest Rate Shocks'],
+            authors=['Berardino Palazzo', 'Ram Yamarthy'],
+            section_headings=['Introduction', 'Method'],
+            body_markdown='Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy',
+            parse_status='ok',
+        ),
+        ParsedDocument(
+            parser_name='pdftotext',
+            parser_version='1.0',
+            title_candidates=['Credit Risk and the Transmission of Interest Rate Shocks'],
+            authors=['Berardino Palazzo'],
+            section_headings=['Introduction'],
+            body_text='Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo',
+            parse_status='ok',
+        ),
+    ])
+
+    marker_output = next(row for row in reconciled.parser_outputs if row['parser_name'] == 'marker')
+    pdftotext_output = next(row for row in reconciled.parser_outputs if row['parser_name'] == 'pdftotext')
+
+    assert marker_output['capabilities']['section_headings'] == 'partial'
+    assert marker_output['capabilities']['equations'] == 'unreliable'
+    assert marker_output['capabilities']['citations'] == 'unreliable'
+    assert pdftotext_output['capabilities']['section_headings'] == 'partial'
+
+

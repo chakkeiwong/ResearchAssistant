@@ -48,6 +48,20 @@ def _build_review_summary(metadata_confidence: str, parser_confidence: str, iden
     }
 
 
+def _technical_audit_fields() -> dict:
+    return {
+        'transport_definition': '',
+        'objective': '',
+        'transformed_target': '',
+        'claimed_results': [],
+        'derived_results': [],
+        'open_questions': [],
+        'relevant_equations': [],
+        'relevant_sections': [],
+        'assumptions_for_reuse': [],
+    }
+
+
 def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord:
     openalex = metadata.get('openalex', {})
     crossref = metadata.get('crossref', {})
@@ -154,6 +168,7 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
         requires_manual_review=requires_manual_review,
         candidate_metadata_sources=candidate_metadata_sources,
         merge_notes=merge_notes,
+        technical_audit=_technical_audit_fields(),
         provenance={
             **provenance,
             'identity_validation': validation_status or 'none',

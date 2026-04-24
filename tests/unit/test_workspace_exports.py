@@ -17,6 +17,17 @@ def test_export_paper_context_filters_by_review_status(tmp_path: Path, monkeypat
         'abstract': '',
         'main_contribution': '',
         'review_status': 'approved',
+        'technical_audit': {
+            'transport_definition': 'A transport map',
+            'objective': '',
+            'transformed_target': '',
+            'claimed_results': ['Claim A'],
+            'derived_results': [],
+            'open_questions': [],
+            'relevant_equations': [],
+            'relevant_sections': ['Method'],
+            'assumptions_for_reuse': [],
+        },
     }))
     (summaries / 'paper_b.json').write_text(json.dumps({
         'id': 'paper_b',
@@ -32,3 +43,6 @@ def test_export_paper_context_filters_by_review_status(tmp_path: Path, monkeypat
     payload = json.loads(out.read_text())
 
     assert [paper['id'] for paper in payload['papers']] == ['paper_a']
+    assert payload['papers'][0]['technical_audit']['transport_definition'] == 'A transport map'
+    assert payload['papers'][0]['technical_audit']['claimed_results'] == ['Claim A']
+    assert payload['papers'][0]['technical_audit']['relevant_sections'] == ['Method']

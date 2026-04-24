@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 
 from research_assistant.ingest.metadata_resolve import normalize_title, title_similarity
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
+from research_assistant.ingest.parser_preflight import parser_capabilities
 from research_assistant.schemas.parsed_document import ParsedDocument, ReconciledDocument
 
 
@@ -88,6 +89,7 @@ def _summarize_parser_output(expected: dict, parsed: ParsedDocument) -> dict[str
         'authors': parsed.authors,
         'abstract_present': bool(parsed.abstract.strip()),
         'section_headings': parsed.section_headings,
+        'capabilities': parser_capabilities(parsed.parser_name),
         'scores': score_parser_output(expected, parsed),
         'diagnostics': parsed.diagnostics,
     }
@@ -124,6 +126,10 @@ def score_expected_record(data: dict, fixture_path: Path | None = None) -> dict:
             'requires_manual_review': reconciled.requires_manual_review,
             'parser_agreement': reconciled.parser_agreement,
             'disagreements': reconciled.disagreements,
+            'parser_capability_limits': {
+                row['parser_name']: row.get('capabilities', parser_capabilities(row['parser_name']))
+                for row in reconciled.parser_outputs
+            },
             'scores': score_reconciled_output(expected, reconciled),
         },
         'status': 'scored',

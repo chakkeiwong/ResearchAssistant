@@ -11,13 +11,27 @@ from research_assistant.schemas.audit_record import AuditRecord
 from research_assistant.storage.file_store import FileStore
 
 
-def find_paper(query: str, *, root: Path | None = None) -> list[dict[str, Any]]:
+def find_paper(
+    query: str,
+    *,
+    root: Path | None = None,
+    review_status: str | None = None,
+    author: str | None = None,
+    year: int | None = None,
+) -> list[dict[str, Any]]:
     paths = get_paths(root)
     store = FileStore(paths.local_research)
     q = query.lower()
+    author_filter = author.lower() if author else None
     results = []
     for path in sorted(paths.summaries.glob('*.json')):
         rec = PaperRecord.from_dict(store.read_json(path))
+        if review_status and rec.review_status != review_status:
+            continue
+        if year is not None and rec.year != year:
+            continue
+        if author_filter and not any(author_filter in a.lower() for a in rec.authors):
+            continue
         hay = ' '.join([rec.id, rec.title, rec.abstract, rec.main_contribution]).lower()
         if q in hay:
             results.append({
@@ -31,6 +45,57 @@ def find_paper(query: str, *, root: Path | None = None) -> list[dict[str, Any]]:
     return results
 
 
+def _extraction_payload(paper_id: str, metadata: dict[str, Any], *, root: Path | None = None) -> dict[str, Any]:
+    paths = get_paths(root)
+    extracted_text_path = paths.papers_extracted / f'{paper_id}.txt'
+    parser_hints = metadata.get('parser_hints') or {}
+    parser_outputs = parser_hints.get('parser_outputs') or []
+    limitations = [
+        {
+            'field': 'equations',
+            'status': 'unreliable',
+            'note': 'Equations are not yet reliably extracted as structured output.',
+        },
+        {
+            'field': 'citations',
+            'status': 'unreliable',
+            'note': 'PDF citation extraction is not yet reliable enough to trust as structured output.',
+        },
+    ]
+    warnings = []
+    if parser_hints.get('parse_confidence') == 'low':
+        warnings.append('parser confidence is low')
+    warnings.extend(parser_hints.get('disagreements') or [])
+    return {
+        'extracted_text_path': str(extracted_text_path) if extracted_text_path.exists() else None,
+        'extracted_text_available': extracted_text_path.exists(),
+        'consensus_section_headings': parser_hints.get('consensus_section_headings') or [],
+        'parser_reconciliation': {
+            'parse_confidence': parser_hints.get('parse_confidence', 'low'),
+            'requires_manual_review': parser_hints.get('requires_manual_review', True),
+            'parser_agreement': parser_hints.get('parser_agreement') or {},
+            'disagreements': parser_hints.get('disagreements') or [],
+            'parser_outputs_used': [
+                {
+                    'parser_name': output.get('parser_name'),
+                    'parse_status': output.get('parse_status'),
+                    'parser_version': output.get('parser_version'),
+                    'section_headings': output.get('section_headings') or [],
+                    'diagnostics': output.get('diagnostics') or {},
+                    'capabilities': output.get('capabilities') or {
+                        'section_headings': 'unknown',
+                        'equations': 'unknown',
+                        'citations': 'unknown',
+                    },
+                }
+                for output in parser_outputs
+            ],
+        },
+        'warnings': warnings,
+        'limitations': limitations,
+    }
+
+
 def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     store = FileStore(paths.local_research)
@@ -42,7 +107,33 @@ def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, A
         data = store.read_json(p)
         if data.get('paper_id') == paper_id:
             links.append(data)
-    return {'metadata': metadata, 'summary': summary, 'links': links}
+    review = {
+        'review_status': summary.get('review_status', 'needs_review'),
+        'requires_manual_review': summary.get('requires_manual_review', True),
+        'review_summary': summary.get('review_summary', {}),
+        'provenance': summary.get('provenance', {}),
+        'identity_validation': metadata.get('identity_validation', {}),
+    }
+    extraction = _extraction_payload(paper_id, metadata, root=paths.root)
+    technical_audit = summary.get('technical_audit') or {
+        'transport_definition': '',
+        'objective': '',
+        'transformed_target': '',
+        'claimed_results': [],
+        'derived_results': [],
+        'open_questions': [],
+        'relevant_equations': [],
+        'relevant_sections': [],
+        'assumptions_for_reuse': [],
+    }
+    return {
+        'review': review,
+        'extraction': extraction,
+        'technical_audit': technical_audit,
+        'metadata': metadata,
+        'summary': summary,
+        'links': links,
+    }
 
 
 def paper_code_links(paper_id: str, *, root: Path | None = None) -> list[dict[str, Any]]:

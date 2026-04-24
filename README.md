@@ -30,11 +30,45 @@ ra review-list
 ra review-show --paper-id paper_example
 ra review-mark --paper-id paper_example --status approved
 ra discover --query "transport maps hmc"
+ra citation-neighborhood --paper-id paper_example
 ra download-paper --query "transport maps hmc"
 ra inbox-list
 ra inbox-show --proposed-name candidate_paper.pdf
+ra export-context --review-status approved --output /tmp/paper_context.json
 ra parser-preflight
 ra parse-pdf --pdf /path/to/paper.pdf
+```
+
+## Literature-audit operator note
+
+Use the tool as a conservative ingest/review/export workflow rather than a full equation or bibliography extractor.
+
+- `ra show`, `ra discover`, `ra citation-neighborhood`, `ra review-show`, `ra review-mark`, `ra parse-pdf`, and `ra parser-preflight` return JSON.
+- `ra find`, `ra review-list`, and `ra inbox-list` return tabular output by default.
+- `ra export-context` writes a JSON file for downstream coding or writing workflows.
+
+Local outputs live under:
+- `local_research/papers/raw/` for stored PDFs
+- `local_research/papers/extracted/` for extracted text
+- `local_research/metadata/` for metadata JSON
+- `local_research/summaries/` for structured paper summaries
+- `local_research/inbox/` and `local_research/inbox/metadata/` for downloaded open-access proposals
+
+Current PDF extraction posture:
+- `ra parser-preflight` reports availability and capability limits for each parser;
+- `ra parse-pdf` reports the reconciled parser payload, including per-parser capability limits;
+- section headings: partially supported through parser reconciliation;
+- equations: not yet reliable as structured output;
+- PDF citation extraction: not reliable enough to promise;
+- citation graph lookup from scholarly APIs: supported via `ra citation-neighborhood`, with source status reporting when APIs are empty or unavailable.
+
+Example:
+
+```bash
+ra ingest --pdf ~/papers/neutra_hmc.pdf --query "Neural Transport HMC"
+ra find --query "Neural Transport HMC"
+ra show --paper-id neutra_hmc
+ra citation-neighborhood --paper-id neutra_hmc
 ```
 
 ## Validation

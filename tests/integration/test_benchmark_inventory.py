@@ -50,6 +50,11 @@ def test_parser_benchmark_scores_all_compiled_synthetic_fixtures() -> None:
         assert len(row['parser_runs']) >= 1
         assert 'reconciled' in row
         assert 'scores' in row['reconciled']
+        assert 'parser_capability_limits' in row['reconciled']
+        for parser_run in row['parser_runs']:
+            assert parser_run['capabilities']['section_headings'] in {'partial', 'unknown'}
+            assert parser_run['capabilities']['equations'] in {'unreliable', 'unknown'}
+            assert parser_run['capabilities']['citations'] in {'unreliable', 'unknown'}
         assert row['diagnostics'] == []
 
 
@@ -59,8 +64,10 @@ def test_parser_benchmark_scores_real_fixture_when_pdf_present() -> None:
     assert row['status'] == 'scored'
     assert row['pdf'] == 'tests/fixtures/benchmark_papers/synthetic/synthetic_transport_simple.pdf'
     assert len(row['parser_runs']) >= 1
+    assert 'capabilities' in row['parser_runs'][0]
     assert 'reconciled' in row
     assert 'consensus_section_headings' in row['reconciled']
+    assert 'parser_capability_limits' in row['reconciled']
     assert 'scores' in row['reconciled']
     assert row['diagnostics'] == []
 
@@ -89,7 +96,10 @@ def test_parser_benchmark_scores_parser_output_fields() -> None:
     assert scores['section_headings']['matched'] == 2
     assert scores['section_headings']['expected'] == 3
     assert scores['abstract_present'] is True
-
+    summary = run_parser_benchmark._summarize_parser_output(expected, parsed)
+    assert summary['capabilities']['section_headings'] == 'unknown'
+    assert summary['capabilities']['equations'] == 'unknown'
+    assert summary['capabilities']['citations'] == 'unknown'
 
 
 

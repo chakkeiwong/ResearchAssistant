@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from research_assistant.adapters.workspace_exports import export_paper_context
 from research_assistant.config import get_paths
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
 from research_assistant.ingest.pdf_extract import extract_pdf_text
@@ -16,9 +17,9 @@ from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
 from research_assistant.query.review import list_review_items, mark_review_status, show_review_item
-from research_assistant.query.discovery import discover_papers
+from research_assistant.query.discovery import discover_papers, discover_papers_with_status
 from research_assistant.query.downloads import download_to_inbox, list_download_proposals, persist_download_proposal, propose_download, show_download_proposal
-from research_assistant.query.citation_graph import papers_cited_by, papers_citing
+from research_assistant.query.citation_graph import citation_neighborhood, papers_cited_by, papers_citing
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 from research_assistant.ingest.parser_preflight import preflight_all
 
@@ -44,6 +45,7 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             'consensus_title': reconciled.consensus_title,
             'consensus_authors': reconciled.consensus_authors,
             'consensus_abstract': reconciled.consensus_abstract,
+            'consensus_section_headings': reconciled.consensus_section_headings,
             'parse_confidence': reconciled.parse_confidence,
             'requires_manual_review': reconciled.requires_manual_review,
             'parser_agreement': reconciled.parser_agreement,
@@ -62,7 +64,7 @@ def cmd_ingest(args: argparse.Namespace) -> int:
 
 def cmd_find(args: argparse.Namespace) -> int:
     paths = get_paths(Path(args.root) if args.root else None)
-    for rec in find_paper(args.query, root=paths.root):
+    for rec in find_paper(args.query, root=paths.root, review_status=args.review_status, author=args.author, year=args.year):
         print(f"{rec['paper_id']}\t{rec['year']}\t{rec['review_status']}\t{rec['title']}")
     return 0
 
@@ -72,6 +74,16 @@ def cmd_show(args: argparse.Namespace) -> int:
     result = get_paper_summary(args.paper_id, root=paths.root)
     import json
     print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_export_context(args: argparse.Namespace) -> int:
+    out = export_paper_context(
+        Path(args.output) if args.output else None,
+        root=Path(args.root) if args.root else None,
+        review_status=args.review_status,
+    )
+    print(out)
     return 0
 
 
@@ -125,17 +137,26 @@ def cmd_audit_claim(args: argparse.Namespace) -> int:
 
 def cmd_discover(args: argparse.Namespace) -> int:
     import json
-    results = discover_papers(args.query, per_page=args.limit)
-    print(json.dumps(results, indent=2, sort_keys=True))
+    payload = discover_papers_with_status(args.query, per_page=args.limit)
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
 def cmd_download_paper(args: argparse.Namespace) -> int:
     import json
-    results = discover_papers(args.query, per_page=args.limit)
+    payload = discover_papers_with_status(args.query, per_page=args.limit)
+    results = payload['results']
     downloadable = [r for r in results if r.get('open_access_pdf_url')]
     if not downloadable:
-        print(json.dumps({'query': args.query, 'downloaded': False, 'reason': 'no open access pdf found'}, indent=2, sort_keys=True))
+        reason = 'no open access pdf found'
+        if payload['status'] == 'unavailable':
+            reason = 'discovery unavailable'
+        print(json.dumps({
+            'query': args.query,
+            'downloaded': False,
+            'reason': reason,
+            'discovery': payload,
+        }, indent=2, sort_keys=True))
         return 0
     chosen = downloadable[0]
     proposal = propose_download(chosen, root=Path(args.root) if args.root else None, query=args.query)
@@ -144,6 +165,7 @@ def cmd_download_paper(args: argparse.Namespace) -> int:
     print(json.dumps({
         'query': args.query,
         'downloaded': True,
+        'discovery': payload,
         'result': chosen,
         'proposal': proposal.to_dict(),
         'proposal_path': str(proposal_path),
@@ -166,14 +188,21 @@ def cmd_papers_cited_by(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_citation_neighborhood(args: argparse.Namespace) -> int:
+    import json
+    results = citation_neighborhood(args.paper_id, limit=args.limit)
+    print(json.dumps(results, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_inbox_list(args: argparse.Namespace) -> int:
     import json
-    rows = list_download_proposals(root=Path(args.root) if args.root else None)
+    rows = list_download_proposals(root=Path(args.root) if args.root else None, duplicate_status=args.duplicate_status)
     if args.json:
         print(json.dumps(rows, indent=2, sort_keys=True))
         return 0
     for row in rows:
-        print(f"{row['proposed_name']}\t{row['source']}\t{row['title']}")
+        print(f"{row['proposed_name']}\t{row.get('duplicate_status', 'unknown')}\t{row.get('duplicate_count', 0)}\t{row['source']}\t{row['title']}")
     return 0
 
 
@@ -212,11 +241,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     find = sub.add_parser('find')
     find.add_argument('--query', required=True)
+    find.add_argument('--review-status')
+    find.add_argument('--author')
+    find.add_argument('--year', type=int)
     find.set_defaults(func=cmd_find)
 
     show = sub.add_parser('show')
     show.add_argument('--paper-id', required=True)
     show.set_defaults(func=cmd_show)
+
+    export_context = sub.add_parser('export-context')
+    export_context.add_argument('--output')
+    export_context.add_argument('--review-status')
+    export_context.set_defaults(func=cmd_export_context)
 
     review_list = sub.add_parser('review-list')
     review_list.add_argument('--status')
@@ -265,7 +302,13 @@ def build_parser() -> argparse.ArgumentParser:
     papers_cited_by_cmd.add_argument('--limit', type=int, default=10)
     papers_cited_by_cmd.set_defaults(func=cmd_papers_cited_by)
 
+    citation_neighborhood_cmd = sub.add_parser('citation-neighborhood')
+    citation_neighborhood_cmd.add_argument('--paper-id', required=True)
+    citation_neighborhood_cmd.add_argument('--limit', type=int, default=5)
+    citation_neighborhood_cmd.set_defaults(func=cmd_citation_neighborhood)
+
     inbox_list = sub.add_parser('inbox-list')
+    inbox_list.add_argument('--duplicate-status')
     inbox_list.add_argument('--json', action='store_true')
     inbox_list.set_defaults(func=cmd_inbox_list)
 
