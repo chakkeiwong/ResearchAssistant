@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import io
 import json
+import tarfile
 from pathlib import Path
 
 from research_assistant import cli
@@ -755,3 +757,64 @@ def test_cli_local_ingest_audit_scenario_preserves_trust_checkpoints(tmp_path: P
     assert exported['papers'][0]['technical_audit']['transport_definition'] == 'Map z to theta before HMC proposal generation.'
     assert exported['papers'][0]['technical_audit']['objective'] == 'Improve posterior geometry without changing the exact MH target.'
     assert exported['papers'][0]['technical_audit']['relevant_sections'] == ['Method']
+
+
+def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Path, monkeypatch, capsys) -> None:
+    fixture = Path(__file__).resolve().parents[1] / 'fixtures' / 'latex_sources' / 'multi_file'
+
+    def source_tarball() -> bytes:
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode='w') as archive:
+            for path in sorted(fixture.rglob('*')):
+                if path.is_file():
+                    archive.add(path, arcname=str(path.relative_to(fixture)))
+        return buffer.getvalue()
+
+    def fake_download(arxiv_id: str, destination: Path) -> Path:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(source_tarball())
+        return destination
+
+    monkeypatch.setattr('research_assistant.source.arxiv_source.download_arxiv_source', fake_download)
+    monkeypatch.setattr(cli, 'fetch_arxiv_structured_source', __import__('research_assistant.source.arxiv_source', fromlist=['fetch_arxiv_structured_source']).fetch_arxiv_structured_source)
+    monkeypatch.setattr(cli, 'resolve_metadata', lambda query, *, arxiv_id=None, extracted_text='', filename_hints=None, parser_hints=None: {
+        'arxiv': {
+            'arxiv_id': arxiv_id,
+            'title': 'Structured Source HMC',
+            'authors': ['Alice Example'],
+            'abstract': 'We study source-first extraction.',
+        },
+        'metadata_confidence': 'high',
+        'source_statuses': [{'source': 'arxiv', 'status': 'available', 'result_count': 1}],
+        'provenance': {'arxiv': 'exact arxiv id supplied'},
+    })
+    monkeypatch.setattr(cli, 'validate_identity', lambda metadata: {'status': 'validated', 'requires_manual_review': False})
+
+    rc = main(['--root', str(tmp_path), 'source-fetch', '--arxiv-id', '2401.00001', '--paper-id', 'paper_source_first'])
+    fetched = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert fetched['status'] == 'available'
+    assert fetched['primary_for_audit'] is True
+    assert fetched['sections'][1]['title'] == 'Method'
+
+    rc = main(['--root', str(tmp_path), 'source-show', '--paper-id', 'paper_source_first'])
+    shown_source = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown_source['equations'][0]['labels'] == ['eq:target']
+
+    paper_id = canonical_paper_id('arxiv:2401.00001')
+    rc = main(['--root', str(tmp_path), 'ingest', '--arxiv-id', '2401.00001', '--query', 'Structured Source HMC'])
+    assert rc == 0
+    assert capsys.readouterr().out.strip() == paper_id
+
+    rc = main(['--root', str(tmp_path), 'show', '--paper-id', paper_id])
+    payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload['source_extraction']['available'] is True
+    assert payload['source_extraction']['primary_source'] == 'arxiv_latex'
+    assert payload['source_extraction']['section_count'] == 2
+    assert payload['source_extraction']['equation_count'] == 1
+    assert payload['source_extraction']['theorem_like_block_count'] == 1
+    assert payload['pdf_extraction']['extracted_text_available'] is False
+    assert payload['technical_audit']['transport_definition'] == ''
+    assert payload['metadata']['structured_source']['primary_for_audit'] is True

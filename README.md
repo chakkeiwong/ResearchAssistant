@@ -3,8 +3,9 @@
 A local-first research development assistant for Claude Code and terminal workflows.
 
 The product focuses on:
-- ingesting papers from local PDFs, DOI/title queries, arXiv IDs, or URLs;
-- extracting PDF text and parser-derived document structure;
+- ingesting papers from arXiv IDs, local PDFs, DOI/title queries, or URLs;
+- using arXiv LaTeX source as the primary audit substrate when available;
+- extracting PDF text and parser-derived document structure as fallback and cross-check;
 - reconciling parser outputs and metadata candidates conservatively;
 - storing structured paper summaries with provenance and review status;
 - discovering related/citing/cited papers through scholarly APIs;
@@ -23,6 +24,9 @@ See [docs/product_spec.md](docs/product_spec.md) for the v0.1 product contract.
 ## Core commands
 
 ```bash
+ra ingest --arxiv-id 2401.00001 --query "paper title or topic"
+ra source-fetch --arxiv-id 2401.00001
+ra source-show --paper-id paper_example
 ra ingest --pdf /path/to/paper.pdf --query "paper title or topic"
 ra find --query "transport maps"
 ra show --paper-id paper_example
@@ -48,14 +52,18 @@ Use the tool as a conservative ingest/review/export workflow rather than a full 
 - `ra export-context` writes a JSON file for downstream coding or writing workflows.
 
 Local outputs live under:
+- `local_research/papers/source/` for structured source bundles, flattened LaTeX, and source records
 - `local_research/papers/raw/` for stored PDFs
 - `local_research/papers/extracted/` for extracted text
 - `local_research/metadata/` for metadata JSON
 - `local_research/summaries/` for structured paper summaries
 - `local_research/inbox/` and `local_research/inbox/metadata/` for downloaded open-access proposals
 
-Current PDF extraction posture:
-- `ra parser-preflight` reports availability and capability limits for each parser;
+Current extraction posture:
+- arXiv LaTeX source is primary when available and is stored under `local_research/papers/source/`;
+- `ra source-fetch` caches source artifacts and extracts sections, equations, theorem-like blocks, labels, citations, bibliography entries, and macros;
+- `ra show` separates `source_extraction` from PDF/parser `extraction` and human `technical_audit` notes;
+- `ra parser-preflight` reports availability and capability limits for each PDF parser;
 - `ra parse-pdf` reports the reconciled parser payload, including per-parser capability limits;
 - section headings: partially supported through parser reconciliation;
 - equations: not yet reliable as structured output;

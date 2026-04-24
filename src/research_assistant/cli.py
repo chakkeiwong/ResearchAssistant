@@ -22,17 +22,22 @@ from research_assistant.query.downloads import download_to_inbox, list_download_
 from research_assistant.query.citation_graph import citation_neighborhood, papers_cited_by, papers_citing
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 from research_assistant.ingest.parser_preflight import preflight_all
+from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
+from research_assistant.source.structured_source import source_record_path
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
     paths = get_paths(Path(args.root) if args.root else None)
-    source = args.pdf or args.query
+    source = args.pdf or (f'arxiv:{args.arxiv_id}' if args.arxiv_id else args.query)
     if not source:
-        raise SystemExit('ingest requires --pdf or --query')
+        raise SystemExit('ingest requires --pdf, --query, or --arxiv-id')
     paper_id = canonical_paper_id(source)
     text = ''
     filename_hints = None
     parser_hints = None
+    structured_source = None
+    if args.arxiv_id:
+        structured_source = fetch_arxiv_structured_source(args.arxiv_id, root=paths.root, paper_id=paper_id)
     if args.pdf:
         raw_path = store_raw_source(args.pdf, paths.papers_raw, paper_id)
         text = normalize_extracted_text(extract_pdf_text(raw_path))
@@ -53,6 +58,15 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             'parser_outputs': reconciled.parser_outputs,
         }
     metadata = resolve_metadata(args.query or source, arxiv_id=args.arxiv_id, extracted_text=text, filename_hints=filename_hints, parser_hints=parser_hints)
+    if structured_source is not None:
+        metadata['structured_source'] = {
+            'paper_id': structured_source.paper_id,
+            'source_type': structured_source.source_type,
+            'status': structured_source.status,
+            'primary_for_audit': structured_source.primary_for_audit,
+            'record_path': str(source_record_path(paths.papers_source, paper_id)),
+        }
+        metadata.setdefault('source_statuses', []).extend(structured_source.provenance.get('source_statuses', []))
     metadata['identity_validation'] = validate_identity(metadata)
     summary = build_draft_summary(paper_id, metadata, text)
     store = FileStore(paths.local_research)
@@ -228,6 +242,25 @@ def cmd_parser_preflight(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_source_fetch(args: argparse.Namespace) -> int:
+    import json
+    paths = get_paths(Path(args.root) if args.root else None)
+    source = args.paper_id or f'arxiv:{args.arxiv_id}'
+    paper_id = args.paper_id or canonical_paper_id(source)
+    record = fetch_arxiv_structured_source(args.arxiv_id, root=paths.root, paper_id=paper_id)
+    print(json.dumps(record.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_show(args: argparse.Namespace) -> int:
+    import json
+    paths = get_paths(Path(args.root) if args.root else None)
+    store = FileStore(paths.local_research)
+    payload = store.read_json(source_record_path(paths.papers_source, args.paper_id))
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='ra')
     parser.add_argument('--root', help='Research assistant project root')
@@ -322,6 +355,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser_preflight = sub.add_parser('parser-preflight')
     parser_preflight.set_defaults(func=cmd_parser_preflight)
+
+    source_fetch = sub.add_parser('source-fetch')
+    source_fetch.add_argument('--arxiv-id', required=True)
+    source_fetch.add_argument('--paper-id')
+    source_fetch.set_defaults(func=cmd_source_fetch)
+
+    source_show = sub.add_parser('source-show')
+    source_show.add_argument('--paper-id', required=True)
+    source_show.set_defaults(func=cmd_source_show)
 
     return parser
 

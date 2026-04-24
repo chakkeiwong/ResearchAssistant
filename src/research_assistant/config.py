@@ -10,6 +10,7 @@ class AppPaths:
     local_research: Path
     papers_raw: Path
     papers_extracted: Path
+    papers_source: Path
     metadata: Path
     summaries: Path
     links: Path
@@ -26,6 +27,7 @@ def get_paths(root: Path | None = None) -> AppPaths:
         local_research=local_research,
         papers_raw=local_research / "papers" / "raw",
         papers_extracted=local_research / "papers" / "extracted",
+        papers_source=local_research / "papers" / "source",
         metadata=local_research / "metadata",
         summaries=local_research / "summaries",
         links=local_research / "links",

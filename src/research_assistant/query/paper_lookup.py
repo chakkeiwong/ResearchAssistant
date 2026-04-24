@@ -9,6 +9,7 @@ from research_assistant.schemas.paper_record import PaperRecord
 from research_assistant.schemas.link_record import LinkRecord
 from research_assistant.schemas.audit_record import AuditRecord
 from research_assistant.storage.file_store import FileStore
+from research_assistant.source.structured_source import source_record_path
 
 
 def find_paper(
@@ -96,6 +97,46 @@ def _extraction_payload(paper_id: str, metadata: dict[str, Any], *, root: Path |
     }
 
 
+def _source_extraction_payload(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    paths = get_paths(root)
+    path = source_record_path(paths.papers_source, paper_id)
+    if not path.exists():
+        return {
+            'available': False,
+            'primary_source': 'pdf_parser',
+            'record_path': None,
+            'limitations': [{'field': 'source', 'status': 'unavailable', 'note': 'No structured source artifact is stored for this paper.'}],
+        }
+    record = FileStore(paths.local_research).read_json(path)
+    return {
+        'available': record.get('status') == 'available',
+        'primary_source': record.get('source_type') if record.get('primary_for_audit') else 'pdf_parser',
+        'record_path': str(path),
+        'source_type': record.get('source_type'),
+        'status': record.get('status'),
+        'primary_for_audit': record.get('primary_for_audit', False),
+        'artifact_root': record.get('artifact_root'),
+        'original_source_path': record.get('original_source_path'),
+        'flattened_source_path': record.get('flattened_source_path'),
+        'section_count': len(record.get('sections') or []),
+        'equation_count': len(record.get('equations') or []),
+        'theorem_like_block_count': len(record.get('theorem_like_blocks') or []),
+        'citation_count': len(record.get('citations') or []),
+        'bibliography_count': len(record.get('bibliography') or []),
+        'macro_count': len(record.get('macros') or []),
+        'sections': record.get('sections') or [],
+        'equations': record.get('equations') or [],
+        'theorem_like_blocks': record.get('theorem_like_blocks') or [],
+        'labels': record.get('labels') or [],
+        'citations': record.get('citations') or [],
+        'bibliography': record.get('bibliography') or [],
+        'macros': record.get('macros') or [],
+        'provenance': record.get('provenance') or {},
+        'diagnostics': record.get('diagnostics') or {},
+        'limitations': record.get('limitations') or [],
+    }
+
+
 def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     store = FileStore(paths.local_research)
@@ -116,6 +157,7 @@ def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, A
         'metadata_source_statuses': metadata.get('source_statuses', []),
     }
     extraction = _extraction_payload(paper_id, metadata, root=paths.root)
+    source_extraction = _source_extraction_payload(paper_id, root=paths.root)
     technical_audit = summary.get('technical_audit') or {
         'transport_definition': '',
         'objective': '',
@@ -129,7 +171,9 @@ def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, A
     }
     return {
         'review': review,
+        'source_extraction': source_extraction,
         'extraction': extraction,
+        'pdf_extraction': extraction,
         'technical_audit': technical_audit,
         'metadata': metadata,
         'summary': summary,
