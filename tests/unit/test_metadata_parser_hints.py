@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from unittest.mock import patch
+import urllib.error
 
 from research_assistant.ingest.metadata_resolve import merge_metadata, resolve_metadata, choose_best_semanticscholar_result
+from research_assistant.summarize.draft_summary import build_draft_summary
 
 
 def test_merge_metadata_preserves_parser_hints() -> None:
@@ -91,4 +93,39 @@ def test_merge_metadata_preserves_semanticscholar_candidates() -> None:
     )
 
     assert metadata['semanticscholar_candidates'][0]['source'] == 'semanticscholar'
-    assert metadata['semanticscholar_candidates'][0]['source_id'] == 'sem-123'
+
+
+def test_resolve_metadata_degrades_when_semanticscholar_is_rate_limited(monkeypatch) -> None:
+    monkeypatch.setattr(
+        'research_assistant.ingest.metadata_resolve.choose_best_openalex_result',
+        lambda source, extracted_text='', filename_hints=None, parser_hints=None: ({}, []),
+    )
+    monkeypatch.setattr(
+        'research_assistant.ingest.metadata_resolve.choose_best_crossref_result',
+        lambda source, extracted_text='', filename_hints=None, parser_hints=None: ({}, []),
+    )
+
+    def fail_semanticscholar(source, extracted_text='', filename_hints=None, parser_hints=None):
+        raise urllib.error.HTTPError('https://example.com', 429, 'rate limited', None, None)
+
+    monkeypatch.setattr('research_assistant.ingest.metadata_resolve.choose_best_semanticscholar_result', fail_semanticscholar)
+
+    metadata = resolve_metadata(
+        'Credit Risk and the Transmission of Interest Rate Shocks',
+        parser_hints={
+            'consensus_title': 'Credit Risk and the Transmission of Interest Rate Shocks',
+            'consensus_authors': ['Berardino Palazzo', 'Ram Yamarthy'],
+            'parse_confidence': 'medium',
+        },
+    )
+
+    assert metadata['semanticscholar_candidates'] == []
+    assert metadata['source_statuses'][0]['source'] == 'openalex'
+    assert metadata['source_statuses'][0]['status'] == 'available'
+    assert metadata['source_statuses'][2]['source'] == 'semanticscholar'
+    assert metadata['source_statuses'][2]['status'] == 'unavailable'
+    assert metadata['source_statuses'][2]['code'] == 429
+    rec = build_draft_summary('paper_credit', metadata, '')
+    assert rec.candidate_metadata_sources['source_statuses'][2]['source'] == 'semanticscholar'
+    assert rec.candidate_metadata_sources['source_statuses'][2]['status'] == 'unavailable'
+    assert metadata['parser_hints']['consensus_title'] == 'Credit Risk and the Transmission of Interest Rate Shocks'

@@ -146,6 +146,7 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
         'semanticscholar_candidates': metadata.get('semanticscholar_candidates', []),
         'openalex_candidates': metadata.get('openalex_candidates', []),
         'crossref_candidates': metadata.get('crossref_candidates', []),
+        'source_statuses': metadata.get('source_statuses', []),
     }
     review_summary = _build_review_summary(metadata_confidence, parser_confidence, identity_validation, requires_manual_review)
 

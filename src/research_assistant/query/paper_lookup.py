@@ -113,6 +113,7 @@ def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, A
         'review_summary': summary.get('review_summary', {}),
         'provenance': summary.get('provenance', {}),
         'identity_validation': metadata.get('identity_validation', {}),
+        'metadata_source_statuses': metadata.get('source_statuses', []),
     }
     extraction = _extraction_payload(paper_id, metadata, root=paths.root)
     technical_audit = summary.get('technical_audit') or {

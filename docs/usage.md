@@ -61,7 +61,7 @@ ra show --paper-id paper_example
 ```
 
 This returns a review-focused JSON payload with:
-- top-level `review` status, provenance, and identity-validation fields;
+- top-level `review` status, provenance, identity-validation fields, and metadata-source statuses;
 - `extraction` details including extracted text path, consensus section headings, parser reconciliation, parser disagreements, parser capability limits, and explicit extraction limitations;
 - top-level `technical_audit` placeholders for operator-entered technical reading notes;
 - raw `summary` and `metadata` payloads;
@@ -167,7 +167,7 @@ Use local PDFs as the primary path when doing careful technical reading. Remote 
    ra show --paper-id paper_example
    ```
 
-   Use `ra show` to check the stored extracted text path, parser reconciliation details, parser-output capability limits, identity validation, and the empty `technical_audit` fields before marking the paper trusted.
+   Use `ra show` to check the stored extracted text path, parser reconciliation details, parser-output capability limits, metadata-source statuses, identity validation, and the empty `technical_audit` fields before marking the paper trusted.
 
 4. Record human technical audit notes in the summary JSON when needed. Keep these notes separate from machine extraction. The durable fields include `transport_definition`, `objective`, `transformed_target`, `claimed_results`, `derived_results`, `open_questions`, `relevant_equations`, `relevant_sections`, and `assumptions_for_reuse`.
 

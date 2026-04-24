@@ -118,7 +118,11 @@ def test_cli_show_foregrounds_review_and_identity_validation(tmp_path: Path, cap
         'provenance': {'title': 'parser_consensus'},
     }))
     (metadata_dir / 'paper_a.json').write_text(json.dumps({
-        'identity_validation': {'status': 'validated', 'requires_manual_review': False}
+        'identity_validation': {'status': 'validated', 'requires_manual_review': False},
+        'source_statuses': [
+            {'source': 'semanticscholar', 'status': 'unavailable', 'code': 429, 'result_count': 0},
+            {'source': 'openalex', 'status': 'available', 'result_count': 1},
+        ],
     }))
 
     rc = main(['--root', str(root), 'show', '--paper-id', 'paper_a'])
@@ -129,6 +133,8 @@ def test_cli_show_foregrounds_review_and_identity_validation(tmp_path: Path, cap
     assert payload['review']['requires_manual_review'] is False
     assert payload['review']['provenance']['title'] == 'parser_consensus'
     assert payload['review']['identity_validation']['status'] == 'validated'
+    assert payload['review']['metadata_source_statuses'][0]['source'] == 'semanticscholar'
+    assert payload['review']['metadata_source_statuses'][0]['code'] == 429
     assert payload['summary']['id'] == 'paper_a'
     assert payload['extraction']['extracted_text_available'] is False
     assert payload['extraction']['consensus_section_headings'] == []
