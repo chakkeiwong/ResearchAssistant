@@ -397,7 +397,7 @@ def test_cli_discover_reports_degraded_source_status(monkeypatch, capsys) -> Non
 
 
 def test_cli_citation_neighborhood_reports_ranked_summary(tmp_path: Path, monkeypatch, capsys) -> None:
-    monkeypatch.setattr(cli, 'citation_neighborhood', lambda paper_id, limit=5: {
+    monkeypatch.setattr(cli.citation_graph, 'citation_neighborhood', lambda paper_id, limit=5: {
         'paper_id': paper_id,
         'status': 'available',
         'citing': [],
@@ -659,7 +659,7 @@ def test_cli_audit_workflow_stays_usable_when_citation_enrichment_is_unavailable
     assert show_payload['extraction']['extracted_text_available'] is True
     assert show_payload['extraction']['parser_reconciliation']['disagreements'] == ['affiliation lines differ across parsers']
 
-    monkeypatch.setattr(cli, 'citation_neighborhood', lambda paper_id, limit=5: {
+    monkeypatch.setattr(cli.citation_graph, 'citation_neighborhood', lambda paper_id, limit=5: {
         'paper_id': paper_id,
         'status': 'empty',
         'citing': [],
@@ -769,24 +769,93 @@ def test_cli_local_ingest_audit_scenario_preserves_trust_checkpoints(tmp_path: P
     summary['technical_audit']['relevant_sections'] = ['Method']
     summary_path.write_text(json.dumps(summary))
 
-    monkeypatch.setattr(cli, 'citation_neighborhood', lambda paper_id, limit=5: {
+    monkeypatch.setattr(cli.citation_graph, 'citation_neighborhood', lambda paper_id, limit=5: {
         'paper_id': paper_id,
         'status': 'unavailable',
+        'status_reason': 'all citation endpoints are unavailable',
         'citing': [],
         'cited': [],
         'citing_count': 0,
         'cited_count': 0,
         'source_statuses': [
-            {'endpoint': 'citations', 'status': 'unavailable', 'code': 429, 'result_count': 0},
-            {'endpoint': 'references', 'status': 'unavailable', 'code': 429, 'result_count': 0},
+            {'endpoint': 'citations', 'status': 'unavailable', 'code': 429, 'reason': 'rate limited', 'result_count': 0},
+            {'endpoint': 'references', 'status': 'unavailable', 'code': 429, 'reason': 'rate limited', 'result_count': 0},
         ],
+        'diagnostics': {
+            'unavailable_endpoints': ['citations', 'references'],
+            'available_empty_endpoints': [],
+            'failure_reasons': [
+                {'endpoint': 'citations', 'code': 429, 'reason': 'rate limited'},
+                {'endpoint': 'references', 'code': 429, 'reason': 'rate limited'},
+            ],
+        },
         'summary': {'top_citing': [], 'top_cited': []},
     })
     rc = main(['--root', str(tmp_path), 'citation-neighborhood', '--paper-id', paper_id])
     citation_payload = json.loads(capsys.readouterr().out)
     assert rc == 0
     assert citation_payload['status'] == 'unavailable'
+    assert citation_payload['status_reason'] == 'all citation endpoints are unavailable'
+    assert citation_payload['diagnostics']['unavailable_endpoints'] == ['citations', 'references']
     assert [row['status'] for row in citation_payload['source_statuses']] == ['unavailable', 'unavailable']
+
+    monkeypatch.setattr(cli.citation_graph, 'citation_neighborhood', lambda paper_id, limit=5: {
+        'paper_id': paper_id,
+        'status': 'available',
+        'status_reason': 'citation data returned from at least one endpoint',
+        'citing': [
+            {
+                'source': 'semanticscholar',
+                'source_id': 'citing-1',
+                'title': 'Useful Citing Paper',
+                'authors': ['Reader Example'],
+                'year': 2025,
+                'citation_count': 8,
+                'open_access_pdf_url': 'https://example.com/citing.pdf',
+                'provenance': {'source': 'mock'},
+            }
+        ],
+        'cited': [],
+        'citing_count': 1,
+        'cited_count': 0,
+        'source_statuses': [
+            {'endpoint': 'citations', 'status': 'available', 'result_count': 1},
+            {'endpoint': 'references', 'status': 'available', 'result_count': 0},
+        ],
+        'diagnostics': {'unavailable_endpoints': [], 'available_empty_endpoints': ['references'], 'failure_reasons': []},
+        'summary': {'top_citing': [{'source_id': 'citing-1', 'title': 'Useful Citing Paper'}], 'top_cited': []},
+    })
+    rc = main(['--root', str(tmp_path), 'citation-graph-build', '--paper-id', paper_id])
+    graph_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert graph_payload['seed_paper_id'] == paper_id
+    assert graph_payload['edges'][0]['source'] == 'semanticscholar:citing-1'
+    assert graph_payload['edges'][0]['target'] == paper_id
+    assert graph_payload['diagnostics']['available_empty_endpoints'] == ['references']
+
+    rc = main(['--root', str(tmp_path), 'citation-graph-show', '--paper-id', paper_id])
+    shown_graph = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown_graph['nodes']['semanticscholar:citing-1']['title'] == 'Useful Citing Paper'
+
+    graph_export = tmp_path / 'graph.json'
+    rc = main(['--root', str(tmp_path), 'citation-graph-export', '--paper-id', paper_id, '--output', str(graph_export)])
+    assert rc == 0
+    capsys.readouterr()
+    assert json.loads(graph_export.read_text())['edges'][0]['direction'] == 'citing'
+
+    rc = main(['--root', str(tmp_path), 'literature-audit-propose', '--paper-id', paper_id])
+    proposal_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert proposal_payload['status'] == 'requires_human_review'
+    assert proposal_payload['paper_claims'] == []
+    assert proposal_payload['graph_context']['available'] is True
+    assert 'verified mathematical conclusion' in proposal_payload['limitations'][1]
+
+    rc = main(['--root', str(tmp_path), 'literature-audit-show', '--paper-id', paper_id])
+    shown_proposal = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown_proposal['proposal_id'].endswith('source-v1')
 
     rc = main(['--root', str(tmp_path), 'review-mark', '--paper-id', paper_id, '--status', 'approved'])
     review_payload = json.loads(capsys.readouterr().out)
@@ -857,6 +926,13 @@ def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Pat
     assert method_section['title'] == 'Method'
     assert 'transformed target' in method_section['raw_latex']
 
+    try:
+        main(['--root', str(tmp_path), 'source-section', '--paper-id', 'paper_source_first'])
+    except SystemExit as exc:
+        assert str(exc) == 'source-section requires --title or --label'
+    else:
+        raise AssertionError('source-section without selector should fail')
+
     rc = main(['--root', str(tmp_path), 'source-equations', '--paper-id', 'paper_source_first'])
     equations = json.loads(capsys.readouterr().out)
     assert rc == 0
@@ -920,3 +996,69 @@ def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Pat
     assert payload['pdf_extraction']['extracted_text_available'] is False
     assert payload['technical_audit']['transport_definition'] == ''
     assert payload['metadata']['structured_source']['primary_for_audit'] is True
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'show', '--paper-id', paper_id])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['objective'] == ''
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'set', '--paper-id', paper_id, '--field', 'objective', '--value', 'Preserve exact HMC correction while improving geometry.'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['updated'] is True
+    assert audit_payload['technical_audit']['objective'] == 'Preserve exact HMC correction while improving geometry.'
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'append', '--paper-id', paper_id, '--field', 'claimed_results', '--value', 'Source extraction preserves the target.'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['claimed_results'] == ['Source extraction preserves the target.']
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'link-section', '--paper-id', paper_id, '--label', 'sec:method'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['relevant_sections'] == ['sec:method']
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'link-equation', '--paper-id', paper_id, '--label', 'eq:target'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['relevant_equations'] == ['eq:target']
+
+    rc = main(['--root', str(tmp_path), 'evidence-context', '--paper-id', paper_id, '--label', 'eq:target'])
+    evidence_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert evidence_payload['block_type'] == 'equation'
+    assert evidence_payload['containing_section']['labels'] == ['sec:method', 'eq:target', 'thm:exact']
+    assert 'exp(-U' in evidence_payload['block']['raw_latex']
+
+    rc = main(['--root', str(tmp_path), 'evidence-context', '--paper-id', paper_id, '--citation-key', 'neal2011mcmc'])
+    citation_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert citation_payload['block_type'] == 'citation'
+    assert citation_payload['citations'][0]['keys'] == ['neal2011mcmc']
+    assert citation_payload['bibliography'][0]['key'] == 'neal2011mcmc'
+
+    rc = main(['--root', str(tmp_path), 'review-show', '--paper-id', paper_id])
+    review_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert review_payload['summary']['technical_audit']['objective'] == 'Preserve exact HMC correction while improving geometry.'
+    assert review_payload['summary']['technical_audit']['relevant_sections'] == ['sec:method']
+
+    rc = main(['--root', str(tmp_path), 'literature-audit-propose', '--paper-id', paper_id])
+    proposal_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert proposal_payload['paper_claims'][0]['labels'] == ['thm:exact']
+    assert proposal_payload['method_components']['relevant_equations'][0]['labels'] == ['eq:target']
+    assert proposal_payload['graph_context']['available'] is False
+
+    rc = main(['--root', str(tmp_path), 'literature-audit-show', '--paper-id', paper_id])
+    shown_proposal = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown_proposal['limitations'][0].startswith('This proposal is generated')
+
+    export_path = tmp_path / 'source_context.json'
+    rc = main(['--root', str(tmp_path), 'export-context', '--output', str(export_path)])
+    exported = json.loads(export_path.read_text())
+    assert rc == 0
+    assert exported['papers'][0]['technical_audit']['claimed_results'] == ['Source extraction preserves the target.']
+    assert exported['papers'][0]['technical_audit']['relevant_equations'] == ['eq:target']
+

@@ -26,7 +26,7 @@ def test_papers_cited_by_command_prints_json(monkeypatch, capsys) -> None:
 
 
 def test_citation_neighborhood_command_prints_source_statuses(monkeypatch, capsys) -> None:
-    monkeypatch.setattr(cli, 'citation_neighborhood', lambda paper_id, limit=5: {
+    monkeypatch.setattr(cli.citation_graph, 'citation_neighborhood', lambda paper_id, limit=5: {
         'paper_id': paper_id,
         'status': 'empty',
         'citing': [],

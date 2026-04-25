@@ -5,6 +5,7 @@ from typing import Any
 
 from research_assistant.config import get_paths
 from research_assistant.schemas.paper_record import PaperRecord
+from research_assistant.query.audit_notes import technical_audit_defaults
 from research_assistant.storage.file_store import FileStore
 
 VALID_REVIEW_STATUSES = {'approved', 'needs_review', 'rejected'}
@@ -15,25 +16,11 @@ def _summary_paths(root: Path | None = None) -> list[Path]:
     return sorted(paths.summaries.glob('*.json'))
 
 
-def _technical_audit_defaults() -> dict[str, Any]:
-    return {
-        'transport_definition': '',
-        'objective': '',
-        'transformed_target': '',
-        'claimed_results': [],
-        'derived_results': [],
-        'open_questions': [],
-        'relevant_equations': [],
-        'relevant_sections': [],
-        'assumptions_for_reuse': [],
-    }
-
-
 def _summary_with_defaults(summary: dict[str, Any]) -> dict[str, Any]:
     return {
         **summary,
         'technical_audit': {
-            **_technical_audit_defaults(),
+            **technical_audit_defaults(),
             **(summary.get('technical_audit') or {}),
         },
     }

@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from research_assistant.adapters.workspace_exports import export_paper_context
+from research_assistant.analyze.literature_audit import propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
 from research_assistant.ingest.pdf_extract import extract_pdf_text
@@ -15,15 +16,19 @@ from research_assistant.schemas.link_record import LinkRecord
 from research_assistant.summarize.draft_summary import build_draft_summary
 from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
+from research_assistant.query import citation_graph
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
 from research_assistant.query.review import list_review_items, mark_review_status, show_review_item
+from research_assistant.query.audit_notes import append_audit_note, link_audit_source_label, set_audit_note, show_audit_notes
 from research_assistant.query.discovery import discover_papers_with_status
 from research_assistant.query.downloads import download_to_inbox, list_download_proposals, persist_download_proposal, propose_download, show_download_proposal
-from research_assistant.query.citation_graph import citation_neighborhood, papers_cited_by, papers_citing
+from research_assistant.query.citation_graph import papers_cited_by, papers_citing
+from research_assistant.query.citation_cache import build_citation_graph, export_citation_graph, show_citation_graph
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 from research_assistant.ingest.parser_preflight import preflight_all
 from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
 from research_assistant.source.structured_source import source_record_path
+from research_assistant.source.evidence_context import evidence_context_for_citation, evidence_context_for_label
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
@@ -149,6 +154,25 @@ def cmd_audit_claim(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_audit_note(args: argparse.Namespace) -> int:
+    import json
+    root = Path(args.root) if args.root else None
+    if args.audit_action == 'show':
+        payload = show_audit_notes(args.paper_id, root=root)
+    elif args.audit_action == 'set':
+        payload = set_audit_note(args.paper_id, args.field, args.value, root=root)
+    elif args.audit_action == 'append':
+        payload = append_audit_note(args.paper_id, args.field, args.value, root=root)
+    elif args.audit_action == 'link-section':
+        payload = link_audit_source_label(args.paper_id, args.label, kind='section', root=root)
+    elif args.audit_action == 'link-equation':
+        payload = link_audit_source_label(args.paper_id, args.label, kind='equation', root=root)
+    else:
+        raise SystemExit(f'unknown audit-note action {args.audit_action}')
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_discover(args: argparse.Namespace) -> int:
     import json
     payload = discover_papers_with_status(args.query, per_page=args.limit)
@@ -211,8 +235,28 @@ def cmd_papers_cited_by(args: argparse.Namespace) -> int:
 
 def cmd_citation_neighborhood(args: argparse.Namespace) -> int:
     import json
-    results = citation_neighborhood(args.paper_id, limit=args.limit)
+    results = citation_graph.citation_neighborhood(args.paper_id, limit=args.limit)
     print(json.dumps(results, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_citation_graph_build(args: argparse.Namespace) -> int:
+    import json
+    payload = build_citation_graph(args.paper_id, root=Path(args.root) if args.root else None, depth=args.depth, limit=args.limit, refresh=args.refresh)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_citation_graph_show(args: argparse.Namespace) -> int:
+    import json
+    payload = show_citation_graph(args.paper_id, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_citation_graph_export(args: argparse.Namespace) -> int:
+    output = export_citation_graph(args.paper_id, Path(args.output), root=Path(args.root) if args.root else None)
+    print(output)
     return 0
 
 
@@ -234,6 +278,20 @@ def cmd_inbox_show(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_literature_audit_propose(args: argparse.Namespace) -> int:
+    import json
+    payload = propose_literature_audit(args.paper_id, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_literature_audit_show(args: argparse.Namespace) -> int:
+    import json
+    payload = show_literature_audit(args.paper_id, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_parse_pdf(args: argparse.Namespace) -> int:
     import json
     outputs = parse_with_all(Path(args.pdf).expanduser())
@@ -246,6 +304,19 @@ def cmd_parser_preflight(args: argparse.Namespace) -> int:
     import json
     checks = [c.to_dict() for c in preflight_all()]
     print(json.dumps(checks, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_evidence_context(args: argparse.Namespace) -> int:
+    import json
+    root = Path(args.root) if args.root else None
+    if args.label:
+        payload = evidence_context_for_label(args.paper_id, args.label, root=root)
+    elif args.citation_key:
+        payload = evidence_context_for_citation(args.paper_id, args.citation_key, root=root)
+    else:
+        raise SystemExit('evidence-context requires --label or --citation-key')
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
@@ -331,6 +402,8 @@ def _source_block_by_label(record: dict, key: str, label: str) -> dict:
 
 def cmd_source_section(args: argparse.Namespace) -> int:
     import json
+    if not args.title and not args.label:
+        raise SystemExit('source-section requires --title or --label')
     record = _source_record(args)
     for section in record.get('sections') or []:
         if section.get('title') == args.title or args.label in (section.get('labels') or []):
@@ -405,6 +478,35 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument('--papers', nargs='*')
     audit.set_defaults(func=cmd_audit_claim)
 
+    audit_note = sub.add_parser('audit-note')
+    audit_note_sub = audit_note.add_subparsers(dest='audit_action', required=True)
+
+    audit_note_show = audit_note_sub.add_parser('show')
+    audit_note_show.add_argument('--paper-id', required=True)
+    audit_note_show.set_defaults(func=cmd_audit_note)
+
+    audit_note_set = audit_note_sub.add_parser('set')
+    audit_note_set.add_argument('--paper-id', required=True)
+    audit_note_set.add_argument('--field', required=True)
+    audit_note_set.add_argument('--value', required=True)
+    audit_note_set.set_defaults(func=cmd_audit_note)
+
+    audit_note_append = audit_note_sub.add_parser('append')
+    audit_note_append.add_argument('--paper-id', required=True)
+    audit_note_append.add_argument('--field', required=True)
+    audit_note_append.add_argument('--value', required=True)
+    audit_note_append.set_defaults(func=cmd_audit_note)
+
+    audit_note_link_section = audit_note_sub.add_parser('link-section')
+    audit_note_link_section.add_argument('--paper-id', required=True)
+    audit_note_link_section.add_argument('--label', required=True)
+    audit_note_link_section.set_defaults(func=cmd_audit_note)
+
+    audit_note_link_equation = audit_note_sub.add_parser('link-equation')
+    audit_note_link_equation.add_argument('--paper-id', required=True)
+    audit_note_link_equation.add_argument('--label', required=True)
+    audit_note_link_equation.set_defaults(func=cmd_audit_note)
+
     discover = sub.add_parser('discover')
     discover.add_argument('--query', required=True)
     discover.add_argument('--limit', type=int, default=10)
@@ -430,6 +532,22 @@ def build_parser() -> argparse.ArgumentParser:
     citation_neighborhood_cmd.add_argument('--limit', type=int, default=5)
     citation_neighborhood_cmd.set_defaults(func=cmd_citation_neighborhood)
 
+    citation_graph_build = sub.add_parser('citation-graph-build')
+    citation_graph_build.add_argument('--paper-id', required=True)
+    citation_graph_build.add_argument('--depth', type=int, default=1)
+    citation_graph_build.add_argument('--limit', type=int, default=5)
+    citation_graph_build.add_argument('--refresh', action='store_true')
+    citation_graph_build.set_defaults(func=cmd_citation_graph_build)
+
+    citation_graph_show = sub.add_parser('citation-graph-show')
+    citation_graph_show.add_argument('--paper-id', required=True)
+    citation_graph_show.set_defaults(func=cmd_citation_graph_show)
+
+    citation_graph_export = sub.add_parser('citation-graph-export')
+    citation_graph_export.add_argument('--paper-id', required=True)
+    citation_graph_export.add_argument('--output', required=True)
+    citation_graph_export.set_defaults(func=cmd_citation_graph_export)
+
     inbox_list = sub.add_parser('inbox-list')
     inbox_list.add_argument('--duplicate-status')
     inbox_list.add_argument('--json', action='store_true')
@@ -439,12 +557,26 @@ def build_parser() -> argparse.ArgumentParser:
     inbox_show.add_argument('--proposed-name', required=True)
     inbox_show.set_defaults(func=cmd_inbox_show)
 
+    literature_audit_propose = sub.add_parser('literature-audit-propose')
+    literature_audit_propose.add_argument('--paper-id', required=True)
+    literature_audit_propose.set_defaults(func=cmd_literature_audit_propose)
+
+    literature_audit_show = sub.add_parser('literature-audit-show')
+    literature_audit_show.add_argument('--paper-id', required=True)
+    literature_audit_show.set_defaults(func=cmd_literature_audit_show)
+
     parse_pdf = sub.add_parser('parse-pdf')
     parse_pdf.add_argument('--pdf', required=True)
     parse_pdf.set_defaults(func=cmd_parse_pdf)
 
     parser_preflight = sub.add_parser('parser-preflight')
     parser_preflight.set_defaults(func=cmd_parser_preflight)
+
+    evidence_context = sub.add_parser('evidence-context')
+    evidence_context.add_argument('--paper-id', required=True)
+    evidence_context.add_argument('--label')
+    evidence_context.add_argument('--citation-key')
+    evidence_context.set_defaults(func=cmd_evidence_context)
 
     source_fetch = sub.add_parser('source-fetch')
     source_fetch.add_argument('--arxiv-id', required=True)
