@@ -77,6 +77,31 @@ def papers_cited_by(paper_id: str, *, limit: int = 10) -> list[dict]:
     return _fetch_semanticscholar_citation_list(paper_id, 'references', limit=limit)
 
 
+def _citation_neighborhood_status(endpoint_statuses: list[dict[str, Any]], citing: list[dict], cited: list[dict]) -> tuple[str, str]:
+    if citing or cited:
+        return 'available', 'citation data returned from at least one endpoint'
+    if any(row['status'] == 'available' for row in endpoint_statuses):
+        return 'empty', 'at least one citation endpoint responded but returned no papers'
+    return 'unavailable', 'all citation endpoints are unavailable'
+
+
+def _citation_neighborhood_diagnostics(endpoint_statuses: list[dict[str, Any]]) -> dict[str, Any]:
+    unavailable = [row for row in endpoint_statuses if row.get('status') == 'unavailable']
+    available_empty = [row for row in endpoint_statuses if row.get('status') == 'available' and row.get('result_count') == 0]
+    return {
+        'unavailable_endpoints': [row['endpoint'] for row in unavailable],
+        'available_empty_endpoints': [row['endpoint'] for row in available_empty],
+        'failure_reasons': [
+            {
+                'endpoint': row.get('endpoint'),
+                'code': row.get('code'),
+                'reason': row.get('reason'),
+            }
+            for row in unavailable
+        ],
+    }
+
+
 def citation_neighborhood(paper_id: str, *, limit: int = 5) -> dict[str, Any]:
     endpoint_rows: dict[str, list[dict]] = {}
     endpoint_statuses = []
@@ -96,12 +121,7 @@ def citation_neighborhood(paper_id: str, *, limit: int = 5) -> dict[str, Any]:
             endpoint_statuses.append(_citation_source_status(endpoint, 'unavailable', reason=str(exc), result_count=0))
     citing = endpoint_rows['citations']
     cited = endpoint_rows['references']
-    if citing or cited:
-        status = 'available'
-    elif any(row['status'] == 'available' for row in endpoint_statuses):
-        status = 'empty'
-    else:
-        status = 'unavailable'
+    status, status_reason = _citation_neighborhood_status(endpoint_statuses, citing, cited)
     return {
         'paper_id': paper_id,
         'citing': citing,
@@ -109,7 +129,9 @@ def citation_neighborhood(paper_id: str, *, limit: int = 5) -> dict[str, Any]:
         'citing_count': len(citing),
         'cited_count': len(cited),
         'status': status,
+        'status_reason': status_reason,
         'source_statuses': endpoint_statuses,
+        'diagnostics': _citation_neighborhood_diagnostics(endpoint_statuses),
         'summary': {
             'top_citing': _citation_summary(citing, limit=limit),
             'top_cited': _citation_summary(cited, limit=limit),

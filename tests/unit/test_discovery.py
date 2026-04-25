@@ -158,6 +158,7 @@ def test_citation_neighborhood_returns_ranked_summary(monkeypatch) -> None:
     payload = citation_graph.citation_neighborhood('seed-paper', limit=2)
 
     assert payload['status'] == 'available'
+    assert payload['status_reason'] == 'citation data returned from at least one endpoint'
     assert payload['source_statuses'][0]['endpoint'] == 'citations'
     assert payload['source_statuses'][0]['status'] == 'available'
     assert payload['summary']['top_citing'][0]['source_id'] == 'citing-1'
@@ -173,9 +174,13 @@ def test_citation_neighborhood_reports_partial_unavailability(monkeypatch) -> No
     payload = citation_graph.citation_neighborhood('seed-paper', limit=2)
 
     assert payload['status'] == 'empty'
+    assert payload['status_reason'] == 'at least one citation endpoint responded but returned no papers'
     assert payload['source_statuses'][0]['endpoint'] == 'citations'
     assert payload['source_statuses'][0]['status'] == 'unavailable'
     assert payload['source_statuses'][0]['code'] == 429
+    assert payload['diagnostics']['unavailable_endpoints'] == ['citations']
+    assert payload['diagnostics']['available_empty_endpoints'] == ['references']
+    assert payload['diagnostics']['failure_reasons'][0]['code'] == 429
     assert payload['source_statuses'][1]['endpoint'] == 'references'
     assert payload['source_statuses'][1]['status'] == 'available'
 
@@ -187,9 +192,12 @@ def test_citation_neighborhood_reports_full_unavailability(monkeypatch) -> None:
     payload = citation_graph.citation_neighborhood('seed-paper', limit=2)
 
     assert payload['status'] == 'unavailable'
+    assert payload['status_reason'] == 'all citation endpoints are unavailable'
     assert payload['citing'] == []
     assert payload['cited'] == []
     assert [row['status'] for row in payload['source_statuses']] == ['unavailable', 'unavailable']
+    assert payload['diagnostics']['unavailable_endpoints'] == ['citations', 'references']
+    assert payload['diagnostics']['failure_reasons'][0]['reason'] == 'down'
 
 
 def test_papers_citing_normalizes_semanticscholar_results(monkeypatch) -> None:
