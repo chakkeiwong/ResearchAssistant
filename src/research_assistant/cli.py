@@ -261,6 +261,88 @@ def cmd_source_show(args: argparse.Namespace) -> int:
     return 0
 
 
+def _source_record(args: argparse.Namespace) -> dict:
+    paths = get_paths(Path(args.root) if args.root else None)
+    return FileStore(paths.local_research).read_json(source_record_path(paths.papers_source, args.paper_id))
+
+
+def cmd_source_sections(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('sections') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_equations(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('equations') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_theorems(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('theorem_like_blocks') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_citations(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('citations') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_bibliography(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('bibliography') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_macros(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('macros') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_labels(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('labels') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_refs(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_record(args).get('references') or [], indent=2, sort_keys=True))
+    return 0
+
+
+def _source_block_by_label(record: dict, key: str, label: str) -> dict:
+    for block in record.get(key) or []:
+        if label in (block.get('labels') or []):
+            return block
+    raise SystemExit(f'no {key} block with label {label}')
+
+
+def cmd_source_section(args: argparse.Namespace) -> int:
+    import json
+    record = _source_record(args)
+    for section in record.get('sections') or []:
+        if section.get('title') == args.title or args.label in (section.get('labels') or []):
+            print(json.dumps(section, indent=2, sort_keys=True))
+            return 0
+    raise SystemExit('no section matched the requested title or label')
+
+
+def cmd_source_equation(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_block_by_label(_source_record(args), 'equations', args.label), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_source_theorem(args: argparse.Namespace) -> int:
+    import json
+    print(json.dumps(_source_block_by_label(_source_record(args), 'theorem_like_blocks', args.label), indent=2, sort_keys=True))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='ra')
     parser.add_argument('--root', help='Research assistant project root')
@@ -364,6 +446,54 @@ def build_parser() -> argparse.ArgumentParser:
     source_show = sub.add_parser('source-show')
     source_show.add_argument('--paper-id', required=True)
     source_show.set_defaults(func=cmd_source_show)
+
+    source_sections = sub.add_parser('source-sections')
+    source_sections.add_argument('--paper-id', required=True)
+    source_sections.set_defaults(func=cmd_source_sections)
+
+    source_equations = sub.add_parser('source-equations')
+    source_equations.add_argument('--paper-id', required=True)
+    source_equations.set_defaults(func=cmd_source_equations)
+
+    source_theorems = sub.add_parser('source-theorems')
+    source_theorems.add_argument('--paper-id', required=True)
+    source_theorems.set_defaults(func=cmd_source_theorems)
+
+    source_citations = sub.add_parser('source-citations')
+    source_citations.add_argument('--paper-id', required=True)
+    source_citations.set_defaults(func=cmd_source_citations)
+
+    source_bibliography = sub.add_parser('source-bibliography')
+    source_bibliography.add_argument('--paper-id', required=True)
+    source_bibliography.set_defaults(func=cmd_source_bibliography)
+
+    source_macros = sub.add_parser('source-macros')
+    source_macros.add_argument('--paper-id', required=True)
+    source_macros.set_defaults(func=cmd_source_macros)
+
+    source_labels = sub.add_parser('source-labels')
+    source_labels.add_argument('--paper-id', required=True)
+    source_labels.set_defaults(func=cmd_source_labels)
+
+    source_section = sub.add_parser('source-section')
+    source_section.add_argument('--paper-id', required=True)
+    source_section.add_argument('--title')
+    source_section.add_argument('--label')
+    source_section.set_defaults(func=cmd_source_section)
+
+    source_refs = sub.add_parser('source-refs')
+    source_refs.add_argument('--paper-id', required=True)
+    source_refs.set_defaults(func=cmd_source_refs)
+
+    source_equation = sub.add_parser('source-equation')
+    source_equation.add_argument('--paper-id', required=True)
+    source_equation.add_argument('--label', required=True)
+    source_equation.set_defaults(func=cmd_source_equation)
+
+    source_theorem = sub.add_parser('source-theorem')
+    source_theorem.add_argument('--paper-id', required=True)
+    source_theorem.add_argument('--label', required=True)
+    source_theorem.set_defaults(func=cmd_source_theorem)
 
     return parser
 

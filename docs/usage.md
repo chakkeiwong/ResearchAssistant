@@ -28,7 +28,7 @@ Current structured-source scaffold includes:
 - `ra source-fetch --arxiv-id ...` for caching arXiv source bundles;
 - conservative main-TeX detection and `\input` / `\include` flattening;
 - source-derived sections, equations, theorem-like blocks, labels, refs, citations, bibliography entries, and macros;
-- `ra source-show` and `ra show` visibility for source artifacts.
+- `ra source-show`, `ra source-sections`, `ra source-section`, `ra source-equations`, `ra source-equation`, `ra source-theorems`, `ra source-theorem`, `ra source-citations`, `ra source-bibliography`, `ra source-macros`, `ra source-labels`, and `ra source-refs` for inspecting structured source artifacts.
 
 Current parser scaffold includes:
 - `pdftotext` (operational)
@@ -55,6 +55,17 @@ ra ingest --arxiv-id 2401.00001 --query "paper title or identifying query"
 ```bash
 ra source-fetch --arxiv-id 2401.00001
 ra source-show --paper-id paper_example
+ra source-sections --paper-id paper_example
+ra source-section --paper-id paper_example --label sec:method
+ra source-equations --paper-id paper_example
+ra source-equation --paper-id paper_example --label eq:target
+ra source-theorems --paper-id paper_example
+ra source-theorem --paper-id paper_example --label thm:main
+ra source-citations --paper-id paper_example
+ra source-bibliography --paper-id paper_example
+ra source-macros --paper-id paper_example
+ra source-labels --paper-id paper_example
+ra source-refs --paper-id paper_example
 ```
 
 ### Ingest a local PDF fallback

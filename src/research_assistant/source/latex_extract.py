@@ -13,16 +13,55 @@ def _line_number(text: str, index: int) -> int:
     return text.count('\n', 0, index) + 1
 
 
+def _latex_braced_argument(text: str, start: int) -> tuple[str, int] | None:
+    if start >= len(text) or text[start] != '{':
+        return None
+    depth = 0
+    out = []
+    for index in range(start, len(text)):
+        char = text[index]
+        if char == '{':
+            depth += 1
+            if depth > 1:
+                out.append(char)
+        elif char == '}':
+            depth -= 1
+            if depth == 0:
+                return ''.join(out), index + 1
+            out.append(char)
+        else:
+            out.append(char)
+    return None
+
+
+def _section_matches(text: str) -> list[dict[str, Any]]:
+    command_pattern = re.compile(r'\\(' + '|'.join(SECTION_COMMANDS) + r')\*?\s*')
+    matches = []
+    for match in command_pattern.finditer(text):
+        arg = _latex_braced_argument(text, match.end())
+        if arg is None:
+            continue
+        title, end = arg
+        matches.append({'match': match, 'command': match.group(1), 'title': title.strip(), 'end': end})
+    return matches
+
+
 def _extract_sections(text: str) -> list[dict[str, Any]]:
-    pattern = re.compile(r'\\(' + '|'.join(SECTION_COMMANDS) + r')\*?\s*\{([^{}]+)\}')
+    matches = _section_matches(text)
     sections = []
-    for match in pattern.finditer(text):
-        command = match.group(1)
+    for index, section_match in enumerate(matches):
+        match = section_match['match']
+        command = section_match['command']
+        end = matches[index + 1]['match'].start() if index + 1 < len(matches) else len(text)
+        body = text[section_match['end']:end].strip()
+        labels = re.findall(r'\\label\{([^}]+)\}', body)
         sections.append({
             'level': SECTION_COMMANDS.index(command) + 1,
             'command': command,
-            'title': match.group(2).strip(),
+            'title': section_match['title'],
             'line': _line_number(text, match.start()),
+            'labels': labels,
+            'raw_latex': body,
         })
     return sections
 
@@ -86,13 +125,18 @@ def _extract_citations(text: str) -> list[dict[str, Any]]:
 
 
 def _extract_macros(text: str) -> list[dict[str, Any]]:
-    pattern = re.compile(r'\\(newcommand|renewcommand|providecommand|DeclareMathOperator)\s*\{?\\([^}\s]+)\}?([^\n]*)')
+    pattern = re.compile(r'\\(newcommand|renewcommand|providecommand|DeclareMathOperator)\s*\{?\\([^}\s]+)\}?((?:\[[^]]*\])*)\s*')
     macros = []
     for match in pattern.finditer(text):
+        definition = ''
+        arg = _latex_braced_argument(text, match.end())
+        if arg is not None:
+            definition = arg[0]
         macros.append({
             'command': match.group(1),
             'name': match.group(2),
-            'definition_tail': match.group(3).strip(),
+            'arguments': match.group(3).strip(),
+            'definition': definition,
             'line': _line_number(text, match.start()),
         })
     return macros

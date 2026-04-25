@@ -36,6 +36,9 @@ class PaperRecord:
     curation_status: str = "draft"
     metadata_confidence: str = "low"
     identity_source: str = "unknown"
+    primary_source_type: str = "unknown"
+    structured_source_status: str = "unavailable"
+    structured_source_record_path: str | None = None
     review_status: str = "needs_review"
     review_summary: dict[str, Any] = field(default_factory=dict)
     requires_manual_review: bool = True

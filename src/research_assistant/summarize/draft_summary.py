@@ -131,6 +131,10 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
 
     source_url = openalex.get('id') or metadata.get('source')
     doi = openalex.get('doi') or crossref.get('DOI')
+    structured_source = metadata.get('structured_source') or {}
+    primary_source_type = 'pdf_parser' if parser_hints else 'metadata_only'
+    if structured_source.get('primary_for_audit'):
+        primary_source_type = structured_source.get('source_type', 'structured_source')
 
     identity_source = title_source if use_parser_primary else ('arxiv' if arxiv else ('openalex' if openalex else ('crossref' if crossref else 'fallback')))
     requires_manual_review = bool(use_parser_primary or metadata_confidence == 'low' or identity_validation.get('requires_manual_review'))
@@ -164,6 +168,9 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
         curation_status='draft',
         metadata_confidence=metadata_confidence,
         identity_source=identity_source,
+        primary_source_type=primary_source_type,
+        structured_source_status=structured_source.get('status', 'unavailable'),
+        structured_source_record_path=structured_source.get('record_path'),
         review_status=review_summary['status'],
         review_summary=review_summary,
         requires_manual_review=requires_manual_review,

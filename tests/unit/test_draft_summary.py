@@ -164,3 +164,29 @@ def test_summary_initializes_audit_fields() -> None:
     assert rec.technical_audit['relevant_equations'] == []
     assert rec.technical_audit['relevant_sections'] == []
     assert rec.technical_audit['assumptions_for_reuse'] == []
+
+
+def test_summary_records_structured_source_status() -> None:
+    metadata = {
+        'openalex': {},
+        'crossref': {},
+        'arxiv': {
+            'arxiv_id': '2401.00001',
+            'title': 'Structured Source HMC',
+            'authors': ['Alice Example'],
+            'abstract': 'Source-first abstract.',
+        },
+        'metadata_confidence': 'high',
+        'structured_source': {
+            'source_type': 'arxiv_latex',
+            'status': 'available',
+            'primary_for_audit': True,
+            'record_path': '/tmp/source-record.json',
+        },
+    }
+
+    rec = build_draft_summary('paper_source', metadata, '')
+
+    assert rec.primary_source_type == 'arxiv_latex'
+    assert rec.structured_source_status == 'available'
+    assert rec.structured_source_record_path == '/tmp/source-record.json'

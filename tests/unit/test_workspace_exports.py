@@ -17,6 +17,8 @@ def test_export_paper_context_filters_by_review_status(tmp_path: Path, monkeypat
         'abstract': '',
         'main_contribution': '',
         'review_status': 'approved',
+        'primary_source_type': 'arxiv_latex',
+        'structured_source_status': 'available',
         'technical_audit': {
             'transport_definition': 'A transport map',
             'objective': '',
@@ -38,6 +40,26 @@ def test_export_paper_context_filters_by_review_status(tmp_path: Path, monkeypat
         'review_status': 'needs_review',
     }))
 
+    source_record = root / 'local_research' / 'papers' / 'source' / 'records'
+    source_record.mkdir(parents=True, exist_ok=True)
+    (source_record / 'paper_a.json').write_text(json.dumps({
+        'paper_id': 'paper_a',
+        'source_type': 'arxiv_latex',
+        'status': 'available',
+        'primary_for_audit': True,
+        'artifact_root': str(root / 'local_research' / 'papers' / 'source' / 'arxiv' / 'paper_a'),
+        'flattened_source_path': str(root / 'local_research' / 'papers' / 'source' / 'arxiv' / 'paper_a' / 'derived' / 'flattened.tex'),
+        'sections': [{'title': 'Method', 'line': 10}],
+        'equations': [{'labels': ['eq:target'], 'raw_latex': '\\begin{equation}x\\end{equation}'}],
+        'theorem_like_blocks': [{'labels': ['thm:main']}],
+        'labels': [{'key': 'eq:target'}],
+        'citations': [{'keys': ['neal2011mcmc']}],
+        'bibliography': [{'key': 'neal2011mcmc'}],
+        'macros': [{'name': 'target'}],
+        'provenance': {'arxiv_id': '2401.00001'},
+        'limitations': [{'field': 'macros', 'status': 'requires_review'}],
+    }))
+
     monkeypatch.chdir(root)
     out = export_paper_context(root / 'filtered.json', root=root, review_status='approved')
     payload = json.loads(out.read_text())
@@ -46,3 +68,8 @@ def test_export_paper_context_filters_by_review_status(tmp_path: Path, monkeypat
     assert payload['papers'][0]['technical_audit']['transport_definition'] == 'A transport map'
     assert payload['papers'][0]['technical_audit']['claimed_results'] == ['Claim A']
     assert payload['papers'][0]['technical_audit']['relevant_sections'] == ['Method']
+    assert payload['papers'][0]['primary_source_type'] == 'arxiv_latex'
+    assert payload['papers'][0]['source_extraction']['available'] is True
+    assert payload['papers'][0]['source_extraction']['source_type'] == 'arxiv_latex'
+    assert payload['papers'][0]['source_extraction']['sections'][0]['title'] == 'Method'
+    assert payload['papers'][0]['source_extraction']['equations'][0]['labels'] == ['eq:target']

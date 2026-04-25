@@ -27,6 +27,17 @@ See [docs/product_spec.md](docs/product_spec.md) for the v0.1 product contract.
 ra ingest --arxiv-id 2401.00001 --query "paper title or topic"
 ra source-fetch --arxiv-id 2401.00001
 ra source-show --paper-id paper_example
+ra source-sections --paper-id paper_example
+ra source-section --paper-id paper_example --label sec:method
+ra source-equations --paper-id paper_example
+ra source-equation --paper-id paper_example --label eq:target
+ra source-theorems --paper-id paper_example
+ra source-theorem --paper-id paper_example --label thm:main
+ra source-citations --paper-id paper_example
+ra source-bibliography --paper-id paper_example
+ra source-macros --paper-id paper_example
+ra source-labels --paper-id paper_example
+ra source-refs --paper-id paper_example
 ra ingest --pdf /path/to/paper.pdf --query "paper title or topic"
 ra find --query "transport maps"
 ra show --paper-id paper_example

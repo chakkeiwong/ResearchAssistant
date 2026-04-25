@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import tarfile
+import urllib.error
 from pathlib import Path
 
 from research_assistant.source.arxiv_source import fetch_arxiv_structured_source, unpack_arxiv_source
@@ -50,3 +51,36 @@ def test_fetch_arxiv_structured_source_records_available_latex(monkeypatch, tmp_
     assert Path(record.flattened_source_path).exists()
     stored = tmp_path / 'local_research' / 'papers' / 'source' / 'records' / 'paper_source_first.json'
     assert stored.exists()
+
+
+def test_fetch_arxiv_structured_source_records_http_degradation(monkeypatch, tmp_path: Path) -> None:
+    def fail_download(arxiv_id: str, destination: Path) -> Path:
+        raise urllib.error.HTTPError('https://arxiv.org/e-print/2401.00001', 404, 'not found', None, None)
+
+    monkeypatch.setattr('research_assistant.source.arxiv_source.download_arxiv_source', fail_download)
+
+    record = fetch_arxiv_structured_source('2401.00001', root=tmp_path, paper_id='paper_missing_source')
+
+    assert record.status == 'unavailable'
+    assert record.primary_for_audit is False
+    assert record.provenance['source_statuses'][0]['status'] == 'unavailable'
+    assert record.provenance['source_statuses'][0]['code'] == 404
+    assert record.limitations[0]['field'] == 'source'
+    stored = tmp_path / 'local_research' / 'papers' / 'source' / 'records' / 'paper_missing_source.json'
+    assert stored.exists()
+
+
+def test_fetch_arxiv_structured_source_records_malformed_archive_failure(monkeypatch, tmp_path: Path) -> None:
+    def fake_download(arxiv_id: str, destination: Path) -> Path:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(b'not latex')
+        return destination
+
+    monkeypatch.setattr('research_assistant.source.arxiv_source.download_arxiv_source', fake_download)
+
+    record = fetch_arxiv_structured_source('2401.00001', root=tmp_path, paper_id='paper_bad_source')
+
+    assert record.status == 'failed'
+    assert record.primary_for_audit is False
+    assert record.provenance['source_statuses'][0]['status'] == 'available'
+    assert record.limitations[0]['field'] == 'latex_structure'

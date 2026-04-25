@@ -35,6 +35,9 @@ def test_extract_latex_structure_preserves_audit_evidence(tmp_path: Path) -> Non
     payload = extract_latex_structure(output, source_root=FIXTURE)
 
     assert [section['title'] for section in payload['sections']] == ['Introduction', 'Method']
+    assert 'We cite' in payload['sections'][0]['raw_latex']
+    assert 'transformed target' in payload['sections'][1]['raw_latex']
+    assert payload['sections'][1]['labels'] == ['sec:method', 'eq:target', 'thm:exact']
     assert len(payload['equations']) == 1
     assert payload['equations'][0]['labels'] == ['eq:target']
     assert len(payload['theorem_like_blocks']) == 1
@@ -44,3 +47,39 @@ def test_extract_latex_structure_preserves_audit_evidence(tmp_path: Path) -> Non
     assert payload['citations'][0]['keys'] == ['neal2011mcmc']
     assert payload['bibliography'][0]['key'] == 'neal2011mcmc'
     assert payload['macros'][0]['name'] == 'target'
+
+
+def test_extract_latex_structure_handles_nested_titles_and_macro_arguments(tmp_path: Path) -> None:
+    source = tmp_path / 'source.tex'
+    source.write_text(r'''
+\documentclass{article}
+\newcommand{\pushforward}[2]{#1_{\#}#2}
+\begin{document}
+\section{Transport maps for $\pi(\theta)$}\label{sec:transport}
+We cite \citep[Theorem 1]{neal2011mcmc,betancourt2017}.
+\begin{equation}\label{eq:pushforward}
+\pushforward{T}{\eta}
+\end{equation}
+\end{document}
+''')
+    (tmp_path / 'refs.bib').write_text(r'''
+@article{neal2011mcmc,
+  title={MCMC using Hamiltonian dynamics},
+  year={2011}
+}
+@misc{betancourt2017,
+  title={A Conceptual Introduction to Hamiltonian Monte Carlo},
+  year={2017}
+}
+''')
+
+    payload = extract_latex_structure(source, source_root=tmp_path)
+
+    assert payload['sections'][0]['title'] == r'Transport maps for $\pi(\theta)$'
+    assert payload['sections'][0]['labels'] == ['sec:transport', 'eq:pushforward']
+    assert payload['citations'][0]['command'] == 'citep'
+    assert payload['citations'][0]['keys'] == ['neal2011mcmc', 'betancourt2017']
+    assert payload['macros'][0]['name'] == 'pushforward'
+    assert payload['macros'][0]['arguments'] == '[2]'
+    assert payload['macros'][0]['definition'] == r'#1_{\#}#2'
+    assert {entry['key'] for entry in payload['bibliography']} == {'neal2011mcmc', 'betancourt2017'}

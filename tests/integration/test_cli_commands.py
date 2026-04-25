@@ -802,6 +802,64 @@ def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Pat
     assert rc == 0
     assert shown_source['equations'][0]['labels'] == ['eq:target']
 
+    rc = main(['--root', str(tmp_path), 'source-sections', '--paper-id', 'paper_source_first'])
+    sections = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert [section['title'] for section in sections] == ['Introduction', 'Method']
+
+    rc = main(['--root', str(tmp_path), 'source-section', '--paper-id', 'paper_source_first', '--label', 'sec:method'])
+    method_section = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert method_section['title'] == 'Method'
+    assert 'transformed target' in method_section['raw_latex']
+
+    rc = main(['--root', str(tmp_path), 'source-equations', '--paper-id', 'paper_source_first'])
+    equations = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert equations[0]['labels'] == ['eq:target']
+
+    rc = main(['--root', str(tmp_path), 'source-equation', '--paper-id', 'paper_source_first', '--label', 'eq:target'])
+    equation = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert equation['labels'] == ['eq:target']
+    assert 'exp(-U' in equation['raw_latex']
+
+    rc = main(['--root', str(tmp_path), 'source-theorems', '--paper-id', 'paper_source_first'])
+    theorems = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert theorems[0]['labels'] == ['thm:exact']
+
+    rc = main(['--root', str(tmp_path), 'source-theorem', '--paper-id', 'paper_source_first', '--label', 'thm:exact'])
+    theorem = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert theorem['labels'] == ['thm:exact']
+    assert 'preserves the target' in theorem['raw_latex']
+
+    rc = main(['--root', str(tmp_path), 'source-citations', '--paper-id', 'paper_source_first'])
+    citations = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert citations[0]['keys'] == ['neal2011mcmc']
+
+    rc = main(['--root', str(tmp_path), 'source-bibliography', '--paper-id', 'paper_source_first'])
+    bibliography = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert bibliography[0]['key'] == 'neal2011mcmc'
+
+    rc = main(['--root', str(tmp_path), 'source-macros', '--paper-id', 'paper_source_first'])
+    macros = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert macros[0]['name'] == 'target'
+
+    rc = main(['--root', str(tmp_path), 'source-labels', '--paper-id', 'paper_source_first'])
+    labels = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert {label['key'] for label in labels} >= {'sec:intro', 'sec:method', 'eq:target', 'thm:exact'}
+
+    rc = main(['--root', str(tmp_path), 'source-refs', '--paper-id', 'paper_source_first'])
+    refs = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert {ref['key'] for ref in refs} >= {'sec:method', 'eq:target'}
+
     paper_id = canonical_paper_id('arxiv:2401.00001')
     rc = main(['--root', str(tmp_path), 'ingest', '--arxiv-id', '2401.00001', '--query', 'Structured Source HMC'])
     assert rc == 0
