@@ -133,6 +133,7 @@ def build_draft_summary(paper_id: str, metadata: dict, text: str) -> PaperRecord
     doi = openalex.get('doi') or crossref.get('DOI')
     structured_source = metadata.get('structured_source') or {}
     primary_source_type = 'pdf_parser' if parser_hints else 'metadata_only'
+    # Prefer author/source structure for audit, while leaving parser output available as a fallback cross-check.
     if structured_source.get('primary_for_audit'):
         primary_source_type = structured_source.get('source_type', 'structured_source')
 

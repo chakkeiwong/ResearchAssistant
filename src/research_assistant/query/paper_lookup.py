@@ -101,6 +101,7 @@ def _source_extraction_payload(paper_id: str, *, root: Path | None = None) -> di
     paths = get_paths(root)
     path = source_record_path(paths.papers_source, paper_id)
     if not path.exists():
+        # Absence of source is explicit so callers do not confuse PDF fallback with source-derived evidence.
         return {
             'available': False,
             'primary_source': 'pdf_parser',
@@ -158,6 +159,7 @@ def get_paper_summary(paper_id: str, *, root: Path | None = None) -> dict[str, A
     }
     extraction = _extraction_payload(paper_id, metadata, root=paths.root)
     source_extraction = _source_extraction_payload(paper_id, root=paths.root)
+    # Machine-extracted source evidence stays separate from human-reviewed technical conclusions.
     technical_audit = summary.get('technical_audit') or {
         'transport_definition': '',
         'objective': '',

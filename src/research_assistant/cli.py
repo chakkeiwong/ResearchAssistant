@@ -17,7 +17,7 @@ from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
 from research_assistant.query.review import list_review_items, mark_review_status, show_review_item
-from research_assistant.query.discovery import discover_papers, discover_papers_with_status
+from research_assistant.query.discovery import discover_papers_with_status
 from research_assistant.query.downloads import download_to_inbox, list_download_proposals, persist_download_proposal, propose_download, show_download_proposal
 from research_assistant.query.citation_graph import citation_neighborhood, papers_cited_by, papers_citing
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
@@ -156,19 +156,26 @@ def cmd_discover(args: argparse.Namespace) -> int:
     return 0
 
 
+def _download_failure_reason(discovery_payload: dict) -> str:
+    if discovery_payload.get('status') == 'unavailable':
+        return 'discovery unavailable'
+    if discovery_payload.get('status') == 'empty':
+        return 'discovery returned no open access candidates'
+    if discovery_payload.get('results'):
+        return 'no open access pdf found'
+    return 'no open access pdf found'
+
+
 def cmd_download_paper(args: argparse.Namespace) -> int:
     import json
     payload = discover_papers_with_status(args.query, per_page=args.limit)
     results = payload['results']
     downloadable = [r for r in results if r.get('open_access_pdf_url')]
     if not downloadable:
-        reason = 'no open access pdf found'
-        if payload['status'] == 'unavailable':
-            reason = 'discovery unavailable'
         print(json.dumps({
             'query': args.query,
             'downloaded': False,
-            'reason': reason,
+            'reason': _download_failure_reason(payload),
             'discovery': payload,
         }, indent=2, sort_keys=True))
         return 0
@@ -262,6 +269,7 @@ def cmd_source_show(args: argparse.Namespace) -> int:
 
 
 def _source_record(args: argparse.Namespace) -> dict:
+    # Source subcommands are intentionally thin views over the stored JSON audit artifact.
     paths = get_paths(Path(args.root) if args.root else None)
     return FileStore(paths.local_research).read_json(source_record_path(paths.papers_source, args.paper_id))
 

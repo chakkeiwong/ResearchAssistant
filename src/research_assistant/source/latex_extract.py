@@ -14,6 +14,7 @@ def _line_number(text: str, index: int) -> int:
 
 
 def _latex_braced_argument(text: str, start: int) -> tuple[str, int] | None:
+    # LaTeX titles and macro bodies often contain nested braces; a flat regex would truncate those audit anchors.
     if start >= len(text) or text[start] != '{':
         return None
     depth = 0
@@ -54,6 +55,7 @@ def _extract_sections(text: str) -> list[dict[str, Any]]:
         command = section_match['command']
         end = matches[index + 1]['match'].start() if index + 1 < len(matches) else len(text)
         body = text[section_match['end']:end].strip()
+        # Keep section-local raw LaTeX so a reviewer can inspect evidence before turning it into human audit notes.
         labels = re.findall(r'\\label\{([^}]+)\}', body)
         sections.append({
             'level': SECTION_COMMANDS.index(command) + 1,
@@ -162,6 +164,7 @@ def extract_latex_structure(flattened_path: Path, *, source_root: Path | None = 
     theorem_like_blocks = _extract_environments(text, theorem_names)
     bibliography = _extract_bibliography(source_root or flattened_path.parent)
     limitations = [
+        # Source extraction is evidence for review, not a mathematical normalizer or macro expander.
         {'field': 'mathematics', 'status': 'raw_latex', 'note': 'Mathematical expressions are preserved as raw LaTeX, not normalized.'},
         {'field': 'macros', 'status': 'requires_review', 'note': 'Custom macro semantics are extracted but not expanded.'},
     ]

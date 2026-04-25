@@ -375,7 +375,7 @@ def test_cli_parser_preflight_reports_capability_limits(monkeypatch, capsys) -> 
     assert payload[0]['details']['capabilities']['equations'] == 'unreliable'
     assert payload[0]['details']['capabilities']['citations'] == 'unreliable'
 
-
+def test_cli_discover_reports_degraded_source_status(monkeypatch, capsys) -> None:
     monkeypatch.setattr(cli, 'discover_papers_with_status', lambda query, per_page=10: {
         'query': query,
         'status': 'empty',
@@ -508,6 +508,50 @@ def test_cli_download_paper_reports_discovery_unavailable(monkeypatch, capsys) -
     assert payload['reason'] == 'discovery unavailable'
     assert payload['discovery']['status'] == 'unavailable'
     assert payload['discovery']['source_statuses'][0]['code'] == 429
+
+
+def test_cli_download_paper_reports_empty_discovery_without_silent_oa_failure(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(cli, 'discover_papers_with_status', lambda query, per_page=10: {
+        'query': query,
+        'status': 'empty',
+        'results': [],
+        'source_statuses': [
+            {'source': 'semanticscholar', 'status': 'unavailable', 'code': 429, 'result_count': 0},
+            {'source': 'openalex', 'status': 'available', 'result_count': 0},
+        ],
+    })
+
+    rc = main(['download-paper', '--query', 'transport maps'])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert payload['downloaded'] is False
+    assert payload['reason'] == 'discovery returned no open access candidates'
+    assert payload['discovery']['status'] == 'empty'
+    assert payload['discovery']['source_statuses'][0]['code'] == 429
+
+
+def test_cli_download_paper_reports_results_without_open_access_pdf(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(cli, 'discover_papers_with_status', lambda query, per_page=10: {
+        'query': query,
+        'status': 'available',
+        'results': [
+            {'source': 'semanticscholar', 'title': 'Closed Paper', 'open_access_pdf_url': None},
+        ],
+        'source_statuses': [
+            {'source': 'semanticscholar', 'status': 'available', 'result_count': 1},
+            {'source': 'openalex', 'status': 'available', 'result_count': 0},
+        ],
+    })
+
+    rc = main(['download-paper', '--query', 'closed paper'])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert payload['downloaded'] is False
+    assert payload['reason'] == 'no open access pdf found'
+    assert payload['discovery']['status'] == 'available'
+    assert payload['discovery']['results'][0]['title'] == 'Closed Paper'
 
 
 def test_cli_inbox_commands_show_persisted_proposals(tmp_path: Path, monkeypatch, capsys) -> None:
@@ -650,7 +694,7 @@ def test_cli_audit_workflow_stays_usable_when_citation_enrichment_is_unavailable
     download_payload = json.loads(capsys.readouterr().out)
     assert rc == 0
     assert download_payload['downloaded'] is False
-    assert download_payload['reason'] == 'no open access pdf found'
+    assert download_payload['reason'] == 'discovery returned no open access candidates'
     assert download_payload['discovery']['status'] == 'empty'
     assert download_payload['discovery']['source_statuses'][0]['code'] == 429
 
