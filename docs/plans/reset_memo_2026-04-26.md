@@ -373,3 +373,16 @@ Remaining risks:
 
 Next safe step:
 - Commit the industrial validation/readiness implementation and record the commit hash.
+
+
+## Update — industrial scale implementation committed
+
+Commit completed:
+- `9fa0bdc Add industrial validation and readiness workflow`
+
+Final checkpoint:
+- The industrial-scale implementation pass is complete through local validation, readiness reporting, dashboard readiness export, bounded validation scripts, focused tests, and commit.
+- Pre-existing untracked `.codex` scratch state remains untouched.
+
+Next safe step:
+- Future work can use `scripts/run_fast_tests.sh` for quick validation and `scripts/run_bounded_tests.sh` for the broader bounded deterministic subset before attempting any longer suite.
