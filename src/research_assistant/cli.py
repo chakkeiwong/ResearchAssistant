@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from research_assistant.adapters.workspace_exports import export_paper_context
-from research_assistant.analyze.literature_audit import propose_literature_audit, show_literature_audit
+from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
 from research_assistant.ingest.pdf_extract import extract_pdf_text
@@ -19,9 +19,10 @@ from research_assistant.storage.file_store import FileStore
 from research_assistant.query import citation_graph
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
 from research_assistant.query.review import list_review_items, mark_review_status, show_review_item
-from research_assistant.query.audit_notes import append_audit_note, link_audit_source_label, set_audit_note, show_audit_notes
+from research_assistant.query.audit_notes import append_audit_note, link_audit_citation_key, link_audit_source_label, remove_audit_note, set_audit_note, show_audit_notes
 from research_assistant.query.discovery import discover_papers_with_status
 from research_assistant.query.downloads import download_to_inbox, list_download_proposals, persist_download_proposal, propose_download, show_download_proposal
+from research_assistant.query.graph_inbox import propose_graph_node_download
 from research_assistant.query.citation_graph import papers_cited_by, papers_citing
 from research_assistant.query.citation_cache import build_citation_graph, export_citation_graph, show_citation_graph
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
@@ -163,10 +164,16 @@ def cmd_audit_note(args: argparse.Namespace) -> int:
         payload = set_audit_note(args.paper_id, args.field, args.value, root=root)
     elif args.audit_action == 'append':
         payload = append_audit_note(args.paper_id, args.field, args.value, root=root)
+    elif args.audit_action == 'remove':
+        payload = remove_audit_note(args.paper_id, args.field, args.value, root=root)
     elif args.audit_action == 'link-section':
         payload = link_audit_source_label(args.paper_id, args.label, kind='section', root=root)
     elif args.audit_action == 'link-equation':
         payload = link_audit_source_label(args.paper_id, args.label, kind='equation', root=root)
+    elif args.audit_action == 'link-theorem':
+        payload = link_audit_source_label(args.paper_id, args.label, kind='theorem', root=root)
+    elif args.audit_action == 'link-citation':
+        payload = link_audit_citation_key(args.paper_id, args.citation_key, root=root)
     else:
         raise SystemExit(f'unknown audit-note action {args.audit_action}')
     print(json.dumps(payload, indent=2, sort_keys=True))
@@ -260,6 +267,13 @@ def cmd_citation_graph_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_graph_node_download_proposal(args: argparse.Namespace) -> int:
+    import json
+    payload = propose_graph_node_download(args.paper_id, args.node_id, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_inbox_list(args: argparse.Namespace) -> int:
     import json
     rows = list_download_proposals(root=Path(args.root) if args.root else None, duplicate_status=args.duplicate_status)
@@ -288,6 +302,13 @@ def cmd_literature_audit_propose(args: argparse.Namespace) -> int:
 def cmd_literature_audit_show(args: argparse.Namespace) -> int:
     import json
     payload = show_literature_audit(args.paper_id, root=Path(args.root) if args.root else None)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_literature_audit_approve(args: argparse.Namespace) -> int:
+    import json
+    payload = approve_literature_audit(args.paper_id, root=Path(args.root) if args.root else None)
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
@@ -497,6 +518,12 @@ def build_parser() -> argparse.ArgumentParser:
     audit_note_append.add_argument('--value', required=True)
     audit_note_append.set_defaults(func=cmd_audit_note)
 
+    audit_note_remove = audit_note_sub.add_parser('remove')
+    audit_note_remove.add_argument('--paper-id', required=True)
+    audit_note_remove.add_argument('--field', required=True)
+    audit_note_remove.add_argument('--value', required=True)
+    audit_note_remove.set_defaults(func=cmd_audit_note)
+
     audit_note_link_section = audit_note_sub.add_parser('link-section')
     audit_note_link_section.add_argument('--paper-id', required=True)
     audit_note_link_section.add_argument('--label', required=True)
@@ -506,6 +533,16 @@ def build_parser() -> argparse.ArgumentParser:
     audit_note_link_equation.add_argument('--paper-id', required=True)
     audit_note_link_equation.add_argument('--label', required=True)
     audit_note_link_equation.set_defaults(func=cmd_audit_note)
+
+    audit_note_link_theorem = audit_note_sub.add_parser('link-theorem')
+    audit_note_link_theorem.add_argument('--paper-id', required=True)
+    audit_note_link_theorem.add_argument('--label', required=True)
+    audit_note_link_theorem.set_defaults(func=cmd_audit_note)
+
+    audit_note_link_citation = audit_note_sub.add_parser('link-citation')
+    audit_note_link_citation.add_argument('--paper-id', required=True)
+    audit_note_link_citation.add_argument('--citation-key', required=True)
+    audit_note_link_citation.set_defaults(func=cmd_audit_note)
 
     discover = sub.add_parser('discover')
     discover.add_argument('--query', required=True)
@@ -548,6 +585,11 @@ def build_parser() -> argparse.ArgumentParser:
     citation_graph_export.add_argument('--output', required=True)
     citation_graph_export.set_defaults(func=cmd_citation_graph_export)
 
+    graph_node_download = sub.add_parser('graph-node-download-proposal')
+    graph_node_download.add_argument('--paper-id', required=True)
+    graph_node_download.add_argument('--node-id', required=True)
+    graph_node_download.set_defaults(func=cmd_graph_node_download_proposal)
+
     inbox_list = sub.add_parser('inbox-list')
     inbox_list.add_argument('--duplicate-status')
     inbox_list.add_argument('--json', action='store_true')
@@ -564,6 +606,10 @@ def build_parser() -> argparse.ArgumentParser:
     literature_audit_show = sub.add_parser('literature-audit-show')
     literature_audit_show.add_argument('--paper-id', required=True)
     literature_audit_show.set_defaults(func=cmd_literature_audit_show)
+
+    literature_audit_approve = sub.add_parser('literature-audit-approve')
+    literature_audit_approve.add_argument('--paper-id', required=True)
+    literature_audit_approve.set_defaults(func=cmd_literature_audit_approve)
 
     parse_pdf = sub.add_parser('parse-pdf')
     parse_pdf.add_argument('--pdf', required=True)

@@ -38,6 +38,16 @@ def _containing_section(record: dict[str, Any], line: int | None) -> dict[str, A
     return containing
 
 
+def _macro_usage(record: dict[str, Any], raw_latex: str | None) -> list[dict[str, Any]]:
+    text = raw_latex or ''
+    usages = []
+    for macro in record.get('macros') or []:
+        name = macro.get('name')
+        if name and f'\\{name}' in text:
+            usages.append(macro)
+    return usages
+
+
 def evidence_context_for_label(paper_id: str, label: str, *, root: Path | None = None) -> dict[str, Any]:
     path, record = _source_record(root, paper_id)
     match = _find_labeled_block(record, label)
@@ -53,6 +63,7 @@ def evidence_context_for_label(paper_id: str, label: str, *, root: Path | None =
         'block_type': block_type,
         'block': block,
         'containing_section': section,
+        'macro_usages': _macro_usage(record, block.get('raw_latex')),
         'references': [ref for ref in record.get('references') or [] if ref.get('key') == label],
         'limitations': record.get('limitations') or [],
         'provenance': record.get('provenance') or {},

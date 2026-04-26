@@ -36,47 +36,71 @@ def _node_key(row: dict[str, Any]) -> str:
     return f"title:{row.get('title', '')}"
 
 
-def build_citation_graph(paper_id: str, *, root: Path | None = None, depth: int = 1, limit: int = 5, refresh: bool = False) -> dict[str, Any]:
-    if depth != 1:
-        raise ValueError('citation graph depth is currently limited to 1')
-    path = citation_graph_path(root, paper_id)
-    if path.exists() and not refresh:
-        return FileStore(get_paths(root).local_research).read_json(path)
-    neighborhood = citation_graph.citation_neighborhood(paper_id, limit=limit)
-    nodes = {
-        paper_id: {
-            'local_paper_id': paper_id,
-            'seed': True,
-        }
-    }
-    edges = []
+def _add_neighborhood(graph: dict[str, Any], center_id: str, neighborhood: dict[str, Any], *, expand: bool = False) -> list[str]:
+    discovered = []
+    graph['source_statuses'].extend(neighborhood.get('source_statuses') or [])
+    unavailable = set(graph['diagnostics'].get('unavailable_endpoints') or [])
+    available_empty = set(graph['diagnostics'].get('available_empty_endpoints') or [])
+    for endpoint in (neighborhood.get('diagnostics') or {}).get('unavailable_endpoints') or []:
+        unavailable.add(endpoint)
+    for endpoint in (neighborhood.get('diagnostics') or {}).get('available_empty_endpoints') or []:
+        available_empty.add(endpoint)
+    graph['diagnostics']['unavailable_endpoints'] = sorted(unavailable)
+    graph['diagnostics']['available_empty_endpoints'] = sorted(available_empty)
+    graph['diagnostics'].setdefault('failure_reasons', []).extend((neighborhood.get('diagnostics') or {}).get('failure_reasons') or [])
     for direction, endpoint, rows in [('citing', 'citations', neighborhood.get('citing') or []), ('cited', 'references', neighborhood.get('cited') or [])]:
         for row in rows:
             key = _node_key(row)
-            nodes.setdefault(key, _node_from_row(row))
+            graph['nodes'].setdefault(key, _node_from_row(row))
             if direction == 'citing':
-                source, target = key, paper_id
+                source, target = key, center_id
             else:
-                source, target = paper_id, key
-            edges.append({
+                source, target = center_id, key
+            edge = {
                 'source': source,
                 'target': target,
                 'direction': direction,
                 'endpoint': endpoint,
                 'provenance': row.get('provenance') or {},
-            })
+            }
+            if edge not in graph['edges']:
+                graph['edges'].append(edge)
+            if expand:
+                discovered.append(key)
+    return discovered
+
+
+def build_citation_graph(paper_id: str, *, root: Path | None = None, depth: int = 1, limit: int = 5, refresh: bool = False) -> dict[str, Any]:
+    if depth not in {1, 2}:
+        raise ValueError('citation graph depth is currently limited to 1 or 2')
+    path = citation_graph_path(root, paper_id)
+    if path.exists() and not refresh:
+        return FileStore(get_paths(root).local_research).read_json(path)
+    neighborhood = citation_graph.citation_neighborhood(paper_id, limit=limit)
     graph = {
         'seed_paper_id': paper_id,
         'depth': depth,
         'limit': limit,
         'status': neighborhood.get('status'),
         'status_reason': neighborhood.get('status_reason'),
-        'nodes': nodes,
-        'edges': edges,
-        'source_statuses': neighborhood.get('source_statuses') or [],
-        'diagnostics': neighborhood.get('diagnostics') or {},
+        'nodes': {
+            paper_id: {
+                'local_paper_id': paper_id,
+                'seed': True,
+            }
+        },
+        'edges': [],
+        'source_statuses': [],
+        'diagnostics': {'unavailable_endpoints': [], 'available_empty_endpoints': [], 'failure_reasons': []},
         'summary': neighborhood.get('summary') or {},
     }
+    frontier = _add_neighborhood(graph, paper_id, neighborhood, expand=depth > 1)
+    if depth == 2:
+        for node_id in frontier[:limit]:
+            child = citation_graph.citation_neighborhood(node_id, limit=limit)
+            _add_neighborhood(graph, node_id, child, expand=False)
+    graph['diagnostics']['node_count'] = len(graph['nodes'])
+    graph['diagnostics']['edge_count'] = len(graph['edges'])
     FileStore(get_paths(root).local_research).write_json(path, graph)
     return graph
 

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from research_assistant.config import get_paths
+from research_assistant.query.audit_notes import technical_audit_defaults
 from research_assistant.query.citation_cache import citation_graph_path
 from research_assistant.query.paper_lookup import get_paper_summary
 from research_assistant.storage.file_store import FileStore
@@ -79,3 +80,40 @@ def propose_literature_audit(paper_id: str, *, root: Path | None = None) -> dict
 
 def show_literature_audit(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
     return FileStore(get_paths(root).local_research).read_json(literature_audit_proposal_path(root, paper_id))
+
+
+def approve_literature_audit(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    proposal = show_literature_audit(paper_id, root=root)
+    paths = get_paths(root)
+    store = FileStore(paths.local_research)
+    summary_path = paths.summaries / f'{paper_id}.json'
+    summary = store.read_json(summary_path)
+    technical_audit = {**technical_audit_defaults(), **(summary.get('technical_audit') or {})}
+    for claim in proposal.get('paper_claims') or []:
+        raw_latex = (claim.get('raw_latex') or '').strip()
+        if raw_latex and raw_latex not in technical_audit['claimed_results']:
+            technical_audit['claimed_results'].append(raw_latex)
+        for label in claim.get('labels') or []:
+            if label not in technical_audit.get('relevant_theorems', []):
+                technical_audit.setdefault('relevant_theorems', []).append(label)
+    for equation in (proposal.get('method_components') or {}).get('relevant_equations') or []:
+        for label in equation.get('labels') or []:
+            if label not in technical_audit['relevant_equations']:
+                technical_audit['relevant_equations'].append(label)
+    provenance = {
+        'proposal_id': proposal.get('proposal_id'),
+        'status': 'accepted_from_proposal',
+        'accepted_fields': ['claimed_results', 'relevant_equations', 'relevant_theorems'],
+    }
+    technical_audit.setdefault('proposal_provenance', []).append(provenance)
+    summary['technical_audit'] = technical_audit
+    store.write_json(summary_path, summary)
+    proposal['status'] = 'accepted'
+    store.write_json(literature_audit_proposal_path(root, paper_id), proposal)
+    return {
+        'paper_id': paper_id,
+        'proposal_id': proposal.get('proposal_id'),
+        'updated': True,
+        'technical_audit': technical_audit,
+        'proposal_status': proposal['status'],
+    }

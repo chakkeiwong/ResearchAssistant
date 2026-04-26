@@ -13,6 +13,8 @@ LIST_AUDIT_FIELDS = {
     'derived_results',
     'open_questions',
     'relevant_equations',
+    'relevant_theorems',
+    'relevant_citations',
     'relevant_sections',
     'assumptions_for_reuse',
 }
@@ -25,8 +27,11 @@ def technical_audit_defaults() -> dict[str, Any]:
         'derived_results': [],
         'open_questions': [],
         'relevant_equations': [],
+        'relevant_theorems': [],
+        'relevant_citations': [],
         'relevant_sections': [],
         'assumptions_for_reuse': [],
+        'proposal_provenance': [],
     }
 
 
@@ -91,17 +96,42 @@ def _label_exists(record: dict[str, Any], key: str, label: str) -> bool:
 
 
 def link_audit_source_label(paper_id: str, label: str, *, kind: str, root: Path | None = None) -> dict[str, Any]:
-    if kind not in {'section', 'equation'}:
-        raise ValueError('audit-note source label kind must be section or equation')
+    if kind not in {'section', 'equation', 'theorem'}:
+        raise ValueError('audit-note source label kind must be section, equation, or theorem')
     warnings = []
     record = _source_record(root, paper_id)
     if record is not None:
-        key = 'sections' if kind == 'section' else 'equations'
+        key = {'section': 'sections', 'equation': 'equations', 'theorem': 'theorem_like_blocks'}[kind]
         if not _label_exists(record, key, label):
             raise ValueError(f'no structured-source {kind} label {label}')
     else:
         warnings.append('no structured source record found; label was not validated')
-    field = 'relevant_sections' if kind == 'section' else 'relevant_equations'
+    field = {'section': 'relevant_sections', 'equation': 'relevant_equations', 'theorem': 'relevant_theorems'}[kind]
     response = append_audit_note(paper_id, field, label, root=root)
     response['warnings'].extend(warnings)
     return response
+
+
+def link_audit_citation_key(paper_id: str, citation_key: str, *, root: Path | None = None) -> dict[str, Any]:
+    warnings = []
+    record = _source_record(root, paper_id)
+    if record is not None:
+        in_citations = any(citation_key in (citation.get('keys') or []) for citation in record.get('citations') or [])
+        in_bibliography = any(citation_key == entry.get('key') for entry in record.get('bibliography') or [])
+        if not in_citations and not in_bibliography:
+            raise ValueError(f'no structured-source citation key {citation_key}')
+    else:
+        warnings.append('no structured source record found; citation key was not validated')
+    response = append_audit_note(paper_id, 'relevant_citations', citation_key, root=root)
+    response['warnings'].extend(warnings)
+    return response
+
+
+def remove_audit_note(paper_id: str, field: str, value: str, *, root: Path | None = None) -> dict[str, Any]:
+    if field not in LIST_AUDIT_FIELDS:
+        raise ValueError(f'audit-note remove field must be one of {sorted(LIST_AUDIT_FIELDS)}')
+    store, path, summary = _load_summary(root, paper_id)
+    values = [item for item in list(summary['technical_audit'].get(field) or []) if item != value]
+    summary['technical_audit'][field] = values
+    store.write_json(path, summary)
+    return _audit_response(paper_id, summary, updated=True)

@@ -825,13 +825,15 @@ def test_cli_local_ingest_audit_scenario_preserves_trust_checkpoints(tmp_path: P
         'diagnostics': {'unavailable_endpoints': [], 'available_empty_endpoints': ['references'], 'failure_reasons': []},
         'summary': {'top_citing': [{'source_id': 'citing-1', 'title': 'Useful Citing Paper'}], 'top_cited': []},
     })
-    rc = main(['--root', str(tmp_path), 'citation-graph-build', '--paper-id', paper_id])
+    rc = main(['--root', str(tmp_path), 'citation-graph-build', '--paper-id', paper_id, '--depth', '2', '--refresh'])
     graph_payload = json.loads(capsys.readouterr().out)
     assert rc == 0
     assert graph_payload['seed_paper_id'] == paper_id
     assert graph_payload['edges'][0]['source'] == 'semanticscholar:citing-1'
     assert graph_payload['edges'][0]['target'] == paper_id
     assert graph_payload['diagnostics']['available_empty_endpoints'] == ['references']
+    assert graph_payload['depth'] == 2
+    assert graph_payload['diagnostics']['node_count'] >= 2
 
     rc = main(['--root', str(tmp_path), 'citation-graph-show', '--paper-id', paper_id])
     shown_graph = json.loads(capsys.readouterr().out)
@@ -843,6 +845,12 @@ def test_cli_local_ingest_audit_scenario_preserves_trust_checkpoints(tmp_path: P
     assert rc == 0
     capsys.readouterr()
     assert json.loads(graph_export.read_text())['edges'][0]['direction'] == 'citing'
+
+    rc = main(['--root', str(tmp_path), 'graph-node-download-proposal', '--paper-id', paper_id, '--node-id', 'semanticscholar:citing-1'])
+    graph_download = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert graph_download['proposal']['proposed_name'] == 'useful_citing_paper.pdf'
+    assert graph_download['proposal']['result']['provenance']['node_id'] == 'semanticscholar:citing-1'
 
     rc = main(['--root', str(tmp_path), 'literature-audit-propose', '--paper-id', paper_id])
     proposal_payload = json.loads(capsys.readouterr().out)
@@ -1023,11 +1031,32 @@ def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Pat
     assert rc == 0
     assert audit_payload['technical_audit']['relevant_equations'] == ['eq:target']
 
+    rc = main(['--root', str(tmp_path), 'audit-note', 'link-theorem', '--paper-id', paper_id, '--label', 'thm:exact'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['relevant_theorems'] == ['thm:exact']
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'link-citation', '--paper-id', paper_id, '--citation-key', 'neal2011mcmc'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['relevant_citations'] == ['neal2011mcmc']
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'remove', '--paper-id', paper_id, '--field', 'claimed_results', '--value', 'Source extraction preserves the target.'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['claimed_results'] == []
+
+    rc = main(['--root', str(tmp_path), 'audit-note', 'append', '--paper-id', paper_id, '--field', 'claimed_results', '--value', 'Source extraction preserves the target.'])
+    audit_payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit_payload['technical_audit']['claimed_results'] == ['Source extraction preserves the target.']
+
     rc = main(['--root', str(tmp_path), 'evidence-context', '--paper-id', paper_id, '--label', 'eq:target'])
     evidence_payload = json.loads(capsys.readouterr().out)
     assert rc == 0
     assert evidence_payload['block_type'] == 'equation'
     assert evidence_payload['containing_section']['labels'] == ['sec:method', 'eq:target', 'thm:exact']
+    assert evidence_payload['macro_usages'][0]['name'] == 'target'
     assert 'exp(-U' in evidence_payload['block']['raw_latex']
 
     rc = main(['--root', str(tmp_path), 'evidence-context', '--paper-id', paper_id, '--citation-key', 'neal2011mcmc'])
@@ -1055,10 +1084,18 @@ def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Pat
     assert rc == 0
     assert shown_proposal['limitations'][0].startswith('This proposal is generated')
 
+    rc = main(['--root', str(tmp_path), 'literature-audit-approve', '--paper-id', paper_id])
+    approved_proposal = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert approved_proposal['proposal_status'] == 'accepted'
+    assert approved_proposal['technical_audit']['relevant_theorems'] == ['thm:exact']
+    assert approved_proposal['technical_audit']['proposal_provenance'][0]['proposal_id'].endswith('source-v1')
+
     export_path = tmp_path / 'source_context.json'
     rc = main(['--root', str(tmp_path), 'export-context', '--output', str(export_path)])
     exported = json.loads(export_path.read_text())
     assert rc == 0
-    assert exported['papers'][0]['technical_audit']['claimed_results'] == ['Source extraction preserves the target.']
+    assert exported['papers'][0]['technical_audit']['claimed_results'][0] == 'Source extraction preserves the target.'
+    assert 'thm:exact' in exported['papers'][0]['technical_audit']['relevant_theorems']
     assert exported['papers'][0]['technical_audit']['relevant_equations'] == ['eq:target']
 
