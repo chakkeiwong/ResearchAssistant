@@ -41,6 +41,17 @@ For each phase:
 7. Update the reset memo with files touched, tests run, residual risks, and next safe step.
 8. Commit after a coherent phase or group of tightly related phases.
 
+## Audit Amendment — Phase 0 Release-Hardening Contract
+
+An independent developer audit found that the 9 phases are complete in scope, but they need a shared reporting contract. Without one, clean-install smoke, parser matrix, restore, performance, packaging, onboarding, versioning, platform, and corruption checks could become separate commands that do not feed a single release decision.
+
+Before Phase 1, add a Phase 0 contract:
+- define a release hardening status schema with `status`, `blockers`, `warnings`, `checks`, `artifacts`, `docs`, `scripts`, `platform`, `privacy`, and `known_limitations`;
+- make `ra release-report` aggregate every implemented hardening signal;
+- keep all hardening signals local/offline and human-review-aware;
+- add tests that release-report degrades to `blocked` or `warnings` when required docs/scripts/checks are missing or failing;
+- update reset memo after every phase with the release-report status.
+
 ## Phase 1 — Clean-Machine Install Validation
 
 ### Motivation

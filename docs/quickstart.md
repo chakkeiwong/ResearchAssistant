@@ -6,6 +6,7 @@
 ra --root /tmp/research-assistant-demo demo setup
 ra --root /tmp/research-assistant-demo demo run
 ra --root /tmp/research-assistant-demo release-report
+ra --root /tmp/research-assistant-demo backup create
 ```
 
 The demo creates a fixture paper, a derivation worksheet, experiment evidence, a traceability report, governance/model-policy records, readiness output, and a backup archive. It uses local deterministic data only.

@@ -6,13 +6,18 @@ from typing import Any
 import hashlib
 import io
 import json
+import os
 import platform
 import shutil
+import sys
 import tarfile
+import time
+import tomllib
 
 from research_assistant import __version__
 from research_assistant.config import AppPaths, get_paths
 from research_assistant.industrial.platform import (
+    build_artifact_index,
     build_governance_record,
     build_readiness_report,
     build_traceability_report,
@@ -32,6 +37,8 @@ CONFIG_SCHEMA_VERSION = "individual-release-config-v1"
 WORKSPACE_SCHEMA_VERSION = "individual-release-workspace-v1"
 BACKUP_MANIFEST_NAME = "research_assistant_backup_manifest.json"
 DEMO_PAPER_ID = "demo_transport_paper"
+RELEASE_REPORT_SCHEMA_VERSION = "individual-release-report-v2"
+BACKUP_SCHEMA_VERSION = "individual-release-backup-v1"
 
 CONFIG_KEYS = {
     "workspace_root",
@@ -44,9 +51,57 @@ CONFIG_KEYS = {
     "schema_version",
 }
 
+OPTIONAL_TOOLS = ["pdftotext", "markitdown", "marker_single", "magic-pdf"]
+BENCHMARK_EXPECTED_FIELDS = [
+    "title",
+    "authors",
+    "year",
+    "abstract",
+    "section_headings",
+    "equations",
+    "theorem_like_blocks",
+    "citations",
+]
+
+RELEASE_DOCS = [
+    "docs/installation.md",
+    "docs/quickstart.md",
+    "docs/workflows/individual_research_workflow.md",
+    "docs/troubleshooting.md",
+    "docs/privacy.md",
+    "docs/release_checklist.md",
+    "docs/onboarding_trial.md",
+    "docs/known_limitations.md",
+    "docs/platform_support.md",
+    "docs/release_notes_template.md",
+]
+
+RELEASE_SCRIPTS = [
+    "scripts/run_fast_tests.sh",
+    "scripts/run_bounded_tests.sh",
+    "scripts/run_release_smoke.sh",
+    "scripts/run_packaging_smoke.sh",
+    "scripts/run_clean_install_smoke.sh",
+    "scripts/build_release_artifacts.sh",
+]
+
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def atomic_write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.tmp")
+    with tmp.open("w", encoding="utf-8") as handle:
+        handle.write(text)
+        handle.flush()
+        os.fsync(handle.fileno())
+    tmp.replace(path)
+
+
+def atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
+    atomic_write_text(path, json.dumps(payload, indent=2, sort_keys=True))
 
 
 def config_dir(root: Path | None = None) -> Path:
@@ -131,7 +186,7 @@ def init_workspace(*, root: Path | None = None, force: bool = False) -> dict[str
     wrote_config = False
     config_existed = cfg_path.exists()
     if force or not config_existed:
-        cfg_path.write_text(json.dumps(default_config(root), indent=2, sort_keys=True))
+        atomic_write_json(cfg_path, default_config(root))
         wrote_config = True
 
     return {
@@ -234,7 +289,7 @@ def set_config_value(key: str, value: str, *, root: Path | None = None) -> dict[
         cfg.setdefault("providers", {})["enabled"] = parsed
     else:
         cfg[key] = parsed
-    path.write_text(json.dumps(cfg, indent=2, sort_keys=True))
+    atomic_write_json(path, cfg)
     return show_config(root=root)
 
 
@@ -246,6 +301,38 @@ def version_payload() -> dict[str, Any]:
         "workspace_schema_version": WORKSPACE_SCHEMA_VERSION,
         "config_schema_version": CONFIG_SCHEMA_VERSION,
         "industrial_artifact_schema_version": SCHEMA_VERSION,
+    }
+
+
+def version_consistency(*, release_root: Path | None = None) -> dict[str, Any]:
+    root = release_root or _release_material_root()
+    issues: list[dict[str, Any]] = []
+    pyproject_path = root / "pyproject.toml"
+    changelog_path = root / "CHANGELOG.md"
+    pyproject_version = None
+    script_entry = None
+    try:
+        pyproject = tomllib.loads(pyproject_path.read_text())
+        pyproject_version = pyproject.get("project", {}).get("version")
+        script_entry = pyproject.get("project", {}).get("scripts", {}).get("ra")
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        issues.append({"severity": "blocker", "code": "pyproject_unreadable", "message": str(exc)})
+    if pyproject_version != __version__:
+        issues.append({"severity": "blocker", "code": "version_mismatch", "pyproject": pyproject_version, "package": __version__})
+    if script_entry != "research_assistant.cli:main":
+        issues.append({"severity": "blocker", "code": "ra_entrypoint_missing", "entry": script_entry})
+    changelog_text = changelog_path.read_text() if changelog_path.exists() else ""
+    if f"## {__version__}" not in changelog_text:
+        issues.append({"severity": "warning", "code": "changelog_missing_version", "version": __version__})
+    blocker_count = len([issue for issue in issues if issue["severity"] == "blocker"])
+    warning_count = len([issue for issue in issues if issue["severity"] == "warning"])
+    return {
+        "status": "blocked" if blocker_count else ("warnings" if warning_count else "ok"),
+        "package_version": __version__,
+        "pyproject_version": pyproject_version,
+        "ra_entrypoint": script_entry,
+        "changelog_has_version": f"## {__version__}" in changelog_text,
+        "issues": issues,
     }
 
 
@@ -342,14 +429,39 @@ def record_timeout_diagnostic(
     return payload
 
 
-def performance_smoke(*, root: Path | None = None, synthetic_count: int = 25) -> dict[str, Any]:
+def performance_smoke(
+    *,
+    root: Path | None = None,
+    synthetic_count: int = 25,
+    include_industrial_artifacts: bool = False,
+    include_backup: bool = False,
+    include_export: bool = False,
+    timeout_seconds: int | None = None,
+    output: Path | None = None,
+) -> dict[str, Any]:
     paths = get_paths(root)
     init_workspace(root=paths.root)
     if synthetic_count < 0:
         raise ValueError("synthetic_count must be non-negative")
     store = FileStore(paths.local_research)
     created = 0
+    progress_events = [{"event": "start", "synthetic_count": synthetic_count}]
+    start_total = time.monotonic()
     for idx in range(synthetic_count):
+        if timeout_seconds is not None and time.monotonic() - start_total > timeout_seconds:
+            diagnostic = record_timeout_diagnostic(
+                workflow="performance-smoke",
+                timeout_seconds=timeout_seconds,
+                elapsed_seconds=time.monotonic() - start_total,
+                root=paths.root,
+            )
+            return {
+                "status": "blocked",
+                "reason": "timeout",
+                "timeout_diagnostic_id": diagnostic["artifact_id"],
+                "progress_events": progress_events,
+                "requires_human_review": True,
+            }
         paper_id = f"synthetic_personal_corpus_{idx:04d}"
         path = paths.summaries / f"{paper_id}.json"
         if not path.exists():
@@ -362,23 +474,122 @@ def performance_smoke(*, root: Path | None = None, synthetic_count: int = 25) ->
                 "main_contribution": "",
                 "review_status": "needs_review",
                 "technical_audit": {},
+                "provenance": {"synthetic_release_smoke": "true"},
             })
+            store.write_json(paths.metadata / f"{paper_id}.json", {
+                "identity_validation": {"status": "synthetic_fixture"},
+                "synthetic_release_smoke": True,
+            })
+            store.write_json(paths.papers_source / "records" / f"{paper_id}.json", {
+                "paper_id": paper_id,
+                "status": "synthetic_fixture",
+                "source_type": "synthetic",
+                "primary_for_audit": False,
+                "sections": [{"title": "Synthetic Method", "labels": [f"sec:synthetic:{idx}"]}],
+                "equations": [{"labels": [f"eq:synthetic:{idx}"], "raw_latex": "x_i"}],
+                "theorem_like_blocks": [],
+                "labels": [{"key": f"sec:synthetic:{idx}"}, {"key": f"eq:synthetic:{idx}"}],
+                "citations": [],
+                "bibliography": [],
+                "macros": [],
+                "provenance": {"synthetic_release_smoke": True},
+                "limitations": ["Synthetic record for release performance smoke."],
+            })
+            if include_industrial_artifacts:
+                derivation = create_derivation(paper_id, title="Synthetic release worksheet", root=paths.root)
+                derivation = update_derivation(derivation["artifact_id"], "paper_claims", "Synthetic claim for release smoke.", root=paths.root)
+                claim_id = derivation["paper_claims"][0]["id"]
+                experiment = create_experiment(paper_id, claim_id=claim_id, checklist_id="gradient_checks", root=paths.root)
+                record_experiment_run(
+                    experiment["artifact_id"],
+                    run_label="synthetic-smoke",
+                    seed=str(idx),
+                    environment="synthetic-local",
+                    diagnostics=["synthetic diagnostic"],
+                    result_summary="Synthetic run evidence.",
+                    acceptance_status="requires_review",
+                    dataset_hash=f"synthetic-data-{idx}",
+                    model_hash=f"synthetic-model-{idx}",
+                    root=paths.root,
+                )
             created += 1
+    progress_events.append({"event": "records_ready", "created_records": created})
+
     start = datetime.now(timezone.utc)
     validation = workspace_validate(root=paths.root)
-    elapsed = (datetime.now(timezone.utc) - start).total_seconds()
+    validation_elapsed = (datetime.now(timezone.utc) - start).total_seconds()
+    index_elapsed = None
+    export_elapsed = None
+    backup_elapsed = None
+    backup_size = None
+    index_payload = None
+    export_path = None
+    backup_payload = None
+
+    index_start = time.monotonic()
+    index_payload = build_artifact_index("release_performance_smoke_index", root=paths.root)
+    index_elapsed = time.monotonic() - index_start
+    progress_events.append({"event": "artifact_index_built", "elapsed_seconds": round(index_elapsed, 6)})
+
+    if include_export:
+        from research_assistant.adapters.workspace_exports import export_paper_context
+
+        export_path = paths.exports / "release_performance_context.json"
+        export_start = time.monotonic()
+        export_paper_context(export_path, root=paths.root)
+        export_elapsed = time.monotonic() - export_start
+        progress_events.append({"event": "context_exported", "elapsed_seconds": round(export_elapsed, 6)})
+
+    if include_backup:
+        backup_start = time.monotonic()
+        backup_payload = create_backup(root=paths.root)
+        backup_elapsed = time.monotonic() - backup_start
+        backup_size = Path(backup_payload["backup_path"]).stat().st_size
+        progress_events.append({"event": "backup_created", "elapsed_seconds": round(backup_elapsed, 6)})
+
     warning_threshold_seconds = max(1.0, synthetic_count * 0.05)
-    return {
-        "status": "warnings" if elapsed > warning_threshold_seconds else "ok",
+    warnings = []
+    if validation_elapsed > warning_threshold_seconds:
+        warnings.append({"code": "validation_slow", "elapsed_seconds": round(validation_elapsed, 6)})
+    if include_backup and backup_elapsed is not None and backup_elapsed > max(2.0, synthetic_count * 0.05):
+        warnings.append({"code": "backup_slow", "elapsed_seconds": round(backup_elapsed, 6)})
+    payload = {
+        "status": "warnings" if warnings else "ok",
         "workspace_root": str(paths.root),
         "synthetic_count": synthetic_count,
         "created_records": created,
+        "include_industrial_artifacts": include_industrial_artifacts,
+        "include_backup": include_backup,
+        "include_export": include_export,
         "validation_status": validation["status"],
-        "validation_elapsed_seconds": round(elapsed, 6),
+        "validation_elapsed_seconds": round(validation_elapsed, 6),
+        "artifact_index_elapsed_seconds": round(index_elapsed, 6) if index_elapsed is not None else None,
+        "artifact_index_id": index_payload["artifact_id"] if index_payload else None,
+        "export_elapsed_seconds": round(export_elapsed, 6) if export_elapsed is not None else None,
+        "export_path": str(export_path) if export_path else None,
+        "backup_elapsed_seconds": round(backup_elapsed, 6) if backup_elapsed is not None else None,
+        "backup_path": backup_payload["backup_path"] if backup_payload else None,
+        "backup_size_bytes": backup_size,
         "warning_threshold_seconds": warning_threshold_seconds,
+        "warnings": warnings,
+        "progress_events": progress_events,
         "requires_human_review": True,
         "limitations": ["Synthetic corpus smoke checks local validation overhead, not real search/index performance."],
     }
+    if output is not None:
+        atomic_write_json(output, payload)
+    report = {
+        **base_artifact(
+            artifact_type="release_performance_smoke_report",
+            artifact_id=stable_id("performance_smoke", synthetic_count, include_industrial_artifacts, include_backup, include_export),
+            provenance={"created_by": "ra performance smoke"},
+            limitations=payload["limitations"],
+        ),
+        **payload,
+    }
+    FileStore(paths.local_research).write_json(paths.jobs / f"{report['artifact_id']}.json", report)
+    payload["report_artifact_id"] = report["artifact_id"]
+    return payload
 
 
 def _sha256(path: Path) -> str:
@@ -410,7 +621,7 @@ def create_backup(*, root: Path | None = None, output: Path | None = None) -> di
     out.parent.mkdir(parents=True, exist_ok=True)
     files = _backup_files(paths.root, out)
     manifest = {
-        "schema_version": "individual-release-backup-v1",
+        "schema_version": BACKUP_SCHEMA_VERSION,
         "created_at": utc_now_iso(),
         "workspace_root": str(paths.root),
         "package_version": __version__,
@@ -435,72 +646,286 @@ def create_backup(*, root: Path | None = None, output: Path | None = None) -> di
     }
 
 
-def inspect_backup(path: Path) -> dict[str, Any]:
+def _validate_backup_members(path: Path) -> tuple[list[tarfile.TarInfo], list[dict[str, Any]]]:
+    issues: list[dict[str, Any]] = []
     with tarfile.open(path, "r:gz") as archive:
-        try:
-            member = archive.getmember(BACKUP_MANIFEST_NAME)
-        except KeyError:
-            return {"status": "blocked", "backup_path": str(path), "issues": [{"severity": "blocker", "code": "manifest_missing"}]}
-        extracted = archive.extractfile(member)
-        if extracted is None:
-            return {"status": "blocked", "backup_path": str(path), "issues": [{"severity": "blocker", "code": "manifest_unreadable"}]}
-        manifest = json.loads(extracted.read().decode("utf-8"))
+        members = archive.getmembers()
+    for member in members:
+        name = member.name
+        if name.startswith("/") or Path(name).is_absolute() or ".." in Path(name).parts:
+            issues.append({"severity": "blocker", "code": "unsafe_archive_path", "path": name})
+        if not (name == BACKUP_MANIFEST_NAME or name.startswith("local_research/") or name.startswith(".research-assistant/")):
+            issues.append({"severity": "blocker", "code": "unexpected_archive_path", "path": name})
+    return members, issues
+
+
+def inspect_backup(path: Path) -> dict[str, Any]:
+    try:
+        members, issues = _validate_backup_members(path)
+        with tarfile.open(path, "r:gz") as archive:
+            try:
+                member = archive.getmember(BACKUP_MANIFEST_NAME)
+            except KeyError:
+                return {"status": "blocked", "backup_path": str(path), "issues": [{"severity": "blocker", "code": "manifest_missing"}] + issues}
+            extracted = archive.extractfile(member)
+            if extracted is None:
+                return {"status": "blocked", "backup_path": str(path), "issues": [{"severity": "blocker", "code": "manifest_unreadable"}] + issues}
+            manifest = json.loads(extracted.read().decode("utf-8"))
+            file_rows = manifest.get("files", [])
+            for row in file_rows:
+                row_path = row.get("path")
+                if not row_path:
+                    issues.append({"severity": "blocker", "code": "manifest_file_path_missing"})
+                    continue
+                if row_path.startswith("/") or Path(row_path).is_absolute() or ".." in Path(row_path).parts:
+                    issues.append({"severity": "blocker", "code": "unsafe_manifest_path", "path": row_path})
+                    continue
+                try:
+                    file_member = archive.getmember(row_path)
+                except KeyError:
+                    issues.append({"severity": "blocker", "code": "manifest_file_missing", "path": row_path})
+                    continue
+                extracted_file = archive.extractfile(file_member)
+                if extracted_file is None:
+                    issues.append({"severity": "blocker", "code": "manifest_file_unreadable", "path": row_path})
+                    continue
+                digest = hashlib.sha256(extracted_file.read()).hexdigest()
+                if row.get("sha256") and digest != row.get("sha256"):
+                    issues.append({"severity": "blocker", "code": "hash_mismatch", "path": row_path})
+    except (tarfile.TarError, OSError, json.JSONDecodeError) as exc:
+        return {"status": "blocked", "backup_path": str(path), "issues": [{"severity": "blocker", "code": "backup_unreadable", "message": str(exc)}]}
+    blocker_count = len([issue for issue in issues if issue["severity"] == "blocker"])
     return {
-        "status": "ok",
+        "status": "blocked" if blocker_count else "ok",
         "backup_path": str(path),
         "manifest": manifest,
+        "member_count": len(members),
+        "issues": issues,
     }
 
 
-def restore_backup(path: Path, *, root: Path | None = None, dry_run: bool = True) -> dict[str, Any]:
+def _target_has_restore_conflicts(root: Path, manifest: dict[str, Any]) -> list[str]:
+    return [
+        row["path"] for row in manifest.get("files", [])
+        if (root / row["path"]).exists()
+    ]
+
+
+def restore_backup(
+    path: Path,
+    *,
+    root: Path | None = None,
+    dry_run: bool = True,
+    confirm_restore: bool = False,
+    allow_overwrite: bool = False,
+    backup_current_first: bool = True,
+) -> dict[str, Any]:
     inspection = inspect_backup(path)
     if inspection["status"] != "ok":
         return inspection
     paths = get_paths(root)
     manifest = inspection["manifest"]
-    would_overwrite = [
-        row["path"] for row in manifest.get("files", [])
-        if (paths.root / row["path"]).exists()
-    ]
-    return {
-        "status": "dry_run_complete" if dry_run else "blocked",
+    would_overwrite = _target_has_restore_conflicts(paths.root, manifest)
+    base_report = {
         "dry_run": dry_run,
         "backup_path": str(path),
         "restore_root": str(paths.root),
         "file_count": manifest.get("file_count", 0),
         "would_overwrite_count": len(would_overwrite),
         "would_overwrite": would_overwrite[:50],
-        "message": "Restore is dry-run only in this release slice." if dry_run else "Non-dry-run restore requires a future explicit confirmation workflow.",
+        "allow_overwrite": allow_overwrite,
+        "confirm_restore": confirm_restore,
+    }
+    if dry_run:
+        return {**base_report, "status": "dry_run_complete", "message": "Dry-run only; pass --no-dry-run --confirm-restore to restore."}
+    if not confirm_restore:
+        return {**base_report, "status": "blocked", "issues": [{"severity": "blocker", "code": "restore_confirmation_required"}]}
+    if would_overwrite and not allow_overwrite:
+        return {**base_report, "status": "blocked", "issues": [{"severity": "blocker", "code": "overwrite_not_allowed", "count": len(would_overwrite)}]}
+
+    safety_backup = None
+    if would_overwrite and backup_current_first:
+        safety_backup = create_backup(root=paths.root)["backup_path"]
+
+    restored = []
+    skipped = []
+    with tarfile.open(path, "r:gz") as archive:
+        for row in manifest.get("files", []):
+            rel_path = row["path"]
+            target = paths.root / rel_path
+            if target.exists() and not allow_overwrite:
+                skipped.append(rel_path)
+                continue
+            member = archive.getmember(rel_path)
+            extracted = archive.extractfile(member)
+            if extracted is None:
+                skipped.append(rel_path)
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            data = extracted.read()
+            tmp = target.with_name(f".{target.name}.restore-tmp")
+            with tmp.open("wb") as handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+            tmp.replace(target)
+            restored.append(rel_path)
+
+    report = {
+        **base_report,
+        "status": "restored",
+        "restored_file_count": len(restored),
+        "skipped_file_count": len(skipped),
+        "overwritten_file_count": len(would_overwrite),
+        "safety_backup_path": safety_backup,
+        "restored_files": restored[:50],
+        "skipped_files": skipped[:50],
+        "hash_validation_status": inspection["status"],
+        "warnings": [],
+    }
+    report_path = paths.exports / "restore_reports" / f"restore_report_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+    atomic_write_json(report_path, report)
+    report["restore_report_path"] = str(report_path)
+    return report
+
+
+def _optional_tool_status() -> list[dict[str, Any]]:
+    return [
+        {"tool": tool, "available": shutil.which(tool) is not None, "required": False}
+        for tool in OPTIONAL_TOOLS
+    ]
+
+
+def _tool_map(tools: list[dict[str, Any]]) -> dict[str, bool]:
+    return {row["tool"]: bool(row["available"]) for row in tools}
+
+
+def workflow_readiness(*, root: Path | None = None, tools: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    release_root = _release_material_root()
+    tool_rows = tools or _optional_tool_status()
+    available = _tool_map(tool_rows)
+
+    def row(name: str, required: list[str], optional: list[str], limitations: list[str]) -> dict[str, Any]:
+        missing_required = [tool for tool in required if not available.get(tool)]
+        missing_optional = [tool for tool in optional if not available.get(tool)]
+        status = "blocked" if missing_required else ("warnings" if missing_optional else "ok")
+        return {
+            "workflow": name,
+            "status": status,
+            "required_tools": required,
+            "optional_tools": optional,
+            "available_tools": [tool for tool in required + optional if available.get(tool)],
+            "missing_tools": missing_required + missing_optional,
+            "suggested_fix": "install missing required tools" if missing_required else ("optional tools can improve extraction quality" if missing_optional else ""),
+            "limitations": limitations,
+        }
+
+    benchmark_fixtures = sorted((release_root / "tests" / "fixtures" / "benchmark_papers" / "synthetic").glob("*.expected.json"))
+    return {
+        "core_local_lifecycle": row("core_local_lifecycle", [], [], ["Uses local JSON files only."]),
+        "demo_workflow": row("demo_workflow", [], [], ["Demo evidence remains review material."]),
+        "metadata_only_ingest": row("metadata_only_ingest", [], [], ["Network discovery remains an explicit separate workflow."]),
+        "pdf_text_ingest": row("pdf_text_ingest", ["pdftotext"], ["markitdown", "marker_single", "magic-pdf"], ["PDF extraction quality depends on local tools and source PDF quality."]),
+        "structured_source_inspection": row("structured_source_inspection", [], [], ["Live arXiv fetch is explicit; stored source inspection is local."]),
+        "parser_benchmark_smoke": {
+            **row("parser_benchmark_smoke", [], OPTIONAL_TOOLS, ["Fixture smoke checks expected metadata presence, not full parser correctness."]),
+            "fixture_count": len(benchmark_fixtures),
+            "fixture_status": "ok" if benchmark_fixtures else "warnings",
+        },
     }
 
 
-def doctor(*, root: Path | None = None) -> dict[str, Any]:
+def parser_tool_matrix(*, root: Path | None = None) -> dict[str, Any]:
+    tools = _optional_tool_status()
+    return {
+        "status": "ok",
+        "optional_tools": tools,
+        "workflow_readiness": workflow_readiness(root=root, tools=tools),
+        "privacy": privacy_status(root=root),
+        "limitations": ["Tool matrix reports availability and workflow fit; it does not certify parser accuracy."],
+    }
+
+
+def parser_benchmark_smoke(*, root: Path | None = None) -> dict[str, Any]:
+    release_root = _release_material_root()
+    fixture_dir = release_root / "tests" / "fixtures" / "benchmark_papers" / "synthetic"
+    rows = []
+    for path in sorted(fixture_dir.glob("*.expected.json")):
+        try:
+            expected = json.loads(path.read_text())
+        except json.JSONDecodeError as exc:
+            rows.append({"fixture": str(path), "status": "blocked", "issues": [{"code": "invalid_json", "message": str(exc)}]})
+            continue
+        missing = [field for field in BENCHMARK_EXPECTED_FIELDS if not expected.get(field)]
+        score = (len(BENCHMARK_EXPECTED_FIELDS) - len(missing)) / len(BENCHMARK_EXPECTED_FIELDS)
+        rows.append({
+            "fixture": str(path),
+            "status": "passed" if score >= 0.60 else "warnings",
+            "quality_score": round(score, 3),
+            "missing_expected_fields": missing,
+            "limitations": ["Expected fixture completeness only; parser-vs-ground-truth scoring is future work."],
+        })
+    blockers = [row for row in rows if row["status"] == "blocked"]
+    warnings = [row for row in rows if row["status"] == "warnings"]
+    return {
+        "status": "blocked" if blockers else ("warnings" if warnings else "ok"),
+        "fixture_count": len(rows),
+        "fixtures": rows,
+        "requires_human_review": True,
+    }
+
+
+def platform_status(*, root: Path | None = None) -> dict[str, Any]:
+    system = platform.system()
+    if system == "Linux":
+        support_tier = "tier_1_linux"
+    elif system == "Darwin":
+        support_tier = "tier_2_macos"
+    elif system == "Windows":
+        support_tier = "tier_3_windows_native_untested"
+    else:
+        support_tier = "untested"
+    return {
+        "status": "warnings" if support_tier in {"tier_3_windows_native_untested", "untested"} else "ok",
+        "system": system,
+        "release": platform.release(),
+        "machine": platform.machine(),
+        "python_executable": sys.executable,
+        "python_version": platform.python_version(),
+        "support_tier": support_tier,
+        "posix_shell_scripts": system in {"Linux", "Darwin"} or "microsoft" in platform.release().lower(),
+        "workspace_root": str(get_paths(root).root),
+        "limitations": ["Platform status is local detection; cross-platform release signoff still requires manual validation."],
+    }
+
+
+def doctor(*, root: Path | None = None, include_matrix: bool = False) -> dict[str, Any]:
     cfg = load_config(root=root)
     validation = workspace_validate(root=root)
-    tools = [
-        {"tool": "pdftotext", "available": shutil.which("pdftotext") is not None, "required": False},
-        {"tool": "markitdown", "available": shutil.which("markitdown") is not None, "required": False},
-        {"tool": "marker_single", "available": shutil.which("marker_single") is not None, "required": False},
-        {"tool": "magic-pdf", "available": shutil.which("magic-pdf") is not None, "required": False},
-    ]
+    tools = _optional_tool_status()
     warnings = []
     if validation["status"] != "ok":
         warnings.append("workspace has validation warnings or blockers")
     if cfg.get("providers", {}).get("enabled") is True:
         warnings.append("providers are enabled; individual release defaults expect providers disabled")
-    return {
+    payload = {
         "status": "warnings" if warnings else "ok",
         "package_version": __version__,
         "python": platform.python_version(),
+        "platform": platform_status(root=root),
         "workspace_root": str(get_paths(root).root),
         "workspace_status": validation["status"],
         "default_timeout_seconds": cfg.get("default_timeout_seconds"),
         "offline_mode": cfg.get("offline_mode") is True,
         "providers_enabled": cfg.get("providers", {}).get("enabled") is True,
         "optional_tools": tools,
+        "workflow_readiness": workflow_readiness(root=root, tools=tools),
         "warnings": warnings,
         "suggested_next_commands": ["ra init", "ra demo setup", "ra demo run"],
     }
+    if include_matrix:
+        payload["parser_tool_matrix"] = parser_tool_matrix(root=root)
+    return payload
 
 
 def privacy_status(*, root: Path | None = None) -> dict[str, Any]:
@@ -679,36 +1104,104 @@ def _release_material_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def release_artifacts_manifest(*, dist_dir: Path | None = None, release_root: Path | None = None) -> dict[str, Any]:
+    root = release_root or _release_material_root()
+    dist = dist_dir or (root / "dist")
+    artifacts = []
+    for path in sorted(dist.glob("*")) if dist.exists() else []:
+        if path.is_file() and path.name != "release_artifacts_manifest.json":
+            artifacts.append({
+                "filename": path.name,
+                "path": str(path),
+                "sha256": _sha256(path),
+                "size": path.stat().st_size,
+            })
+    payload = {
+        "schema_version": "individual-release-artifacts-v1",
+        "created_at": utc_now_iso(),
+        "package_version": __version__,
+        "dist_dir": str(dist),
+        "artifact_count": len(artifacts),
+        "artifacts": artifacts,
+        "status": "ok" if artifacts else "warnings",
+        "warnings": [] if artifacts else [{"code": "no_release_artifacts_built"}],
+    }
+    if dist.exists():
+        atomic_write_json(dist / "release_artifacts_manifest.json", payload)
+    return payload
+
+
+def onboarding_report(*, release_root: Path | None = None) -> dict[str, Any]:
+    root = release_root or _release_material_root()
+    checklist = [
+        "install package",
+        "run ra --help",
+        "run ra version",
+        "initialize workspace",
+        "run doctor",
+        "run demo setup",
+        "run demo run",
+        "inspect release report",
+        "create backup",
+        "inspect backup",
+        "run privacy status",
+        "optional local PDF ingest",
+    ]
+    return {
+        "status": "ready_for_trial" if (root / "docs" / "onboarding_trial.md").exists() else "warnings",
+        "checklist": checklist,
+        "doc_path": str(root / "docs" / "onboarding_trial.md"),
+        "known_limitations_path": str(root / "docs" / "known_limitations.md"),
+        "requires_human_review": True,
+    }
+
+
+def corruption_hardening_status(*, root: Path | None = None) -> dict[str, Any]:
+    paths = get_paths(root)
+    checks = [
+        {"check": "invalid_config_json", "covered_by": "validate_config"},
+        {"check": "unknown_config_key", "covered_by": "validate_config"},
+        {"check": "invalid_timeout", "covered_by": "validate_config"},
+        {"check": "malformed_industrial_artifact", "covered_by": "validate_industrial_artifacts"},
+        {"check": "backup_missing_manifest", "covered_by": "inspect_backup"},
+        {"check": "backup_hash_mismatch", "covered_by": "inspect_backup"},
+        {"check": "unsafe_restore_path", "covered_by": "inspect_backup"},
+        {"check": "atomic_config_write", "covered_by": "atomic_write_json"},
+    ]
+    return {
+        "status": "ok",
+        "workspace_root": str(paths.root),
+        "checks": checks,
+        "repair_policy": "Only missing directories are repaired automatically; content repair remains manual.",
+        "requires_human_review": True,
+    }
+
+
 def release_report(*, root: Path | None = None, output: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     release_root = _release_material_root()
-    docs = [
-        "docs/installation.md",
-        "docs/quickstart.md",
-        "docs/workflows/individual_research_workflow.md",
-        "docs/troubleshooting.md",
-        "docs/privacy.md",
-        "docs/release_checklist.md",
-    ]
-    scripts = [
-        "scripts/run_fast_tests.sh",
-        "scripts/run_bounded_tests.sh",
-        "scripts/run_release_smoke.sh",
-        "scripts/run_packaging_smoke.sh",
-    ]
     workspace = workspace_validate(root=paths.root)
     privacy = privacy_status(root=paths.root)
-    doctor_report = doctor(root=paths.root)
-    doc_rows = [{"path": path, "exists": (release_root / path).exists()} for path in docs]
-    script_rows = [{"path": path, "exists": (release_root / path).exists()} for path in scripts]
+    doctor_report = doctor(root=paths.root, include_matrix=True)
+    platform_report = platform_status(root=paths.root)
+    version_report = version_consistency(release_root=release_root)
+    parser_benchmark = parser_benchmark_smoke(root=release_root)
+    artifact_manifest = release_artifacts_manifest(release_root=release_root)
+    onboarding = onboarding_report(release_root=release_root)
+    corruption = corruption_hardening_status(root=paths.root)
+    doc_rows = [{"path": path, "exists": (release_root / path).exists()} for path in RELEASE_DOCS]
+    script_rows = [{"path": path, "exists": (release_root / path).exists(), "executable": os.access(release_root / path, os.X_OK)} for path in RELEASE_SCRIPTS]
     blockers = []
     warnings = []
     missing_docs = [row["path"] for row in doc_rows if not row["exists"]]
     missing_scripts = [row["path"] for row in script_rows if not row["exists"]]
+    non_executable_scripts = [row["path"] for row in script_rows if row["exists"] and not row["executable"]]
     if missing_docs:
         blockers.append({"code": "missing_release_docs", "paths": missing_docs})
     if missing_scripts:
         blockers.append({"code": "missing_release_scripts", "paths": missing_scripts})
+    if non_executable_scripts:
+        blockers.append({"code": "release_scripts_not_executable", "paths": non_executable_scripts})
     if workspace["status"] == "blocked":
         blockers.append({"code": "workspace_validation_blocked"})
     elif workspace["status"] == "warnings":
@@ -717,14 +1210,35 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         blockers.append({"code": "privacy_defaults_not_offline"})
     if doctor_report["status"] == "warnings":
         warnings.append({"code": "doctor_warnings", "warnings": doctor_report.get("warnings", [])})
+    if version_report["status"] == "blocked":
+        blockers.append({"code": "version_consistency_blocked", "issues": version_report["issues"]})
+    elif version_report["status"] == "warnings":
+        warnings.append({"code": "version_consistency_warnings", "issues": version_report["issues"]})
+    if platform_report["status"] != "ok":
+        warnings.append({"code": "platform_support_warning", "support_tier": platform_report["support_tier"]})
+    if parser_benchmark["status"] == "blocked":
+        blockers.append({"code": "parser_benchmark_smoke_blocked"})
+    elif parser_benchmark["status"] == "warnings":
+        warnings.append({"code": "parser_benchmark_smoke_warnings"})
+    if artifact_manifest["status"] == "warnings":
+        warnings.append({"code": "release_artifacts_not_built"})
+    if onboarding["status"] == "warnings":
+        warnings.append({"code": "onboarding_trial_doc_missing"})
     status = "blocked" if blockers else ("warnings" if warnings else "ready_for_release_candidate_review")
     payload = {
+        "schema_version": RELEASE_REPORT_SCHEMA_VERSION,
         "status": status,
         "generated_at": utc_now_iso(),
         "version": version_payload(),
+        "version_consistency": version_report,
         "workspace_validation": workspace,
         "privacy": privacy,
         "doctor": doctor_report,
+        "platform": platform_report,
+        "parser_benchmark_smoke": parser_benchmark,
+        "release_artifacts": artifact_manifest,
+        "onboarding": onboarding,
+        "corruption_hardening": corruption,
         "release_material_root": str(release_root),
         "docs": doc_rows,
         "scripts": script_rows,

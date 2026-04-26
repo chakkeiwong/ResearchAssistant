@@ -59,6 +59,11 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'release-report' in captured.out
     assert 'bounded-workflow' in captured.out
     assert 'performance' in captured.out
+    assert 'parser-tool-matrix' in captured.out
+    assert 'parser-benchmark-smoke' in captured.out
+    assert 'release-artifacts' in captured.out
+    assert 'onboarding-report' in captured.out
+    assert 'platform-status' in captured.out
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:

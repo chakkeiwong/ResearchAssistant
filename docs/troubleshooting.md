@@ -34,6 +34,9 @@ Restore is dry-run only in this release slice, so it reports files that would be
 ```bash
 ra parser-preflight
 ra doctor
+ra doctor --matrix
+ra parser-tool-matrix
+ra parser-benchmark-smoke
 ```
 
 Missing optional tools are visible diagnostics. They are not treated as hard failures for local metadata, derivation, experiment, backup, or demo workflows.
@@ -45,3 +48,22 @@ ra bounded-workflow diagnostic --workflow parser-run --timeout-seconds 300
 ```
 
 This writes a local diagnostic artifact under `local_research/jobs/` so a stuck workflow has a recoverable trace instead of a silent hang.
+
+## Restore Problems
+
+```bash
+ra backup restore --path backup.tar.gz
+ra --root /tmp/restored-workspace backup restore --path backup.tar.gz --no-dry-run --confirm-restore
+```
+
+Restore defaults to dry-run. Existing files require `--allow-overwrite`, and overwrite restores create a safety backup by default.
+
+## Corruption Checks
+
+```bash
+ra config validate
+ra workspace validate
+ra backup inspect --path backup.tar.gz
+```
+
+Expected corruption modes should return JSON with `status`, `issues`, and suggested next steps rather than raw tracebacks.

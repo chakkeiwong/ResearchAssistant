@@ -16,3 +16,5 @@ ra config show
 ```
 
 Networked discovery commands and future provider-backed features must remain explicit opt-in workflows. Do not use them for private papers unless the relevant policy has been reviewed.
+
+Release hardening checks such as clean install, demo, backup, restore, parser matrix, platform status, and performance smoke are designed to run without sending papers or notes to external providers.

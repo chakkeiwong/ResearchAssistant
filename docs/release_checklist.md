@@ -7,17 +7,21 @@ scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
 scripts/run_release_smoke.sh
 scripts/run_packaging_smoke.sh
+scripts/run_clean_install_smoke.sh
 ```
 
 Release gates:
 - `ra --help` and `ra version` work after install;
 - `ra init` is idempotent;
 - `ra doctor` reports optional tool and offline status;
+- `ra doctor --matrix`, `ra parser-tool-matrix`, and `ra parser-benchmark-smoke` explain parser readiness;
 - `ra demo setup` and `ra demo run` complete in a fresh root;
 - `ra workspace validate` returns no blockers for the demo root;
-- `ra backup create`, `backup inspect`, and restore dry-run work;
+- `ra backup create`, `backup inspect`, restore dry-run, and confirmed restore into a fresh root work;
 - `ra privacy status` shows offline defaults;
 - `ra bounded-workflow diagnostic` creates a timeout artifact;
-- `ra performance smoke` completes on a small synthetic corpus;
+- `ra performance smoke --include-industrial-artifacts --include-backup --include-export` completes on a small synthetic corpus;
+- `scripts/build_release_artifacts.sh` produces `dist/release_artifacts_manifest.json`;
+- `ra platform-status` matches `docs/platform_support.md`;
 - generated artifacts are review material and not accepted mathematical conclusions;
 - known limitations are included in `ra release-report`.

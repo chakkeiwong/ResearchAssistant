@@ -15,9 +15,14 @@ from research_assistant.individual_release import (
     doctor,
     init_workspace,
     inspect_backup,
+    onboarding_report,
+    parser_benchmark_smoke,
+    parser_tool_matrix,
     performance_smoke,
+    platform_status,
     privacy_status,
     record_timeout_diagnostic,
+    release_artifacts_manifest,
     release_report,
     restore_backup,
     set_config_value,
@@ -278,12 +283,19 @@ def cmd_backup(args: argparse.Namespace) -> int:
     if args.backup_action == 'inspect':
         return _print_json(inspect_backup(Path(args.path)))
     if args.backup_action == 'restore':
-        return _print_json(restore_backup(Path(args.path), root=root, dry_run=args.dry_run))
+        return _print_json(restore_backup(
+            Path(args.path),
+            root=Path(args.target_root) if args.target_root else root,
+            dry_run=args.dry_run,
+            confirm_restore=args.confirm_restore,
+            allow_overwrite=args.allow_overwrite,
+            backup_current_first=args.backup_current_first,
+        ))
     raise SystemExit(f'unknown backup action {args.backup_action}')
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
-    return _print_json(doctor(root=Path(args.root) if args.root else None))
+    return _print_json(doctor(root=Path(args.root) if args.root else None, include_matrix=args.matrix))
 
 
 def cmd_demo(args: argparse.Namespace) -> int:
@@ -326,8 +338,37 @@ def cmd_performance(args: argparse.Namespace) -> int:
         return _print_json(performance_smoke(
             root=Path(args.root) if args.root else None,
             synthetic_count=args.synthetic_count,
+            include_industrial_artifacts=args.include_industrial_artifacts,
+            include_backup=args.include_backup,
+            include_export=args.include_export,
+            timeout_seconds=args.timeout_seconds,
+            output=Path(args.output) if args.output else None,
         ))
     raise SystemExit(f'unknown performance action {args.performance_action}')
+
+
+def cmd_parser_tool_matrix(args: argparse.Namespace) -> int:
+    return _print_json(parser_tool_matrix(root=Path(args.root) if args.root else None))
+
+
+def cmd_parser_benchmark_smoke(args: argparse.Namespace) -> int:
+    return _print_json(parser_benchmark_smoke(root=Path(args.root) if args.root else None))
+
+
+def cmd_release_artifacts(args: argparse.Namespace) -> int:
+    if args.release_artifacts_action == 'manifest':
+        return _print_json(release_artifacts_manifest(
+            dist_dir=Path(args.dist_dir) if args.dist_dir else None,
+        ))
+    raise SystemExit(f'unknown release-artifacts action {args.release_artifacts_action}')
+
+
+def cmd_onboarding_report(args: argparse.Namespace) -> int:
+    return _print_json(onboarding_report())
+
+
+def cmd_platform_status(args: argparse.Namespace) -> int:
+    return _print_json(platform_status(root=Path(args.root) if args.root else None))
 
 
 def cmd_artifact_paths(args: argparse.Namespace) -> int:
@@ -896,9 +937,14 @@ def build_parser() -> argparse.ArgumentParser:
     backup_restore = backup_sub.add_parser('restore')
     backup_restore.add_argument('--path', required=True)
     backup_restore.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
+    backup_restore.add_argument('--target-root')
+    backup_restore.add_argument('--confirm-restore', action='store_true')
+    backup_restore.add_argument('--allow-overwrite', action='store_true')
+    backup_restore.add_argument('--backup-current-first', action=argparse.BooleanOptionalAction, default=True)
     backup_restore.set_defaults(func=cmd_backup)
 
     doctor_cmd = sub.add_parser('doctor', help='Report individual-install readiness and optional tool status')
+    doctor_cmd.add_argument('--matrix', action='store_true', help='Include full parser/tool workflow matrix')
     doctor_cmd.set_defaults(func=cmd_doctor)
 
     demo_cmd = sub.add_parser('demo', help='Create and run the isolated individual-release demo workflow')
@@ -933,7 +979,30 @@ def build_parser() -> argparse.ArgumentParser:
     performance_sub = performance_cmd.add_subparsers(dest='performance_action', required=True)
     performance_smoke_cmd = performance_sub.add_parser('smoke')
     performance_smoke_cmd.add_argument('--synthetic-count', type=int, default=25)
+    performance_smoke_cmd.add_argument('--include-industrial-artifacts', action='store_true')
+    performance_smoke_cmd.add_argument('--include-backup', action='store_true')
+    performance_smoke_cmd.add_argument('--include-export', action='store_true')
+    performance_smoke_cmd.add_argument('--timeout-seconds', type=int)
+    performance_smoke_cmd.add_argument('--output')
     performance_smoke_cmd.set_defaults(func=cmd_performance)
+
+    parser_matrix = sub.add_parser('parser-tool-matrix', help='Show optional parser/tool workflow readiness')
+    parser_matrix.set_defaults(func=cmd_parser_tool_matrix)
+
+    parser_benchmark = sub.add_parser('parser-benchmark-smoke', help='Run fixture-only parser benchmark smoke')
+    parser_benchmark.set_defaults(func=cmd_parser_benchmark_smoke)
+
+    release_artifacts = sub.add_parser('release-artifacts', help='Inspect release artifact manifests')
+    release_artifacts_sub = release_artifacts.add_subparsers(dest='release_artifacts_action', required=True)
+    release_artifacts_manifest_cmd = release_artifacts_sub.add_parser('manifest')
+    release_artifacts_manifest_cmd.add_argument('--dist-dir')
+    release_artifacts_manifest_cmd.set_defaults(func=cmd_release_artifacts)
+
+    onboarding_report_cmd = sub.add_parser('onboarding-report', help='Emit individual release onboarding checklist')
+    onboarding_report_cmd.set_defaults(func=cmd_onboarding_report)
+
+    platform_cmd = sub.add_parser('platform-status', help='Show local platform support status')
+    platform_cmd.set_defaults(func=cmd_platform_status)
 
     ingest = sub.add_parser('ingest')
     ingest.add_argument('--pdf')
