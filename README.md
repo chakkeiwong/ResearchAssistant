@@ -24,6 +24,16 @@ See [docs/product_spec.md](docs/product_spec.md) for the v0.1 product contract.
 ## Core commands
 
 ```bash
+ra init
+ra doctor
+ra --root /tmp/ra-demo demo setup
+ra --root /tmp/ra-demo demo run
+ra workspace validate
+ra backup create
+ra privacy status
+ra bounded-workflow diagnostic --workflow parser-demo --timeout-seconds 60
+ra performance smoke --synthetic-count 25
+ra release-report
 ra ingest --arxiv-id 2401.00001 --query "paper title or topic"
 ra source-fetch --arxiv-id 2401.00001
 ra source-show --paper-id paper_example
@@ -53,6 +63,8 @@ ra export-context --review-status approved --output /tmp/paper_context.json
 ra parser-preflight
 ra parse-pdf --pdf /path/to/paper.pdf
 ```
+
+For a colleague-facing individual install path, start with [docs/installation.md](docs/installation.md) and [docs/quickstart.md](docs/quickstart.md). This release target is local and private: no shared server, no shared database, and no live LLM/provider calls by default.
 
 ## Literature-audit operator note
 

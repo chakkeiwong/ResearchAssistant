@@ -487,3 +487,103 @@ Validation completed:
 
 Next safe step:
 - Start M1 local deterministic implementation with Phase 1 storage repository contracts, or choose a specific phase to deepen after accepting the relevant ADR.
+
+
+## Update — individual colleague release plan written
+
+Clarified release target:
+- "Industrial scale release" now means each colleague installs and uses `research-assistant` as a private individual local tool.
+- Shared server deployment, shared database, SSO/RBAC, real-time collaboration, and distributed workers are out of scope for this release target.
+
+New planning artifact:
+- `docs/plans/individual_colleague_release_plan_2026-04-27.md`
+
+Plan contents:
+- Covers packaging/install, `ra init`, local config, version/schema migration checks, backup/restore, robust CLI UX, `ra doctor`, bounded workflows, golden individual workflow tests, demo mode, offline/privacy safety, colleague-facing documentation, release CI, personal-corpus performance, and release-candidate process.
+- Each phase includes motivation, implementation details, tests, usefulness verification, and acceptance criteria for another agent to execute.
+
+Tests run:
+- Not run; this update is a planning/documentation change.
+
+Next safe step:
+- Execute the individual release plan starting with packaging/install and `ra init`, using bounded validation and reset-memo checkpoints.
+
+
+## Update — individual colleague release implementation started
+
+New objective:
+- Execute `docs/plans/individual_colleague_release_plan_2026-04-27.md` for a local individual-install release slice.
+
+Plan audit:
+- Added an audit-driven correction to prioritize a coherent local lifecycle: `ra init`, `ra doctor`, demo setup/run, workspace validation/migration/repair, backup create/inspect/restore dry-run, privacy status, release report, documentation, and bounded release smoke.
+- Confirmed shared server, SSO/RBAC, multi-user collaboration, distributed workers, and live LLM/provider use remain out of scope for this release target.
+
+Current phase:
+- Phase 1 through Phase 15 local lifecycle implementation pass.
+
+Files touched so far:
+- `docs/plans/individual_colleague_release_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run:
+- Not yet run for this pass.
+
+Next safe step:
+- Implement local release backend/CLI commands, tests, scripts, and colleague-facing docs with bounded validation.
+
+
+## Update — individual colleague release implementation completed
+
+Implementation completed:
+- Added local individual-release backend helpers in `src/research_assistant/individual_release.py`.
+- Added CLI lifecycle commands: `ra init`, `ra version`, `ra config show/set/validate`, `ra workspace validate/migrate/repair`, `ra backup create/inspect/restore`, `ra doctor`, `ra demo setup/run/clean`, `ra privacy status`, `ra bounded-workflow diagnostic`, `ra performance smoke`, and `ra release-report`.
+- Added idempotent workspace initialization, local config defaults, offline/provider-disabled privacy status, optional parser/tool doctor output, dry-run migration/repair/restore reports, backup manifests with hashes, demo workflow artifacts, timeout diagnostic artifacts, and a small synthetic personal-corpus performance smoke.
+- Added colleague-facing docs: installation, quickstart, individual workflow, troubleshooting, privacy, release checklist, and changelog.
+- Added bounded release scripts: `scripts/run_release_smoke.sh` and `scripts/run_packaging_smoke.sh`.
+- Added integration coverage in `tests/integration/test_individual_release_cli.py` plus CLI discoverability coverage.
+
+Independent developer audit performed:
+- Verified the release remains local/private and does not introduce shared server, SSO/RBAC, distributed workers, or live LLM/provider calls.
+- Verified demo setup refuses to mark an existing non-demo workspace as demo-cleanable.
+- Verified restore is dry-run only in this release slice and backup archives exclude nested backup archives.
+- Verified generated derivation, experiment, traceability, governance, readiness, timeout, and performance artifacts remain review material.
+- Verified `release-report` status is conditional on docs/scripts, workspace validation, privacy defaults, and doctor warnings rather than always claiming readiness.
+- Verified packaging smoke uses `--no-build-isolation` so the offline release check does not try to fetch build dependencies.
+
+Files touched:
+- `README.md`
+- `CHANGELOG.md`
+- `docs/installation.md`
+- `docs/quickstart.md`
+- `docs/workflows/individual_research_workflow.md`
+- `docs/troubleshooting.md`
+- `docs/privacy.md`
+- `docs/release_checklist.md`
+- `docs/plans/individual_colleague_release_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `scripts/run_release_smoke.sh`
+- `scripts/run_packaging_smoke.sh`
+- `src/research_assistant/cli.py`
+- `src/research_assistant/individual_release.py`
+- `tests/integration/test_cli_commands.py`
+- `tests/integration/test_individual_release_cli.py`
+
+Validation completed:
+- Focused individual-release suite: `5 passed in 0.31s`.
+- CLI/industrial command compatibility check: `6 passed in 0.73s`.
+- Fast bounded script before bounded/performance additions: `13 passed in 0.72s`.
+- Release smoke before final audit tweak: `5 passed in 0.25s`, plus demo setup/run/release-report completed.
+- Packaging smoke initially failed because isolated pip dry-run tried to fetch `setuptools>=68` from the network; script was corrected to use `--no-build-isolation`.
+- Packaging smoke after correction: metadata test `1 passed in 0.02s`; pip dry-run reported `Would install research-assistant-0.1.0`.
+- Broad bounded script: `33 passed in 0.72s`.
+- Focused post-audit release suite: `6 passed in 0.27s`.
+- Final release smoke: `6 passed in 0.27s`, plus demo setup/run/release-report completed.
+
+Remaining risks:
+- This is an individual-install local release slice, not a production shared department platform.
+- Non-dry-run restore remains intentionally blocked until an explicit overwrite confirmation workflow exists.
+- Parser quality, real corpus performance, and optional tool installation remain environment-dependent and should be validated on colleague machines.
+- Demo readiness may report industrial readiness as `blocked` because it preserves human-review gates rather than pretending generated evidence is approved.
+
+Next safe step:
+- Stage the ignored individual release plan with `git add -f`, commit the release slice, then record the commit hash here.

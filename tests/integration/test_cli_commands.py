@@ -50,6 +50,15 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'tool-contract' in captured.out
     assert 'operations-policy' in captured.out
     assert 'sop' in captured.out
+    assert 'init' in captured.out
+    assert 'doctor' in captured.out
+    assert 'demo' in captured.out
+    assert 'workspace' in captured.out
+    assert 'backup' in captured.out
+    assert 'privacy' in captured.out
+    assert 'release-report' in captured.out
+    assert 'bounded-workflow' in captured.out
+    assert 'performance' in captured.out
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:

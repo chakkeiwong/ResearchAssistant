@@ -1,11 +1,33 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from research_assistant.adapters.workspace_exports import export_paper_context
 from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
+from research_assistant.individual_release import (
+    create_backup,
+    demo_clean,
+    demo_run,
+    demo_setup,
+    doctor,
+    init_workspace,
+    inspect_backup,
+    performance_smoke,
+    privacy_status,
+    record_timeout_diagnostic,
+    release_report,
+    restore_backup,
+    set_config_value,
+    show_config,
+    validate_config,
+    version_payload,
+    workspace_migrate,
+    workspace_repair,
+    workspace_validate,
+)
 from research_assistant.industrial.full_scale import (
     build_execution_readiness,
     build_phase_registry,
@@ -215,9 +237,97 @@ def cmd_link_add(args: argparse.Namespace) -> int:
 
 
 def _print_json(payload: dict | list) -> int:
-    import json
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    return _print_json(init_workspace(root=Path(args.root) if args.root else None, force=args.force))
+
+
+def cmd_version(args: argparse.Namespace) -> int:
+    return _print_json(version_payload())
+
+
+def cmd_config(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.config_action == 'show':
+        return _print_json(show_config(root=root))
+    if args.config_action == 'set':
+        return _print_json(set_config_value(args.key, args.value, root=root))
+    if args.config_action == 'validate':
+        return _print_json(validate_config(root=root))
+    raise SystemExit(f'unknown config action {args.config_action}')
+
+
+def cmd_workspace(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.workspace_action == 'validate':
+        return _print_json(workspace_validate(root=root))
+    if args.workspace_action == 'migrate':
+        return _print_json(workspace_migrate(root=root, dry_run=args.dry_run))
+    if args.workspace_action == 'repair':
+        return _print_json(workspace_repair(root=root, dry_run=args.dry_run))
+    raise SystemExit(f'unknown workspace action {args.workspace_action}')
+
+
+def cmd_backup(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.backup_action == 'create':
+        return _print_json(create_backup(root=root, output=Path(args.output) if args.output else None))
+    if args.backup_action == 'inspect':
+        return _print_json(inspect_backup(Path(args.path)))
+    if args.backup_action == 'restore':
+        return _print_json(restore_backup(Path(args.path), root=root, dry_run=args.dry_run))
+    raise SystemExit(f'unknown backup action {args.backup_action}')
+
+
+def cmd_doctor(args: argparse.Namespace) -> int:
+    return _print_json(doctor(root=Path(args.root) if args.root else None))
+
+
+def cmd_demo(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.demo_action == 'setup':
+        return _print_json(demo_setup(root=root))
+    if args.demo_action == 'run':
+        return _print_json(demo_run(root=root))
+    if args.demo_action == 'clean':
+        return _print_json(demo_clean(root=root, dry_run=args.dry_run, force=args.force))
+    raise SystemExit(f'unknown demo action {args.demo_action}')
+
+
+def cmd_privacy(args: argparse.Namespace) -> int:
+    if args.privacy_action == 'status':
+        return _print_json(privacy_status(root=Path(args.root) if args.root else None))
+    raise SystemExit(f'unknown privacy action {args.privacy_action}')
+
+
+def cmd_release_report(args: argparse.Namespace) -> int:
+    return _print_json(release_report(
+        root=Path(args.root) if args.root else None,
+        output=Path(args.output) if args.output else None,
+    ))
+
+
+def cmd_bounded_workflow(args: argparse.Namespace) -> int:
+    if args.bounded_action == 'diagnostic':
+        return _print_json(record_timeout_diagnostic(
+            workflow=args.workflow,
+            timeout_seconds=args.timeout_seconds,
+            elapsed_seconds=args.elapsed_seconds,
+            root=Path(args.root) if args.root else None,
+        ))
+    raise SystemExit(f'unknown bounded-workflow action {args.bounded_action}')
+
+
+def cmd_performance(args: argparse.Namespace) -> int:
+    if args.performance_action == 'smoke':
+        return _print_json(performance_smoke(
+            root=Path(args.root) if args.root else None,
+            synthetic_count=args.synthetic_count,
+        ))
+    raise SystemExit(f'unknown performance action {args.performance_action}')
 
 
 def cmd_artifact_paths(args: argparse.Namespace) -> int:
@@ -745,6 +855,85 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='ra')
     parser.add_argument('--root', help='Research assistant project root')
     sub = parser.add_subparsers(dest='cmd', required=True)
+
+    init_cmd = sub.add_parser('init', help='Initialize an idempotent local research workspace')
+    init_cmd.add_argument('--force', action='store_true', help='Regenerate safe default config without deleting data')
+    init_cmd.set_defaults(func=cmd_init)
+
+    version_cmd = sub.add_parser('version', help='Show package and workspace schema versions')
+    version_cmd.set_defaults(func=cmd_version)
+
+    config_cmd = sub.add_parser('config', help='Inspect and validate local release configuration')
+    config_sub = config_cmd.add_subparsers(dest='config_action', required=True)
+    config_show = config_sub.add_parser('show')
+    config_show.set_defaults(func=cmd_config)
+    config_set = config_sub.add_parser('set')
+    config_set.add_argument('key')
+    config_set.add_argument('value')
+    config_set.set_defaults(func=cmd_config)
+    config_validate = config_sub.add_parser('validate')
+    config_validate.set_defaults(func=cmd_config)
+
+    workspace_cmd = sub.add_parser('workspace', help='Validate, migrate, or repair a local workspace')
+    workspace_sub = workspace_cmd.add_subparsers(dest='workspace_action', required=True)
+    workspace_validate_cmd = workspace_sub.add_parser('validate')
+    workspace_validate_cmd.set_defaults(func=cmd_workspace)
+    workspace_migrate_cmd = workspace_sub.add_parser('migrate')
+    workspace_migrate_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
+    workspace_migrate_cmd.set_defaults(func=cmd_workspace)
+    workspace_repair_cmd = workspace_sub.add_parser('repair')
+    workspace_repair_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
+    workspace_repair_cmd.set_defaults(func=cmd_workspace)
+
+    backup_cmd = sub.add_parser('backup', help='Create, inspect, and dry-run restore local backups')
+    backup_sub = backup_cmd.add_subparsers(dest='backup_action', required=True)
+    backup_create = backup_sub.add_parser('create')
+    backup_create.add_argument('--output')
+    backup_create.set_defaults(func=cmd_backup)
+    backup_inspect = backup_sub.add_parser('inspect')
+    backup_inspect.add_argument('--path', required=True)
+    backup_inspect.set_defaults(func=cmd_backup)
+    backup_restore = backup_sub.add_parser('restore')
+    backup_restore.add_argument('--path', required=True)
+    backup_restore.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
+    backup_restore.set_defaults(func=cmd_backup)
+
+    doctor_cmd = sub.add_parser('doctor', help='Report individual-install readiness and optional tool status')
+    doctor_cmd.set_defaults(func=cmd_doctor)
+
+    demo_cmd = sub.add_parser('demo', help='Create and run the isolated individual-release demo workflow')
+    demo_sub = demo_cmd.add_subparsers(dest='demo_action', required=True)
+    demo_setup_cmd = demo_sub.add_parser('setup')
+    demo_setup_cmd.set_defaults(func=cmd_demo)
+    demo_run_cmd = demo_sub.add_parser('run')
+    demo_run_cmd.set_defaults(func=cmd_demo)
+    demo_clean_cmd = demo_sub.add_parser('clean')
+    demo_clean_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
+    demo_clean_cmd.add_argument('--force', action='store_true')
+    demo_clean_cmd.set_defaults(func=cmd_demo)
+
+    privacy_cmd = sub.add_parser('privacy', help='Show offline/provider privacy status')
+    privacy_sub = privacy_cmd.add_subparsers(dest='privacy_action', required=True)
+    privacy_status_cmd = privacy_sub.add_parser('status')
+    privacy_status_cmd.set_defaults(func=cmd_privacy)
+
+    release_report_cmd = sub.add_parser('release-report', help='Summarize individual release candidate readiness')
+    release_report_cmd.add_argument('--output')
+    release_report_cmd.set_defaults(func=cmd_release_report)
+
+    bounded_workflow_cmd = sub.add_parser('bounded-workflow', help='Write local timeout diagnostics for bounded workflow failures')
+    bounded_sub = bounded_workflow_cmd.add_subparsers(dest='bounded_action', required=True)
+    bounded_diagnostic = bounded_sub.add_parser('diagnostic')
+    bounded_diagnostic.add_argument('--workflow', required=True)
+    bounded_diagnostic.add_argument('--timeout-seconds', type=int, required=True)
+    bounded_diagnostic.add_argument('--elapsed-seconds', type=float)
+    bounded_diagnostic.set_defaults(func=cmd_bounded_workflow)
+
+    performance_cmd = sub.add_parser('performance', help='Run bounded local performance smoke checks')
+    performance_sub = performance_cmd.add_subparsers(dest='performance_action', required=True)
+    performance_smoke_cmd = performance_sub.add_parser('smoke')
+    performance_smoke_cmd.add_argument('--synthetic-count', type=int, default=25)
+    performance_smoke_cmd.set_defaults(func=cmd_performance)
 
     ingest = sub.add_parser('ingest')
     ingest.add_argument('--pdf')
