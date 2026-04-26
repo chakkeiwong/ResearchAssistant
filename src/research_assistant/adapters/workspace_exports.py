@@ -93,6 +93,7 @@ def export_paper_context(output_path: Path | None = None, *, root: Path | None =
             'synthesis': _artifact_family_payload(paths.synthesis, store, paper_id=rec.id),
             'governance': _artifact_family_payload(paths.governance, store, paper_id=rec.id),
             'jobs': _artifact_family_payload(paths.jobs, store, paper_id=rec.id),
+            'traceability': _artifact_family_payload(paths.traceability, store, paper_id=rec.id),
         }
         papers.append(paper)
     out.write_text(json.dumps({
@@ -100,6 +101,12 @@ def export_paper_context(output_path: Path | None = None, *, root: Path | None =
         "industrial_library_artifacts": {
             "benchmark_manifests": _artifact_family_payload(paths.benchmarks, store),
             "benchmark_runs": _artifact_family_payload(paths.benchmark_runs, store),
+            "model_policies": _artifact_family_payload(paths.model_policies, store),
+            "collaboration": _artifact_family_payload(paths.collaboration, store),
+            "artifact_indices": _artifact_family_payload(paths.artifact_indices, store),
+            "service_contracts": _artifact_family_payload(paths.service_contracts, store),
+            "operations": _artifact_family_payload(paths.operations, store),
+            "sops": _artifact_family_payload(paths.sops, store),
         },
         "dashboard_contract": {
             "schema_version": "industrial-platform-v1",
@@ -112,6 +119,13 @@ def export_paper_context(output_path: Path | None = None, *, root: Path | None =
                 "jobs",
                 "benchmark_manifests",
                 "benchmark_runs",
+                "traceability",
+                "model_policies",
+                "collaboration",
+                "artifact_indices",
+                "service_contracts",
+                "operations",
+                "sops",
             ],
         },
     }, indent=2, sort_keys=True))

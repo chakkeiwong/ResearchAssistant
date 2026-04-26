@@ -215,3 +215,84 @@ Remaining risks:
 
 Next safe step:
 - Commit the industrial scaffold implementation, then record the final commit checkpoint.
+
+
+## Update — industrial 12-gap closure started
+
+New objective:
+- Close the 12 remaining gaps toward a fully industrial departmental tool: real domain knowledge, deep derivations, reproducibility, parser/source benchmarks, paper-to-code traceability, citation intelligence, LLM governance, collaboration, indexing, service/UI/MCP contracts, security/compliance/ops, and department SOPs.
+
+Plan written to:
+- `docs/plans/industrial_gap_closure_plan_2026-04-26.md`
+
+Current phase:
+- Phase 1 planning started after commit `595c4e3 Add industrial research platform scaffolds`.
+
+Execution policy:
+- Follow the loop: plan phase, execute, test, audit, tidy, update reset memo.
+- Keep outputs local-first under `local_research/`.
+- Keep all generated content separate from accepted `technical_audit`.
+- Avoid live network, credentials, provider calls, TeX/Docker requirements, GUI actions, or destructive filesystem operations.
+
+Tests run:
+- Not yet run for this 12-gap closure sequence.
+
+Remaining risks:
+- This pass must remain scaffold-sized; full production collaboration, storage, service, and security systems require later policy and architecture decisions.
+- The plan adds operational contracts but not live services or real concurrent multi-user infrastructure.
+
+Next safe step:
+- Implement the 12 gap-closure phases as deterministic schemas, CLI/backend commands, exports, and focused tests.
+
+
+## Update — industrial 12-gap closure scaffolded
+
+Current phase:
+- Phases 1 through 12 of `docs/plans/industrial_gap_closure_plan_2026-04-26.md` have been implemented as deterministic scaffolds.
+
+Phase completion notes:
+- Phase 1: domain templates now include concept taxonomies, claim taxonomies, assumption classes, notation registries, theorem/equation roles, method families, and audit rubrics.
+- Phase 2: derivation worksheets now support notation entries, step dependencies, reviewer comments, and version history.
+- Phase 3: experiment plans now support run records with environment, seed, dataset/model hashes, diagnostics, result summary, and acceptance status.
+- Phase 4: benchmark runs now score expected JSON fixture fields and preserve extraction-quality limitations.
+- Phase 5: traceability reports summarize equation/theorem/algorithm/experiment implementation-link coverage.
+- Phase 6: graph reports can be enriched with deterministic analytics placeholders for lineage, influence, competing families, trends, and open questions.
+- Phase 7: model-provider policy records block live model calls by default and expose synthesis policy checks.
+- Phase 8: collaboration workspaces record users/roles/assignments/comments with append-only event history.
+- Phase 9: artifact index records inventory counts, schema versions, and migration-needed flags.
+- Phase 10: tool-contract export lists backend/CLI surfaces and trust-boundary notes for future UI/MCP consumers.
+- Phase 11: operations policy artifacts define offline-safe security/compliance/ops placeholders.
+- Phase 12: department SOP artifacts define draft paper approval, derivation review, experiment evidence, benchmark gate, escalation, and onboarding sections.
+
+Independent developer audit performed:
+- Verified every new artifact is local-first JSON and defaults to `requires_human_review`.
+- Verified no command performs live provider/model calls or authorizes network usage.
+- Verified generated records remain separate from accepted `technical_audit`.
+- Verified exports include the new paper-scoped and library-scoped artifact families.
+- Verified collaboration and service/MCP additions are explicitly scaffolds, not production multi-user/server infrastructure.
+
+Files touched:
+- `docs/plans/industrial_gap_closure_plan_2026-04-26.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `src/research_assistant/config.py`
+- `src/research_assistant/cli.py`
+- `src/research_assistant/adapters/workspace_exports.py`
+- `src/research_assistant/industrial/platform.py`
+- `src/research_assistant/schemas/domain_templates.py`
+- `tests/unit/test_schemas.py`
+- `tests/integration/test_cli_commands.py`
+- `tests/integration/test_industrial_platform_cli.py`
+
+Tests run:
+- Focused 12-gap suite: `7 passed in 0.38s`.
+- Focused 12-gap suite after CLI discoverability update: `7 passed in 0.40s`.
+- Broad deterministic non-PDF subset: `29 passed in 0.75s`.
+- Attempted full deterministic suite via `scripts/run_tests.sh`; it progressed through the quiet output to at least the later test blocks but the tool session did not return a final pytest summary and was stopped with a targeted `pkill -f "scripts/run_tests.sh"`.
+
+Remaining risks:
+- These are operational contracts and scaffolds, not full production services.
+- Real code inspection, parser-vs-ground-truth scoring, live collaboration, service deployment, and approved security controls remain future implementation work.
+- Full suite should be rerun at the next checkpoint because this attempt did not produce a final summary, though the previous industrial scaffold checkpoint passed `118` tests twice.
+
+Next safe step:
+- Commit the 12-gap scaffold implementation, noting that focused and broad deterministic validations passed while the full-suite attempt was interrupted without a final summary.

@@ -8,30 +8,51 @@ from research_assistant.analyze.literature_audit import approve_literature_audit
 from research_assistant.config import get_paths
 from research_assistant.industrial.platform import (
     IMPLEMENTATION_LINK_RELATIONSHIPS,
+    add_derivation_comment,
+    add_derivation_notation,
     artifact_paths,
+    build_artifact_index,
     build_governance_record,
     build_graph_report,
+    build_traceability_report,
+    check_synthesis_policy,
+    create_collaboration_workspace,
     create_benchmark_manifest,
+    create_department_sop,
     create_derivation,
     create_experiment,
     create_job,
+    create_model_policy,
+    create_operations_policy,
     dashboard_export,
+    enrich_graph_report,
+    export_tool_contract,
+    link_derivation_steps,
     link_claim_to_experiment,
     list_experiment_checklists,
     list_review_metadata,
     propose_synthesis,
+    record_experiment_run,
     run_benchmark_manifest,
     set_review_metadata,
+    show_artifact_index,
     show_benchmark_manifest,
+    show_collaboration_workspace,
+    show_department_sop,
     show_derivation,
     show_experiment,
     show_experiment_checklist,
     show_governance_record,
     show_graph_report,
     show_job,
+    show_model_policy,
+    show_operations_policy,
     show_review_metadata,
     show_synthesis,
+    show_tool_contract,
+    show_traceability_report,
     update_derivation,
+    update_collaboration_workspace,
 )
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
 from research_assistant.ingest.pdf_extract import extract_pdf_text
@@ -207,6 +228,12 @@ def cmd_derivation(args: argparse.Namespace) -> int:
         return _print_json(show_derivation(args.artifact_id, root=root))
     if args.derivation_action == 'append':
         return _print_json(update_derivation(args.artifact_id, args.field, args.value, root=root))
+    if args.derivation_action == 'notation':
+        return _print_json(add_derivation_notation(args.artifact_id, args.symbol, args.meaning, root=root))
+    if args.derivation_action == 'link-steps':
+        return _print_json(link_derivation_steps(args.artifact_id, args.step_id, args.depends_on, root=root))
+    if args.derivation_action == 'comment':
+        return _print_json(add_derivation_comment(args.artifact_id, args.target_id, args.comment, reviewer=args.reviewer or '', root=root))
     raise SystemExit(f'unknown derivation action {args.derivation_action}')
 
 
@@ -222,6 +249,19 @@ def cmd_experiment(args: argparse.Namespace) -> int:
         return _print_json(show_experiment(args.artifact_id, root=root))
     if args.experiment_action == 'link-claim':
         return _print_json(link_claim_to_experiment(args.paper_id, claim_id=args.claim_id, experiment_id=args.experiment_id, root=root))
+    if args.experiment_action == 'record-run':
+        return _print_json(record_experiment_run(
+            args.artifact_id,
+            run_label=args.run_label,
+            seed=args.seed,
+            environment=args.environment,
+            diagnostics=args.diagnostic or [],
+            result_summary=args.result_summary or '',
+            acceptance_status=args.acceptance_status,
+            dataset_hash=args.dataset_hash or '',
+            model_hash=args.model_hash or '',
+            root=root,
+        ))
     raise SystemExit(f'unknown experiment action {args.experiment_action}')
 
 
@@ -231,6 +271,8 @@ def cmd_graph_report(args: argparse.Namespace) -> int:
         return _print_json(build_graph_report(args.paper_id, root=root))
     if args.graph_report_action == 'show':
         return _print_json(show_graph_report(args.artifact_id, root=root))
+    if args.graph_report_action == 'enrich':
+        return _print_json(enrich_graph_report(args.artifact_id, root=root))
     raise SystemExit(f'unknown graph-report action {args.graph_report_action}')
 
 
@@ -287,6 +329,73 @@ def cmd_dashboard_export(args: argparse.Namespace) -> int:
     output = dashboard_export(Path(args.output) if args.output else None, root=Path(args.root) if args.root else None)
     print(output)
     return 0
+
+
+def cmd_traceability(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.traceability_action == 'build':
+        return _print_json(build_traceability_report(args.paper_id, root=root))
+    if args.traceability_action == 'show':
+        return _print_json(show_traceability_report(args.artifact_id, root=root))
+    raise SystemExit(f'unknown traceability action {args.traceability_action}')
+
+
+def cmd_model_policy(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.model_policy_action == 'create':
+        return _print_json(create_model_policy(args.policy_id, root=root))
+    if args.model_policy_action == 'show':
+        return _print_json(show_model_policy(args.policy_id, root=root))
+    if args.model_policy_action == 'check-synthesis':
+        return _print_json(check_synthesis_policy(args.policy_id, root=root))
+    raise SystemExit(f'unknown model-policy action {args.model_policy_action}')
+
+
+def cmd_collaboration(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.collaboration_action == 'create':
+        return _print_json(create_collaboration_workspace(args.workspace_id, root=root))
+    if args.collaboration_action == 'show':
+        return _print_json(show_collaboration_workspace(args.workspace_id, root=root))
+    if args.collaboration_action == 'update':
+        return _print_json(update_collaboration_workspace(args.workspace_id, action=args.action, value=args.value, target=args.target or '', root=root))
+    raise SystemExit(f'unknown collaboration action {args.collaboration_action}')
+
+
+def cmd_artifact_index(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.artifact_index_action == 'build':
+        return _print_json(build_artifact_index(args.index_id, root=root))
+    if args.artifact_index_action == 'show':
+        return _print_json(show_artifact_index(args.index_id, root=root))
+    raise SystemExit(f'unknown artifact-index action {args.artifact_index_action}')
+
+
+def cmd_tool_contract(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.tool_contract_action == 'export':
+        return _print_json(export_tool_contract(args.contract_id, root=root))
+    if args.tool_contract_action == 'show':
+        return _print_json(show_tool_contract(args.contract_id, root=root))
+    raise SystemExit(f'unknown tool-contract action {args.tool_contract_action}')
+
+
+def cmd_operations_policy(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.operations_action == 'create':
+        return _print_json(create_operations_policy(args.policy_id, root=root))
+    if args.operations_action == 'show':
+        return _print_json(show_operations_policy(args.policy_id, root=root))
+    raise SystemExit(f'unknown operations-policy action {args.operations_action}')
+
+
+def cmd_sop(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.sop_action == 'create':
+        return _print_json(create_department_sop(args.sop_id, root=root))
+    if args.sop_action == 'show':
+        return _print_json(show_department_sop(args.sop_id, root=root))
+    raise SystemExit(f'unknown sop action {args.sop_action}')
 
 
 def cmd_audit_claim(args: argparse.Namespace) -> int:
@@ -665,6 +774,22 @@ def build_parser() -> argparse.ArgumentParser:
     derivation_append.add_argument('--field', required=True)
     derivation_append.add_argument('--value', required=True)
     derivation_append.set_defaults(func=cmd_derivation)
+    derivation_notation = derivation_sub.add_parser('notation')
+    derivation_notation.add_argument('--artifact-id', required=True)
+    derivation_notation.add_argument('--symbol', required=True)
+    derivation_notation.add_argument('--meaning', required=True)
+    derivation_notation.set_defaults(func=cmd_derivation)
+    derivation_link_steps = derivation_sub.add_parser('link-steps')
+    derivation_link_steps.add_argument('--artifact-id', required=True)
+    derivation_link_steps.add_argument('--step-id', required=True)
+    derivation_link_steps.add_argument('--depends-on', required=True)
+    derivation_link_steps.set_defaults(func=cmd_derivation)
+    derivation_comment = derivation_sub.add_parser('comment')
+    derivation_comment.add_argument('--artifact-id', required=True)
+    derivation_comment.add_argument('--target-id', required=True)
+    derivation_comment.add_argument('--comment', required=True)
+    derivation_comment.add_argument('--reviewer')
+    derivation_comment.set_defaults(func=cmd_derivation)
 
     experiment = sub.add_parser('experiment')
     experiment_sub = experiment.add_subparsers(dest='experiment_action', required=True)
@@ -686,6 +811,17 @@ def build_parser() -> argparse.ArgumentParser:
     experiment_link.add_argument('--claim-id', required=True)
     experiment_link.add_argument('--experiment-id', required=True)
     experiment_link.set_defaults(func=cmd_experiment)
+    experiment_run = experiment_sub.add_parser('record-run')
+    experiment_run.add_argument('--artifact-id', required=True)
+    experiment_run.add_argument('--run-label', required=True)
+    experiment_run.add_argument('--seed', required=True)
+    experiment_run.add_argument('--environment', required=True)
+    experiment_run.add_argument('--diagnostic', action='append', default=[])
+    experiment_run.add_argument('--result-summary')
+    experiment_run.add_argument('--acceptance-status', default='requires_review')
+    experiment_run.add_argument('--dataset-hash')
+    experiment_run.add_argument('--model-hash')
+    experiment_run.set_defaults(func=cmd_experiment)
 
     graph_report = sub.add_parser('graph-report')
     graph_report_sub = graph_report.add_subparsers(dest='graph_report_action', required=True)
@@ -695,6 +831,9 @@ def build_parser() -> argparse.ArgumentParser:
     graph_report_show = graph_report_sub.add_parser('show')
     graph_report_show.add_argument('--artifact-id', required=True)
     graph_report_show.set_defaults(func=cmd_graph_report)
+    graph_report_enrich = graph_report_sub.add_parser('enrich')
+    graph_report_enrich.add_argument('--artifact-id', required=True)
+    graph_report_enrich.set_defaults(func=cmd_graph_report)
 
     review_meta = sub.add_parser('review-meta')
     review_meta_sub = review_meta.add_subparsers(dest='review_meta_action', required=True)
@@ -755,6 +894,78 @@ def build_parser() -> argparse.ArgumentParser:
     dashboard_export_cmd = sub.add_parser('dashboard-export')
     dashboard_export_cmd.add_argument('--output')
     dashboard_export_cmd.set_defaults(func=cmd_dashboard_export)
+
+    traceability = sub.add_parser('traceability')
+    traceability_sub = traceability.add_subparsers(dest='traceability_action', required=True)
+    traceability_build = traceability_sub.add_parser('build')
+    traceability_build.add_argument('--paper-id', required=True)
+    traceability_build.set_defaults(func=cmd_traceability)
+    traceability_show = traceability_sub.add_parser('show')
+    traceability_show.add_argument('--artifact-id', required=True)
+    traceability_show.set_defaults(func=cmd_traceability)
+
+    model_policy = sub.add_parser('model-policy')
+    model_policy_sub = model_policy.add_subparsers(dest='model_policy_action', required=True)
+    model_policy_create = model_policy_sub.add_parser('create')
+    model_policy_create.add_argument('--policy-id', required=True)
+    model_policy_create.set_defaults(func=cmd_model_policy)
+    model_policy_show = model_policy_sub.add_parser('show')
+    model_policy_show.add_argument('--policy-id', required=True)
+    model_policy_show.set_defaults(func=cmd_model_policy)
+    model_policy_check = model_policy_sub.add_parser('check-synthesis')
+    model_policy_check.add_argument('--policy-id', required=True)
+    model_policy_check.set_defaults(func=cmd_model_policy)
+
+    collaboration = sub.add_parser('collaboration')
+    collaboration_sub = collaboration.add_subparsers(dest='collaboration_action', required=True)
+    collaboration_create = collaboration_sub.add_parser('create')
+    collaboration_create.add_argument('--workspace-id', required=True)
+    collaboration_create.set_defaults(func=cmd_collaboration)
+    collaboration_show = collaboration_sub.add_parser('show')
+    collaboration_show.add_argument('--workspace-id', required=True)
+    collaboration_show.set_defaults(func=cmd_collaboration)
+    collaboration_update = collaboration_sub.add_parser('update')
+    collaboration_update.add_argument('--workspace-id', required=True)
+    collaboration_update.add_argument('--action', required=True)
+    collaboration_update.add_argument('--value', required=True)
+    collaboration_update.add_argument('--target')
+    collaboration_update.set_defaults(func=cmd_collaboration)
+
+    artifact_index = sub.add_parser('artifact-index')
+    artifact_index_sub = artifact_index.add_subparsers(dest='artifact_index_action', required=True)
+    artifact_index_build = artifact_index_sub.add_parser('build')
+    artifact_index_build.add_argument('--index-id', default='local_artifact_index')
+    artifact_index_build.set_defaults(func=cmd_artifact_index)
+    artifact_index_show = artifact_index_sub.add_parser('show')
+    artifact_index_show.add_argument('--index-id', required=True)
+    artifact_index_show.set_defaults(func=cmd_artifact_index)
+
+    tool_contract = sub.add_parser('tool-contract')
+    tool_contract_sub = tool_contract.add_subparsers(dest='tool_contract_action', required=True)
+    tool_contract_export = tool_contract_sub.add_parser('export')
+    tool_contract_export.add_argument('--contract-id', default='local_tool_contract')
+    tool_contract_export.set_defaults(func=cmd_tool_contract)
+    tool_contract_show = tool_contract_sub.add_parser('show')
+    tool_contract_show.add_argument('--contract-id', required=True)
+    tool_contract_show.set_defaults(func=cmd_tool_contract)
+
+    operations_policy = sub.add_parser('operations-policy')
+    operations_sub = operations_policy.add_subparsers(dest='operations_action', required=True)
+    operations_create = operations_sub.add_parser('create')
+    operations_create.add_argument('--policy-id', default='department_operations_policy')
+    operations_create.set_defaults(func=cmd_operations_policy)
+    operations_show = operations_sub.add_parser('show')
+    operations_show.add_argument('--policy-id', required=True)
+    operations_show.set_defaults(func=cmd_operations_policy)
+
+    sop = sub.add_parser('sop')
+    sop_sub = sop.add_subparsers(dest='sop_action', required=True)
+    sop_create = sop_sub.add_parser('create')
+    sop_create.add_argument('--sop-id', default='department_research_sop')
+    sop_create.set_defaults(func=cmd_sop)
+    sop_show = sop_sub.add_parser('show')
+    sop_show.add_argument('--sop-id', required=True)
+    sop_show.set_defaults(func=cmd_sop)
 
     audit = sub.add_parser('audit-claim')
     audit.add_argument('--claim')

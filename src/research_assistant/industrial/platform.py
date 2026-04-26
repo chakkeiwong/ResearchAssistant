@@ -72,6 +72,13 @@ def artifact_paths(root: Path | None = None) -> dict[str, str]:
         "governance": str(paths.governance),
         "jobs": str(paths.jobs),
         "exports": str(paths.exports),
+        "traceability": str(paths.traceability),
+        "model_policies": str(paths.model_policies),
+        "collaboration": str(paths.collaboration),
+        "artifact_indices": str(paths.artifact_indices),
+        "service_contracts": str(paths.service_contracts),
+        "operations": str(paths.operations),
+        "sops": str(paths.sops),
     }
 
 
@@ -87,6 +94,13 @@ def _path_for(root: Path | None, family: str, artifact_id: str) -> Path:
         "governance": paths.governance,
         "job": paths.jobs,
         "review_metadata": paths.review_metadata,
+        "traceability": paths.traceability,
+        "model_policy": paths.model_policies,
+        "collaboration": paths.collaboration,
+        "artifact_index": paths.artifact_indices,
+        "service_contract": paths.service_contracts,
+        "operations": paths.operations,
+        "sop": paths.sops,
     }[family]
     return base / f"{artifact_id}.json"
 
@@ -158,6 +172,44 @@ def update_derivation(artifact_id: str, field: str, value: str, *, root: Path | 
     return _write(path, payload, root=root)
 
 
+def add_derivation_notation(artifact_id: str, symbol: str, meaning: str, *, root: Path | None = None) -> dict[str, Any]:
+    path = _path_for(root, "derivation", artifact_id)
+    payload = _read(path, root=root)
+    registry = dict(payload.get("notation_registry") or {})
+    registry[symbol] = {"meaning": meaning, "review_status": "requires_human_review"}
+    payload["notation_registry"] = registry
+    payload.setdefault("version_history", []).append({"action": "add_notation", "symbol": symbol})
+    return _write(path, payload, root=root)
+
+
+def link_derivation_steps(artifact_id: str, step_id: str, depends_on: str, *, root: Path | None = None) -> dict[str, Any]:
+    path = _path_for(root, "derivation", artifact_id)
+    payload = _read(path, root=root)
+    dependencies = list(payload.get("step_dependencies") or [])
+    edge = {"step_id": step_id, "depends_on": depends_on, "review_status": "requires_human_review"}
+    if edge not in dependencies:
+        dependencies.append(edge)
+    payload["step_dependencies"] = dependencies
+    payload.setdefault("version_history", []).append({"action": "link_steps", "step_id": step_id, "depends_on": depends_on})
+    return _write(path, payload, root=root)
+
+
+def add_derivation_comment(artifact_id: str, target_id: str, comment: str, *, reviewer: str = "", root: Path | None = None) -> dict[str, Any]:
+    path = _path_for(root, "derivation", artifact_id)
+    payload = _read(path, root=root)
+    comments = list(payload.get("reviewer_comments") or [])
+    comments.append({
+        "comment_id": stable_id("comment", artifact_id, target_id, comment),
+        "target_id": target_id,
+        "reviewer": reviewer,
+        "comment": comment,
+        "review_status": "requires_human_review",
+    })
+    payload["reviewer_comments"] = comments
+    payload.setdefault("version_history", []).append({"action": "add_comment", "target_id": target_id})
+    return _write(path, payload, root=root)
+
+
 def create_experiment(
     paper_id: str,
     *,
@@ -188,6 +240,39 @@ def create_experiment(
 
 def show_experiment(artifact_id: str, *, root: Path | None = None) -> dict[str, Any]:
     return _read(_path_for(root, "experiment", artifact_id), root=root)
+
+
+def record_experiment_run(
+    artifact_id: str,
+    *,
+    run_label: str,
+    seed: str,
+    environment: str,
+    diagnostics: list[str] | None = None,
+    result_summary: str = "",
+    acceptance_status: str = "requires_review",
+    dataset_hash: str = "",
+    model_hash: str = "",
+    root: Path | None = None,
+) -> dict[str, Any]:
+    path = _path_for(root, "experiment", artifact_id)
+    payload = _read(path, root=root)
+    runs = list(payload.get("result_records") or [])
+    runs.append({
+        "run_id": stable_id("run", artifact_id, run_label, seed),
+        "run_label": run_label,
+        "environment": environment,
+        "seed": seed,
+        "dataset_hash": dataset_hash,
+        "model_hash": model_hash,
+        "diagnostics": diagnostics or [],
+        "result_summary": result_summary,
+        "acceptance_status": acceptance_status,
+        "review_status": "requires_human_review",
+    })
+    payload["result_records"] = runs
+    payload["status"] = "run_recorded"
+    return _write(path, payload, root=root)
 
 
 def link_claim_to_experiment(
@@ -378,10 +463,23 @@ def run_benchmark_manifest(manifest_id: str, *, root: Path | None = None) -> dic
         if not fixture_path.is_absolute():
             fixture_path = get_paths(root).root / fixture_path
         exists = fixture_path.exists()
+        expected = _store(root).read_json(fixture_path) if exists and fixture_path.suffix == ".json" else {}
+        required_fields = ["title", "authors", "year", "section_headings"]
+        scored_fields = {
+            field: {
+                "available": bool(expected.get(field)),
+                "status": "passed" if expected.get(field) else "not_scored",
+            }
+            for field in required_fields
+        }
         results.append({
             "fixture_path": str(fixture_path),
             "status": "passed" if exists else "failed",
-            "counts": {"files": 1 if exists else 0},
+            "counts": {
+                "files": 1 if exists else 0,
+                "expected_sections": len(expected.get("section_headings") or []),
+            },
+            "quality_scores": scored_fields,
             "limitations": [] if exists else ["fixture path is unavailable"],
         })
     artifact_id = stable_id("benchmark_run", manifest_id)
@@ -432,6 +530,274 @@ def propose_synthesis(
 
 def show_synthesis(artifact_id: str, *, root: Path | None = None) -> dict[str, Any]:
     return _read(_path_for(root, "synthesis", artifact_id), root=root)
+
+
+def build_traceability_report(paper_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    paths = get_paths(root)
+    links = []
+    for path in sorted(paths.links.glob("*.json")):
+        link = _store(root).read_json(path)
+        if link.get("paper_id") == paper_id:
+            link["record_path"] = str(path)
+            links.append(link)
+    coverage: dict[str, dict[str, Any]] = {}
+    for relationship in sorted(IMPLEMENTATION_LINK_RELATIONSHIPS):
+        rows = [link for link in links if link.get("relationship") == relationship]
+        coverage[relationship] = {
+            "count": len(rows),
+            "reviewed_count": len([row for row in rows if row.get("review_status") == "approved"]),
+            "requires_review_count": len([row for row in rows if row.get("review_status") != "approved"]),
+        }
+    artifact_id = stable_id("traceability", paper_id)
+    payload = {
+        **base_artifact(
+            artifact_type="paper_to_code_traceability_report",
+            artifact_id=artifact_id,
+            paper_id=paper_id,
+            provenance={"created_by": "ra traceability-build"},
+            limitations=["Coverage is link-record based and does not statically inspect code yet."],
+        ),
+        "coverage": coverage,
+        "links": links,
+    }
+    return _write(_path_for(root, "traceability", artifact_id), payload, root=root)
+
+
+def show_traceability_report(artifact_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "traceability", artifact_id), root=root)
+
+
+def enrich_graph_report(artifact_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    path = _path_for(root, "graph_report", artifact_id)
+    payload = _read(path, root=root)
+    payload["graph_analytics"] = {
+        "method_lineage": [],
+        "influence_map": [],
+        "competing_families": [],
+        "trend_signals": [],
+        "open_question_clusters": [],
+        "review_status": "requires_human_review",
+        "limitations": ["Analytics are deterministic placeholders until classified and reviewed."],
+    }
+    for intent in payload.get("citation_intents") or []:
+        intent.setdefault("intent_candidates", ["background", "method_use", "comparison", "extension"])
+        intent.setdefault("classification_status", "unclassified")
+    return _write(path, payload, root=root)
+
+
+def create_model_policy(policy_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    payload = {
+        **base_artifact(
+            artifact_type="model_provider_policy",
+            artifact_id=policy_id,
+            provenance={"created_by": "ra model-policy create"},
+            limitations=["Default policy blocks live model calls until department approval."],
+        ),
+        "live_model_calls_allowed": False,
+        "allowed_providers": [],
+        "allowed_models": [],
+        "prompt_registry_required": True,
+        "privacy_review_required": True,
+        "evaluation_required": True,
+    }
+    return _write(_path_for(root, "model_policy", policy_id), payload, root=root)
+
+
+def show_model_policy(policy_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "model_policy", policy_id), root=root)
+
+
+def check_synthesis_policy(policy_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    policy = show_model_policy(policy_id, root=root)
+    return {
+        "policy_id": policy_id,
+        "live_model_calls_allowed": policy.get("live_model_calls_allowed") is True,
+        "status": "blocked" if not policy.get("live_model_calls_allowed") else "allowed",
+        "requires_human_review": True,
+        "limitations": policy.get("limitations") or [],
+    }
+
+
+def create_collaboration_workspace(workspace_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    payload = {
+        **base_artifact(
+            artifact_type="department_collaboration_workspace",
+            artifact_id=workspace_id,
+            provenance={"created_by": "ra collaboration create"},
+            limitations=["Local JSON collaboration records are not concurrency-safe multi-user infrastructure."],
+        ),
+        "users": [],
+        "roles": [],
+        "assignments": [],
+        "comments": [],
+        "event_history": [],
+    }
+    return _write(_path_for(root, "collaboration", workspace_id), payload, root=root)
+
+
+def show_collaboration_workspace(workspace_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "collaboration", workspace_id), root=root)
+
+
+def update_collaboration_workspace(
+    workspace_id: str,
+    *,
+    action: str,
+    value: str,
+    target: str = "",
+    root: Path | None = None,
+) -> dict[str, Any]:
+    path = _path_for(root, "collaboration", workspace_id)
+    payload = _read(path, root=root)
+    if action == "add-user":
+        payload.setdefault("users", []).append({"user_id": value, "review_status": "requires_human_review"})
+    elif action == "add-role":
+        payload.setdefault("roles", []).append({"role": value, "review_status": "requires_human_review"})
+    elif action == "assign":
+        payload.setdefault("assignments", []).append({"target": target, "assignee": value, "review_status": "requires_human_review"})
+    elif action == "comment":
+        payload.setdefault("comments", []).append({"target": target, "comment": value, "review_status": "requires_human_review"})
+    else:
+        raise ValueError("collaboration action must be add-user, add-role, assign, or comment")
+    payload.setdefault("event_history", []).append({"action": action, "target": target, "value": value})
+    return _write(path, payload, root=root)
+
+
+def build_artifact_index(index_id: str = "local_artifact_index", *, root: Path | None = None) -> dict[str, Any]:
+    paths = get_paths(root)
+    families = {
+        "summaries": paths.summaries,
+        "links": paths.links,
+        "derivations": paths.derivations,
+        "experiments": paths.experiments,
+        "graph_reports": paths.graph_reports,
+        "benchmarks": paths.benchmarks,
+        "benchmark_runs": paths.benchmark_runs,
+        "synthesis": paths.synthesis,
+        "governance": paths.governance,
+        "jobs": paths.jobs,
+        "traceability": paths.traceability,
+        "model_policies": paths.model_policies,
+        "collaboration": paths.collaboration,
+        "operations": paths.operations,
+        "sops": paths.sops,
+    }
+    inventory = {}
+    schema_versions = {}
+    for family, base in families.items():
+        records = []
+        for path in sorted(base.glob("*.json")):
+            record = _store(root).read_json(path)
+            records.append({
+                "path": str(path),
+                "artifact_id": record.get("artifact_id") or record.get("id"),
+                "schema_version": record.get("schema_version"),
+                "artifact_type": record.get("artifact_type"),
+            })
+            schema_versions.setdefault(record.get("schema_version", "unknown"), 0)
+            schema_versions[record.get("schema_version", "unknown")] += 1
+        inventory[family] = {"count": len(records), "records": records}
+    payload = {
+        **base_artifact(
+            artifact_type="artifact_index",
+            artifact_id=index_id,
+            provenance={"created_by": "ra artifact-index build"},
+            limitations=["Index is a point-in-time local JSON inventory, not a transactional database."],
+        ),
+        "inventory": inventory,
+        "schema_versions": schema_versions,
+        "migration_needed": "unknown" in schema_versions,
+    }
+    return _write(_path_for(root, "artifact_index", index_id), payload, root=root)
+
+
+def show_artifact_index(index_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "artifact_index", index_id), root=root)
+
+
+def export_tool_contract(contract_id: str = "local_tool_contract", *, root: Path | None = None) -> dict[str, Any]:
+    commands = [
+        {"command": "domain-templates", "inputs": ["list", "show"], "output": "domain template JSON"},
+        {"command": "derivation", "inputs": ["create", "show", "append", "notation", "link-steps", "comment"], "output": "derivation worksheet JSON"},
+        {"command": "experiment", "inputs": ["create", "show", "record-run", "link-claim"], "output": "experiment JSON"},
+        {"command": "graph-report", "inputs": ["build", "show", "enrich"], "output": "citation intelligence JSON"},
+        {"command": "traceability", "inputs": ["build", "show"], "output": "paper-to-code coverage JSON"},
+        {"command": "model-policy", "inputs": ["create", "show", "check-synthesis"], "output": "policy JSON"},
+        {"command": "collaboration", "inputs": ["create", "show", "update"], "output": "collaboration JSON"},
+        {"command": "artifact-index", "inputs": ["build", "show"], "output": "index JSON"},
+        {"command": "operations-policy", "inputs": ["create", "show"], "output": "ops policy JSON"},
+        {"command": "sop", "inputs": ["create", "show"], "output": "SOP JSON"},
+    ]
+    payload = {
+        **base_artifact(
+            artifact_type="service_tool_contract",
+            artifact_id=contract_id,
+            provenance={"created_by": "ra tool-contract export"},
+            limitations=["Contract describes local CLI/backend surfaces; it is not a running server."],
+        ),
+        "commands": commands,
+        "trust_boundary": "All generated outputs require human review unless explicitly approved by a separate workflow.",
+        "dashboard_summary_keys": ["artifact_paths", "counts", "schema_version"],
+    }
+    return _write(_path_for(root, "service_contract", contract_id), payload, root=root)
+
+
+def show_tool_contract(contract_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "service_contract", contract_id), root=root)
+
+
+def create_operations_policy(policy_id: str = "department_operations_policy", *, root: Path | None = None) -> dict[str, Any]:
+    payload = {
+        **base_artifact(
+            artifact_type="security_compliance_operations_policy",
+            artifact_id=policy_id,
+            provenance={"created_by": "ra operations-policy create"},
+            limitations=["Operational controls are placeholders until department policy owners approve them."],
+        ),
+        "auth": {"status": "placeholder", "required_before_server": True},
+        "secrets": {"status": "placeholder", "no_secrets_in_repo": True},
+        "provider_allowlist": [],
+        "license_tracking": {"status": "placeholder"},
+        "monitoring": {"status": "placeholder"},
+        "offline_safe": True,
+        "network_authorized": False,
+    }
+    return _write(_path_for(root, "operations", policy_id), payload, root=root)
+
+
+def show_operations_policy(policy_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "operations", policy_id), root=root)
+
+
+def create_department_sop(sop_id: str = "department_research_sop", *, root: Path | None = None) -> dict[str, Any]:
+    sections = {
+        "paper_approval": ["identity validated", "source evidence reviewed", "technical_audit explicitly approved"],
+        "derivation_review": ["notation registered", "dependencies checked", "unresolved gaps recorded"],
+        "experiment_evidence": ["environment captured", "seeds recorded", "diagnostics reviewed"],
+        "benchmark_gates": ["fixtures scored", "limitations recorded", "regressions reviewed"],
+        "escalation": ["security/policy issues escalated", "mathematical gaps assigned"],
+        "onboarding": ["artifact contracts reviewed", "trust boundary understood"],
+    }
+    payload = {
+        **base_artifact(
+            artifact_type="department_standard_operating_procedure",
+            artifact_id=sop_id,
+            provenance={"created_by": "ra sop create"},
+            limitations=["SOP is a draft scaffold and requires department review before enforcement."],
+        ),
+        "sections": sections,
+        "review_gates": {
+            "papers": "human approval required",
+            "derivations": "reviewer signoff required",
+            "experiments": "diagnostic review required",
+            "synthesis": "policy and source review required",
+        },
+    }
+    return _write(_path_for(root, "sop", sop_id), payload, root=root)
+
+
+def show_department_sop(sop_id: str, *, root: Path | None = None) -> dict[str, Any]:
+    return _read(_path_for(root, "sop", sop_id), root=root)
 
 
 def _sha256_file(path: Path) -> str:
@@ -519,7 +885,15 @@ def dashboard_export(output: Path | None = None, *, root: Path | None = None) ->
             "synthesis": len(list(paths.synthesis.glob("*.json"))),
             "governance": len(list(paths.governance.glob("*.json"))),
             "jobs": len(list(paths.jobs.glob("*.json"))),
+            "traceability": len(list(paths.traceability.glob("*.json"))),
+            "model_policies": len(list(paths.model_policies.glob("*.json"))),
+            "collaboration": len(list(paths.collaboration.glob("*.json"))),
+            "artifact_indices": len(list(paths.artifact_indices.glob("*.json"))),
+            "service_contracts": len(list(paths.service_contracts.glob("*.json"))),
+            "operations": len(list(paths.operations.glob("*.json"))),
+            "sops": len(list(paths.sops.glob("*.json"))),
         },
+        "schema_version": "industrial-platform-v1",
     }
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, sort_keys=True))

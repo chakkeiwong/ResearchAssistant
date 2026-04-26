@@ -70,6 +70,10 @@ def test_industrial_phase_zero_paths_and_domain_templates(tmp_path: Path, capsys
     assert template['concepts']
     assert template['claims']
     assert template['checklist']
+    assert template['concept_taxonomy']
+    assert template['assumption_classes']
+    assert template['notation_registry']
+    assert template['method_families']
 
 
 def test_derivation_experiment_synthesis_governance_and_export_cycle(tmp_path: Path, capsys) -> None:
@@ -98,6 +102,38 @@ def test_derivation_experiment_synthesis_governance_and_export_cycle(tmp_path: P
     assert derivation['paper_claims'][0]['review_status'] == 'requires_human_review'
 
     claim_id = derivation['paper_claims'][0]['id']
+
+    rc = main([
+        '--root', str(tmp_path), 'derivation', 'notation',
+        '--artifact-id', derivation['artifact_id'],
+        '--symbol', 'T',
+        '--meaning', 'transport map',
+    ])
+    derivation = _json_out(capsys)
+    assert rc == 0
+    assert derivation['notation_registry']['T']['review_status'] == 'requires_human_review'
+
+    rc = main([
+        '--root', str(tmp_path), 'derivation', 'link-steps',
+        '--artifact-id', derivation['artifact_id'],
+        '--step-id', claim_id,
+        '--depends-on', 'assumption_support',
+    ])
+    derivation = _json_out(capsys)
+    assert rc == 0
+    assert derivation['step_dependencies'][0]['depends_on'] == 'assumption_support'
+
+    rc = main([
+        '--root', str(tmp_path), 'derivation', 'comment',
+        '--artifact-id', derivation['artifact_id'],
+        '--target-id', claim_id,
+        '--comment', 'Check the Jacobian convention.',
+        '--reviewer', 'reviewer_a',
+    ])
+    derivation = _json_out(capsys)
+    assert rc == 0
+    assert derivation['reviewer_comments'][0]['reviewer'] == 'reviewer_a'
+
     rc = main([
         '--root', str(tmp_path), 'experiment', 'create',
         '--paper-id', 'paper_a',
@@ -109,6 +145,22 @@ def test_derivation_experiment_synthesis_governance_and_export_cycle(tmp_path: P
     assert experiment['claim_id'] == claim_id
     assert experiment['checklist']
     assert experiment['requires_human_review'] is True
+
+    rc = main([
+        '--root', str(tmp_path), 'experiment', 'record-run',
+        '--artifact-id', experiment['artifact_id'],
+        '--run-label', 'local-smoke',
+        '--seed', '123',
+        '--environment', 'pytest-fixture',
+        '--diagnostic', 'finite difference agrees',
+        '--result-summary', 'smoke run only',
+        '--dataset-hash', 'datahash',
+        '--model-hash', 'modelhash',
+    ])
+    experiment = _json_out(capsys)
+    assert rc == 0
+    assert experiment['result_records'][0]['seed'] == '123'
+    assert experiment['result_records'][0]['review_status'] == 'requires_human_review'
 
     rc = main([
         '--root', str(tmp_path), 'experiment', 'link-claim',
@@ -139,6 +191,16 @@ def test_derivation_experiment_synthesis_governance_and_export_cycle(tmp_path: P
     assert governance['provider_model_policy']['live_model_calls_allowed'] is False
     assert 'summary' in governance['artifact_hashes']
 
+    rc = main(['--root', str(tmp_path), 'model-policy', 'create', '--policy-id', 'default_llm_policy'])
+    model_policy = _json_out(capsys)
+    assert rc == 0
+    assert model_policy['live_model_calls_allowed'] is False
+
+    rc = main(['--root', str(tmp_path), 'model-policy', 'check-synthesis', '--policy-id', 'default_llm_policy'])
+    policy_check = _json_out(capsys)
+    assert rc == 0
+    assert policy_check['status'] == 'blocked'
+
     out = tmp_path / 'context.json'
     rc = main(['--root', str(tmp_path), 'export-context', '--output', str(out)])
     assert rc == 0
@@ -149,6 +211,7 @@ def test_derivation_experiment_synthesis_governance_and_export_cycle(tmp_path: P
     assert artifacts['experiments'][0]['artifact_id'] == experiment['artifact_id']
     assert artifacts['synthesis'][0]['artifact_id'] == synthesis['artifact_id']
     assert artifacts['governance'][0]['artifact_id'] == governance['artifact_id']
+    assert exported['industrial_library_artifacts']['model_policies'][0]['artifact_id'] == 'default_llm_policy'
     assert exported['papers'][0]['technical_audit']['claimed_results'] == []
     assert 'benchmark_manifests' in exported['industrial_library_artifacts']
 
@@ -173,6 +236,12 @@ def test_graph_review_benchmark_link_and_job_scaffolds(tmp_path: Path, capsys) -
     assert rc == 0
     assert graph_report['node_dedup_diagnostics']['duplicate_identifiers']
     assert graph_report['citation_intents'][0]['intent'] == 'unknown'
+
+    rc = main(['--root', str(tmp_path), 'graph-report', 'enrich', '--artifact-id', graph_report['artifact_id']])
+    graph_report = _json_out(capsys)
+    assert rc == 0
+    assert graph_report['graph_analytics']['review_status'] == 'requires_human_review'
+    assert graph_report['citation_intents'][0]['intent_candidates']
 
     rc = main([
         '--root', str(tmp_path), 'review-meta', 'set',
@@ -200,6 +269,7 @@ def test_graph_review_benchmark_link_and_job_scaffolds(tmp_path: Path, capsys) -
     assert rc == 0
     assert run['status'] == 'passed'
     assert run['results'][0]['limitations'] == []
+    assert run['results'][0]['quality_scores']['title']['status'] == 'passed'
 
     rc = main([
         '--root', str(tmp_path), 'link-add',
@@ -218,11 +288,57 @@ def test_graph_review_benchmark_link_and_job_scaffolds(tmp_path: Path, capsys) -
     assert link_payload['review_status'] == 'requires_human_review'
     assert link_payload['source_ref'] == 'eq:target'
 
+    rc = main(['--root', str(tmp_path), 'traceability', 'build', '--paper-id', 'paper_a'])
+    traceability = _json_out(capsys)
+    assert rc == 0
+    assert traceability['coverage']['equation-to-code']['count'] == 1
+    assert traceability['requires_human_review'] is True
+
     rc = main(['--root', str(tmp_path), 'job', 'create', '--job-type', 'dashboard-refresh', '--paper-id', 'paper_a'])
     job = _json_out(capsys)
     assert rc == 0
     assert job['artifact_type'] == 'job_status'
     assert job['status'] == 'queued'
+
+    rc = main(['--root', str(tmp_path), 'collaboration', 'create', '--workspace-id', 'dept_workspace'])
+    collaboration = _json_out(capsys)
+    assert rc == 0
+    assert collaboration['artifact_type'] == 'department_collaboration_workspace'
+
+    rc = main([
+        '--root', str(tmp_path), 'collaboration', 'update',
+        '--workspace-id', 'dept_workspace',
+        '--action', 'assign',
+        '--target', 'paper_a',
+        '--value', 'reviewer_a',
+    ])
+    collaboration = _json_out(capsys)
+    assert rc == 0
+    assert collaboration['event_history'][0]['action'] == 'assign'
+
+    rc = main(['--root', str(tmp_path), 'operations-policy', 'create'])
+    operations = _json_out(capsys)
+    assert rc == 0
+    assert operations['offline_safe'] is True
+    assert operations['network_authorized'] is False
+
+    rc = main(['--root', str(tmp_path), 'sop', 'create'])
+    sop = _json_out(capsys)
+    assert rc == 0
+    assert 'paper_approval' in sop['sections']
+    assert sop['requires_human_review'] is True
+
+    rc = main(['--root', str(tmp_path), 'tool-contract', 'export'])
+    contract = _json_out(capsys)
+    assert rc == 0
+    assert contract['commands']
+    assert 'trust_boundary' in contract
+
+    rc = main(['--root', str(tmp_path), 'artifact-index', 'build'])
+    index = _json_out(capsys)
+    assert rc == 0
+    assert index['inventory']['traceability']['count'] == 1
+    assert index['inventory']['collaboration']['count'] == 1
 
     out = tmp_path / 'dashboard.json'
     rc = main(['--root', str(tmp_path), 'dashboard-export', '--output', str(out)])
@@ -230,4 +346,7 @@ def test_graph_review_benchmark_link_and_job_scaffolds(tmp_path: Path, capsys) -
     capsys.readouterr()
     dashboard = json.loads(out.read_text())
     assert dashboard['counts']['jobs'] == 1
+    assert dashboard['counts']['traceability'] == 1
+    assert dashboard['counts']['collaboration'] == 1
+    assert dashboard['schema_version'] == 'industrial-platform-v1'
     assert dashboard['artifact_paths']['graph_reports'].endswith('citation_graph_reports')

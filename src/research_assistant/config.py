@@ -28,6 +28,13 @@ class AppPaths:
     governance: Path
     jobs: Path
     exports: Path
+    traceability: Path
+    model_policies: Path
+    collaboration: Path
+    artifact_indices: Path
+    service_contracts: Path
+    operations: Path
+    sops: Path
 
 
 def get_paths(root: Path | None = None) -> AppPaths:
@@ -56,4 +63,11 @@ def get_paths(root: Path | None = None) -> AppPaths:
         governance=local_research / "governance",
         jobs=local_research / "jobs",
         exports=local_research / "exports",
+        traceability=local_research / "analysis" / "traceability",
+        model_policies=local_research / "governance" / "model_policies",
+        collaboration=local_research / "collaboration",
+        artifact_indices=local_research / "indices" / "artifacts",
+        service_contracts=local_research / "contracts" / "tools",
+        operations=local_research / "governance" / "operations",
+        sops=local_research / "governance" / "sops",
     )
