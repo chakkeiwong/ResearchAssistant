@@ -14,6 +14,7 @@ from research_assistant.industrial.platform import (
     build_artifact_index,
     build_governance_record,
     build_graph_report,
+    build_readiness_report,
     build_traceability_report,
     check_synthesis_policy,
     create_collaboration_workspace,
@@ -33,6 +34,7 @@ from research_assistant.industrial.platform import (
     list_review_metadata,
     propose_synthesis,
     record_experiment_run,
+    query_artifact_index,
     run_benchmark_manifest,
     set_review_metadata,
     show_artifact_index,
@@ -47,12 +49,14 @@ from research_assistant.industrial.platform import (
     show_job,
     show_model_policy,
     show_operations_policy,
+    show_readiness_report,
     show_review_metadata,
     show_synthesis,
     show_tool_contract,
     show_traceability_report,
     update_derivation,
     update_collaboration_workspace,
+    validate_industrial_artifacts,
 )
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
 from research_assistant.ingest.pdf_extract import extract_pdf_text
@@ -212,6 +216,10 @@ def cmd_artifact_paths(args: argparse.Namespace) -> int:
     return _print_json(artifact_paths(root=Path(args.root) if args.root else None))
 
 
+def cmd_industrial_validate(args: argparse.Namespace) -> int:
+    return _print_json(validate_industrial_artifacts(root=Path(args.root) if args.root else None))
+
+
 def cmd_domain_templates(args: argparse.Namespace) -> int:
     if args.template_action == 'list':
         return _print_json(list_domain_templates())
@@ -368,7 +376,18 @@ def cmd_artifact_index(args: argparse.Namespace) -> int:
         return _print_json(build_artifact_index(args.index_id, root=root))
     if args.artifact_index_action == 'show':
         return _print_json(show_artifact_index(args.index_id, root=root))
+    if args.artifact_index_action == 'query':
+        return _print_json(query_artifact_index(args.index_id, family=args.family, paper_id=args.paper_id, root=root))
     raise SystemExit(f'unknown artifact-index action {args.artifact_index_action}')
+
+
+def cmd_industrial_readiness(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.readiness_action == 'build':
+        return _print_json(build_readiness_report(args.report_id, root=root))
+    if args.readiness_action == 'show':
+        return _print_json(show_readiness_report(args.report_id, root=root))
+    raise SystemExit(f'unknown industrial-readiness action {args.readiness_action}')
 
 
 def cmd_tool_contract(args: argparse.Namespace) -> int:
@@ -751,6 +770,9 @@ def build_parser() -> argparse.ArgumentParser:
     artifact_paths_cmd = sub.add_parser('artifact-paths')
     artifact_paths_cmd.set_defaults(func=cmd_artifact_paths)
 
+    industrial_validate = sub.add_parser('industrial-validate')
+    industrial_validate.set_defaults(func=cmd_industrial_validate)
+
     domain_templates = sub.add_parser('domain-templates')
     domain_templates_sub = domain_templates.add_subparsers(dest='template_action', required=True)
     domain_templates_list = domain_templates_sub.add_parser('list')
@@ -939,6 +961,20 @@ def build_parser() -> argparse.ArgumentParser:
     artifact_index_show = artifact_index_sub.add_parser('show')
     artifact_index_show.add_argument('--index-id', required=True)
     artifact_index_show.set_defaults(func=cmd_artifact_index)
+    artifact_index_query = artifact_index_sub.add_parser('query')
+    artifact_index_query.add_argument('--index-id', default='local_artifact_index')
+    artifact_index_query.add_argument('--family')
+    artifact_index_query.add_argument('--paper-id')
+    artifact_index_query.set_defaults(func=cmd_artifact_index)
+
+    industrial_readiness = sub.add_parser('industrial-readiness')
+    readiness_sub = industrial_readiness.add_subparsers(dest='readiness_action', required=True)
+    readiness_build = readiness_sub.add_parser('build')
+    readiness_build.add_argument('--report-id', default='industrial_readiness')
+    readiness_build.set_defaults(func=cmd_industrial_readiness)
+    readiness_show = readiness_sub.add_parser('show')
+    readiness_show.add_argument('--report-id', required=True)
+    readiness_show.set_defaults(func=cmd_industrial_readiness)
 
     tool_contract = sub.add_parser('tool-contract')
     tool_contract_sub = tool_contract.add_subparsers(dest='tool_contract_action', required=True)

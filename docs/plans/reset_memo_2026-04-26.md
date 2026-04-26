@@ -296,3 +296,80 @@ Remaining risks:
 
 Next safe step:
 - Commit the 12-gap scaffold implementation, noting that focused and broad deterministic validations passed while the full-suite attempt was interrupted without a final summary.
+
+
+## Update — industrial scale implementation pass started
+
+New objective:
+- Turn the committed industrial scaffolds into a stricter local operational layer for departmental mathematical finance/economics research workflows.
+
+Execution policy for this pass:
+- Start by writing an explicit industrial-scale implementation plan and an independent developer audit of that plan.
+- Execute phase by phase using the loop: plan phase, execute, test, audit, tidy, update reset memo.
+- Use bounded validation only. Avoid unbounded `scripts/run_tests.sh`; run focused suites with `timeout` and record any timeout honestly.
+- Keep all outputs local-first, deterministic, and fixture-driven.
+- Preserve the trust boundary: generated validation, synthesis, derivation, graph, benchmark, and dashboard artifacts remain review material unless an explicit human approval workflow promotes them.
+
+Current phase:
+- Planning and audit.
+
+Files touched so far:
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run:
+- Not yet run for this implementation pass.
+
+Remaining risks:
+- The phrase "industrial scale" can invite accidental production claims. This pass must add enforceable local contracts, validators, and readiness reports without implying live multi-user infrastructure, live LLM/provider use, or production security certification.
+
+Next safe step:
+- Write `docs/plans/industrial_scale_implementation_plan_2026-04-27.md`, audit it, then implement bounded operational phases with focused tests.
+
+
+## Update — industrial scale implementation pass completed
+
+Plan and audit:
+- Wrote `docs/plans/industrial_scale_implementation_plan_2026-04-27.md`.
+- Included an independent developer audit in the plan before coding.
+- Reconfirmed the bounded-validation policy: no unbounded full-suite run during this pass.
+
+Phase completion notes:
+- Phase 1: added industrial artifact validation over all industrial artifact families, including required base fields, schema version, provenance, limitations, human-review defaults, JSON readability, and accepted-audit boundary checks.
+- Phase 2: upgraded artifact index output with validation summaries, schema-version inventory, migration-needed flags, and `artifact-index query` filters.
+- Phase 3: upgraded benchmark runs with fixture metadata quality scores, pass threshold, missing-field diagnostics, and limitation taxonomy.
+- Phase 4: upgraded traceability reports with local target path existence checks, code/test target classification, and missing-target blockers.
+- Phase 5: added experiment run reproducibility evidence scoring over environment, seed, dataset/model hashes, diagnostics, result summary, and acceptance status.
+- Phase 6: added derivation dependency validation for worksheet IDs, step dependencies, and reviewer comment targets.
+- Phase 7: added `industrial-readiness build/show` to aggregate validation, policy, derivation, experiment, benchmark, traceability, governance, and SOP gates.
+- Phase 8: expanded dashboard export with validation summary, latest readiness summary, blocker/warning counts, and next actions.
+- Phase 9: added SOP gate reporting inside readiness.
+- Phase 10: added bounded validation scripts: `scripts/run_fast_tests.sh` and `scripts/run_bounded_tests.sh`.
+
+Independent developer audit performed after implementation:
+- Verified validation/index/readiness paths report malformed artifacts instead of deleting or rewriting them.
+- Verified generated reports remain `requires_human_review` operational diagnostics and do not write accepted `technical_audit` conclusions.
+- Verified benchmark scores describe expected fixture metadata completeness, not full parser correctness.
+- Verified traceability checks local path existence only and do not claim code implements the math.
+- Verified live model calls remain blocked by default and no network/provider call was introduced.
+
+Files touched:
+- `docs/plans/industrial_scale_implementation_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `scripts/run_fast_tests.sh`
+- `scripts/run_bounded_tests.sh`
+- `src/research_assistant/cli.py`
+- `src/research_assistant/industrial/platform.py`
+- `tests/integration/test_cli_commands.py`
+- `tests/integration/test_industrial_platform_cli.py`
+
+Tests run:
+- Fast bounded tier: `8 passed in 0.48s`.
+- Broad bounded tier: `28 passed in 0.47s`.
+
+Remaining risks:
+- This is a local operational layer, not a deployed multi-user service.
+- Readiness reports are gates and diagnostics, not scientific approval or production certification.
+- A full deterministic suite was intentionally not run because this pass adopted bounded validation after the previous stale test session.
+
+Next safe step:
+- Commit the industrial validation/readiness implementation and record the commit hash.

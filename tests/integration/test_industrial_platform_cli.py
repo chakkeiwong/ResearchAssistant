@@ -268,7 +268,7 @@ def test_graph_review_benchmark_link_and_job_scaffolds(tmp_path: Path, capsys) -
     run = _json_out(capsys)
     assert rc == 0
     assert run['status'] == 'passed'
-    assert run['results'][0]['limitations'] == []
+    assert 'missing_expected_fields' in run['results'][0]['limitation_taxonomy']
     assert run['results'][0]['quality_scores']['title']['status'] == 'passed'
 
     rc = main([
@@ -350,3 +350,187 @@ def test_graph_review_benchmark_link_and_job_scaffolds(tmp_path: Path, capsys) -
     assert dashboard['counts']['collaboration'] == 1
     assert dashboard['schema_version'] == 'industrial-platform-v1'
     assert dashboard['artifact_paths']['graph_reports'].endswith('citation_graph_reports')
+
+
+def test_industrial_validation_index_readiness_and_dashboard(tmp_path: Path, capsys) -> None:
+    _write_summary(tmp_path)
+
+    rc = main([
+        '--root', str(tmp_path), 'derivation', 'create',
+        '--paper-id', 'paper_a',
+        '--title', 'Industrial validation worksheet',
+    ])
+    derivation = _json_out(capsys)
+    assert rc == 0
+
+    rc = main([
+        '--root', str(tmp_path), 'derivation', 'append',
+        '--artifact-id', derivation['artifact_id'],
+        '--field', 'paper_claims',
+        '--value', 'The estimator is stable.',
+    ])
+    derivation = _json_out(capsys)
+    claim_id = derivation['paper_claims'][0]['id']
+    assert derivation['dependency_validation']['status'] == 'ready_for_review'
+
+    rc = main([
+        '--root', str(tmp_path), 'derivation', 'link-steps',
+        '--artifact-id', derivation['artifact_id'],
+        '--step-id', claim_id,
+        '--depends-on', 'missing_assumption_id',
+    ])
+    derivation = _json_out(capsys)
+    assert rc == 0
+    assert derivation['dependency_validation']['status'] == 'blocked'
+    assert derivation['dependency_validation']['blocker_count'] == 1
+
+    rc = main([
+        '--root', str(tmp_path), 'experiment', 'create',
+        '--paper-id', 'paper_a',
+        '--claim-id', claim_id,
+        '--checklist-id', 'simulation_recovery',
+    ])
+    experiment = _json_out(capsys)
+    assert rc == 0
+
+    rc = main([
+        '--root', str(tmp_path), 'experiment', 'record-run',
+        '--artifact-id', experiment['artifact_id'],
+        '--run-label', 'missing-hashes',
+        '--seed', '7',
+        '--environment', 'pytest-fixture',
+    ])
+    experiment = _json_out(capsys)
+    assert rc == 0
+    evidence = experiment['reproducibility_evidence']
+    assert evidence['status'] == 'blocked'
+    assert 'dataset_hash' in evidence['run_scores'][0]['missing_fields']
+
+    existing_code = tmp_path / 'src' / 'example.py'
+    existing_code.parent.mkdir(parents=True)
+    existing_code.write_text('def example():\n    return True\n')
+    rc = main([
+        '--root', str(tmp_path), 'link-add',
+        '--paper-id', 'paper_a',
+        '--relationship', 'equation-to-code',
+        '--target-type', 'code_file',
+        '--target', 'src/example.py',
+        '--source-type', 'equation',
+        '--source-ref', 'eq:target',
+    ])
+    assert rc == 0
+    capsys.readouterr()
+    rc = main([
+        '--root', str(tmp_path), 'link-add',
+        '--paper-id', 'paper_a',
+        '--relationship', 'theorem-assumption-to-test',
+        '--target-type', 'test_file',
+        '--target', 'tests/missing_test.py',
+        '--source-type', 'theorem',
+        '--source-ref', 'thm:main',
+    ])
+    assert rc == 0
+    capsys.readouterr()
+
+    rc = main(['--root', str(tmp_path), 'traceability', 'build', '--paper-id', 'paper_a'])
+    traceability = _json_out(capsys)
+    assert rc == 0
+    assert traceability['coverage']['equation-to-code']['existing_target_count'] == 1
+    assert traceability['target_health']['missing_target_count'] == 1
+    assert traceability['target_health']['status'] == 'blocked'
+
+    incomplete_fixture = tmp_path / 'incomplete.expected.json'
+    incomplete_fixture.write_text(json.dumps({'title': 'Only Title'}))
+    rc = main([
+        '--root', str(tmp_path), 'benchmark-manifest', 'create',
+        '--manifest-id', 'incomplete_family',
+        '--family', 'synthetic',
+        '--fixture', str(incomplete_fixture),
+    ])
+    manifest = _json_out(capsys)
+    assert rc == 0
+    assert manifest['artifact_id'] == 'incomplete_family'
+
+    rc = main(['--root', str(tmp_path), 'benchmark-manifest', 'run', '--manifest-id', 'incomplete_family'])
+    benchmark_run = _json_out(capsys)
+    assert rc == 0
+    assert benchmark_run['status'] == 'failed'
+    assert 'insufficient_score' in benchmark_run['results'][0]['limitation_taxonomy']
+
+    rc = main(['--root', str(tmp_path), 'model-policy', 'create', '--policy-id', 'default_llm_policy'])
+    policy = _json_out(capsys)
+    assert rc == 0
+    assert policy['live_model_calls_allowed'] is False
+
+    rc = main(['--root', str(tmp_path), 'governance', 'build', '--paper-id', 'paper_a'])
+    governance = _json_out(capsys)
+    assert rc == 0
+    assert governance['offline_safe'] is True
+
+    rc = main(['--root', str(tmp_path), 'sop', 'create'])
+    sop = _json_out(capsys)
+    assert rc == 0
+    assert sop['sections']['benchmark_gates']
+
+    invalid_dir = tmp_path / 'local_research' / 'analysis' / 'synthesis'
+    invalid_dir.mkdir(parents=True, exist_ok=True)
+    (invalid_dir / 'invalid.json').write_text(json.dumps({
+        'schema_version': 'old',
+        'artifact_id': 'invalid',
+        'artifact_type': 'synthesis_proposal',
+        'paper_id': 'paper_a',
+        'created_at': '2026-04-27T00:00:00+00:00',
+        'provenance': {},
+        'review_status': 'approved',
+        'requires_human_review': False,
+        'limitations': [],
+        'accepted_into_technical_audit': True,
+    }))
+    (invalid_dir / 'malformed.json').write_text('{not-json')
+
+    rc = main(['--root', str(tmp_path), 'industrial-validate'])
+    validation = _json_out(capsys)
+    assert rc == 0
+    assert validation['status'] == 'blocked'
+    assert validation['issue_counts']['blockers'] >= 1
+    issue_codes = {issue['code'] for record in validation['records'] for issue in record['issues']}
+    assert 'invalid_json' in issue_codes
+
+    rc = main(['--root', str(tmp_path), 'artifact-index', 'build'])
+    index = _json_out(capsys)
+    assert rc == 0
+    assert index['validation_summary']['status'] == 'blocked'
+    assert index['migration_needed'] is True
+    assert index['schema_versions']['unreadable'] == 1
+
+    rc = main([
+        '--root', str(tmp_path), 'artifact-index', 'query',
+        '--family', 'derivations',
+        '--paper-id', 'paper_a',
+    ])
+    query = _json_out(capsys)
+    assert rc == 0
+    assert query['count'] == 1
+    assert query['records'][0]['artifact_id'] == derivation['artifact_id']
+
+    rc = main(['--root', str(tmp_path), 'industrial-readiness', 'build'])
+    readiness = _json_out(capsys)
+    assert rc == 0
+    assert readiness['status'] == 'blocked'
+    blocker_codes = {row['code'] for row in readiness['blockers']}
+    assert 'artifact_validation_blockers' in blocker_codes
+    assert 'derivation_dependency_blockers' in blocker_codes
+    assert 'experiment_reproducibility_blockers' in blocker_codes
+    assert 'failed_benchmark_runs' in blocker_codes
+    assert 'traceability_missing_targets' in blocker_codes
+    assert readiness['sop_gate_report']['status'] in {'ready_for_review', 'warnings'}
+    assert readiness['next_actions']
+
+    out = tmp_path / 'dashboard_readiness.json'
+    rc = main(['--root', str(tmp_path), 'dashboard-export', '--output', str(out)])
+    assert rc == 0
+    capsys.readouterr()
+    dashboard = json.loads(out.read_text())
+    assert dashboard['validation_summary']['status'] == 'blocked'
+    assert dashboard['readiness_summary']['status'] == 'blocked'
+    assert dashboard['next_actions']

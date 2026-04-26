@@ -44,6 +44,8 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'model-policy' in captured.out
     assert 'collaboration' in captured.out
     assert 'artifact-index' in captured.out
+    assert 'industrial-validate' in captured.out
+    assert 'industrial-readiness' in captured.out
     assert 'tool-contract' in captured.out
     assert 'operations-policy' in captured.out
     assert 'sop' in captured.out
