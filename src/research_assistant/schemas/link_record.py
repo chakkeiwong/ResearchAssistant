@@ -14,6 +14,11 @@ class LinkRecord:
     relationship: str
     confidence_level: str = "medium"
     review_status: str = "draft"
+    source_type: str = "paper"
+    source_ref: str | None = None
+    target_ref: str | None = None
+    evidence_refs: list[dict[str, Any]] | None = None
+    limitations: list[str] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

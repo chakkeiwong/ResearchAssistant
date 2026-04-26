@@ -6,6 +6,33 @@ from pathlib import Path
 from research_assistant.adapters.workspace_exports import export_paper_context
 from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
+from research_assistant.industrial.platform import (
+    IMPLEMENTATION_LINK_RELATIONSHIPS,
+    artifact_paths,
+    build_governance_record,
+    build_graph_report,
+    create_benchmark_manifest,
+    create_derivation,
+    create_experiment,
+    create_job,
+    dashboard_export,
+    link_claim_to_experiment,
+    list_experiment_checklists,
+    list_review_metadata,
+    propose_synthesis,
+    run_benchmark_manifest,
+    set_review_metadata,
+    show_benchmark_manifest,
+    show_derivation,
+    show_experiment,
+    show_experiment_checklist,
+    show_governance_record,
+    show_graph_report,
+    show_job,
+    show_review_metadata,
+    show_synthesis,
+    update_derivation,
+)
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
 from research_assistant.ingest.pdf_extract import extract_pdf_text
 from research_assistant.ingest.normalize_text import normalize_extracted_text
@@ -27,6 +54,8 @@ from research_assistant.query.citation_graph import papers_cited_by, papers_citi
 from research_assistant.query.citation_cache import build_citation_graph, export_citation_graph, show_citation_graph
 from research_assistant.ingest.parser_orchestrator import parse_with_all, reconcile_parsed_documents
 from research_assistant.ingest.parser_preflight import preflight_all
+from research_assistant.schemas.artifact import stable_id
+from research_assistant.schemas.domain_templates import get_domain_template, list_domain_templates
 from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
 from research_assistant.source.structured_source import source_record_path
 from research_assistant.source.evidence_context import evidence_context_for_citation, evidence_context_for_label
@@ -135,14 +164,128 @@ def cmd_review_mark(args: argparse.Namespace) -> int:
 def cmd_link_add(args: argparse.Namespace) -> int:
     paths = get_paths(Path(args.root) if args.root else None)
     link = LinkRecord(
-        id=f'link_{abs(hash((args.paper_id, args.target, args.relationship))) }',
+        id=stable_id('link', args.paper_id, args.source_ref or '', args.target, args.relationship),
         paper_id=args.paper_id,
         target_type=args.target_type,
         target=args.target,
         relationship=args.relationship,
+        source_type=args.source_type,
+        source_ref=args.source_ref,
+        target_ref=args.target_ref,
+        evidence_refs=[],
+        limitations=['Link requires review before it is treated as an implementation claim.'],
+        review_status='requires_human_review' if args.relationship in IMPLEMENTATION_LINK_RELATIONSHIPS else 'draft',
     )
     FileStore(paths.local_research).write_json(paths.links / f'{link.id}.json', link.to_dict())
     print(link.id)
+    return 0
+
+
+def _print_json(payload: dict | list) -> int:
+    import json
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_artifact_paths(args: argparse.Namespace) -> int:
+    return _print_json(artifact_paths(root=Path(args.root) if args.root else None))
+
+
+def cmd_domain_templates(args: argparse.Namespace) -> int:
+    if args.template_action == 'list':
+        return _print_json(list_domain_templates())
+    if args.template_action == 'show':
+        return _print_json(get_domain_template(args.template_id))
+    raise SystemExit(f'unknown domain-template action {args.template_action}')
+
+
+def cmd_derivation(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.derivation_action == 'create':
+        return _print_json(create_derivation(args.paper_id, title=args.title, template_id=args.template_id, root=root))
+    if args.derivation_action == 'show':
+        return _print_json(show_derivation(args.artifact_id, root=root))
+    if args.derivation_action == 'append':
+        return _print_json(update_derivation(args.artifact_id, args.field, args.value, root=root))
+    raise SystemExit(f'unknown derivation action {args.derivation_action}')
+
+
+def cmd_experiment(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.experiment_action == 'checklists':
+        return _print_json(list_experiment_checklists())
+    if args.experiment_action == 'checklist-show':
+        return _print_json(show_experiment_checklist(args.template_id))
+    if args.experiment_action == 'create':
+        return _print_json(create_experiment(args.paper_id, claim_id=args.claim_id, checklist_id=args.checklist_id, root=root))
+    if args.experiment_action == 'show':
+        return _print_json(show_experiment(args.artifact_id, root=root))
+    if args.experiment_action == 'link-claim':
+        return _print_json(link_claim_to_experiment(args.paper_id, claim_id=args.claim_id, experiment_id=args.experiment_id, root=root))
+    raise SystemExit(f'unknown experiment action {args.experiment_action}')
+
+
+def cmd_graph_report(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.graph_report_action == 'build':
+        return _print_json(build_graph_report(args.paper_id, root=root))
+    if args.graph_report_action == 'show':
+        return _print_json(show_graph_report(args.artifact_id, root=root))
+    raise SystemExit(f'unknown graph-report action {args.graph_report_action}')
+
+
+def cmd_review_meta(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.review_meta_action == 'show':
+        return _print_json(show_review_metadata(args.paper_id, root=root))
+    if args.review_meta_action == 'set':
+        return _print_json(set_review_metadata(args.paper_id, field=args.field, value=args.value, root=root))
+    if args.review_meta_action == 'list':
+        return _print_json(list_review_metadata(root=root))
+    raise SystemExit(f'unknown review-meta action {args.review_meta_action}')
+
+
+def cmd_benchmark_manifest(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.benchmark_action == 'create':
+        return _print_json(create_benchmark_manifest(args.manifest_id, family=args.family, fixture_paths=args.fixture, root=root))
+    if args.benchmark_action == 'show':
+        return _print_json(show_benchmark_manifest(args.manifest_id, root=root))
+    if args.benchmark_action == 'run':
+        return _print_json(run_benchmark_manifest(args.manifest_id, root=root))
+    raise SystemExit(f'unknown benchmark-manifest action {args.benchmark_action}')
+
+
+def cmd_synthesis(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.synthesis_action == 'propose':
+        return _print_json(propose_synthesis(args.paper_id, kind=args.kind, root=root))
+    if args.synthesis_action == 'show':
+        return _print_json(show_synthesis(args.artifact_id, root=root))
+    raise SystemExit(f'unknown synthesis action {args.synthesis_action}')
+
+
+def cmd_governance(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.governance_action == 'build':
+        return _print_json(build_governance_record(args.paper_id, root=root))
+    if args.governance_action == 'show':
+        return _print_json(show_governance_record(args.artifact_id, root=root))
+    raise SystemExit(f'unknown governance action {args.governance_action}')
+
+
+def cmd_job(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.job_action == 'create':
+        return _print_json(create_job(job_type=args.job_type, paper_id=args.paper_id, root=root))
+    if args.job_action == 'show':
+        return _print_json(show_job(args.artifact_id, root=root))
+    raise SystemExit(f'unknown job action {args.job_action}')
+
+
+def cmd_dashboard_export(args: argparse.Namespace) -> int:
+    output = dashboard_export(Path(args.output) if args.output else None, root=Path(args.root) if args.root else None)
+    print(output)
     return 0
 
 
@@ -491,7 +634,127 @@ def build_parser() -> argparse.ArgumentParser:
     link.add_argument('--target', required=True)
     link.add_argument('--relationship', required=True)
     link.add_argument('--target-type', default='code_file')
+    link.add_argument('--source-type', default='paper')
+    link.add_argument('--source-ref')
+    link.add_argument('--target-ref')
     link.set_defaults(func=cmd_link_add)
+
+    artifact_paths_cmd = sub.add_parser('artifact-paths')
+    artifact_paths_cmd.set_defaults(func=cmd_artifact_paths)
+
+    domain_templates = sub.add_parser('domain-templates')
+    domain_templates_sub = domain_templates.add_subparsers(dest='template_action', required=True)
+    domain_templates_list = domain_templates_sub.add_parser('list')
+    domain_templates_list.set_defaults(func=cmd_domain_templates)
+    domain_templates_show = domain_templates_sub.add_parser('show')
+    domain_templates_show.add_argument('--template-id', required=True)
+    domain_templates_show.set_defaults(func=cmd_domain_templates)
+
+    derivation = sub.add_parser('derivation')
+    derivation_sub = derivation.add_subparsers(dest='derivation_action', required=True)
+    derivation_create = derivation_sub.add_parser('create')
+    derivation_create.add_argument('--paper-id', required=True)
+    derivation_create.add_argument('--title', required=True)
+    derivation_create.add_argument('--template-id')
+    derivation_create.set_defaults(func=cmd_derivation)
+    derivation_show = derivation_sub.add_parser('show')
+    derivation_show.add_argument('--artifact-id', required=True)
+    derivation_show.set_defaults(func=cmd_derivation)
+    derivation_append = derivation_sub.add_parser('append')
+    derivation_append.add_argument('--artifact-id', required=True)
+    derivation_append.add_argument('--field', required=True)
+    derivation_append.add_argument('--value', required=True)
+    derivation_append.set_defaults(func=cmd_derivation)
+
+    experiment = sub.add_parser('experiment')
+    experiment_sub = experiment.add_subparsers(dest='experiment_action', required=True)
+    experiment_checklists = experiment_sub.add_parser('checklists')
+    experiment_checklists.set_defaults(func=cmd_experiment)
+    experiment_checklist_show = experiment_sub.add_parser('checklist-show')
+    experiment_checklist_show.add_argument('--template-id', required=True)
+    experiment_checklist_show.set_defaults(func=cmd_experiment)
+    experiment_create = experiment_sub.add_parser('create')
+    experiment_create.add_argument('--paper-id', required=True)
+    experiment_create.add_argument('--claim-id', required=True)
+    experiment_create.add_argument('--checklist-id', required=True)
+    experiment_create.set_defaults(func=cmd_experiment)
+    experiment_show = experiment_sub.add_parser('show')
+    experiment_show.add_argument('--artifact-id', required=True)
+    experiment_show.set_defaults(func=cmd_experiment)
+    experiment_link = experiment_sub.add_parser('link-claim')
+    experiment_link.add_argument('--paper-id', required=True)
+    experiment_link.add_argument('--claim-id', required=True)
+    experiment_link.add_argument('--experiment-id', required=True)
+    experiment_link.set_defaults(func=cmd_experiment)
+
+    graph_report = sub.add_parser('graph-report')
+    graph_report_sub = graph_report.add_subparsers(dest='graph_report_action', required=True)
+    graph_report_build = graph_report_sub.add_parser('build')
+    graph_report_build.add_argument('--paper-id', required=True)
+    graph_report_build.set_defaults(func=cmd_graph_report)
+    graph_report_show = graph_report_sub.add_parser('show')
+    graph_report_show.add_argument('--artifact-id', required=True)
+    graph_report_show.set_defaults(func=cmd_graph_report)
+
+    review_meta = sub.add_parser('review-meta')
+    review_meta_sub = review_meta.add_subparsers(dest='review_meta_action', required=True)
+    review_meta_show = review_meta_sub.add_parser('show')
+    review_meta_show.add_argument('--paper-id', required=True)
+    review_meta_show.set_defaults(func=cmd_review_meta)
+    review_meta_set = review_meta_sub.add_parser('set')
+    review_meta_set.add_argument('--paper-id', required=True)
+    review_meta_set.add_argument('--field', required=True)
+    review_meta_set.add_argument('--value', required=True)
+    review_meta_set.set_defaults(func=cmd_review_meta)
+    review_meta_list = review_meta_sub.add_parser('list')
+    review_meta_list.set_defaults(func=cmd_review_meta)
+
+    benchmark_manifest = sub.add_parser('benchmark-manifest')
+    benchmark_sub = benchmark_manifest.add_subparsers(dest='benchmark_action', required=True)
+    benchmark_create = benchmark_sub.add_parser('create')
+    benchmark_create.add_argument('--manifest-id', required=True)
+    benchmark_create.add_argument('--family', required=True)
+    benchmark_create.add_argument('--fixture', action='append', default=[])
+    benchmark_create.set_defaults(func=cmd_benchmark_manifest)
+    benchmark_show = benchmark_sub.add_parser('show')
+    benchmark_show.add_argument('--manifest-id', required=True)
+    benchmark_show.set_defaults(func=cmd_benchmark_manifest)
+    benchmark_run = benchmark_sub.add_parser('run')
+    benchmark_run.add_argument('--manifest-id', required=True)
+    benchmark_run.set_defaults(func=cmd_benchmark_manifest)
+
+    synthesis = sub.add_parser('synthesis')
+    synthesis_sub = synthesis.add_subparsers(dest='synthesis_action', required=True)
+    synthesis_propose = synthesis_sub.add_parser('propose')
+    synthesis_propose.add_argument('--paper-id', required=True)
+    synthesis_propose.add_argument('--kind', required=True)
+    synthesis_propose.set_defaults(func=cmd_synthesis)
+    synthesis_show = synthesis_sub.add_parser('show')
+    synthesis_show.add_argument('--artifact-id', required=True)
+    synthesis_show.set_defaults(func=cmd_synthesis)
+
+    governance = sub.add_parser('governance')
+    governance_sub = governance.add_subparsers(dest='governance_action', required=True)
+    governance_build = governance_sub.add_parser('build')
+    governance_build.add_argument('--paper-id', required=True)
+    governance_build.set_defaults(func=cmd_governance)
+    governance_show = governance_sub.add_parser('show')
+    governance_show.add_argument('--artifact-id', required=True)
+    governance_show.set_defaults(func=cmd_governance)
+
+    job = sub.add_parser('job')
+    job_sub = job.add_subparsers(dest='job_action', required=True)
+    job_create = job_sub.add_parser('create')
+    job_create.add_argument('--job-type', required=True)
+    job_create.add_argument('--paper-id')
+    job_create.set_defaults(func=cmd_job)
+    job_show = job_sub.add_parser('show')
+    job_show.add_argument('--artifact-id', required=True)
+    job_show.set_defaults(func=cmd_job)
+
+    dashboard_export_cmd = sub.add_parser('dashboard-export')
+    dashboard_export_cmd.add_argument('--output')
+    dashboard_export_cmd.set_defaults(func=cmd_dashboard_export)
 
     audit = sub.add_parser('audit-claim')
     audit.add_argument('--claim')

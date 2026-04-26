@@ -35,6 +35,11 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'inbox-show' in captured.out
     assert 'export-context' in captured.out
     assert 'citation-neighborhood' in captured.out
+    assert 'domain-templates' in captured.out
+    assert 'derivation' in captured.out
+    assert 'experiment' in captured.out
+    assert 'synthesis' in captured.out
+    assert 'governance' in captured.out
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:
@@ -1098,4 +1103,3 @@ def test_cli_source_fetch_show_and_ingest_expose_structured_source(tmp_path: Pat
     assert exported['papers'][0]['technical_audit']['claimed_results'][0] == 'Source extraction preserves the target.'
     assert 'thm:exact' in exported['papers'][0]['technical_audit']['relevant_theorems']
     assert exported['papers'][0]['technical_audit']['relevant_equations'] == ['eq:target']
-
