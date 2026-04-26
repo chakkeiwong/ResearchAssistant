@@ -698,3 +698,29 @@ Remaining risks:
 
 Next safe step:
 - Commit the gap-closure implementation, then optionally push `main`.
+
+
+## Update — individual release gap closure committed
+
+Commit completed:
+- `047c1f6 Close individual release hardening gaps`
+
+Final checkpoint:
+- All 9 gap-closure phases plus the audit-added Phase 0 release-hardening contract are implemented and tested.
+- The release report now reaches `ready_for_release_candidate_review` after release artifacts are built locally.
+- Generated outputs under `build/` and `dist/` are intentionally ignored and can be regenerated with `scripts/build_release_artifacts.sh`.
+- `.codex` remains untracked local scratch and was not committed.
+
+Validation state at commit:
+- Focused individual release suite: `8 passed in 0.49s`.
+- CLI help plus individual release suite: `9 passed in 0.57s`.
+- `scripts/run_fast_tests.sh`: `13 passed in 0.66s`.
+- `scripts/run_release_smoke.sh`: `8 passed in 0.53s`, plus demo lifecycle completed.
+- `scripts/run_packaging_smoke.sh`: metadata test `1 passed in 0.02s`; pip dry-run reported `Would install research-assistant-0.1.0`.
+- `scripts/build_release_artifacts.sh`: built wheel and artifact manifest.
+- `scripts/run_clean_install_smoke.sh`: fresh venv install and demo lifecycle completed.
+- `scripts/run_bounded_tests.sh`: `33 passed in 0.71s`.
+- Final focused sanity check: `9 passed in 0.52s`.
+
+Next safe step:
+- Push `main` if remote publication is desired, then run onboarding trial on at least one colleague-like machine before tagging a release.
