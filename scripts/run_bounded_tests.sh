@@ -8,6 +8,7 @@ cd "$ROOT"
 CMD=(
   python -m pytest
   tests/unit/test_schemas.py
+  tests/unit/test_full_scale_plan_contracts.py
   tests/unit/test_workspace_exports.py
   tests/unit/test_review.py
   tests/unit/test_discovery.py

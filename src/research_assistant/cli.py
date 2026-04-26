@@ -6,6 +6,14 @@ from pathlib import Path
 from research_assistant.adapters.workspace_exports import export_paper_context
 from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
+from research_assistant.industrial.full_scale import (
+    build_execution_readiness,
+    build_phase_registry,
+    build_usefulness_metrics,
+    get_phase_contract,
+    list_phase_contracts,
+    show_phase_registry,
+)
 from research_assistant.industrial.platform import (
     IMPLEMENTATION_LINK_RELATIONSHIPS,
     add_derivation_comment,
@@ -388,6 +396,23 @@ def cmd_industrial_readiness(args: argparse.Namespace) -> int:
     if args.readiness_action == 'show':
         return _print_json(show_readiness_report(args.report_id, root=root))
     raise SystemExit(f'unknown industrial-readiness action {args.readiness_action}')
+
+
+def cmd_full_scale_plan(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.full_scale_action == 'phases':
+        return _print_json(list_phase_contracts())
+    if args.full_scale_action == 'phase-show':
+        return _print_json(get_phase_contract(args.phase_id))
+    if args.full_scale_action == 'registry-build':
+        return _print_json(build_phase_registry(root=root))
+    if args.full_scale_action == 'registry-show':
+        return _print_json(show_phase_registry(root=root))
+    if args.full_scale_action == 'usefulness-build':
+        return _print_json(build_usefulness_metrics(root=root))
+    if args.full_scale_action == 'readiness-build':
+        return _print_json(build_execution_readiness(root=root))
+    raise SystemExit(f'unknown full-scale-plan action {args.full_scale_action}')
 
 
 def cmd_tool_contract(args: argparse.Namespace) -> int:
@@ -975,6 +1000,22 @@ def build_parser() -> argparse.ArgumentParser:
     readiness_show = readiness_sub.add_parser('show')
     readiness_show.add_argument('--report-id', required=True)
     readiness_show.set_defaults(func=cmd_industrial_readiness)
+
+    full_scale_plan = sub.add_parser('full-scale-plan')
+    full_scale_sub = full_scale_plan.add_subparsers(dest='full_scale_action', required=True)
+    full_scale_phases = full_scale_sub.add_parser('phases')
+    full_scale_phases.set_defaults(func=cmd_full_scale_plan)
+    full_scale_phase_show = full_scale_sub.add_parser('phase-show')
+    full_scale_phase_show.add_argument('--phase-id', required=True)
+    full_scale_phase_show.set_defaults(func=cmd_full_scale_plan)
+    full_scale_registry_build = full_scale_sub.add_parser('registry-build')
+    full_scale_registry_build.set_defaults(func=cmd_full_scale_plan)
+    full_scale_registry_show = full_scale_sub.add_parser('registry-show')
+    full_scale_registry_show.set_defaults(func=cmd_full_scale_plan)
+    full_scale_usefulness = full_scale_sub.add_parser('usefulness-build')
+    full_scale_usefulness.set_defaults(func=cmd_full_scale_plan)
+    full_scale_readiness = full_scale_sub.add_parser('readiness-build')
+    full_scale_readiness.set_defaults(func=cmd_full_scale_plan)
 
     tool_contract = sub.add_parser('tool-contract')
     tool_contract_sub = tool_contract.add_subparsers(dest='tool_contract_action', required=True)

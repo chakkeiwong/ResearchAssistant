@@ -107,6 +107,10 @@ def export_paper_context(output_path: Path | None = None, *, root: Path | None =
             "service_contracts": _artifact_family_payload(paths.service_contracts, store),
             "operations": _artifact_family_payload(paths.operations, store),
             "sops": _artifact_family_payload(paths.sops, store),
+            "full_scale_planning": [
+                artifact for artifact in _artifact_family_payload(paths.governance, store)
+                if str(artifact.get("artifact_type") or "").startswith("industrial_full_scale_")
+            ],
         },
         "dashboard_contract": {
             "schema_version": "industrial-platform-v1",
@@ -126,6 +130,7 @@ def export_paper_context(output_path: Path | None = None, *, root: Path | None =
                 "service_contracts",
                 "operations",
                 "sops",
+                "full_scale_planning",
             ],
         },
     }, indent=2, sort_keys=True))

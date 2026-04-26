@@ -534,3 +534,65 @@ def test_industrial_validation_index_readiness_and_dashboard(tmp_path: Path, cap
     assert dashboard['validation_summary']['status'] == 'blocked'
     assert dashboard['readiness_summary']['status'] == 'blocked'
     assert dashboard['next_actions']
+
+
+def test_full_scale_plan_registry_usefulness_and_export(tmp_path: Path, capsys) -> None:
+    _write_summary(tmp_path)
+
+    rc = main(['--root', str(tmp_path), 'full-scale-plan', 'phases'])
+    phases = _json_out(capsys)
+    assert rc == 0
+    assert len(phases) == 16
+    assert phases[0]['phase_id'] == 'phase_00_architecture_baseline'
+    assert phases[-1]['phase_id'] == 'phase_15_scalable_ingestion'
+    assert any(phase['milestone_status'] == 'blocked_for_governed_integration' for phase in phases)
+
+    rc = main([
+        '--root', str(tmp_path), 'full-scale-plan', 'phase-show',
+        '--phase-id', 'phase_01_production_storage',
+    ])
+    storage_phase = _json_out(capsys)
+    assert rc == 0
+    assert storage_phase['subsystem'] == 'storage'
+    assert storage_phase['tests']
+    assert storage_phase['usefulness_verification']
+
+    rc = main(['--root', str(tmp_path), 'full-scale-plan', 'registry-build'])
+    registry = _json_out(capsys)
+    assert rc == 0
+    assert registry['artifact_type'] == 'industrial_full_scale_phase_registry'
+    assert registry['phase_count'] == 16
+    assert registry['blocked_for_governed_integration_count'] >= 1
+    assert registry['requires_human_review'] is True
+
+    rc = main(['--root', str(tmp_path), 'full-scale-plan', 'usefulness-build'])
+    usefulness = _json_out(capsys)
+    assert rc == 0
+    assert usefulness['artifact_type'] == 'industrial_full_scale_usefulness_metrics'
+    assert any(metric['metric_id'] == 'paper_triage_time' for metric in usefulness['metrics'])
+    assert usefulness['requires_baseline_collection'] is True
+
+    rc = main(['--root', str(tmp_path), 'full-scale-plan', 'readiness-build'])
+    readiness = _json_out(capsys)
+    assert rc == 0
+    assert readiness['artifact_type'] == 'industrial_full_scale_execution_readiness'
+    assert readiness['status'] == 'blocked_for_governed_integration'
+    assert readiness['ready_for_m0_contract_execution'] is True
+    assert readiness['ready_for_m2_governed_integration'] is False
+
+    rc = main(['--root', str(tmp_path), 'tool-contract', 'export'])
+    contract = _json_out(capsys)
+    assert rc == 0
+    commands = {row['command'] for row in contract['commands']}
+    assert 'full-scale-plan' in commands
+
+    out = tmp_path / 'context.json'
+    rc = main(['--root', str(tmp_path), 'export-context', '--output', str(out)])
+    assert rc == 0
+    capsys.readouterr()
+    exported = json.loads(out.read_text())
+    planning = exported['industrial_library_artifacts']['full_scale_planning']
+    artifact_types = {artifact['artifact_type'] for artifact in planning}
+    assert 'industrial_full_scale_phase_registry' in artifact_types
+    assert 'industrial_full_scale_usefulness_metrics' in artifact_types
+    assert 'industrial_full_scale_execution_readiness' in artifact_types

@@ -386,3 +386,86 @@ Final checkpoint:
 
 Next safe step:
 - Future work can use `scripts/run_fast_tests.sh` for quick validation and `scripts/run_bounded_tests.sh` for the broader bounded deterministic subset before attempting any longer suite.
+
+
+## Update — full-scale department platform plan written
+
+New planning artifact:
+- `docs/plans/industrial_full_scale_department_platform_plan_2026-04-27.md`
+
+Purpose:
+- Provides explicit implementation instructions for taking the current local industrial platform toward a fully industrial departmental tool.
+- Covers Phase 0 architecture control plus 15 implementation phases: production storage, collaboration, UI, search/knowledge graph, parser benchmarks, derivations, experiment execution, paper-to-code verification, LLM governance, security/compliance/ops, orchestration, CI/CD and observability, domain expert packs, SOP enforcement, and scalable ingestion.
+- Each phase includes implementation instructions, tests, usefulness verification, and acceptance criteria.
+
+Tests run:
+- Not run; this update is a planning/documentation change.
+
+Next safe step:
+- If executing this plan, start with Phase 0 architecture baseline and ADRs before selecting production storage, auth, UI, or orchestration technologies.
+
+
+## Update — full-scale department platform execution started
+
+New objective:
+- Audit `docs/plans/industrial_full_scale_department_platform_plan_2026-04-27.md`, tighten it where needed, and execute every phase with a conservative local-first implementation pass.
+
+Execution boundary:
+- This pass will implement deterministic architecture docs, ADRs, phase contracts, local backend/CLI scaffolds, tests, usefulness checks, and validation gates for all phases.
+- It will not claim live production deployment, real SSO/RBAC, live LLM/provider access, production secrets management, concurrent server infrastructure, or policy-owner approval where those require external decisions.
+- Every generated artifact remains review material unless an explicit human approval workflow accepts it.
+
+Current phase:
+- Plan audit and modification.
+
+Files touched so far:
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run:
+- Not yet run for this execution pass.
+
+Next safe step:
+- Audit and modify the full-scale plan, then implement the phase-contract layer across all phases with bounded validation.
+
+
+## Update — full-scale phase-contract implementation completed
+
+Plan audit and modifications:
+- Added an audit-driven section to `docs/plans/industrial_full_scale_department_platform_plan_2026-04-27.md`.
+- The plan now distinguishes M0 contracts, M1 local deterministic implementation, M2 governed integration, and M3 production deployment.
+- Added explicit stop conditions for phases that require production storage decisions, SSO/RBAC, live providers, deployment, credentials, or department policy approval.
+
+Phase execution notes:
+- Phase 0: added architecture baseline and ADR control documents under `docs/architecture/`.
+- Phase 1: added production storage contract metadata and storage ADR; real SQLite implementation remains a governed/local implementation follow-up.
+- Phase 2: added collaboration/RBAC contract metadata and identity ADR; real production identity remains blocked for governed integration.
+- Phase 3: added UI/API contract metadata and deployment ADR; real UI/server deployment remains blocked for governed integration.
+- Phase 4: added search/knowledge graph contract metadata and indexing ADR.
+- Phase 5: added parser/source benchmark contract metadata.
+- Phase 6: added deep derivation contract metadata.
+- Phase 7: added experiment execution/reproducibility contract metadata.
+- Phase 8: added paper-to-code verification contract metadata.
+- Phase 9: added LLM governance contract metadata and provider-policy ADR; live provider calls remain blocked.
+- Phase 10: added security/compliance/ops contract metadata; real policy enforcement requires department approval.
+- Phase 11: added workflow orchestration contract metadata and background-jobs ADR.
+- Phase 12: added CI/CD and observability contract metadata.
+- Phase 13: added domain expert pack contract metadata.
+- Phase 14: added SOP enforcement contract metadata; approval enforcement depends on RBAC and security policy.
+- Phase 15: added scalable ingestion contract metadata.
+
+Implementation completed:
+- Added machine-readable phase contracts in `src/research_assistant/industrial/full_scale.py`.
+- Added `ra full-scale-plan phases`, `phase-show`, `registry-build`, `registry-show`, `usefulness-build`, and `readiness-build`.
+- Added export visibility for full-scale planning artifacts.
+- Added tests for architecture docs, ADR presence, phase contract completeness, governed stop conditions, CLI surfaces, usefulness metrics, execution readiness, and export preservation.
+
+Tests run:
+- Focused full-scale contract suite: `13 passed in 0.58s`.
+- Fast bounded script after script update: `13 passed in 0.59s`.
+- Broad bounded script after script update: `33 passed in 0.67s`.
+
+Remaining risks:
+- This pass executes M0 for all phases and safe local planning artifacts. It does not complete M2/M3 production storage, SSO/RBAC, live LLM access, UI deployment, or department security policy approval.
+
+Next safe step:
+- Commit the full-scale phase-contract implementation, then record the commit hash.
