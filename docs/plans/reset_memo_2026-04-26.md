@@ -587,3 +587,23 @@ Remaining risks:
 
 Next safe step:
 - Stage the ignored individual release plan with `git add -f`, commit the release slice, then record the commit hash here.
+
+
+## Update — individual colleague release implementation committed
+
+Commit completed:
+- `58ca98f Add individual release lifecycle commands`
+
+Final checkpoint:
+- The individual-install release slice has a coherent local lifecycle: initialize, configure, validate, diagnose, demo, backup, privacy check, timeout diagnostic, personal-corpus smoke, release report, docs, and bounded validation scripts.
+- `docs/plans/individual_colleague_release_plan_2026-04-27.md` was force-staged because `docs/plans/` is ignored by `.gitignore`.
+- Scratch/local generated state such as `.codex`, `.pytest_cache/`, local demo workspaces, and ignored `local_research/` artifacts was not committed.
+
+Validation state for the committed implementation:
+- `tests/integration/test_individual_release_cli.py`: `6 passed in 0.27s`.
+- `scripts/run_release_smoke.sh`: `6 passed in 0.27s`, plus demo setup/run/release-report completed.
+- `scripts/run_packaging_smoke.sh`: metadata test `1 passed in 0.02s`; offline pip dry-run with `--no-build-isolation` reported `Would install research-assistant-0.1.0`.
+- `scripts/run_bounded_tests.sh`: `33 passed in 0.72s`.
+
+Next safe step:
+- Optionally test a clean install in a fresh virtual environment on a colleague-like machine and run `ra --root /tmp/research-assistant-demo demo setup`, `ra --root /tmp/research-assistant-demo demo run`, and `ra --root /tmp/research-assistant-demo release-report`.
