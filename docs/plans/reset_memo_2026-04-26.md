@@ -724,3 +724,136 @@ Validation state at commit:
 
 Next safe step:
 - Push `main` if remote publication is desired, then run onboarding trial on at least one colleague-like machine before tagging a release.
+
+
+## Update — individual colleague rollout execution started
+
+New objective:
+- Execute `docs/plans/individual_release_colleague_rollout_plan_2026-04-27.md` with the requested release-manager loop: update reset memo, audit as another developer, execute each phase with bounded testing, tidy, commit, push, and record completion.
+
+Plan audit as another developer:
+- The plan is correctly scoped to private individual local installs, not a shared industrial platform.
+- The phases cover the remaining release blockers: human onboarding, platform signoff, optional parser-tool variability, medium-corpus rehearsal, backup/restore, artifact/install decision, release notes/version/tag decision, support boundary, and final gate.
+- Modification made during audit: autonomous execution on this machine cannot honestly complete a real colleague trial, macOS validation, native Windows validation, or another-machine missing-tool trial. This pass will run the strongest local substitutes, update docs/code so the release gate is conservative, and record those items as pilot-release limitations rather than broad-release claims.
+- Additional audit finding: the clean-install smoke should run installed `ra` from a temporary directory after installation, so `release-report` does not see source-checkout docs/scripts by accident. The script was corrected before final validation.
+- Additional audit finding: concrete support instructions and filled release notes should be part of the release gate, not only a template.
+
+Phase execution status:
+- Phase 1 started. Fresh colleague onboarding cannot be performed by an actual colleague in this autonomous environment; local clean-install and onboarding-report substitutes will be run, and the limitation will remain explicit.
+- Phase 2 started. Current available platform is Linux/WSL2 with Python 3.11.14; macOS and native Windows are not validated here.
+- Phase 3 started. Current machine has all optional parser tools available; a real missing-tool environment is unavailable, so the existing workflow matrix/tests will stand as local coverage and the limitation is documented.
+
+Files touched so far:
+- `src/research_assistant/individual_release.py`
+- `scripts/run_clean_install_smoke.sh`
+- `docs/installation.md`
+- `docs/quickstart.md`
+- `docs/troubleshooting.md`
+- `docs/platform_support.md`
+- `docs/known_limitations.md`
+- `docs/onboarding_trial.md`
+- `docs/release_checklist.md`
+- `docs/release_notes_template.md`
+- `docs/support.md`
+- `docs/release_notes_0.1.0.md`
+- `.github/ISSUE_TEMPLATE/individual_release_bug.md`
+- `tests/integration/test_individual_release_cli.py`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run for this rollout pass:
+- `ra version`: package `0.1.0`, Python `3.11.14`.
+- `ra platform-status`: Linux/WSL2 probe returned `status: ok` before the WSL labeling tweak.
+
+Next safe step:
+- Run focused tests and the phase validations under `timeout`, then update this memo phase by phase with concise results and limitations.
+
+
+## Update — individual colleague rollout execution completed
+
+Phase summary:
+- Phase 1 Fresh Colleague Onboarding Trial:
+  - Local substitute completed with clean install from the built wheel in a fresh virtual environment.
+  - `scripts/run_clean_install_smoke.sh` now installs the wheel from `dist/` when present and runs installed `ra` from a temporary directory, so source-checkout files are not accidentally visible.
+  - Real fresh colleague trial remains required before broad non-pilot rollout.
+- Phase 2 Platform Signoff:
+  - Current validation platform: Linux/WSL2, `x86_64`, Python `3.11.14`, POSIX shell scripts available.
+  - `ra platform-status` now labels this environment as `tier_1_linux_wsl`.
+  - macOS and native Windows were not validated in this autonomous pass.
+- Phase 3 Optional Parser Tool Variability Trial:
+  - Current machine reports `pdftotext`, `markitdown`, `marker_single`, and `magic-pdf` available.
+  - `ra doctor --matrix`, `ra parser-tool-matrix`, and `ra parser-benchmark-smoke` passed locally.
+  - A real missing-tool machine was not available; limitation remains documented.
+- Phase 4 Realistic Personal Corpus Rehearsal:
+  - `ra --root /tmp/ra-perf-1000 performance smoke --synthetic-count 1000 --include-industrial-artifacts --include-export --include-backup --timeout-seconds 600` completed with `status: ok`.
+  - Timings: validation `0.104516s`, artifact index `0.281222s`, export `20.791285s`, backup `1.265738s`.
+  - Backup size: `685219` bytes.
+  - This remains synthetic evidence, not certification for real personal libraries.
+- Phase 5 Backup And Restore Rehearsal:
+  - Demo source backup produced `/tmp/ra-rollout-restore-source/local_research/exports/backups/research_assistant_backup_20260426T203608Z.tar.gz`.
+  - Fresh restore into `/tmp/ra-rollout-restore-target-2038` restored 13 files and then initialized missing empty workspace directories.
+  - Restored workspace validation returned `status: ok`.
+  - Repeat restore without `--allow-overwrite` blocked with `overwrite_not_allowed`.
+  - Repeat restore with `--allow-overwrite` succeeded and created a safety backup.
+  - Implementation hardening added `post_restore_workspace_init` to successful restore reports.
+- Phase 6 Release Artifact And Install Path Decision:
+  - Primary colleague install path is the wheel from the release artifact; source checkout remains the developer fallback.
+  - `scripts/build_release_artifacts.sh` now probes `python -m build --version` before using `python -m build`, otherwise falling back to `pip wheel --no-build-isolation`.
+  - Final local artifact: `research_assistant-0.1.0-py3-none-any.whl`, SHA256 `3afb9c23fc19b14e856caf2aba401b7e5d9018233f88198457e8f5aa56cdf2cf`.
+- Phase 7 Release Notes, Version, And Tag Decision:
+  - Version remains `0.1.0`.
+  - Concrete release notes written to `docs/release_notes_0.1.0.md`.
+  - No tag was created because the user requested commit/push, not tag creation.
+- Phase 8 Support Boundary And Issue Template:
+  - Added `docs/support.md`.
+  - Added `.github/ISSUE_TEMPLATE/individual_release_bug.md`.
+  - Linked support guidance from install, quickstart, troubleshooting, onboarding, and release notes.
+- Phase 9 Final Release Gate:
+  - Final source-checkout release report on initialized `/tmp/research-assistant-final-release` returned `ready_for_release_candidate_review` with no warnings.
+  - The final gate now initializes the disposable final root before `release-report`; the rollout plan and release checklist were corrected accordingly.
+
+Independent developer audit after execution:
+- Verified release claims remain local/private and do not imply shared-server, SSO/RBAC, live collaboration, distributed worker, or default live provider support.
+- Verified generated artifacts remain review material.
+- Verified installed-package `release-report` reports source docs/scripts/fixtures as warnings instead of blockers; source-checkout release gates still require docs, scripts, fixture smoke, artifact manifest, and version consistency.
+- Verified restore is explicit-confirmation only, overwrite requires `--allow-overwrite`, and safety backup is reported.
+- Verified build outputs under `dist/` and local workspaces under `/tmp` are not intended for Git.
+
+Validation completed in this rollout pass:
+- Focused individual release suite: `8 passed in 0.52s`.
+- Backup/restore focused regression after restore hardening: `1 passed in 0.17s`.
+- `scripts/run_fast_tests.sh`: `13 passed in 0.65s`.
+- `scripts/run_bounded_tests.sh`: `33 passed in 0.68s`.
+- `scripts/run_packaging_smoke.sh`: metadata test `1 passed in 0.02s`; pip dry-run reported `Would install research-assistant-0.1.0`.
+- `scripts/build_release_artifacts.sh`: built final wheel and manifest with SHA256 `3afb9c23fc19b14e856caf2aba401b7e5d9018233f88198457e8f5aa56cdf2cf`.
+- `scripts/run_clean_install_smoke.sh`: installed the built wheel in a fresh venv; help/version/init/doctor/demo setup/demo run/release-report completed.
+- `scripts/run_release_smoke.sh`: release suite `8 passed in 0.49s`; demo setup/run completed; source-checkout `release-report` returned `ready_for_release_candidate_review`.
+- `ra --root /tmp/research-assistant-final-release init` followed by `ra --root /tmp/research-assistant-final-release release-report`: final report returned `ready_for_release_candidate_review` with no warnings.
+
+Files touched:
+- `.github/ISSUE_TEMPLATE/individual_release_bug.md`
+- `docs/installation.md`
+- `docs/known_limitations.md`
+- `docs/onboarding_trial.md`
+- `docs/platform_support.md`
+- `docs/quickstart.md`
+- `docs/release_checklist.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/release_notes_template.md`
+- `docs/support.md`
+- `docs/troubleshooting.md`
+- `docs/plans/individual_release_colleague_rollout_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `scripts/build_release_artifacts.sh`
+- `scripts/run_clean_install_smoke.sh`
+- `src/research_assistant/individual_release.py`
+- `tests/integration/test_individual_release_cli.py`
+
+Remaining risks:
+- A real colleague has not yet completed the onboarding trial.
+- macOS has not been validated.
+- Native Windows is not supported; Windows colleagues should use WSL.
+- Missing optional parser-tool behavior is represented through matrix/reporting and existing tests, but this pass did not run on a genuinely minimal parser-tool environment.
+- The release candidate is ready for pilot colleague rollout, not broad unqualified departmental release.
+
+Next safe step:
+- Commit these rollout hardening/docs changes, force-staging the ignored plan/reset memo files, then push `main`.

@@ -14,6 +14,15 @@ YYYY-MM-DD
 - Source distribution:
 - SHA256 hashes:
 
+Primary colleague install path:
+
+```bash
+python -m pip install research_assistant-X.Y.Z-py3-none-any.whl
+ra version
+ra --root ~/research-assistant-workspace init
+ra --root ~/research-assistant-workspace doctor
+```
+
 ## Supported Platforms
 
 - Linux:
@@ -43,3 +52,7 @@ ra backup create
 ## Known Limitations
 
 See `docs/known_limitations.md`.
+
+## Support
+
+See `docs/support.md`. Do not share private papers, `local_research/`, backup archives, credentials, provider keys, or private paper content in bug reports.

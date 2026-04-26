@@ -5,9 +5,12 @@ Run these bounded checks before sending a release candidate to colleagues:
 ```bash
 scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
-scripts/run_release_smoke.sh
 scripts/run_packaging_smoke.sh
+scripts/build_release_artifacts.sh
 scripts/run_clean_install_smoke.sh
+scripts/run_release_smoke.sh
+ra --root /tmp/research-assistant-final-release init
+ra --root /tmp/research-assistant-final-release release-report
 ```
 
 Release gates:
@@ -25,3 +28,5 @@ Release gates:
 - `ra platform-status` matches `docs/platform_support.md`;
 - generated artifacts are review material and not accepted mathematical conclusions;
 - known limitations are included in `ra release-report`.
+- release notes and support instructions are present;
+- any unvalidated platform or human onboarding trial is recorded as a pilot limitation rather than broad support.

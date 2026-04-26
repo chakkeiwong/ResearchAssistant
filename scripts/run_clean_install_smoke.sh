@@ -9,6 +9,7 @@ KEEP_TMP="${KEEP_TMP:-0}"
 TMP_DIR="$(mktemp -d "${TMP_PARENT%/}/research-assistant-clean-install.XXXXXX")"
 VENV_DIR="${TMP_DIR}/venv"
 WORKSPACE="${TMP_DIR}/workspace"
+DIST_DIR="${DIST_DIR:-${ROOT}/dist}"
 
 cleanup() {
   if [[ "${KEEP_TMP}" != "1" ]]; then
@@ -26,8 +27,22 @@ timeout "${TIMEOUT_SECONDS}s" python -m venv "${VENV_DIR}"
 PYTHON="${VENV_DIR}/bin/python"
 RA="${VENV_DIR}/bin/ra"
 
-echo "timeout ${TIMEOUT_SECONDS}s ${PYTHON} -m pip install --no-build-isolation ${ROOT}"
-timeout "${TIMEOUT_SECONDS}s" "${PYTHON}" -m pip install --no-build-isolation "${ROOT}"
+WHEEL=""
+if [[ -d "${DIST_DIR}" ]]; then
+  WHEEL="$(find "${DIST_DIR}" -maxdepth 1 -type f -name 'research_assistant-*.whl' | sort | tail -n 1 || true)"
+fi
+if [[ -n "${WHEEL}" ]]; then
+  INSTALL_TARGET="${WHEEL}"
+  INSTALL_FLAGS=()
+else
+  INSTALL_TARGET="${ROOT}"
+  INSTALL_FLAGS=(--no-build-isolation)
+fi
+
+echo "timeout ${TIMEOUT_SECONDS}s ${PYTHON} -m pip install ${INSTALL_FLAGS[*]} ${INSTALL_TARGET}"
+timeout "${TIMEOUT_SECONDS}s" "${PYTHON}" -m pip install "${INSTALL_FLAGS[@]}" "${INSTALL_TARGET}"
+
+cd "${TMP_DIR}"
 
 echo "timeout ${TIMEOUT_SECONDS}s ${RA} --help"
 timeout "${TIMEOUT_SECONDS}s" "${RA}" --help >/dev/null

@@ -27,7 +27,10 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert Path("docs/onboarding_trial.md").exists()
     assert Path("docs/known_limitations.md").exists()
     assert Path("docs/platform_support.md").exists()
+    assert Path("docs/support.md").exists()
+    assert Path("docs/release_notes_0.1.0.md").exists()
     assert Path("docs/release_notes_template.md").exists()
+    assert Path(".github/ISSUE_TEMPLATE/individual_release_bug.md").exists()
 
 
 def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, capsys) -> None:
@@ -124,6 +127,7 @@ def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, caps
     assert rc == 0
     assert platform["python_executable"]
     assert platform["support_tier"]
+    assert "is_wsl" in platform
 
 
 def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> None:
@@ -172,6 +176,7 @@ def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> No
     assert rc == 0
     assert restored_real["status"] == "restored"
     assert restored_real["restored_file_count"] >= 2
+    assert restored_real["post_restore_workspace_init"]["status"] in {"initialized", "already_initialized"}
     assert (target / "local_research" / "analysis" / "notes.json").exists()
 
     rc = main([
@@ -235,6 +240,7 @@ def test_demo_setup_run_clean_and_release_report(tmp_path: Path, capsys) -> None
     assert report["privacy"]["network_required_for_default_workflows"] is False
     assert all(row["exists"] for row in report["docs"])
     assert all(row["exists"] for row in report["scripts"])
+    assert report["release_material_mode"] == "source_checkout"
     assert report["version_consistency"]["status"] == "ok"
     assert report["corruption_hardening"]["status"] == "ok"
 
@@ -315,6 +321,7 @@ def test_release_artifacts_onboarding_and_corruption_checks(tmp_path: Path, caps
     assert rc == 0
     assert onboarding["status"] == "ready_for_trial"
     assert "run demo run" in onboarding["checklist"]
+    assert "restore backup dry-run" in onboarding["checklist"]
 
     main(["--root", str(tmp_path), "init"])
     capsys.readouterr()

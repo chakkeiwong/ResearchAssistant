@@ -376,6 +376,7 @@ scripts/run_packaging_smoke.sh
 scripts/build_release_artifacts.sh
 scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
+ra --root /tmp/research-assistant-final-release init
 ra --root /tmp/research-assistant-final-release release-report
 ```
 

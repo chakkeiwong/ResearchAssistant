@@ -24,8 +24,12 @@ ra --root /tmp/research-assistant-onboarding demo setup
 ra --root /tmp/research-assistant-onboarding demo run
 ra --root /tmp/research-assistant-onboarding release-report
 ra --root /tmp/research-assistant-onboarding backup create
+ra --root /tmp/research-assistant-onboarding backup inspect --path <backup-path>
+ra --root /tmp/research-assistant-restore-check backup restore --path <backup-path>
 ra --root /tmp/research-assistant-onboarding privacy status
 ```
+
+Share only the metadata above and non-private command statuses. Do not share private PDFs, source files, notes, `local_research/`, backup archives, credentials, provider keys, or private paper content. See `docs/support.md`.
 
 ## Feedback
 

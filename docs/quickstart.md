@@ -28,3 +28,7 @@ ra --root ~/research-assistant-workspace show --paper-id paper_example
 ```
 
 Generated derivations, synthesis, graph reports, benchmark reports, and readiness records are review material. They do not certify mathematical correctness.
+
+## Get Help Safely
+
+If something fails, run diagnostics on the demo or an empty workspace first and share only non-private output. See `docs/support.md` for the support checklist and private-data boundary.

@@ -2,34 +2,38 @@
 
 This release target is for one colleague using one private local workspace. It does not require a server, SSO, shared database, or live LLM provider.
 
-## Developer Install
+## Primary Colleague Install From A Wheel
+
+The recommended release path for colleagues is a wheel attached to the release candidate:
 
 ```bash
-python -m pip install -e .
-ra --help
+python -m pip install research_assistant-0.1.0-py3-none-any.whl
 ra version
+ra --root ~/research-assistant-workspace init
+ra --root ~/research-assistant-workspace doctor
 ```
 
-## User Install From A Checkout
+The maintainer builds the wheel and manifest with:
+
+```bash
+scripts/build_release_artifacts.sh
+```
+
+The release artifact manifest is written to `dist/release_artifacts_manifest.json` and includes SHA256 hashes. Build outputs are regenerated for release and are not committed to Git.
+
+## Developer Install From A Checkout
 
 ```bash
 python -m pip install .
 ra --help
-ra init
-ra doctor
-```
-
-## Install From A Wheel
-
-After a maintainer builds release artifacts:
-
-```bash
-scripts/build_release_artifacts.sh
-python -m pip install dist/research_assistant-0.1.0-py3-none-any.whl
 ra version
 ```
 
-The release artifact manifest is written to `dist/release_artifacts_manifest.json` and includes SHA256 hashes.
+For active development:
+
+```bash
+python -m pip install -e .
+```
 
 ## Clean Install Smoke
 
@@ -50,3 +54,5 @@ ra privacy status
 ```
 
 Local files are written under `local_research/` and `.research-assistant/` in the selected root. Use `--root /path/to/workspace` to keep a workspace outside the source checkout.
+
+For support and safe diagnostic sharing, see `docs/support.md`.

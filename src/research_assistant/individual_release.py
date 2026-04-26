@@ -73,7 +73,10 @@ RELEASE_DOCS = [
     "docs/onboarding_trial.md",
     "docs/known_limitations.md",
     "docs/platform_support.md",
+    "docs/support.md",
+    "docs/release_notes_0.1.0.md",
     "docs/release_notes_template.md",
+    ".github/ISSUE_TEMPLATE/individual_release_bug.md",
 ]
 
 RELEASE_SCRIPTS = [
@@ -311,16 +314,23 @@ def version_consistency(*, release_root: Path | None = None) -> dict[str, Any]:
     changelog_path = root / "CHANGELOG.md"
     pyproject_version = None
     script_entry = None
-    try:
-        pyproject = tomllib.loads(pyproject_path.read_text())
-        pyproject_version = pyproject.get("project", {}).get("version")
-        script_entry = pyproject.get("project", {}).get("scripts", {}).get("ra")
-    except (OSError, tomllib.TOMLDecodeError) as exc:
-        issues.append({"severity": "blocker", "code": "pyproject_unreadable", "message": str(exc)})
-    if pyproject_version != __version__:
-        issues.append({"severity": "blocker", "code": "version_mismatch", "pyproject": pyproject_version, "package": __version__})
-    if script_entry != "research_assistant.cli:main":
-        issues.append({"severity": "blocker", "code": "ra_entrypoint_missing", "entry": script_entry})
+    if pyproject_path.exists():
+        try:
+            pyproject = tomllib.loads(pyproject_path.read_text())
+            pyproject_version = pyproject.get("project", {}).get("version")
+            script_entry = pyproject.get("project", {}).get("scripts", {}).get("ra")
+        except tomllib.TOMLDecodeError as exc:
+            issues.append({"severity": "blocker", "code": "pyproject_unreadable", "message": str(exc)})
+        if pyproject_version != __version__:
+            issues.append({"severity": "blocker", "code": "version_mismatch", "pyproject": pyproject_version, "package": __version__})
+        if script_entry != "research_assistant.cli:main":
+            issues.append({"severity": "blocker", "code": "ra_entrypoint_missing", "entry": script_entry})
+    else:
+        issues.append({
+            "severity": "warning",
+            "code": "pyproject_not_available",
+            "message": "pyproject.toml is not available from this installed-package context; package version is reported from the installed module.",
+        })
     changelog_text = changelog_path.read_text() if changelog_path.exists() else ""
     if f"## {__version__}" not in changelog_text:
         issues.append({"severity": "warning", "code": "changelog_missing_version", "version": __version__})
@@ -332,6 +342,7 @@ def version_consistency(*, release_root: Path | None = None) -> dict[str, Any]:
         "pyproject_version": pyproject_version,
         "ra_entrypoint": script_entry,
         "changelog_has_version": f"## {__version__}" in changelog_text,
+        "release_material_root": str(root),
         "issues": issues,
     }
 
@@ -771,6 +782,7 @@ def restore_backup(
             tmp.replace(target)
             restored.append(rel_path)
 
+    post_restore_init = init_workspace(root=paths.root)
     report = {
         **base_report,
         "status": "restored",
@@ -781,6 +793,7 @@ def restore_backup(
         "restored_files": restored[:50],
         "skipped_files": skipped[:50],
         "hash_validation_status": inspection["status"],
+        "post_restore_workspace_init": post_restore_init,
         "warnings": [],
     }
     report_path = paths.exports / "restore_reports" / f"restore_report_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
@@ -867,17 +880,25 @@ def parser_benchmark_smoke(*, root: Path | None = None) -> dict[str, Any]:
         })
     blockers = [row for row in rows if row["status"] == "blocked"]
     warnings = [row for row in rows if row["status"] == "warnings"]
+    if not rows:
+        warnings.append({"code": "parser_benchmark_fixtures_missing", "fixture_dir": str(fixture_dir)})
     return {
         "status": "blocked" if blockers else ("warnings" if warnings else "ok"),
         "fixture_count": len(rows),
         "fixtures": rows,
+        "warnings": warnings,
         "requires_human_review": True,
     }
 
 
 def platform_status(*, root: Path | None = None) -> dict[str, Any]:
     system = platform.system()
-    if system == "Linux":
+    release = platform.release()
+    release_lower = release.lower()
+    is_wsl = system == "Linux" and ("microsoft" in release_lower or "wsl" in release_lower)
+    if is_wsl:
+        support_tier = "tier_1_linux_wsl"
+    elif system == "Linux":
         support_tier = "tier_1_linux"
     elif system == "Darwin":
         support_tier = "tier_2_macos"
@@ -888,12 +909,13 @@ def platform_status(*, root: Path | None = None) -> dict[str, Any]:
     return {
         "status": "warnings" if support_tier in {"tier_3_windows_native_untested", "untested"} else "ok",
         "system": system,
-        "release": platform.release(),
+        "release": release,
         "machine": platform.machine(),
+        "is_wsl": is_wsl,
         "python_executable": sys.executable,
         "python_version": platform.python_version(),
         "support_tier": support_tier,
-        "posix_shell_scripts": system in {"Linux", "Darwin"} or "microsoft" in platform.release().lower(),
+        "posix_shell_scripts": system in {"Linux", "Darwin"} or is_wsl,
         "workspace_root": str(get_paths(root).root),
         "limitations": ["Platform status is local detection; cross-platform release signoff still requires manual validation."],
     }
@@ -1144,6 +1166,7 @@ def onboarding_report(*, release_root: Path | None = None) -> dict[str, Any]:
         "inspect release report",
         "create backup",
         "inspect backup",
+        "restore backup dry-run",
         "run privacy status",
         "optional local PDF ingest",
     ]
@@ -1191,15 +1214,22 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
     corruption = corruption_hardening_status(root=paths.root)
     doc_rows = [{"path": path, "exists": (release_root / path).exists()} for path in RELEASE_DOCS]
     script_rows = [{"path": path, "exists": (release_root / path).exists(), "executable": os.access(release_root / path, os.X_OK)} for path in RELEASE_SCRIPTS]
+    source_checkout_materials = (release_root / "pyproject.toml").exists() and (release_root / "docs").exists()
     blockers = []
     warnings = []
     missing_docs = [row["path"] for row in doc_rows if not row["exists"]]
     missing_scripts = [row["path"] for row in script_rows if not row["exists"]]
     non_executable_scripts = [row["path"] for row in script_rows if row["exists"] and not row["executable"]]
     if missing_docs:
-        blockers.append({"code": "missing_release_docs", "paths": missing_docs})
+        if source_checkout_materials:
+            blockers.append({"code": "missing_release_docs", "paths": missing_docs})
+        else:
+            warnings.append({"code": "release_docs_not_available_from_installed_context", "paths": missing_docs})
     if missing_scripts:
-        blockers.append({"code": "missing_release_scripts", "paths": missing_scripts})
+        if source_checkout_materials:
+            blockers.append({"code": "missing_release_scripts", "paths": missing_scripts})
+        else:
+            warnings.append({"code": "release_scripts_not_available_from_installed_context", "paths": missing_scripts})
     if non_executable_scripts:
         blockers.append({"code": "release_scripts_not_executable", "paths": non_executable_scripts})
     if workspace["status"] == "blocked":
@@ -1240,6 +1270,7 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         "onboarding": onboarding,
         "corruption_hardening": corruption,
         "release_material_root": str(release_root),
+        "release_material_mode": "source_checkout" if source_checkout_materials else "installed_package_or_workspace",
         "docs": doc_rows,
         "scripts": script_rows,
         "blockers": blockers,

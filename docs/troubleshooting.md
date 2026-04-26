@@ -1,5 +1,7 @@
 # Troubleshooting
 
+For help requests, share diagnostics rather than research data. The support checklist is in `docs/support.md`.
+
 ## Check The Install
 
 ```bash
@@ -27,7 +29,7 @@ ra backup inspect --path local_research/exports/backups/backup.tar.gz
 ra backup restore --path local_research/exports/backups/backup.tar.gz
 ```
 
-Restore is dry-run only in this release slice, so it reports files that would be overwritten without changing them.
+Restore defaults to dry-run, so it reports files that would be overwritten without changing them.
 
 ## Parser Problems
 
