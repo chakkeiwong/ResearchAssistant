@@ -60,7 +60,9 @@ ra download-paper --query "transport maps hmc"
 ra inbox-list
 ra inbox-show --proposed-name candidate_paper.pdf
 ra export-context --review-status approved --output /tmp/paper_context.json
-ra parser-preflight
+ra doctor --matrix
+ra parser-tool-matrix
+ra parser-benchmark-smoke
 ra parse-pdf --pdf /path/to/paper.pdf
 ```
 
@@ -70,7 +72,7 @@ For a colleague-facing individual install path, start with [docs/installation.md
 
 Use the tool as a conservative ingest/review/export workflow rather than a full equation or bibliography extractor.
 
-- `ra show`, `ra discover`, `ra citation-neighborhood`, `ra review-show`, `ra review-mark`, `ra parse-pdf`, and `ra parser-preflight` return JSON.
+- `ra show`, `ra discover`, `ra citation-neighborhood`, `ra review-show`, `ra review-mark`, `ra parse-pdf`, `ra doctor --matrix`, `ra parser-tool-matrix`, and `ra parser-benchmark-smoke` return JSON.
 - `ra find`, `ra review-list`, and `ra inbox-list` return tabular output by default.
 - `ra export-context` writes a JSON file for downstream coding or writing workflows.
 
@@ -86,7 +88,7 @@ Current extraction posture:
 - arXiv LaTeX source is primary when available and is stored under `local_research/papers/source/`;
 - `ra source-fetch` caches source artifacts and extracts sections, equations, theorem-like blocks, labels, citations, bibliography entries, and macros;
 - `ra show` separates `source_extraction` from PDF/parser `extraction` and human `technical_audit` notes;
-- `ra parser-preflight` reports availability and capability limits for each PDF parser;
+- `ra doctor --matrix`, `ra parser-tool-matrix`, and `ra parser-benchmark-smoke` report parser/tool availability, workflow readiness, fixture smoke status, and capability limits;
 - `ra parse-pdf` reports the reconciled parser payload, including per-parser capability limits;
 - section headings: partially supported through parser reconciliation;
 - equations: not yet reliable as structured output;

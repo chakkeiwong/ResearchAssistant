@@ -131,15 +131,17 @@ Inbox proposals include duplicate-aware review signals against existing summarie
 ### Check parser readiness
 
 ```bash
-ra parser-preflight
+ra doctor --matrix
+ra parser-tool-matrix
+ra parser-benchmark-smoke
 ```
 
-This shows which parsers are:
+These commands show which parser tools are:
 - available
 - unavailable
-- misconfigured
+- missing for workflows that require them
 
-Each check also reports parser capability limits. Treat section headings as partial, and treat equation and PDF-citation extraction as unreliable unless a later manual parser validation proves otherwise for the specific paper.
+The matrix and smoke reports also describe workflow readiness and parser capability limits. Treat section headings as partial, and treat equation and PDF-citation extraction as unreliable unless a later manual parser validation proves otherwise for the specific paper.
 
 before you try to parse anything.
 
@@ -190,10 +192,12 @@ Use structured source as the primary path when doing careful technical reading. 
 2. Check parser readiness before a PDF fallback audit:
 
    ```bash
-   ra parser-preflight
+   ra doctor --matrix
+   ra parser-tool-matrix
+   ra parser-benchmark-smoke
    ```
 
-   Confirm which parsers are available and read their capability limits. Today, section headings are only partial, while equations and PDF citations are unreliable as structured output.
+   Confirm which parser tools are available and read their capability limits. Today, section headings are only partial, while equations and PDF citations are unreliable as structured output.
 
 3. Run parser consensus directly when you want to inspect PDF extraction before committing a record:
 

@@ -53,11 +53,13 @@ Runs deterministic unit and integration tests:
 python -m pytest tests/unit tests/integration -q
 ```
 
-### `run_parser_preflight.sh`
-Runs parser availability diagnostics and reports each parser's current capability limits for section headings, equations, and citations:
+### Parser diagnostics
+Run parser availability diagnostics and report each parser workflow's current capability limits for section headings, equations, and citations:
 
 ```bash
-ra parser-preflight
+ra doctor --matrix
+ra parser-tool-matrix
+ra parser-benchmark-smoke
 ```
 
 ### `run_clean_ingest_palazzo.sh`

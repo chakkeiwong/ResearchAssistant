@@ -4,7 +4,9 @@ Date: 2026-04-27
 
 ## Release Scope
 
-This is a private individual-install release candidate for colleagues who want a local research-assistant workspace. It is not a shared department server, shared database, live collaboration system, or default live LLM/provider release.
+This is a limited pilot release candidate for colleagues who want a private local research-assistant workspace. It is not a shared department server, shared database, live collaboration system, or default live LLM/provider release.
+
+The candidate should remain pilot-scoped until a real colleague onboarding trial, macOS validation, and missing-parser-tool validation are recorded.
 
 ## Primary Install Path
 
@@ -34,11 +36,11 @@ The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` a
 Current local rollout artifact:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- SHA256: `3afb9c23fc19b14e856caf2aba401b7e5d9018233f88198457e8f5aa56cdf2cf`
+- SHA256: `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`
 
 ## Supported Platforms
 
-- Validated locally on Linux/WSL2 with Python 3.11.14 on 2026-04-27.
+- Validated locally on Linux/WSL2 with Python 3.11.15 on 2026-04-27.
 - Plain Linux with Python 3.10 or newer is the intended Tier 1 target but should still run the release gate on the target machine.
 - macOS with Python 3.10 or newer is a pilot target until a colleague machine completes clean-install smoke.
 - Windows through WSL is the supported Windows path. Native Windows shell-script workflow is unvalidated.

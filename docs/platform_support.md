@@ -2,7 +2,7 @@
 
 ## Validated During Rollout
 
-- 2026-04-27: Linux/WSL2, `x86_64`, Python 3.11.14, POSIX shell scripts available. Local platform probe returned `status: ok` and `support_tier: tier_1_linux_wsl`.
+- 2026-04-27: Linux/WSL2, `x86_64`, Python 3.11.15, POSIX shell scripts available. Local platform probe returned `status: ok` and `support_tier: tier_1_linux_wsl`.
 
 ## Tier 1
 

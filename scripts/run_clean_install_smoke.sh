@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="${ROOT:-/home/chakwong/research-assistant}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="${ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-300}"
 TMP_PARENT="${TMP_PARENT:-/tmp}"
 KEEP_TMP="${KEEP_TMP:-0}"
@@ -40,7 +41,7 @@ else
 fi
 
 echo "timeout ${TIMEOUT_SECONDS}s ${PYTHON} -m pip install ${INSTALL_FLAGS[*]} ${INSTALL_TARGET}"
-timeout "${TIMEOUT_SECONDS}s" "${PYTHON}" -m pip install "${INSTALL_FLAGS[@]}" "${INSTALL_TARGET}"
+PYTHONPATH="" timeout "${TIMEOUT_SECONDS}s" "${PYTHON}" -m pip install "${INSTALL_FLAGS[@]}" "${INSTALL_TARGET}"
 
 cd "${TMP_DIR}"
 

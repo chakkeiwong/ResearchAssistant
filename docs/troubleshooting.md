@@ -34,8 +34,6 @@ Restore defaults to dry-run, so it reports files that would be overwritten witho
 ## Parser Problems
 
 ```bash
-ra parser-preflight
-ra doctor
 ra doctor --matrix
 ra parser-tool-matrix
 ra parser-benchmark-smoke

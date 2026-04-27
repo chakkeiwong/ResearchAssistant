@@ -7,6 +7,7 @@ import tarfile
 import tomllib
 from pathlib import Path
 
+from research_assistant import individual_release
 from research_assistant.cli import main
 
 
@@ -128,6 +129,40 @@ def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, caps
     assert platform["python_executable"]
     assert platform["support_tier"]
     assert "is_wsl" in platform
+
+
+def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Path, capsys, monkeypatch) -> None:
+    monkeypatch.setattr(individual_release.shutil, "which", lambda _tool: None)
+
+    rc = main(["--root", str(tmp_path), "init"])
+    assert rc == 0
+    capsys.readouterr()
+
+    rc = main(["--root", str(tmp_path), "doctor", "--matrix"])
+    doctor = _json_out(capsys)
+    assert rc == 0
+    assert all(not row["available"] for row in doctor["optional_tools"])
+    readiness = doctor["workflow_readiness"]
+    assert readiness["core_local_lifecycle"]["status"] == "ok"
+    assert readiness["demo_workflow"]["status"] == "ok"
+    assert readiness["metadata_only_ingest"]["status"] == "ok"
+    assert readiness["pdf_text_ingest"]["status"] == "blocked"
+    assert "pdftotext" in readiness["pdf_text_ingest"]["missing_tools"]
+    assert doctor["parser_tool_matrix"]["workflow_readiness"]["demo_workflow"]["status"] == "ok"
+
+    rc = main(["--root", str(tmp_path), "demo", "setup"])
+    assert rc == 0
+    capsys.readouterr()
+    rc = main(["--root", str(tmp_path), "demo", "run"])
+    demo = _json_out(capsys)
+    assert rc == 0
+    assert demo["status"] == "completed"
+
+    rc = main(["--root", str(tmp_path), "release-report"])
+    report = _json_out(capsys)
+    assert rc == 0
+    assert report["status"] in {"ready_for_release_candidate_review", "warnings"}
+    assert not report["blockers"]
 
 
 def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> None:

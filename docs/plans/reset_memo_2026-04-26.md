@@ -857,3 +857,342 @@ Remaining risks:
 
 Next safe step:
 - Commit these rollout hardening/docs changes, force-staging the ignored plan/reset memo files, then push `main`.
+
+
+## Update — final validation/publication plan execution started
+
+New objective:
+- Execute `docs/plans/individual_release_final_validation_publication_plan_2026-04-27.md` autonomously, using the requested loop: plan for phase, execute, test, audit, tidy, update reset memo, then commit.
+
+Current baseline:
+- `main` and `origin/main` both point to `eeb139d Execute colleague rollout release gate`.
+- The tracked worktree was clean at recovery.
+- Pre-existing local scratch remains untracked/ignored: `.codex` and `.claude/`.
+
+Initial audit finding:
+- Several release gaps require external resources that cannot be produced by a no-human-intervention local agent run: a real colleague onboarding trial, macOS validation, native Windows validation, and a genuinely separate minimal parser-tool machine.
+- This pass will execute the strongest local substitutes, add deterministic coverage where useful, and keep the release decision conservative. If those external validations remain unavailable, the release remains a limited pilot rather than a broad colleague release.
+
+Files touched so far:
+- `docs/plans/individual_release_final_validation_publication_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run:
+- Not yet run for this final validation/publication pass.
+
+Next safe step:
+- Complete the independent audit of the plan, update the plan if audit finds missing points, then execute phases 1 through 8 with bounded validation.
+
+
+## Update — final validation/publication plan audited
+
+Independent developer audit completed before execution:
+- The plan correctly targets remaining release validation/publication gaps rather than new product scope.
+- Platform, parser, corpus, artifact, support, privacy, and tag boundaries are conservative and auditable.
+- Missing external resources are explicit: a real colleague, macOS machine, native Windows machine, and genuinely separate minimal parser-tool environment are not available to a local no-human-intervention run.
+- Added an audit amendment to the plan clarifying that this autonomous pass can only produce local substitutes for those external validations.
+- Corrected stale troubleshooting text that referenced the non-existent `ra parser-preflight`; current parser diagnostics are `ra doctor --matrix`, `ra parser-tool-matrix`, and `ra parser-benchmark-smoke`.
+- Tightened release notes to state that 0.1.0 remains a limited pilot release candidate until external validations are recorded.
+
+Files touched:
+- `docs/plans/individual_release_final_validation_publication_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/troubleshooting.md`
+
+Tests run:
+- Not yet run after audit edits.
+
+Next safe step:
+- Execute Phase 1 local onboarding substitute and record that it does not satisfy the real-colleague acceptance criterion.
+
+
+## Update — final validation Phase 1 completed
+
+Phase 1 plan:
+- Run the strongest local onboarding substitute available without human intervention.
+- Validate clean install, demo, release report, and source-checkout release smoke.
+- Keep the real-colleague onboarding gap open.
+
+Execution:
+- Initial `scripts/run_clean_install_smoke.sh` failed because release scripts defaulted `ROOT` to `/home/chakwong/research-assistant`, which is not this checkout.
+- Hardened all release scripts to derive `ROOT` from their own `scripts/` directory while still honoring explicit `ROOT`.
+- Hardened release scripts to export `PYTHONPATH=$ROOT/src` for source-layout checkout tests.
+- Hardened `scripts/run_release_smoke.sh` to call `python -m research_assistant.cli` instead of assuming `ra` is on `PATH`.
+
+Validation:
+- `timeout 120 scripts/run_clean_install_smoke.sh`: passed after script hardening; installed `research-assistant-0.1.0` in a fresh venv and ran help/version/init/doctor/demo setup/demo run/release-report.
+- `timeout 120 scripts/run_fast_tests.sh`: `13 passed in 0.79s`.
+- `timeout 120 scripts/run_release_smoke.sh`: `9 passed in 0.92s`, then demo setup/run/release-report completed.
+
+Audit:
+- The local installed-package `release-report` correctly returned warnings for missing source docs/scripts/fixtures in the installed context.
+- Source-checkout release smoke returned only `release_artifacts_not_built` before artifact rebuild, which is expected at this phase.
+- This does not satisfy the real colleague onboarding acceptance criterion.
+
+Files touched:
+- `scripts/run_clean_install_smoke.sh`
+- `scripts/build_release_artifacts.sh`
+- `scripts/run_packaging_smoke.sh`
+- `scripts/run_fast_tests.sh`
+- `scripts/run_bounded_tests.sh`
+- `scripts/run_release_smoke.sh`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Remaining risk:
+- A real colleague still needs to complete the onboarding checklist before broad release.
+
+Next safe step:
+- Execute Phase 2 platform validation on the current machine and keep macOS/native Windows claims conservative.
+
+
+## Update — final validation Phase 2 completed
+
+Phase 2 plan:
+- Validate the currently available platform with the platform probe, packaging smoke, clean-install smoke, and metadata entry-point test.
+- Keep macOS and native Windows unvalidated unless those environments are actually available.
+
+Execution and validation:
+- `PYTHONPATH=src python -m research_assistant.cli platform-status`: passed with `system: Linux`, `is_wsl: true`, `machine: x86_64`, Python `3.11.15`, `status: ok`, `support_tier: tier_1_linux_wsl`.
+- `timeout 180 scripts/run_packaging_smoke.sh`: metadata test `1 passed in 0.02s`; pip dry-run reported `Would install research-assistant-0.1.0`.
+- `PYTHONPATH=src timeout 60 python -m pytest tests/integration/test_individual_release_cli.py::test_project_metadata_exposes_ra_entrypoint -q`: `1 passed in 0.02s`.
+- `timeout 180 scripts/run_clean_install_smoke.sh`: passed; clean venv install and demo lifecycle completed.
+
+Audit:
+- The current validated Python is `3.11.15`, so platform docs and release notes were corrected from the older `3.11.14` claim.
+- macOS remains unvalidated.
+- Native Windows remains unsupported; Windows colleagues should use WSL.
+
+Files touched:
+- `docs/platform_support.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Next safe step:
+- Execute Phase 3 minimal parser-tool validation using the deterministic missing-tool simulation added during this pass plus local parser diagnostics.
+
+
+## Update — final validation Phase 3 completed
+
+Phase 3 plan:
+- Run local parser/tool diagnostics.
+- Add deterministic missing-tool simulation because no separate minimal machine is available.
+- Verify missing optional parser tools do not block core lifecycle workflows.
+
+Execution and validation:
+- Added `test_missing_optional_parser_tools_do_not_block_core_workflows`, monkeypatching tool detection so all optional tools are absent.
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-parser-phase3 init`: passed.
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-parser-phase3 doctor --matrix`: passed; local tools show `pdftotext` available and `markitdown`, `marker_single`, `magic-pdf` missing.
+- `PYTHONPATH=src python -m research_assistant.cli parser-tool-matrix`: passed; core/demo/metadata workflows `ok`, PDF/parser workflows report warnings as appropriate.
+- `PYTHONPATH=src python -m research_assistant.cli parser-benchmark-smoke`: passed with 3 synthetic fixtures, status `ok`.
+- `PYTHONPATH=src timeout 120 python -m pytest tests/integration/test_individual_release_cli.py::test_missing_optional_parser_tools_do_not_block_core_workflows -q`: `1 passed in 0.09s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `13 passed in 0.83s`.
+- `timeout 120 scripts/run_bounded_tests.sh`: `33 passed in 0.91s`.
+
+Audit:
+- Missing `pdftotext` blocks only `pdf_text_ingest` in the simulation; init, demo, metadata, backup/privacy/release-report paths remain usable.
+- Parser benchmark smoke remains fixture-only and explicitly not parser accuracy certification.
+- A real separate minimal parser-tool machine remains stronger evidence and is still a pilot validation item.
+
+Files touched:
+- `tests/integration/test_individual_release_cli.py`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Next safe step:
+- Execute Phase 4 representative corpus rehearsal, using synthetic corpus if no non-sensitive real corpus is available.
+
+
+## Update — final validation Phase 4 completed
+
+Phase 4 plan:
+- Prefer a non-sensitive real corpus if available.
+- No real corpus was provided in this autonomous environment, so run the prescribed synthetic 1000-record rehearsal and keep the real-corpus gap open.
+
+Execution and validation:
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-perf-final-validation performance smoke --synthetic-count 1000 --include-industrial-artifacts --include-export --include-backup --timeout-seconds 600`: passed with `status: ok`.
+- Synthetic records created: `1000`.
+- Validation time: `0.105838s`.
+- Artifact index time: `0.33259s`.
+- Export time: `22.301315s`.
+- Backup time: `1.578504s`.
+- Backup size: `682843` bytes.
+- Warning threshold: `50.0s`; no warnings.
+
+Audit:
+- This is useful local performance evidence but remains synthetic.
+- It does not certify performance on real personal libraries with varied PDFs, filenames, annotations, or historical artifacts.
+- Generated `/tmp/ra-perf-final-validation` data and backup archive are not intended for Git.
+
+Files touched:
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Next safe step:
+- Execute Phase 5 artifact rebuild, manifest verification, and clean install from the current artifact path.
+
+
+## Update — final validation Phase 5 completed
+
+Phase 5 plan:
+- Rebuild release artifacts from the current code.
+- Verify manifest SHA256 and clean install from the built wheel.
+- Keep artifacts ignored and update docs with the current hash.
+
+Execution and validation:
+- `timeout 180 scripts/build_release_artifacts.sh`: passed; built `research_assistant-0.1.0-py3-none-any.whl`.
+- Final wheel SHA256 after current script/code edits: `3d764c3eeb77223bbc2ae67044211aea85064e14f936aded4edc5a07f84bbd35`.
+- `PYTHONPATH=src python -m research_assistant.cli release-artifacts manifest`: passed with `artifact_count: 1`, `status: ok`.
+- Initial artifact clean-install smoke exposed inherited `PYTHONPATH` contamination: pip saw the checkout package and skipped installing the wheel, leaving no `ra` in the venv.
+- Hardened `scripts/run_clean_install_smoke.sh` so the fresh venv install runs with empty `PYTHONPATH`.
+- Rebuilt artifacts after the script change and updated `docs/release_notes_0.1.0.md` with the new SHA256.
+- `timeout 180 scripts/run_clean_install_smoke.sh`: passed from the built wheel; fresh venv installed `research-assistant-0.1.0` and ran help/version/init/doctor/demo setup/demo run/release-report.
+- Sequential artifact final-check workspace:
+  - `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-artifact-final-check-2 init`: passed.
+  - `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-artifact-final-check-2 demo setup`: passed.
+  - `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-artifact-final-check-2 demo run`: passed.
+  - `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-artifact-final-check-2 release-report`: returned `ready_for_release_candidate_review` with no warnings.
+
+Audit:
+- The primary install path remains the wheel artifact.
+- `dist/` remains generated and ignored, not intended for Git.
+- Parallel execution of artifact final-check commands accidentally exposed an atomic temp-file collision during config writes; hardened `atomic_write_text` to use unique temp names and clean up stale temp files.
+
+Files touched:
+- `scripts/run_clean_install_smoke.sh`
+- `src/research_assistant/individual_release.py`
+- `docs/release_notes_0.1.0.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Next safe step:
+- Execute Phase 6 docs/support/release-note consistency review and keep the decision as limited pilot unless external validations are complete.
+
+
+## Update — final validation Phase 6 completed
+
+Phase 6 plan:
+- Review release notes, known limitations, support docs, issue template, platform docs, README, and usage docs for stale or overstated claims.
+- Verify release-report and release smoke after documentation cleanup.
+- Keep final decision pilot-scoped unless external validations are complete.
+
+Execution:
+- Scanned docs for stale release facts and command names.
+- Found stale `ra parser-preflight` references in `README.md`, `docs/usage.md`, and `docs/validation_scripts.md`; replaced them with current diagnostics: `ra doctor --matrix`, `ra parser-tool-matrix`, and `ra parser-benchmark-smoke`.
+- Confirmed no stale hash (`3afb9c23...` or `703b1bb...`) and no stale Python `3.11.14` claim remain in release docs.
+- Release notes now state the candidate remains a limited pilot until real colleague onboarding, macOS validation, and missing-parser-tool validation are recorded.
+
+Validation:
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-phase6-report-2 init`: passed.
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-phase6-report-2 release-report`: returned `ready_for_release_candidate_review` with no warnings.
+- `timeout 120 scripts/run_release_smoke.sh`: `9 passed in 0.88s`, then demo setup/run/release-report completed with source-checkout report `ready_for_release_candidate_review`.
+
+Audit:
+- Support docs still protect private PDFs, `local_research/`, backup archives, `.codex`, `.claude`, credentials, and provider keys.
+- Release notes and limitations correctly avoid parser accuracy, mathematical correctness, shared-server, native Windows, and broad-release claims.
+- `docs/usage.md` and `README.md` are broader project docs, but stale parser command references would confuse release users, so updating them was appropriate.
+
+Files touched:
+- `README.md`
+- `docs/usage.md`
+- `docs/validation_scripts.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/platform_support.md`
+- `docs/troubleshooting.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Next safe step:
+- Execute Phase 7 final ordered release gate from the current worktree.
+
+
+## Update — final validation Phase 7 completed
+
+Phase 7 plan:
+- Run the final ordered gate from the current worktree.
+- Confirm release-report has no blockers or unexpected warnings.
+- Confirm generated build outputs and local workspaces are not staged.
+
+Final gate validation:
+- `timeout 120 scripts/run_fast_tests.sh`: `13 passed in 0.64s`.
+- `timeout 180 scripts/run_bounded_tests.sh`: `33 passed in 0.74s`.
+- `timeout 180 scripts/run_packaging_smoke.sh`: metadata test `1 passed in 0.03s`; pip dry-run reported `Would install research-assistant-0.1.0`.
+- `timeout 180 scripts/build_release_artifacts.sh`: passed; final wheel `research_assistant-0.1.0-py3-none-any.whl`, SHA256 `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`, size `105348` bytes.
+- `timeout 240 scripts/run_clean_install_smoke.sh`: passed from the built wheel in a clean venv; installed `research-assistant-0.1.0` and ran help/version/init/doctor/demo setup/demo run/release-report.
+- `timeout 180 scripts/run_release_smoke.sh`: `9 passed in 1.50s`, then demo setup/run/release-report completed with source-checkout report `ready_for_release_candidate_review`.
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/research-assistant-final-release init`: passed.
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/research-assistant-final-release release-report`: returned `ready_for_release_candidate_review` with no warnings.
+
+Audit:
+- Release notes were updated to the final gate SHA256.
+- Installed-package `release-report` still reports warnings for source docs/scripts/fixtures not bundled into the installed context, which is expected and non-blocking for the wheel smoke.
+- Source-checkout `release-report` is the final release gate and returned ready with no warnings.
+- Generated outputs under `build/`, `dist/`, `.pytest_cache/`, `__pycache__/`, and `/tmp` are not intended for Git.
+- Tracked `src/research_assistant.egg-info/PKG-INFO` changed because it mirrors the README parser-command correction; keep it in the commit so package metadata is not stale.
+
+Files touched:
+- `README.md`
+- `docs/usage.md`
+- `docs/validation_scripts.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/platform_support.md`
+- `docs/troubleshooting.md`
+- `scripts/*.sh` release validation scripts
+- `src/research_assistant/individual_release.py`
+- `tests/integration/test_individual_release_cli.py`
+- `src/research_assistant.egg-info/PKG-INFO`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Next safe step:
+- Execute Phase 8 as verification only: confirm version/artifact/tag status, do not tag or publish without explicit release-owner approval.
+
+
+## Update — final validation Phase 8 completed
+
+Phase 8 plan:
+- Verify version, artifact manifest, and tag state.
+- Do not tag or publish because tag/publication requires explicit release-owner approval separate from local validation.
+
+Execution and validation:
+- `PYTHONPATH=src python -m research_assistant.cli version`: package `research-assistant`, version `0.1.0`, Python `3.11.15`.
+- `PYTHONPATH=src python -m research_assistant.cli release-artifacts manifest`: `artifact_count: 1`, status `ok`, wheel SHA256 `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`.
+- `git tag --list 'v0.1.0'`: no tag exists.
+
+Audit:
+- No tag was created.
+- No artifact was published.
+- The release decision remains limited pilot because real colleague onboarding, macOS validation, and separate minimal parser-tool machine validation are still external pending items.
+
+Release decision:
+- Version: `0.1.0`
+- Decision: limited pilot release candidate
+- Commit: pending final commit for this validation pass
+- Tag: none
+- Artifact: `research_assistant-0.1.0-py3-none-any.whl`
+- SHA256: `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`
+- Platforms validated: Linux/WSL2 `x86_64`
+- Python versions validated: `3.11.15`
+- Real colleague onboarding: not completed; local clean-install substitute passed
+- Minimal parser-tool environment: deterministic missing-tool simulation added and passed; separate minimal machine not completed
+- Corpus rehearsal: synthetic 1000-record rehearsal passed; no real non-sensitive corpus provided
+- Final validation commands: fast tests, bounded tests, packaging smoke, artifact build, clean install smoke, release smoke, final initialized-root release-report all passed
+- Remaining limitations: macOS unvalidated, native Windows unsupported, parser accuracy not certified, generated artifacts are review material
+- Next action: commit this validation pass; release owner may then run real external pilot validations and decide whether to tag/publish
+
+Files touched in this final validation/publication pass:
+- `README.md`
+- `docs/plans/individual_release_final_validation_publication_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `docs/platform_support.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/troubleshooting.md`
+- `docs/usage.md`
+- `docs/validation_scripts.md`
+- `scripts/build_release_artifacts.sh`
+- `scripts/run_bounded_tests.sh`
+- `scripts/run_clean_install_smoke.sh`
+- `scripts/run_fast_tests.sh`
+- `scripts/run_packaging_smoke.sh`
+- `scripts/run_release_smoke.sh`
+- `src/research_assistant.egg-info/PKG-INFO`
+- `src/research_assistant/individual_release.py`
+- `tests/integration/test_individual_release_cli.py`
+
+Next safe step:
+- Force-stage the ignored final validation plan and reset memo, commit the validation pass, and leave generated artifacts ignored.
