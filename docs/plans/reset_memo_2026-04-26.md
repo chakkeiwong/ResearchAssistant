@@ -1196,3 +1196,41 @@ Files touched in this final validation/publication pass:
 
 Next safe step:
 - Force-stage the ignored final validation plan and reset memo, commit the validation pass, and leave generated artifacts ignored.
+
+
+## Update — final validation/publication pass committed
+
+Commit completed:
+- `929bd41 Validate final individual release pilot`
+
+Final checkpoint:
+- The final validation/publication plan was audited, amended for autonomous execution limits, executed phase by phase, and committed.
+- Release scripts now derive `ROOT` from their own location, set source-layout `PYTHONPATH` where needed, and clean `PYTHONPATH` for true wheel install smoke.
+- Clean install smoke now proves the built wheel installs into a fresh venv without being masked by the source checkout.
+- Atomic config writes now use unique temp files to avoid same-directory concurrent init collisions.
+- Missing optional parser-tool behavior has deterministic regression coverage.
+- Stale `ra parser-preflight` references were removed from release-facing docs and package metadata.
+- Current limited pilot artifact: `research_assistant-0.1.0-py3-none-any.whl`.
+- Current artifact SHA256: `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`.
+- No tag was created and no artifact was published.
+
+Release decision:
+- `0.1.0` remains a limited pilot release candidate.
+- Broad release still requires real colleague onboarding, macOS validation, and external/minimal parser-tool environment validation.
+
+Validation summary at commit:
+- Fast tests: `13 passed in 0.64s`.
+- Bounded tests: `33 passed in 0.74s`.
+- Packaging smoke: metadata test `1 passed in 0.03s`; pip dry-run would install `research-assistant-0.1.0`.
+- Artifact build: passed with wheel SHA256 `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`.
+- Clean install smoke: passed from the built wheel in a fresh venv.
+- Release smoke: `9 passed in 1.50s`, demo lifecycle completed, source-checkout release-report returned `ready_for_release_candidate_review`.
+- Final initialized-root release-report returned `ready_for_release_candidate_review` with no warnings.
+
+Remaining local state:
+- Pre-existing `.codex` remains untracked.
+- Generated `build/`, `dist/`, caches, and bytecode remain ignored and uncommitted.
+
+Next safe step:
+- Push `main` if remote publication of this validation commit is desired.
+- Run real colleague onboarding and macOS/minimal-parser-tool validations before tagging or broad release.
