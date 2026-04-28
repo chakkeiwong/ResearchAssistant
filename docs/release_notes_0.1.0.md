@@ -1,12 +1,12 @@
 # Release Notes 0.1.0
 
-Date: 2026-04-27
+Date: 2026-04-28
 
 ## Release Scope
 
-This is a limited pilot release candidate for colleagues who want a private local research-assistant workspace. It is not a shared department server, shared database, live collaboration system, or default live LLM/provider release.
+This is a limited pilot release candidate for researchers who want a private local `research-assistant` workspace with Git-based sharing. It is not a shared department server, shared database, live collaboration system, hosted UI, SSO/RBAC system, or default live LLM/provider release.
 
-The candidate should remain pilot-scoped until a real colleague onboarding trial, macOS validation, and missing-parser-tool validation are recorded.
+The candidate should remain pilot-scoped until real colleague onboarding, macOS validation, real minimal-parser-tool validation, release-owner tag approval, and publication approval are recorded.
 
 ## Primary Install Path
 
@@ -33,10 +33,10 @@ scripts/build_release_artifacts.sh
 
 The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` and includes SHA256 hashes. Build outputs under `dist/` are not committed to Git.
 
-Current local rollout artifact:
+Current local rollout artifact from the 2026-04-28 build:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- SHA256: `0f08de5c7e689d732ad911d5902d9285817e6d6072cefa2b4f203d2f180f27ce`
+- SHA256: `914e0993539067bd5cb309cb645edcc49bb1338930edbfd771a096718887161d`
 
 ## Supported Platforms
 
@@ -52,6 +52,13 @@ Release gate commands for this candidate:
 ```bash
 scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
+PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
+ra --root /tmp/research-assistant-final-release individual-git-release validation-substitutes
+ra --root /tmp/research-assistant-final-release individual-git-release fixture-rehearsal
+ra --root /tmp/research-assistant-final-release individual-git-release performance --synthetic-count 100
+ra --root /tmp/research-assistant-final-release repository-hygiene check --strict
+ra --root /tmp/research-assistant-final-release individual-git-release validation-report
+ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 scripts/run_packaging_smoke.sh
 scripts/build_release_artifacts.sh
 scripts/run_clean_install_smoke.sh
@@ -60,6 +67,21 @@ ra --root /tmp/research-assistant-final-release release-report
 ```
 
 The exact command results for the current candidate are recorded in `docs/plans/reset_memo_2026-04-26.md`.
+
+Local evidence now includes a validation schema under `local_research/governance/individual_git_release/validation/`, deterministic Git-sharing fixture rehearsal, strict repository hygiene, and synthetic representative workspace performance. Real external validation and release-owner approval remain blocked/manual when unavailable.
+
+## Git Sharing
+
+Researchers share by exchanging Git repositories or workspace snapshots. The workflow is:
+
+```bash
+ra repository-hygiene check --strict
+ra workspace merge --source /path/to/other/repo --target /path/to/my/repo
+ra workspace merge --source /path/to/other/repo --target /path/to/my/repo --apply --confirm-merge
+ra workspace rebuild-derived
+```
+
+See `docs/workflows/git_sharing_walkthrough.md`.
 
 ## Privacy
 
@@ -79,7 +101,10 @@ Restore defaults to dry-run. A real restore requires `--no-dry-run --confirm-res
 
 - Generated derivations, experiments, synthesis, traceability, governance, and readiness reports are review material, not mathematical approval.
 - Parser quality depends on local optional tools and source/PDF quality.
+- Parser-tool availability and degradation are checked, but parser scientific accuracy is not certified.
 - A real colleague onboarding trial and macOS validation remain required before broad non-pilot rollout.
-- Medium-corpus performance is measured with synthetic records and does not certify real personal libraries.
+- Minimal parser-tool validation on a real minimal machine remains required before broad non-pilot rollout.
+- Git-sharing merge/import performance is measured with synthetic records and does not certify real personal libraries.
+- Tagging and artifact publication require explicit release-owner approval.
 
 See `docs/known_limitations.md` and `docs/support.md`.

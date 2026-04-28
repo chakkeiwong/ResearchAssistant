@@ -37,6 +37,16 @@ ra backup inspect --path /path/to/backup.tar.gz
 ra --root /tmp/research-assistant-restore-check backup restore --path /path/to/backup.tar.gz
 ```
 
+For Git-sharing problems, add:
+
+```bash
+ra repository-hygiene check --strict
+ra workspace merge --source /path/to/other/repo --target /path/to/my/repo
+ra workspace rebuild-derived
+ra individual-git-release validation-report
+ra individual-git-release gate-build
+```
+
 ## Safe To Share
 
 - command names and exit status;
@@ -67,6 +77,7 @@ Include:
 - actual status, issue code, or traceback summary;
 - whether the demo workflow works in `/tmp/research-assistant-support-demo`;
 - whether the issue involves install, parser tools, workspace validation, backup/restore, or performance.
+- whether the issue involves Git sharing, repository hygiene, merge/import, validation evidence, or release gating.
 
 Keep examples synthetic whenever possible. If a real paper triggers a failure, report the command shape and issue code first, then arrange a private review path before sharing any content.
 

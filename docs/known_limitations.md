@@ -6,7 +6,10 @@
 - Live LLM/provider calls are disabled by default and are not part of the individual release workflow.
 - Generated derivations, experiments, synthesis, traceability, and readiness reports are review material, not mathematical approval.
 - Parser quality depends on local optional tools and source/PDF quality.
+- Parser-tool availability/degradation checks do not certify scientific parser accuracy.
 - Medium-corpus performance evidence is synthetic unless a non-sensitive real corpus is explicitly recorded.
+- Git-sharing fixture rehearsal is synthetic and validates merge mechanics, not semantic agreement between researchers.
+- Real colleague onboarding, macOS validation, real minimal-parser-tool validation, tag approval, and publication approval remain manual release gates until recorded as real evidence.
 - Restore can write real files only with explicit confirmation; overwrites require an additional flag.
 - Shell scripts target Linux, macOS, and WSL-style POSIX environments.
 - macOS and colleague-machine onboarding remain pilot-release validation items until completed on real machines.

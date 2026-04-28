@@ -36,10 +36,22 @@ ra --root ~/research-assistant-workspace doctor
 - `scripts/run_release_smoke.sh`:
 - `scripts/run_packaging_smoke.sh`:
 - `scripts/run_clean_install_smoke.sh`:
+- `ra repository-hygiene check --strict`:
+- `ra individual-git-release validation-substitutes`:
+- `ra individual-git-release fixture-rehearsal`:
+- `ra individual-git-release performance`:
+- `ra individual-git-release validation-report`:
+- `ra individual-git-release gate-build`:
+- Real colleague onboarding:
+- macOS validation:
+- Real minimal parser-tool machine:
+- Release-owner tag/publication approval:
 
 ## Privacy
 
-Default workflows are offline and provider-disabled.
+Default workflows are offline and provider-disabled. Validation evidence must
+not include private titles, private paths, credentials, provider keys, tokens,
+backup archives, or raw papers.
 
 ## Git Sharing
 
@@ -58,7 +70,9 @@ ra workspace merge --source /path/to/other/repo --target /path/to/mine --apply -
 ra workspace rebuild-derived
 ```
 
-Shared database, service deployment, SSO/RBAC, real-time collaboration, and hosted UI remain future work.
+Local validation substitutes do not satisfy real colleague/macOS/minimal-machine
+validation. Shared database, service deployment, SSO/RBAC, real-time
+collaboration, and hosted UI remain future work.
 
 ## Backup And Migration Notes
 

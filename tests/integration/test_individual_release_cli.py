@@ -31,7 +31,10 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert Path("docs/support.md").exists()
     assert Path("docs/release_notes_0.1.0.md").exists()
     assert Path("docs/release_notes_template.md").exists()
+    assert Path("docs/workflows/git_sharing_walkthrough.md").exists()
     assert Path(".github/ISSUE_TEMPLATE/individual_release_bug.md").exists()
+    assert Path("scripts/run_individual_git_release_gate.sh").exists()
+    assert os.access("scripts/run_individual_git_release_gate.sh", os.X_OK)
 
 
 def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, capsys) -> None:
@@ -416,6 +419,7 @@ def test_repository_hygiene_policy_and_individual_git_gate(tmp_path: Path, capsy
     assert rc == 0
     assert policy["schema_version"] == "shareable-workspace-policy-v1"
     assert "local_research/summaries/*.json" in policy["allowed_patterns"]
+    assert "local_research/governance/individual_git_release/**" in policy["rebuildable_patterns"]
 
     rc = main(["repository-hygiene", "classify", "local_research/summaries/paper_a.json"])
     classified = _json_out(capsys)
@@ -456,6 +460,156 @@ def test_repository_hygiene_policy_and_individual_git_gate(tmp_path: Path, capsy
     assert gate["status"] == "blocked"
     gate_blocker_codes = {blocker["code"] for blocker in gate["blockers"]}
     assert "repository_hygiene_blocked" in gate_blocker_codes
+
+
+def test_validation_records_report_and_strict_hygiene(tmp_path: Path, capsys) -> None:
+    main(["--root", str(tmp_path), "init"])
+    capsys.readouterr()
+    _write_shareable_summary(tmp_path, "paper_a", "Safe shareable paper")
+
+    rc = main([
+        "--root", str(tmp_path),
+        "individual-git-release", "validation-record",
+        "--validation-type", "linux_wsl",
+        "--result", "passed",
+        "--scope", "local_machine",
+        "--platform", "Linux fixture",
+        "--python-version", "3.11",
+        "--install-method", "source checkout",
+        "--command-summary", "pytest fixture",
+        "--evidence-note", "sanitized fixture evidence",
+    ])
+    record = _json_out(capsys)
+    assert rc == 0
+    assert record["status"] == "recorded"
+    assert record["schema_version"] == "individual-git-validation-v1"
+    assert Path(record["path"]).exists()
+
+    rc = main([
+        "--root", str(tmp_path),
+        "individual-git-release", "validation-record",
+        "--validation-type", "linux_wsl",
+        "--result", "passed",
+        "--evidence-note", "/home/private/paper.pdf",
+    ])
+    rejected = _json_out(capsys)
+    assert rc == 0
+    assert rejected["status"] == "blocked"
+    assert rejected["issues"][0]["code"] in {"possible_private_path", "forbidden_private_fields"}
+
+    secret_config = tmp_path / "local_research" / "summaries" / "secret.json"
+    secret_config.write_text(json.dumps({
+        "id": "secret",
+        "title": "Secret",
+        "schema_version": "summary-v1",
+        "provenance": {},
+        "review_status": "needs_review",
+        "limitations": [],
+        "api_key": "sk-test_abcdefghijklmnopqrstuvwxyz123456",
+    }))
+    rc = main(["--root", str(tmp_path), "repository-hygiene", "check"])
+    hygiene = _json_out(capsys)
+    assert rc == 0
+    assert hygiene["status"] == "blocked"
+    issue_codes = {issue["code"] for issue in hygiene["issues"]}
+    assert "private_payload_fields" in issue_codes
+
+    secret_config.unlink()
+    git_dir = tmp_path / ".git"
+    git_dir.mkdir()
+    (tmp_path / "dist").mkdir()
+    (tmp_path / "dist" / "local.whl").write_text("ignored unsafe build output")
+    rc = main(["--root", str(tmp_path), "repository-hygiene", "check", "--strict"])
+    strict = _json_out(capsys)
+    assert rc == 0
+    assert strict["strict"] is True
+    assert strict["status"] == "blocked"
+    assert any(issue["code"] == "forbidden_files_present" for issue in strict["issues"])
+
+    rc = main(["--root", str(tmp_path), "individual-git-release", "validation-report"])
+    report = _json_out(capsys)
+    assert rc == 0
+    assert report["status"] == "blocked"
+    assert "colleague_onboarding" in report["missing_required_validation"]
+
+
+def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, capsys) -> None:
+    main(["--root", str(tmp_path), "init"])
+    capsys.readouterr()
+
+    rc = main([
+        "--root", str(tmp_path),
+        "individual-git-release", "validation-substitutes",
+    ])
+    substitutes = _json_out(capsys)
+    assert rc == 0
+    assert substitutes["status"] == "recorded"
+
+    rc = main([
+        "--root", str(tmp_path),
+        "individual-git-release", "fixture-rehearsal",
+        "--no-include-blocker",
+        "--apply-safe-subset",
+    ])
+    fixture = _json_out(capsys)
+    assert rc == 0
+    assert fixture["status"] in {"passed", "warnings"}
+    assert fixture["dry_run_counts"]["copy_candidates"] >= 10
+    assert fixture["dry_run_counts"]["already_present"] >= 1
+    assert fixture["dry_run_counts"]["conflicts"] == 0
+    assert fixture["applied_counts"]["copied"] >= 10
+
+    rc = main([
+        "--root", str(tmp_path),
+        "individual-git-release", "performance",
+        "--tier", "synthetic_git_12",
+        "--synthetic-count", "12",
+        "--timeout-seconds", "30",
+    ])
+    perf = _json_out(capsys)
+    assert rc == 0
+    assert perf["artifact_type"] == "individual_git_performance_report"
+    assert perf["status"] in {"passed", "warnings"}
+    assert perf["dry_run_counts"]["copy_candidates"] >= 1
+    assert perf["backup_size_bytes"] > 0
+
+    rc = main(["--root", str(tmp_path), "individual-git-release", "validation-report"])
+    report = _json_out(capsys)
+    assert rc == 0
+    assert report["local_fixture_validation_complete"] is True
+    assert report["external_validation_complete"] is False
+    assert "colleague_onboarding" in report["blocked_required_validation"]
+
+    rc = main(["--root", str(tmp_path), "individual-git-release", "gate-build"])
+    gate = _json_out(capsys)
+    assert rc == 0
+    assert gate["repository_hygiene_strict"] is True
+    assert gate["future_multi_user_platform_deferred"] is True
+    assert gate["ready_for_limited_individual_pilot"] is True
+    assert gate["ready_for_broad_individual_release"] is False
+    assert gate["ready_for_git_shared_research_release"] is False
+    blocker_codes = {blocker["code"] for blocker in gate["blockers"]}
+    assert "external_validation_required_for_broad_release" in blocker_codes
+    assert "release_owner_approval_required" in blocker_codes
+
+
+def test_git_sharing_walkthrough_and_gate_script_reference_current_commands() -> None:
+    walkthrough = Path("docs/workflows/git_sharing_walkthrough.md").read_text()
+    assert "repository-hygiene check --strict" in walkthrough
+    assert "workspace merge" in walkthrough
+    assert "workspace rebuild-derived" in walkthrough
+    assert "validation-report" in walkthrough
+    assert "Do not" in walkthrough
+
+    script = Path("scripts/run_individual_git_release_gate.sh")
+    assert script.exists()
+    assert os.access(script, os.X_OK)
+    text = script.read_text()
+    assert "scripts/run_fast_tests.sh" in text
+    assert "scripts/run_bounded_tests.sh" in text
+    assert "tests/integration/test_individual_release_cli.py" in text
+    assert "repository-hygiene check --strict" in text
+    assert "individual-git-release gate-build" in text
 
 
 def test_workspace_merge_dry_run_apply_and_rebuild(tmp_path: Path, capsys) -> None:

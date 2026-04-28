@@ -28,3 +28,18 @@ ra repository-hygiene check
 The hygiene check blocks obvious private/raw/generated files and validation
 records with forbidden private fields. Workspace merge skips rebuildable reports
 and refuses private source artifacts rather than copying them.
+
+Use strict mode before release or before sharing a repository:
+
+```bash
+ra repository-hygiene check --strict
+```
+
+Strict mode also inspects local build/cache/private roots such as `build/`,
+`dist/`, `.codex`, `.claude`, `.pytest_cache`, raw paper directories, backup
+archives, and common secret-like fields or provider-key markers.
+
+Validation evidence is shareable only when sanitized. Do not record private
+paper titles, private file paths, backup archive paths, credentials, provider
+keys, tokens, or raw paper content in `individual-git-release
+validation-record`.

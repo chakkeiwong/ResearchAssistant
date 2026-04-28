@@ -4,12 +4,16 @@ from pathlib import Path
 from typing import Any
 import fnmatch
 import json
+import platform as platform_module
+import re
 import shutil
 import subprocess
+import time
 
 from research_assistant.config import get_paths
 from research_assistant.individual_release import (
     create_backup,
+    parser_tool_matrix,
     release_report,
     workspace_validate,
 )
@@ -19,7 +23,48 @@ from research_assistant.storage.file_store import FileStore
 
 
 INDIVIDUAL_GIT_RELEASE_VERSION = "individual-git-release-v1"
+INDIVIDUAL_GIT_VALIDATION_VERSION = "individual-git-validation-v1"
 SHAREABLE_WORKSPACE_POLICY_VERSION = "shareable-workspace-policy-v1"
+
+VALIDATION_RESULTS = {"passed", "warnings", "blocked"}
+VALIDATION_SCOPES = {
+    "local_machine",
+    "local_fixture",
+    "local_substitute",
+    "real_external",
+    "external_machine",
+    "manual_waiver",
+    "release_owner",
+}
+
+REQUIRED_VALIDATION_TYPES = [
+    "linux_wsl",
+    "colleague_onboarding",
+    "macos",
+    "minimal_parser_tools",
+    "merge_fixture_rehearsal",
+    "representative_workspace_performance",
+]
+
+LOCAL_FIXTURE_VALIDATION_TYPES = [
+    "linux_wsl",
+    "minimal_parser_tools",
+    "merge_fixture_rehearsal",
+    "representative_workspace_performance",
+]
+
+EXTERNAL_VALIDATION_TYPES = [
+    "colleague_onboarding",
+    "macos",
+    "minimal_parser_tools",
+]
+
+PUBLICATION_APPROVAL_TYPES = [
+    "release_owner_tag_approval",
+    "publication_approval",
+]
+
+KNOWN_VALIDATION_TYPES = sorted(set(REQUIRED_VALIDATION_TYPES + PUBLICATION_APPROVAL_TYPES))
 
 FORBIDDEN_FIELD_NAMES = {
     "private_pdf",
@@ -38,6 +83,25 @@ PRIVATE_PATH_MARKERS = (
     "/Users/",
     "C:\\Users\\",
 )
+
+HIGH_RISK_SECRET_PATTERNS = (
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "BEGIN PRIVATE KEY",
+)
+
+SUSPICIOUS_SECRET_FIELD_NAMES = {
+    "api_key",
+    "secret_key",
+    "access_token",
+    "provider_key",
+    "token",
+    "credential",
+    "credentials",
+}
+
+HIGH_ENTROPY_SECRET_RE = re.compile(r"(?i)(sk-[A-Za-z0-9_-]{20,}|[A-Za-z0-9_/-]{32,})")
 
 REBUILD_NEXT_ACTIONS = [
     "ra artifact-index build",
@@ -75,6 +139,8 @@ DEFAULT_SHAREABLE_WORKSPACE_POLICY: dict[str, Any] = {
         "local_research/governance/merge_reports/*.json",
         "local_research/contracts/tools/*.json",
         "local_research/benchmarks/runs/release_performance*.json",
+        "local_research/governance/individual_git_release/**",
+        "local_research/governance/post_merge_readiness.json",
     ],
     "forbidden_patterns": [
         ".codex",
@@ -112,6 +178,22 @@ def _store(root: Path | None = None) -> FileStore:
     return FileStore(get_paths(root).local_research)
 
 
+def _individual_git_governance_dir(root: Path | None = None) -> Path:
+    return get_paths(root).governance / "individual_git_release"
+
+
+def _validation_dir(root: Path | None = None) -> Path:
+    return _individual_git_governance_dir(root) / "validation"
+
+
+def _fixture_rehearsal_dir(root: Path | None = None) -> Path:
+    return _individual_git_governance_dir(root) / "fixture_rehearsal"
+
+
+def _performance_dir(root: Path | None = None) -> Path:
+    return _individual_git_governance_dir(root) / "performance"
+
+
 def _policy_path(release_root: Path | None = None) -> Path:
     root = release_root or Path.cwd()
     return root / "docs" / "release" / "shareable_workspace_policy.json"
@@ -143,12 +225,20 @@ def classify_shareable_path(rel_path: str, *, policy: dict[str, Any] | None = No
     return {"classification": "unsupported", "reason": "path is not listed as shareable for Git exchange"}
 
 
-def _iter_workspace_files(root: Path) -> list[Path]:
+def _iter_workspace_files(root: Path, *, include_strict_roots: bool = False) -> list[Path]:
     candidates = []
     for base_name in ["local_research", ".research-assistant"]:
         base = root / base_name
         if base.exists():
             candidates.extend(path for path in base.rglob("*") if path.is_file())
+    if include_strict_roots:
+        for base_name in ["build", "dist", ".pytest_cache"]:
+            base = root / base_name
+            if base.exists():
+                candidates.extend(path for path in base.rglob("*") if path.is_file())
+        env_file = root / ".env"
+        if env_file.exists() and env_file.is_file():
+            candidates.append(env_file)
     for path in [root / ".codex", root / ".claude"]:
         if path.exists():
             if path.is_file():
@@ -181,19 +271,60 @@ def _json_payload(path: Path) -> dict[str, Any] | None:
     return payload if isinstance(payload, dict) else None
 
 
+def _payload_safety_issues(payload: Any, *, path_label: str = "$") -> list[dict[str, Any]]:
+    issues = []
+
+    def walk(value: Any, trail: str) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                key_text = str(key)
+                key_lower = key_text.lower()
+                child_trail = f"{trail}.{key_text}" if trail else key_text
+                if key_lower in FORBIDDEN_FIELD_NAMES:
+                    issues.append({"code": "forbidden_private_fields", "field": child_trail})
+                if key_lower in SUSPICIOUS_SECRET_FIELD_NAMES and child not in (None, "", []):
+                    issues.append({"code": "secret_like_field", "field": child_trail})
+                walk(child, child_trail)
+            return
+        if isinstance(value, list):
+            for idx, child in enumerate(value):
+                walk(child, f"{trail}[{idx}]")
+            return
+        if isinstance(value, str):
+            if any(marker in value for marker in PRIVATE_PATH_MARKERS):
+                issues.append({"code": "possible_private_path", "field": trail})
+            for pattern in HIGH_RISK_SECRET_PATTERNS:
+                if pattern in value:
+                    issues.append({"code": "high_risk_secret_pattern", "field": trail, "pattern": pattern})
+            if HIGH_ENTROPY_SECRET_RE.search(value) and any(token in trail.lower() for token in SUSPICIOUS_SECRET_FIELD_NAMES):
+                issues.append({"code": "secret_like_value", "field": trail})
+
+    walk(payload, path_label)
+    seen = set()
+    deduped = []
+    for issue in issues:
+        key = tuple(sorted(issue.items()))
+        if key not in seen:
+            seen.add(key)
+            deduped.append(issue)
+    return deduped
+
+
 def _has_private_payload_fields(path: Path) -> list[dict[str, Any]]:
     payload = _json_payload(path)
     if payload is None:
-        return []
-    issues = []
-    keys = set(payload)
-    forbidden = sorted(keys & FORBIDDEN_FIELD_NAMES)
-    if forbidden:
-        issues.append({"code": "forbidden_private_fields", "fields": forbidden})
-    serialized = json.dumps(payload, sort_keys=True)
-    if any(marker in serialized for marker in PRIVATE_PATH_MARKERS):
-        issues.append({"code": "possible_private_path"})
-    return issues
+        try:
+            text = path.read_text(errors="ignore")
+        except OSError:
+            return []
+        issues = []
+        for pattern in HIGH_RISK_SECRET_PATTERNS:
+            if pattern in text:
+                issues.append({"code": "high_risk_secret_pattern", "pattern": pattern})
+        if any(marker in text for marker in PRIVATE_PATH_MARKERS):
+            issues.append({"code": "possible_private_path"})
+        return issues
+    return _payload_safety_issues(payload)
 
 
 def _git_status(root: Path) -> dict[str, Any]:
@@ -228,13 +359,13 @@ def _git_status(root: Path) -> dict[str, Any]:
     return {"status": "dirty" if entries else "clean", "entries": entries, "issues": []}
 
 
-def repository_hygiene_check(*, root: Path | None = None) -> dict[str, Any]:
+def repository_hygiene_check(*, root: Path | None = None, strict: bool = False) -> dict[str, Any]:
     paths = get_paths(root)
     policy = load_shareable_workspace_policy()
     git_status = _git_status(paths.root)
     issues: list[dict[str, Any]] = []
     warnings: list[dict[str, Any]] = []
-    scanned_files = _iter_workspace_files(paths.root)
+    scanned_files = _iter_workspace_files(paths.root, include_strict_roots=strict)
     forbidden_files = []
     rebuildable_files = []
     unsupported_files = []
@@ -260,6 +391,20 @@ def repository_hygiene_check(*, root: Path | None = None) -> dict[str, Any]:
                 "classification": classification["classification"],
                 "reason": classification["reason"],
             })
+        if strict and entry["untracked"] and classification["classification"] in {"forbidden", "rebuildable", "unsupported"}:
+            issues.append({
+                "severity": "blocker",
+                "code": "unsafe_untracked_file",
+                "path": entry["path"],
+                "classification": classification["classification"],
+                "reason": classification["reason"],
+            })
+    if strict and git_status["status"] == "not_a_git_repository":
+        warnings.append({
+            "severity": "warning",
+            "code": "strict_check_without_git_repository",
+            "message": "Strict hygiene could not inspect tracked/untracked Git state outside a Git repository.",
+        })
     if forbidden_files:
         issues.append({"severity": "blocker", "code": "forbidden_files_present", "files": forbidden_files})
     if private_payload_issues:
@@ -276,6 +421,7 @@ def repository_hygiene_check(*, root: Path | None = None) -> dict[str, Any]:
         "artifact_type": "repository_hygiene_report",
         "status": "blocked" if blocker_count else ("warnings" if warning_count else "ok"),
         "workspace_root": str(paths.root),
+        "strict": strict,
         "policy_version": policy.get("schema_version"),
         "git_status": git_status,
         "scanned_file_count": len(scanned_files),
@@ -335,6 +481,184 @@ def _source_git_commit(source_root: Path) -> str | None:
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return None
     return completed.stdout.strip() if completed.returncode == 0 else None
+
+
+def _safe_validation_text(value: str) -> str:
+    return str(value)
+
+
+def validation_record(
+    *,
+    validation_type: str,
+    result: str,
+    platform: str = "",
+    python_version: str = "",
+    install_method: str = "",
+    command_summary: str = "",
+    scope: str = "local_machine",
+    evidence_note: str = "",
+    blocker: list[str] | None = None,
+    warning: list[str] | None = None,
+    root: Path | None = None,
+) -> dict[str, Any]:
+    if result not in VALIDATION_RESULTS:
+        raise ValueError(f"validation result must be one of {sorted(VALIDATION_RESULTS)}")
+    if scope not in VALIDATION_SCOPES:
+        raise ValueError(f"validation scope must be one of {sorted(VALIDATION_SCOPES)}")
+    blockers = [_safe_validation_text(item) for item in (blocker or [])]
+    warnings = [_safe_validation_text(item) for item in (warning or [])]
+    payload = {
+        **base_artifact(
+            artifact_type="individual_git_validation_record",
+            artifact_id=stable_id("individual_git_validation", validation_type, scope, result),
+            provenance={"created_by": "ra individual-git-release validation-record"},
+            limitations=[
+                "Validation records are sanitized release evidence, not research approval.",
+                "Local substitutes do not satisfy real external-machine validation requirements.",
+            ],
+        ),
+        "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
+        "validation_type": _safe_validation_text(validation_type),
+        "result": result,
+        "scope": scope,
+        "platform": _safe_validation_text(platform or platform_module.platform()),
+        "python_version": _safe_validation_text(python_version or platform_module.python_version()),
+        "install_method": _safe_validation_text(install_method),
+        "command_summary": _safe_validation_text(command_summary),
+        "evidence_note": _safe_validation_text(evidence_note),
+        "blockers": blockers,
+        "warnings": warnings,
+        "recorded_at": utc_now_iso(),
+        "privacy_screened": True,
+        "requires_human_review": True,
+    }
+    safety_issues = _payload_safety_issues(payload)
+    if safety_issues:
+        return {
+            "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
+            "artifact_type": "individual_git_validation_record",
+            "status": "blocked",
+            "validation_type": validation_type,
+            "result": result,
+            "issues": [{"severity": "blocker", **issue} for issue in safety_issues],
+        }
+    out = _validation_dir(root) / f"{payload['artifact_id']}.json"
+    FileStore(get_paths(root).local_research).write_json(out, payload)
+    payload["status"] = "recorded"
+    payload["path"] = str(out)
+    return payload
+
+
+def _validation_records(root: Path | None = None) -> list[dict[str, Any]]:
+    rows = []
+    directory = _validation_dir(root)
+    if not directory.exists():
+        return rows
+    for path in sorted(directory.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text())
+        except (json.JSONDecodeError, OSError):
+            rows.append({
+                "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
+                "artifact_type": "individual_git_validation_record",
+                "status": "blocked",
+                "validation_type": "unknown",
+                "result": "blocked",
+                "path": str(path),
+                "issues": [{"severity": "blocker", "code": "validation_record_unreadable"}],
+            })
+            continue
+        payload["path"] = str(path)
+        rows.append(payload)
+    return rows
+
+
+def validation_report(*, root: Path | None = None) -> dict[str, Any]:
+    records = _validation_records(root)
+    record_map: dict[str, list[dict[str, Any]]] = {}
+    issues = []
+    for record in records:
+        safety_payload = {key: value for key, value in record.items() if key != "path"}
+        safety_issues = _payload_safety_issues(safety_payload)
+        if safety_issues:
+            issues.append({
+                "severity": "blocker",
+                "code": "validation_record_privacy_screen_failed",
+                "path": record.get("path"),
+                "issues": safety_issues,
+            })
+        record_map.setdefault(str(record.get("validation_type", "unknown")), []).append(record)
+
+    def passed(validation_type: str, *, scopes: set[str] | None = None) -> bool:
+        candidates = record_map.get(validation_type, [])
+        if scopes is not None:
+            candidates = [row for row in candidates if row.get("scope") in scopes]
+        return any(row.get("result") == "passed" for row in candidates)
+
+    required_status = []
+    for validation_type in REQUIRED_VALIDATION_TYPES:
+        records_for_type = record_map.get(validation_type, [])
+        status = "passed" if any(row.get("result") == "passed" for row in records_for_type) else "missing"
+        if records_for_type and status == "missing":
+            status = "blocked" if any(row.get("result") == "blocked" for row in records_for_type) else "warnings"
+        required_status.append({
+            "validation_type": validation_type,
+            "status": status,
+            "record_count": len(records_for_type),
+            "latest_result": records_for_type[-1].get("result") if records_for_type else None,
+            "latest_scope": records_for_type[-1].get("scope") if records_for_type else None,
+        })
+
+    missing_required = [row["validation_type"] for row in required_status if row["status"] == "missing"]
+    blocked_required = [row["validation_type"] for row in required_status if row["status"] == "blocked"]
+    def non_blocked_recorded(validation_type: str) -> bool:
+        return any(row.get("result") in {"passed", "warnings"} for row in record_map.get(validation_type, []))
+
+    local_fixture_complete = all(non_blocked_recorded(validation_type) for validation_type in LOCAL_FIXTURE_VALIDATION_TYPES)
+    external_complete = all(passed(validation_type, scopes={"real_external", "external_machine"}) for validation_type in EXTERNAL_VALIDATION_TYPES)
+    publication_approved = all(passed(validation_type, scopes={"release_owner"}) for validation_type in PUBLICATION_APPROVAL_TYPES)
+    blockers = [{"code": "missing_required_validation", "validation_types": missing_required}] if missing_required else []
+    blockers.extend({"code": "blocked_required_validation", "validation_type": validation_type} for validation_type in blocked_required)
+    blockers.extend(issues)
+    warnings = []
+    if not external_complete:
+        warnings.append({
+            "code": "external_validation_incomplete",
+            "validation_types": EXTERNAL_VALIDATION_TYPES,
+            "message": "Real colleague/macOS/minimal-machine validation is still manual or unavailable.",
+        })
+    if not publication_approved:
+        warnings.append({
+            "code": "publication_approval_missing",
+            "validation_types": PUBLICATION_APPROVAL_TYPES,
+            "message": "Tagging and publication require explicit release-owner approval.",
+        })
+    return {
+        "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
+        "artifact_type": "individual_git_validation_report",
+        "status": "blocked" if blockers else ("warnings" if warnings else "passed"),
+        "workspace_root": str(get_paths(root).root),
+        "validation_dir": str(_validation_dir(root)),
+        "required_validation_types": REQUIRED_VALIDATION_TYPES,
+        "local_fixture_validation_types": LOCAL_FIXTURE_VALIDATION_TYPES,
+        "external_validation_types": EXTERNAL_VALIDATION_TYPES,
+        "publication_approval_types": PUBLICATION_APPROVAL_TYPES,
+        "required_status": required_status,
+        "record_count": len(records),
+        "records": records,
+        "missing_required_validation": missing_required,
+        "blocked_required_validation": blocked_required,
+        "local_fixture_validation_complete": local_fixture_complete,
+        "external_validation_complete": external_complete,
+        "publication_approved": publication_approved,
+        "blockers": blockers,
+        "warnings": warnings,
+        "next_actions": [
+            "record deterministic local fixture validations after running release checks",
+            "record real colleague/macOS/minimal-machine validations only after they actually happen",
+            "record release-owner approval only when tagging or publication is explicitly approved",
+        ],
+    }
 
 
 def workspace_merge(
@@ -477,6 +801,350 @@ def workspace_merge(
     return report
 
 
+def _write_fixture_summary(root: Path, paper_id: str, title: str, audit_note: str = "fixture audit") -> None:
+    path = root / "local_research" / "summaries" / f"{paper_id}.json"
+    payload = {
+        "id": paper_id,
+        "artifact_id": paper_id,
+        "title": title,
+        "authors": ["Synthetic Git Fixture"],
+        "year": 2026,
+        "abstract": "Sanitized synthetic record for Git-sharing release rehearsal.",
+        "main_contribution": "Fixture only.",
+        "review_status": "needs_review",
+        "technical_audit": {
+            "claimed_results": [audit_note],
+            "derived_results": [],
+            "open_questions": [],
+        },
+        "schema_version": "summary-v1",
+        "provenance": {"fixture": "individual_git_release_rehearsal"},
+        "limitations": ["Synthetic release fixture; not a real paper."],
+    }
+    FileStore(root / "local_research").write_json(path, payload)
+
+
+def _write_fixture_generated(root: Path) -> None:
+    FileStore(root / "local_research").write_json(root / "local_research" / "indices" / "fixture_generated_index.json", {
+        "generated": True,
+        "schema_version": "fixture-index-v1",
+    })
+    raw = root / "local_research" / "papers" / "raw" / "private_fixture.pdf"
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    raw.write_text("synthetic private raw fixture")
+
+
+def _build_git_share_fixture_pair(base: Path, *, include_blocker: bool) -> tuple[Path, Path]:
+    source = base / "source"
+    target = base / "target"
+    for root in [source, target]:
+        (root / "local_research").mkdir(parents=True, exist_ok=True)
+    for idx in range(12):
+        _write_fixture_summary(source, f"fixture_source_{idx:02d}", f"Synthetic Source Paper {idx}")
+    for idx in range(8):
+        _write_fixture_summary(target, f"fixture_target_{idx:02d}", f"Synthetic Target Paper {idx}")
+    _write_fixture_summary(source, "fixture_overlap_same", "Synthetic Overlap Same")
+    _write_fixture_summary(target, "fixture_overlap_same", "Synthetic Overlap Same")
+    if include_blocker:
+        _write_fixture_summary(source, "fixture_conflict", "Synthetic Conflict", audit_note="source accepted audit")
+        _write_fixture_summary(target, "fixture_conflict", "Synthetic Conflict", audit_note="target accepted audit")
+    _write_fixture_generated(source)
+    if not include_blocker:
+        raw = source / "local_research" / "papers" / "raw" / "private_fixture.pdf"
+        if raw.exists():
+            raw.unlink()
+    return source, target
+
+
+def fixture_rehearsal(
+    *,
+    root: Path | None = None,
+    fixture_root: Path | None = None,
+    include_blocker: bool = True,
+    apply_safe_subset: bool = True,
+) -> dict[str, Any]:
+    paths = get_paths(root)
+    base = fixture_root or (_fixture_rehearsal_dir(paths.root) / "workspace_pair")
+    source, target = _build_git_share_fixture_pair(base, include_blocker=include_blocker)
+    dry_run_report = workspace_merge(source=source, target=target)
+    if include_blocker and dry_run_report["status"] != "blocked":
+        rehearsal_status = "blocked"
+    else:
+        rehearsal_status = "warnings" if include_blocker else "passed"
+    applied_report = None
+    rebuild_report = None
+    hygiene_report = None
+    if apply_safe_subset and not include_blocker:
+        applied_report = workspace_merge(source=source, target=target, apply=True, confirm_merge=True)
+        rebuild_report = workspace_rebuild_derived(root=target)
+        backups_dir = target / "local_research" / "exports" / "backups"
+        if backups_dir.exists():
+            shutil.rmtree(backups_dir)
+        hygiene_report = repository_hygiene_check(root=target)
+        if applied_report["status"] != "applied" or rebuild_report["status"] == "blocked" or hygiene_report["status"] == "blocked":
+            rehearsal_status = "blocked"
+        else:
+            rehearsal_status = "passed" if not applied_report["counts"]["conflicts"] else "warnings"
+    payload = {
+        **base_artifact(
+            artifact_type="individual_git_fixture_rehearsal",
+            artifact_id=stable_id("individual_git_fixture_rehearsal", include_blocker, apply_safe_subset),
+            provenance={"created_by": "ra individual-git-release fixture-rehearsal"},
+            limitations=[
+                "Fixture rehearsal uses sanitized synthetic repositories.",
+                "It validates merge mechanics, not semantic agreement between researchers.",
+            ],
+        ),
+        "status": rehearsal_status,
+        "source_root": str(source),
+        "target_root": str(target),
+        "include_blocker": include_blocker,
+        "apply_safe_subset": apply_safe_subset,
+        "dry_run_counts": dry_run_report["counts"],
+        "dry_run_status": dry_run_report["status"],
+        "applied_counts": applied_report["counts"] if applied_report else None,
+        "applied_status": applied_report["status"] if applied_report else None,
+        "rebuild_status": rebuild_report["status"] if rebuild_report else None,
+        "hygiene_status": hygiene_report["status"] if hygiene_report else None,
+        "expected_behavior": {
+            "forbidden_raw_file_blocks_when_included": include_blocker,
+            "accepted_audit_conflict_remains_unresolved": True,
+            "generated_index_is_skipped_and_rebuilt": True,
+            "safe_unique_records_are_copy_candidates": True,
+        },
+        "requires_human_review": True,
+    }
+    out = _fixture_rehearsal_dir(paths.root) / f"{payload['artifact_id']}.json"
+    FileStore(paths.local_research).write_json(out, payload)
+    workspace_pair_dir = _fixture_rehearsal_dir(paths.root) / "workspace_pair"
+    if workspace_pair_dir.exists():
+        shutil.rmtree(workspace_pair_dir)
+    validation_result = "passed" if payload["status"] in {"passed", "warnings"} else "blocked"
+    validation_record(
+        validation_type="merge_fixture_rehearsal",
+        result=validation_result,
+        scope="local_fixture",
+        platform=platform_module.platform(),
+        python_version=platform_module.python_version(),
+        install_method="source checkout",
+        command_summary="ra individual-git-release fixture-rehearsal",
+        evidence_note=f"Fixture rehearsal status: {payload['status']}",
+        root=paths.root,
+    )
+    return payload
+
+
+def representative_workspace_performance(
+    *,
+    root: Path | None = None,
+    tier: str = "synthetic_git_100",
+    synthetic_count: int = 100,
+    timeout_seconds: float | None = None,
+) -> dict[str, Any]:
+    paths = get_paths(root)
+    if synthetic_count < 1:
+        raise ValueError("synthetic_count must be positive")
+    start = time.monotonic()
+    source = _performance_dir(paths.root) / tier / "source"
+    target = _performance_dir(paths.root) / tier / "target"
+    source.mkdir(parents=True, exist_ok=True)
+    target.mkdir(parents=True, exist_ok=True)
+    for idx in range(synthetic_count):
+        _write_fixture_summary(source, f"{tier}_source_{idx:04d}", f"{tier} Source {idx}")
+        if idx % 4 == 0:
+            _write_fixture_summary(target, f"{tier}_source_{idx:04d}", f"{tier} Source {idx}")
+        if idx % 4 == 1:
+            _write_fixture_summary(target, f"{tier}_target_{idx:04d}", f"{tier} Target {idx}")
+        if timeout_seconds is not None and time.monotonic() - start > timeout_seconds:
+            payload = {
+                "schema_version": INDIVIDUAL_GIT_RELEASE_VERSION,
+                "artifact_type": "individual_git_performance_report",
+                "status": "blocked",
+                "tier": tier,
+                "synthetic_count": synthetic_count,
+                "elapsed_seconds": round(time.monotonic() - start, 6),
+                "blockers": [{"code": "performance_timeout", "timeout_seconds": timeout_seconds}],
+            }
+            FileStore(paths.local_research).write_json(_performance_dir(paths.root) / f"{tier}.json", payload)
+            validation_record(
+                validation_type="representative_workspace_performance",
+                result="blocked",
+                scope="local_fixture",
+                command_summary="ra individual-git-release performance",
+                evidence_note="Performance rehearsal timed out.",
+                blocker=[f"timeout_seconds={timeout_seconds}"],
+                root=paths.root,
+            )
+            return payload
+    hygiene_start = time.monotonic()
+    hygiene = repository_hygiene_check(root=source, strict=True)
+    hygiene_elapsed = time.monotonic() - hygiene_start
+    merge_dry_start = time.monotonic()
+    dry_run = workspace_merge(source=source, target=target)
+    merge_dry_elapsed = time.monotonic() - merge_dry_start
+    merge_apply_start = time.monotonic()
+    applied = workspace_merge(source=source, target=target, apply=True, confirm_merge=True)
+    merge_apply_elapsed = time.monotonic() - merge_apply_start
+    rebuild_start = time.monotonic()
+    rebuild = workspace_rebuild_derived(root=target)
+    rebuild_elapsed = time.monotonic() - rebuild_start
+    backup_start = time.monotonic()
+    backup = create_backup(root=target)
+    backup_elapsed = time.monotonic() - backup_start
+    elapsed = time.monotonic() - start
+    backup_size = Path(backup["backup_path"]).stat().st_size
+    backup_dir = target / "local_research" / "exports" / "backups"
+    if backup_dir.exists():
+        shutil.rmtree(backup_dir)
+    warnings = []
+    if dry_run["status"] == "blocked" or applied["status"] == "blocked" or hygiene["status"] == "blocked" or rebuild["status"] == "blocked":
+        warnings.append({"code": "performance_rehearsal_completed_with_blocking_substatus"})
+    payload = {
+        **base_artifact(
+            artifact_type="individual_git_performance_report",
+            artifact_id=stable_id("individual_git_performance", tier, synthetic_count),
+            provenance={"created_by": "ra individual-git-release performance"},
+            limitations=[
+                "Synthetic Git workspace performance does not certify large real private libraries.",
+                "Counts and timings are local-machine evidence only.",
+            ],
+        ),
+        "status": "warnings" if warnings else "passed",
+        "tier": tier,
+        "synthetic_count": synthetic_count,
+        "elapsed_seconds": round(elapsed, 6),
+        "file_counts": {
+            "source_files": len(_iter_workspace_files(source)),
+            "target_files": len(_iter_workspace_files(target)),
+        },
+        "hygiene_elapsed_seconds": round(hygiene_elapsed, 6),
+        "merge_dry_run_elapsed_seconds": round(merge_dry_elapsed, 6),
+        "merge_apply_elapsed_seconds": round(merge_apply_elapsed, 6),
+        "rebuild_elapsed_seconds": round(rebuild_elapsed, 6),
+        "backup_elapsed_seconds": round(backup_elapsed, 6),
+        "backup_size_bytes": backup_size,
+        "dry_run_counts": dry_run["counts"],
+        "applied_counts": applied["counts"],
+        "hygiene_status": hygiene["status"],
+        "rebuild_status": rebuild["status"],
+        "warnings": warnings,
+        "requires_human_review": True,
+    }
+    FileStore(paths.local_research).write_json(_performance_dir(paths.root) / f"{payload['artifact_id']}.json", payload)
+    synthetic_dir = _performance_dir(paths.root) / tier
+    if synthetic_dir.exists():
+        shutil.rmtree(synthetic_dir)
+    validation_record(
+        validation_type="representative_workspace_performance",
+        result="warnings" if warnings else "passed",
+        scope="local_fixture",
+        platform=platform_module.platform(),
+        python_version=platform_module.python_version(),
+        install_method="source checkout",
+        command_summary=f"ra individual-git-release performance --tier {tier} --synthetic-count {synthetic_count}",
+        evidence_note=f"{tier} completed in {round(elapsed, 6)} seconds",
+        warning=[warning["code"] for warning in warnings],
+        root=paths.root,
+    )
+    return payload
+
+
+def record_local_validation_substitutes(*, root: Path | None = None) -> dict[str, Any]:
+    paths = get_paths(root)
+    platform_status = platform_module.platform()
+    python_version = platform_module.python_version()
+    records = []
+    system = platform_module.system()
+    linux_result = "passed" if system == "Linux" else "blocked"
+    records.append(validation_record(
+        validation_type="linux_wsl",
+        result=linux_result,
+        scope="local_machine",
+        platform=platform_status,
+        python_version=python_version,
+        install_method="source checkout",
+        command_summary="local platform detection during individual Git release gate",
+        evidence_note="Linux/WSL validation is local-machine evidence only.",
+        blocker=[] if linux_result == "passed" else [f"local system is {system}, not Linux/WSL"],
+        root=paths.root,
+    ))
+    matrix = parser_tool_matrix(root=paths.root)
+    missing_tools = [
+        row["tool"] for row in matrix.get("optional_tools", [])
+        if not row.get("available")
+    ]
+    records.append(validation_record(
+        validation_type="minimal_parser_tools",
+        result="warnings",
+        scope="local_substitute",
+        platform=platform_status,
+        python_version=python_version,
+        install_method="source checkout",
+        command_summary="ra parser-tool-matrix local substitute",
+        evidence_note="Local optional-tool matrix recorded as a substitute, not real minimal-machine validation.",
+        warning=[f"missing_optional_tools={','.join(missing_tools)}"] if missing_tools else [],
+        root=paths.root,
+    ))
+    records.append(validation_record(
+        validation_type="colleague_onboarding",
+        result="blocked",
+        scope="real_external",
+        platform="external colleague machine",
+        python_version="unknown",
+        install_method="unknown",
+        command_summary="manual fresh-reader onboarding trial",
+        evidence_note="No real fresh-reader onboarding trial was available during autonomous execution.",
+        blocker=["manual_colleague_onboarding_not_completed"],
+        root=paths.root,
+    ))
+    records.append(validation_record(
+        validation_type="macos",
+        result="blocked",
+        scope="external_machine",
+        platform="macOS",
+        python_version="unknown",
+        install_method="unknown",
+        command_summary="manual macOS release validation",
+        evidence_note="No real macOS machine was available during autonomous execution.",
+        blocker=["manual_macos_validation_not_completed"],
+        root=paths.root,
+    ))
+    records.append(validation_record(
+        validation_type="release_owner_tag_approval",
+        result="blocked",
+        scope="release_owner",
+        platform="manual approval",
+        python_version="not applicable",
+        install_method="not applicable",
+        command_summary="release-owner tag approval",
+        evidence_note="No explicit release-owner approval to tag was provided.",
+        blocker=["tag_approval_not_provided"],
+        root=paths.root,
+    ))
+    records.append(validation_record(
+        validation_type="publication_approval",
+        result="blocked",
+        scope="release_owner",
+        platform="manual approval",
+        python_version="not applicable",
+        install_method="not applicable",
+        command_summary="release-owner publication approval",
+        evidence_note="No explicit release-owner approval to publish artifacts was provided.",
+        blocker=["publication_approval_not_provided"],
+        root=paths.root,
+    ))
+    return {
+        "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
+        "artifact_type": "individual_git_validation_substitute_batch",
+        "status": "recorded",
+        "records": records,
+        "next_actions": [
+            "replace blocked manual records with real external validation records when available",
+            "do not tag or publish until release-owner approval records pass",
+        ],
+    }
+
+
 def workspace_rebuild_derived(*, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     index = build_artifact_index("post_merge_artifact_index", root=paths.root)
@@ -502,8 +1170,10 @@ def workspace_rebuild_derived(*, root: Path | None = None) -> dict[str, Any]:
 
 def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
+    release_root = Path(__file__).resolve().parents[2]
     release = release_report(root=paths.root)
-    hygiene = repository_hygiene_check(root=paths.root)
+    hygiene = repository_hygiene_check(root=paths.root, strict=True)
+    validations = validation_report(root=paths.root)
     merge_supported = True
     blockers = []
     warnings = []
@@ -515,12 +1185,43 @@ def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
         blockers.append({"code": "repository_hygiene_blocked", "issues": hygiene["issues"]})
     elif hygiene["status"] == "warnings":
         warnings.append({"code": "repository_hygiene_warnings", "warnings": hygiene["warnings"]})
+    if validations["status"] == "blocked":
+        blockers.append({"code": "validation_evidence_blocked", "details": validations["blockers"]})
+    elif validations["status"] == "warnings":
+        warnings.append({"code": "validation_evidence_warnings", "warnings": validations["warnings"]})
+    if not validations["local_fixture_validation_complete"]:
+        blockers.append({
+            "code": "local_fixture_validation_incomplete",
+            "validation_types": validations["local_fixture_validation_types"],
+        })
+    if not validations["external_validation_complete"]:
+        blockers.append({
+            "code": "external_validation_required_for_broad_release",
+            "details": "Real colleague/macOS/minimal-machine validation remains a manual gate.",
+        })
+    if not validations["publication_approved"]:
+        blockers.append({
+            "code": "release_owner_approval_required",
+            "details": "Tagging and publication require explicit release-owner approval.",
+        })
     if not merge_supported:
         blockers.append({"code": "workspace_merge_unavailable"})
-    blockers.append({
-        "code": "external_validation_required_for_broad_release",
-        "details": "Real colleague/platform validation and release-owner tag/publication approval are still manual gates.",
-    })
+    ready_for_limited_individual_pilot = (
+        release["status"] != "blocked"
+        and hygiene["status"] != "blocked"
+        and merge_supported
+    )
+    ready_for_git_shared_research_release = (
+        ready_for_limited_individual_pilot
+        and validations["local_fixture_validation_complete"]
+        and not validations["missing_required_validation"]
+        and not validations["blocked_required_validation"]
+    )
+    ready_for_broad_individual_release = (
+        ready_for_git_shared_research_release
+        and validations["external_validation_complete"]
+        and validations["publication_approved"]
+    )
     return {
         **base_artifact(
             artifact_type="individual_git_release_gate",
@@ -532,12 +1233,34 @@ def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
         "current_target": "git_shared_research_release",
         "future_target": "future_multi_user_platform",
         "status": "blocked" if blockers else ("warnings" if warnings else "passed"),
-        "ready_for_limited_individual_pilot": True,
-        "ready_for_broad_individual_release": False,
-        "ready_for_git_shared_research_release": False if blockers else True,
+        "ready_for_limited_individual_pilot": ready_for_limited_individual_pilot,
+        "ready_for_broad_individual_release": ready_for_broad_individual_release,
+        "ready_for_git_shared_research_release": ready_for_git_shared_research_release,
         "release_report_status": release["status"],
         "repository_hygiene_status": hygiene["status"],
+        "repository_hygiene_strict": True,
         "workspace_merge_available": merge_supported,
+        "validation_evidence_status": validations["status"],
+        "validation_evidence_summary": {
+            "required_validation_types": validations["required_validation_types"],
+            "missing_required_validation": validations["missing_required_validation"],
+            "blocked_required_validation": validations["blocked_required_validation"],
+            "local_fixture_validation_complete": validations["local_fixture_validation_complete"],
+            "external_validation_complete": validations["external_validation_complete"],
+            "publication_approved": validations["publication_approved"],
+            "record_count": validations["record_count"],
+        },
+        "merge_fixture_rehearsal_status": next(
+            (row["status"] for row in validations["required_status"] if row["validation_type"] == "merge_fixture_rehearsal"),
+            "missing",
+        ),
+        "representative_workspace_performance_status": next(
+            (row["status"] for row in validations["required_status"] if row["validation_type"] == "representative_workspace_performance"),
+            "missing",
+        ),
+        "release_notes_status": "present" if (release_root / "docs" / "release_notes_0.1.0.md").exists() else "missing",
+        "publication_tag_approval_status": "approved" if validations["publication_approved"] else "blocked",
+        "future_multi_user_platform_deferred": True,
         "blockers": blockers,
         "warnings": warnings,
         "deferred_future_platform_items": [

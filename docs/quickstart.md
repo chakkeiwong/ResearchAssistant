@@ -34,7 +34,7 @@ Generated derivations, synthesis, graph reports, benchmark reports, and readines
 Before committing a workspace for another researcher to inspect, run:
 
 ```bash
-ra --root ~/research-assistant-workspace repository-hygiene check
+ra --root ~/research-assistant-workspace repository-hygiene check --strict
 ```
 
 To import from another checked-out repository, start with a dry run:
@@ -50,7 +50,8 @@ ra --root ~/research-assistant-workspace workspace merge --source /path/to/other
 ra --root ~/research-assistant-workspace workspace rebuild-derived
 ```
 
-See `docs/workflows/git_sharing_workflow.md`.
+See `docs/workflows/git_sharing_workflow.md` for the short policy and
+`docs/workflows/git_sharing_walkthrough.md` for the full first-time path.
 
 ## Get Help Safely
 

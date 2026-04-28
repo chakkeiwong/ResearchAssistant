@@ -35,9 +35,14 @@ from research_assistant.individual_release import (
 )
 from research_assistant.individual_git_release import (
     classify_shareable_path,
+    fixture_rehearsal,
     individual_git_release_gate,
     load_shareable_workspace_policy,
+    record_local_validation_substitutes,
+    representative_workspace_performance,
     repository_hygiene_check,
+    validation_record,
+    validation_report,
     workspace_merge,
     workspace_rebuild_derived,
 )
@@ -352,7 +357,7 @@ def cmd_release_report(args: argparse.Namespace) -> int:
 
 def cmd_repository_hygiene(args: argparse.Namespace) -> int:
     if args.repository_hygiene_action == 'check':
-        return _print_json(repository_hygiene_check(root=Path(args.root) if args.root else None))
+        return _print_json(repository_hygiene_check(root=Path(args.root) if args.root else None, strict=args.strict))
     if args.repository_hygiene_action == 'policy':
         return _print_json(load_shareable_workspace_policy())
     if args.repository_hygiene_action == 'classify':
@@ -364,6 +369,38 @@ def cmd_individual_git_release(args: argparse.Namespace) -> int:
     root = Path(args.root) if args.root else None
     if args.individual_git_release_action == 'gate-build':
         return _print_json(individual_git_release_gate(root=root))
+    if args.individual_git_release_action == 'validation-record':
+        return _print_json(validation_record(
+            validation_type=args.validation_type,
+            result=args.result,
+            platform=args.platform or '',
+            python_version=args.python_version or '',
+            install_method=args.install_method or '',
+            command_summary=args.command_summary or '',
+            scope=args.scope,
+            evidence_note=args.evidence_note or '',
+            blocker=args.blocker or [],
+            warning=args.warning or [],
+            root=root,
+        ))
+    if args.individual_git_release_action == 'validation-report':
+        return _print_json(validation_report(root=root))
+    if args.individual_git_release_action == 'validation-substitutes':
+        return _print_json(record_local_validation_substitutes(root=root))
+    if args.individual_git_release_action == 'fixture-rehearsal':
+        return _print_json(fixture_rehearsal(
+            root=root,
+            fixture_root=Path(args.fixture_root) if args.fixture_root else None,
+            include_blocker=args.include_blocker,
+            apply_safe_subset=args.apply_safe_subset,
+        ))
+    if args.individual_git_release_action == 'performance':
+        return _print_json(representative_workspace_performance(
+            root=root,
+            tier=args.tier,
+            synthetic_count=args.synthetic_count,
+            timeout_seconds=args.timeout_seconds,
+        ))
     raise SystemExit(f'unknown individual-git-release action {args.individual_git_release_action}')
 
 
@@ -1048,6 +1085,7 @@ def build_parser() -> argparse.ArgumentParser:
     repository_hygiene = sub.add_parser('repository-hygiene', help='Check whether a local workspace is safe to share through Git')
     repository_hygiene_sub = repository_hygiene.add_subparsers(dest='repository_hygiene_action', required=True)
     repository_hygiene_check_cmd = repository_hygiene_sub.add_parser('check')
+    repository_hygiene_check_cmd.add_argument('--strict', action='store_true')
     repository_hygiene_check_cmd.set_defaults(func=cmd_repository_hygiene)
     repository_hygiene_policy_cmd = repository_hygiene_sub.add_parser('policy')
     repository_hygiene_policy_cmd.set_defaults(func=cmd_repository_hygiene)
@@ -1059,6 +1097,32 @@ def build_parser() -> argparse.ArgumentParser:
     individual_git_release_sub = individual_git_release_cmd.add_subparsers(dest='individual_git_release_action', required=True)
     individual_git_release_gate_cmd = individual_git_release_sub.add_parser('gate-build')
     individual_git_release_gate_cmd.set_defaults(func=cmd_individual_git_release)
+    individual_git_release_validation_record = individual_git_release_sub.add_parser('validation-record')
+    individual_git_release_validation_record.add_argument('--validation-type', required=True)
+    individual_git_release_validation_record.add_argument('--result', choices=['passed', 'warnings', 'blocked'], required=True)
+    individual_git_release_validation_record.add_argument('--scope', default='local_machine')
+    individual_git_release_validation_record.add_argument('--platform')
+    individual_git_release_validation_record.add_argument('--python-version')
+    individual_git_release_validation_record.add_argument('--install-method')
+    individual_git_release_validation_record.add_argument('--command-summary')
+    individual_git_release_validation_record.add_argument('--evidence-note')
+    individual_git_release_validation_record.add_argument('--blocker', action='append')
+    individual_git_release_validation_record.add_argument('--warning', action='append')
+    individual_git_release_validation_record.set_defaults(func=cmd_individual_git_release)
+    individual_git_release_validation_report = individual_git_release_sub.add_parser('validation-report')
+    individual_git_release_validation_report.set_defaults(func=cmd_individual_git_release)
+    individual_git_release_validation_substitutes = individual_git_release_sub.add_parser('validation-substitutes')
+    individual_git_release_validation_substitutes.set_defaults(func=cmd_individual_git_release)
+    individual_git_release_fixture = individual_git_release_sub.add_parser('fixture-rehearsal')
+    individual_git_release_fixture.add_argument('--fixture-root')
+    individual_git_release_fixture.add_argument('--include-blocker', action=argparse.BooleanOptionalAction, default=False)
+    individual_git_release_fixture.add_argument('--apply-safe-subset', action=argparse.BooleanOptionalAction, default=True)
+    individual_git_release_fixture.set_defaults(func=cmd_individual_git_release)
+    individual_git_release_performance = individual_git_release_sub.add_parser('performance')
+    individual_git_release_performance.add_argument('--tier', default='synthetic_git_100')
+    individual_git_release_performance.add_argument('--synthetic-count', type=int, default=100)
+    individual_git_release_performance.add_argument('--timeout-seconds', type=float)
+    individual_git_release_performance.set_defaults(func=cmd_individual_git_release)
 
     bounded_workflow_cmd = sub.add_parser('bounded-workflow', help='Write local timeout diagnostics for bounded workflow failures')
     bounded_sub = bounded_workflow_cmd.add_subparsers(dest='bounded_action', required=True)

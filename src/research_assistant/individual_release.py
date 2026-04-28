@@ -67,6 +67,8 @@ RELEASE_DOCS = [
     "docs/installation.md",
     "docs/quickstart.md",
     "docs/workflows/individual_research_workflow.md",
+    "docs/workflows/git_sharing_workflow.md",
+    "docs/workflows/git_sharing_walkthrough.md",
     "docs/troubleshooting.md",
     "docs/privacy.md",
     "docs/release_checklist.md",

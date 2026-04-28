@@ -1377,6 +1377,108 @@ Remaining local state:
 - `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored and uncommitted.
 
 
+## Update — individual Git final gap closure validation completed
+
+Execution completed for `docs/plans/individual_git_release_final_gap_closure_plan_2026-04-28.md`.
+
+Implemented:
+- Validation evidence schema and CLI:
+  - `ra individual-git-release validation-record`
+  - `ra individual-git-release validation-report`
+  - `ra individual-git-release validation-substitutes`
+- Realistic local fixture rehearsal:
+  - `ra individual-git-release fixture-rehearsal`
+  - dry-run/apply/rebuild/hygiene evidence on sanitized synthetic Git-sharing workspaces.
+- Strict repository hygiene:
+  - `ra repository-hygiene check --strict`
+  - secret-like field detection, private path detection, build/cache/private-root detection, and strict Git-state warnings.
+- Representative Git workspace performance:
+  - `ra individual-git-release performance`
+  - synthetic tier evidence including hygiene, merge dry-run/apply, rebuild, backup size, counts, and elapsed timings.
+- Gate calibration:
+  - `ra individual-git-release gate-build` now reports validation evidence, strict hygiene, fixture rehearsal, performance, release notes, publication approval, and deferred future-platform items.
+- Release docs:
+  - `docs/workflows/git_sharing_walkthrough.md`
+  - updated release notes, release checklist, quickstart, privacy, support, platform support, onboarding trial, known limitations, and release notes template.
+- Final ordered gate script:
+  - `scripts/run_individual_git_release_gate.sh`
+
+Validation completed:
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 2.69s`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q`: `6 passed in 0.91s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.97s`.
+- `timeout 180 scripts/run_bounded_tests.sh`: `34 passed in 0.96s`.
+- `GATE_ROOT=/tmp/research-assistant-individual-git-gate-clean timeout 300 scripts/run_individual_git_release_gate.sh`: fast suite `14 passed in 1.25s`, bounded suite `34 passed in 1.33s`, individual release integration suite `14 passed in 2.31s`, local validation substitutes recorded, fixture rehearsal passed, synthetic Git 100 performance passed, strict hygiene completed with warnings only, release report was ready for release-candidate review, validation report was blocked for manual items, and final gate completed with status `blocked` as intended.
+- `timeout 300 scripts/build_release_artifacts.sh`: built `research_assistant-0.1.0-py3-none-any.whl`, SHA256 `914e0993539067bd5cb309cb645edcc49bb1338930edbfd771a096718887161d`, and regenerated `dist/release_artifacts_manifest.json`.
+- `git diff --check`: clean.
+
+Final audit before commit:
+- No tag was created and no artifact was published.
+- Real colleague onboarding, macOS validation, real minimal-parser-tool machine validation, release-owner tag approval, and publication approval were not faked. They are represented as blocked/manual validation records when substitutes are generated.
+- Synthetic fixture and performance workspaces are removed after compact evidence records are written, so backup archives and synthetic workspaces are not left as shareable artifacts.
+- Generated validation, fixture, performance, merge, parser, benchmark, derivation, traceability, LLM, and readiness artifacts remain review material.
+- The gate reports `ready_for_limited_individual_pilot: true`, `ready_for_git_shared_research_release: false`, `ready_for_broad_individual_release: false`, and `future_multi_user_platform_deferred: true`.
+
+Remaining release blockers:
+- Real colleague onboarding from docs.
+- Real macOS validation.
+- Real minimal parser-tool environment validation.
+- Explicit release-owner approval for tag creation and publication.
+
+Current local state before commit:
+- Modified tracked release code/docs/tests plus tracked `src/research_assistant.egg-info/SOURCES.txt` refreshed by the artifact build.
+- New tracked-intended files: `docs/workflows/git_sharing_walkthrough.md`, `scripts/run_individual_git_release_gate.sh`.
+- Ignored plan file `docs/plans/individual_git_release_final_gap_closure_plan_2026-04-28.md` must be force-staged intentionally.
+- `.codex` remains untracked.
+- `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored and should not be committed.
+
+
+## Update — individual Git final gap closure started
+
+New objective:
+- Execute `docs/plans/individual_git_release_final_gap_closure_plan_2026-04-28.md` after the computer shutdown recovery.
+- Update this reset memo, audit the plan as another developer, execute each phase with the plan/execute/test/audit/tidy/memo loop, commit the modified files, and record completion.
+
+Current baseline:
+- Latest committed checkpoint before this pass: `9771c27 Record individual Git release checkpoint`.
+- Tracked worktree is clean.
+- `docs/plans/individual_git_release_final_gap_closure_plan_2026-04-28.md` exists under ignored `docs/plans/` and must be force-staged intentionally.
+- `.codex` remains untracked; `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored local state.
+
+Independent plan audit before execution:
+- Product scope: plan stays focused on individual local use and Git-based sharing. Database, service deployment, SSO/RBAC, hosted UI, real-time collaboration, and department operations remain deferred future-platform work.
+- Release management: validation evidence, release notes, final gate, and tag/publication approval are explicit. Missing point corrected in execution policy: real colleague/macOS/minimal-machine validation and release-owner approval cannot be completed autonomously and must be recorded as blocked/manual, not fabricated.
+- Privacy/data safety: fixtures must remain sanitized; strict hygiene must block private paths, raw papers, backup archives, generated caches, credentials, provider keys, and tokens.
+- Research trust: merge/import, parser checks, performance reports, validation records, and release gates remain review/governance evidence, not mathematical approval or parser-quality certification.
+- Engineering: local automation should be deterministic and fixture-based; external validation should be separately represented from local substitutes.
+
+Phase execution policy for this pass:
+- Implement local evidence schemas, fixture rehearsal, strict hygiene, performance reports, gate calibration, docs, and final gate script.
+- Record locally unavailable external validations as blocked/manual records where useful.
+- Run focused tests before broader validation.
+- Do not create a tag or publish artifacts without explicit release-owner approval.
+
+Phase 1-7 local implementation checkpoint:
+- Added individual Git validation evidence records and reports under `local_research/governance/individual_git_release/validation/`.
+- Added local substitute recording for Linux/WSL and parser-tool evidence, while recording colleague onboarding, macOS, tag approval, and publication approval as blocked/manual when no real validation or approval exists.
+- Hardened repository hygiene with secret/private-path scanning and `--strict` checks for local build/cache/private roots.
+- Added deterministic fixture rehearsal for Git-sharing merge/import/rebuild evidence.
+- Added representative synthetic Git workspace performance evidence.
+- Calibrated `ra individual-git-release gate-build` around local fixture evidence, strict hygiene, external validation, publication approval, and deferred future-platform items.
+
+Focused validation:
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 2.69s`.
+
+Audit after phases 1-7:
+- Local fixture evidence is deterministic and sanitized.
+- Real colleague/macOS/minimal-machine validation is not faked; it remains blocked/manual in validation evidence.
+- Generated governance and performance reports remain review material.
+- Backup archives produced during fixture/performance rehearsals are tidied from synthetic workspaces after size evidence is captured.
+
+Next safe step:
+- Update walkthrough, release docs, known limitations, privacy/release checklist, and final ordered gate script.
+
+
 ## Update — individual Git release gap closure started
 
 New objective:
