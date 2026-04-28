@@ -596,3 +596,104 @@ def test_full_scale_plan_registry_usefulness_and_export(tmp_path: Path, capsys) 
     assert 'industrial_full_scale_phase_registry' in artifact_types
     assert 'industrial_full_scale_usefulness_metrics' in artifact_types
     assert 'industrial_full_scale_execution_readiness' in artifact_types
+
+
+def test_industrial_release_gates_block_production_without_external_approval(tmp_path: Path, capsys) -> None:
+    _write_summary(tmp_path)
+
+    rc = main(['--root', str(tmp_path), 'industrial-release', 'phases'])
+    phases = _json_out(capsys)
+    assert rc == 0
+    assert len(phases) == 17
+    assert phases[0]['phase_id'] == 'phase_00_release_definition'
+    assert phases[-1]['phase_id'] == 'phase_16_final_gate'
+    assert any(phase['status'] == 'blocked_for_governed_integration' for phase in phases)
+
+    rc = main([
+        '--root', str(tmp_path), 'industrial-release', 'phase-show',
+        '--phase-id', 'phase_11_llm_governance',
+    ])
+    llm_phase = _json_out(capsys)
+    assert rc == 0
+    assert llm_phase['release_gap'] == 'llm_governance'
+    assert 'live credentials or provider access required' in llm_phase['stop_conditions']
+
+    rc = main(['--root', str(tmp_path), 'industrial-release', 'definition-build'])
+    definition = _json_out(capsys)
+    assert rc == 0
+    assert definition['artifact_type'] == 'industrial_release_definition'
+    assert definition['current_release_level'] == 'individual_pilot'
+    assert definition['phase_count'] == 17
+    assert 'industrial_production' in definition['release_levels']
+    gate_contract = json.loads(Path('docs/release/industrial_release_gates.json').read_text())
+    assert gate_contract['gate_version'] == definition['gate_version']
+    assert gate_contract['current_release_level'] == 'individual_pilot'
+    assert [gate['phase_id'] for gate in gate_contract['gates']] == [phase['phase_id'] for phase in phases]
+
+    validation_dir = tmp_path / 'external_validation'
+    validation_dir.mkdir()
+    (validation_dir / 'linux_wsl.json').write_text(json.dumps({
+        'schema_version': 'industrial-external-validation-v1',
+        'validation_type': 'linux_wsl',
+        'platform': 'Linux/WSL2',
+        'python_version': '3.11.15',
+        'result': 'passed',
+        'command_summary': ['fixture passed'],
+    }))
+    (validation_dir / 'private.json').write_text(json.dumps({
+        'schema_version': 'industrial-external-validation-v1',
+        'validation_type': 'colleague_onboarding',
+        'platform': 'Linux',
+        'python_version': '3.11.15',
+        'result': 'passed',
+        'private_pdf': 'do-not-record.pdf',
+    }))
+
+    rc = main([
+        '--root', str(tmp_path), 'industrial-release', 'external-validation-build',
+        '--validation-dir', str(validation_dir),
+    ])
+    external = _json_out(capsys)
+    assert rc == 0
+    assert external['status'] == 'blocked'
+    assert 'minimal_parser_tools' in external['missing_validation_types']
+    issue_codes = {issue['code'] for record in external['records'] for issue in record['issues']}
+    assert 'forbidden_private_fields' in issue_codes
+
+    rc = main(['--root', str(tmp_path), 'industrial-release', 'publication-check'])
+    publication = _json_out(capsys)
+    assert rc == 0
+    assert publication['artifact_type'] == 'industrial_publication_check'
+    assert publication['manual_approval_required'] is True
+    assert publication['status'] in {'blocked', 'blocked_manual_approval'}
+
+    rc = main(['--root', str(tmp_path), 'industrial-release', 'gate-build'])
+    gate = _json_out(capsys)
+    assert rc == 0
+    assert gate['artifact_type'] == 'industrial_release_gate'
+    assert gate['status'] == 'blocked'
+    assert gate['current_release_level'] == 'individual_pilot'
+    assert gate['ready_for_individual_pilot'] is True
+    assert gate['ready_for_departmental_beta'] is False
+    assert gate['ready_for_industrial_production'] is False
+    blocker_codes = {blocker['code'] for blocker in gate['blockers']}
+    assert 'external_validation_incomplete' in blocker_codes
+    assert any(blocker['phase_id'] == 'phase_11_llm_governance' for blocker in gate['blockers'])
+
+    rc = main([
+        '--root', str(tmp_path), 'industrial-release', 'show',
+        '--artifact-id', 'industrial_release_gate',
+    ])
+    shown = _json_out(capsys)
+    assert rc == 0
+    assert shown['artifact_id'] == 'industrial_release_gate'
+
+    rc = main(['--root', str(tmp_path), 'tool-contract', 'export'])
+    contract = _json_out(capsys)
+    assert rc == 0
+    commands = {row['command'] for row in contract['commands']}
+    assert 'industrial-release' in commands
+
+    script = Path('scripts/run_industrial_release_gate.sh')
+    assert script.exists()
+    assert script.stat().st_mode & 0o111

@@ -1,0 +1,56 @@
+# External Validation Protocol
+
+## Purpose
+
+Industrial release requires evidence from real target environments. This
+protocol records only sanitized metadata and command statuses.
+
+## Required Validation Types
+
+- `colleague_onboarding`
+- `linux_wsl`
+- `macos`
+- `minimal_parser_tools`
+- `sanitized_corpus`
+
+## Record Shape
+
+```json
+{
+  "schema_version": "industrial-external-validation-v1",
+  "validation_type": "colleague_onboarding",
+  "platform": "Linux/WSL2",
+  "python_version": "3.11.15",
+  "install_method": "wheel",
+  "optional_parser_tools": ["pdftotext"],
+  "result": "passed",
+  "command_summary": ["clean install passed", "demo passed"],
+  "blockers": [],
+  "warnings": []
+}
+```
+
+## Do Not Record
+
+- private PDFs, TeX source, datasets, notes, paper titles, or screenshots;
+- local workspace contents;
+- backup archives;
+- provider keys, tokens, credentials, cookies, or shell history;
+- unsanitized local paths or usernames.
+
+## Validation Commands
+
+Use disposable workspaces and bounded commands:
+
+```bash
+timeout 240 scripts/run_clean_install_smoke.sh
+timeout 180 scripts/run_release_smoke.sh
+ra platform-status
+ra doctor --matrix
+ra parser-tool-matrix
+ra parser-benchmark-smoke
+```
+
+Records should be stored under
+`local_research/governance/external_validation/` and remain local unless
+explicitly sanitized for sharing.

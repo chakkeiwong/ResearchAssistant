@@ -1234,3 +1234,115 @@ Remaining local state:
 Next safe step:
 - Push `main` if remote publication of this validation commit is desired.
 - Run real colleague onboarding and macOS/minimal-parser-tool validations before tagging or broad release.
+
+
+## Update — industrial release gap closure execution started
+
+New objective:
+- Execute `docs/plans/industrial_release_gap_closure_plan_2026-04-27.md` autonomously with the requested loop: update reset memo, audit as another developer, execute every phase, test, audit, tidy, commit, and update this memo at completion.
+
+Current baseline:
+- Latest committed checkpoint: `277665b Record final validation checkpoint`.
+- Tracked worktree is clean at start.
+- Pre-existing local scratch/generated state remains untracked or ignored: `.codex`, `.claude/`, caches, `build/`, and `dist/`.
+
+Execution boundary:
+- The plan contains M2/M3 phases requiring production storage decisions, identity/RBAC integration, UI deployment, live providers, credentials, security review, external users, and department SOP approval.
+- This autonomous pass will implement M0 contracts and safe M1 local deterministic gates for every phase.
+- Anything requiring external infrastructure, credentials, production deployment, or department owner approval will be marked `blocked_for_governed_integration`, not claimed as complete.
+
+Files touched so far:
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run:
+- Not yet run for this industrial release pass.
+
+Next safe step:
+- Audit the industrial release plan, add audit amendments if needed, then implement local release gate contracts and reports for phases 0 through 16.
+
+
+## Update — industrial release gap plan audited
+
+Independent developer audit completed before execution:
+- The plan correctly separates the individual pilot from departmental beta and industrial production.
+- The plan covers the major remaining gaps: external validation, publication/tagging, production storage, service contracts, RBAC/collaboration, parser/source benchmarks, derivation approval, experiment reproducibility, traceability, search/graph, LLM governance, security/ops, scalability, UI, SOPs, and final release gate.
+- The main risk is over-execution: a local no-human-intervention agent cannot honestly complete M2/M3 work such as real production storage approval, SSO/RBAC, UI deployment, live provider use, security signoff, SOP approval, release publication, or external colleague/platform validation.
+- Added an audit amendment clarifying that this autonomous pass must implement M0 contracts and safe M1 local deterministic checks, while marking governed integrations as blocked.
+
+Files touched:
+- `docs/plans/industrial_release_gap_closure_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Tests run:
+- Not yet run after audit amendment.
+
+Next safe step:
+- Implement an industrial release gate contract/report layer that executes all phases as auditable M0/M1 status records and prevents false production claims.
+
+
+## Update — industrial release gap phases 0-16 executed
+
+Execution summary:
+- Executed the industrial release gap plan as an M0/M1 autonomous pass, not as a fake production release.
+- Added an industrial release gate module and CLI surface under `ra industrial-release`.
+- Added a static machine-readable release gate contract at `docs/release/industrial_release_gates.json`.
+- Added release, validation, publication, service/API, LLM governance, operations, security, scalability, and SOP docs.
+- Added `scripts/run_industrial_release_gate.sh` as the bounded deterministic gate runner.
+- Added integration coverage proving industrial production remains blocked without external validation, human approval, and governed integrations.
+
+Phase outcomes:
+- Phase 0 release definition: M0 contract complete; current level remains `individual_pilot`.
+- Phase 1 external validation: sanitized aggregation implemented; missing colleague/macOS/minimal-parser/sanitized-corpus records block broader release.
+- Phase 2 publication: runbook and publication check implemented; artifact hash/version/release-note checks, Git cleanliness, final-gate evidence, and manual approval are enforced as blockers.
+- Phase 3 storage: production storage remains blocked for governed integration; local artifact/workspace validation is used as deterministic evidence.
+- Phase 4 service/API: contract doc and tool-contract export updated.
+- Phase 5 identity/collaboration: production SSO/RBAC remains blocked; local collaboration artifacts remain review material.
+- Phase 6 parser benchmarks: local deterministic parser benchmark/readiness scaffolds remain the evidence surface; expanded gold corpus remains future work.
+- Phase 7 derivation approval: generated derivations remain review artifacts; human mathematical approval remains blocked.
+- Phase 8 experiment reproducibility: local fixture evidence/readiness is represented; external compute remains blocked.
+- Phase 9 traceability: local target checks/readiness are represented without semantic correctness claims.
+- Phase 10 search/graph: contract-level gate only; semantic/vector search remains policy-gated and M1 implementation remains blocked.
+- Phase 11 LLM governance: policy doc added; live calls remain disabled until provider/security approval.
+- Phase 12 security/ops: runbook/checklist added; security/compliance signoff remains blocked.
+- Phase 13 scalability: validation protocol added; real/sanitized corpus performance remains externally blocked.
+- Phase 14 UI workbench: production UI remains blocked until storage/API/identity/deployment decisions are accepted.
+- Phase 15 SOPs: SOP draft added; department owner approval or waiver remains blocked.
+- Phase 16 final gate: bounded script and aggregate gate report added; industrial production release is impossible to claim while upstream blockers remain.
+
+Validation completed:
+- `PYTHONPATH=src timeout 120 python -m pytest tests/integration/test_industrial_platform_cli.py::test_industrial_release_gates_block_production_without_external_approval -q`: `1 passed in 0.15s`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q`: `6 passed in 0.79s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.84s`.
+- `timeout 180 scripts/run_bounded_tests.sh`: `34 passed in 0.87s`.
+- `timeout 300 scripts/run_industrial_release_gate.sh`: fast suite `14 passed in 0.82s`, bounded suite `34 passed in 0.87s`, industrial integration suite `6 passed in 0.78s`, then `ra industrial-release gate-build` completed with status `blocked` as intended.
+
+Independent audit after execution:
+- No tag was created and no artifact was published.
+- No fake external validation, fake release-owner approval, fake SOP approval, fake security signoff, fake provider credentials, or fake production deployment was introduced.
+- Generated/parser/LLM/benchmark/derivation/readiness artifacts remain review material.
+- The final industrial gate reports `ready_for_individual_pilot: true`, `ready_for_departmental_beta: false`, and `ready_for_industrial_production: false`.
+- The strongest remaining blockers are external validation, publication approval, production storage/identity/security/deployment decisions, SOP approval, scalability on sanitized real corpora, and live-provider governance.
+
+Files touched:
+- `src/research_assistant/industrial/release.py`
+- `src/research_assistant/cli.py`
+- `src/research_assistant/industrial/platform.py`
+- `tests/integration/test_industrial_platform_cli.py`
+- `scripts/run_industrial_release_gate.sh`
+- `docs/release/industrial_release_definition.md`
+- `docs/release/industrial_release_gates.json`
+- `docs/release/external_validation_protocol.md`
+- `docs/release/publication_runbook.md`
+- `docs/release/scalability_validation_protocol.md`
+- `docs/api/industrial_service_contract.md`
+- `docs/governance/llm_provider_policy.md`
+- `docs/ops/industrial_operations_runbook.md`
+- `docs/security/security_review_checklist.md`
+- `docs/sop/industrial_research_sop.md`
+- `docs/plans/industrial_release_gap_closure_plan_2026-04-27.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Current checkpoint:
+- Ready to stage and commit the industrial release gate contracts.
+- `docs/plans/industrial_release_gap_closure_plan_2026-04-27.md` is ignored by `.gitignore` and must be force-staged intentionally.
+- Pre-existing `.codex` remains untracked; generated caches, `build/`, and `dist/` remain ignored.

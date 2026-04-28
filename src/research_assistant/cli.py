@@ -41,6 +41,16 @@ from research_assistant.industrial.full_scale import (
     list_phase_contracts,
     show_phase_registry,
 )
+from research_assistant.industrial.release import (
+    build_external_validation_report,
+    build_industrial_release_gate,
+    build_publication_check,
+    build_release_definition,
+    get_release_phase,
+    list_release_phases,
+    show_industrial_release_artifact,
+    show_release_definition,
+)
 from research_assistant.industrial.platform import (
     IMPLEMENTATION_LINK_RELATIONSHIPS,
     add_derivation_comment,
@@ -564,6 +574,30 @@ def cmd_full_scale_plan(args: argparse.Namespace) -> int:
     if args.full_scale_action == 'readiness-build':
         return _print_json(build_execution_readiness(root=root))
     raise SystemExit(f'unknown full-scale-plan action {args.full_scale_action}')
+
+
+def cmd_industrial_release(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.industrial_release_action == 'phases':
+        return _print_json(list_release_phases())
+    if args.industrial_release_action == 'phase-show':
+        return _print_json(get_release_phase(args.phase_id))
+    if args.industrial_release_action == 'definition-build':
+        return _print_json(build_release_definition(root=root))
+    if args.industrial_release_action == 'definition-show':
+        return _print_json(show_release_definition(root=root))
+    if args.industrial_release_action == 'external-validation-build':
+        return _print_json(build_external_validation_report(
+            root=root,
+            validation_dir=Path(args.validation_dir) if args.validation_dir else None,
+        ))
+    if args.industrial_release_action == 'publication-check':
+        return _print_json(build_publication_check(root=root))
+    if args.industrial_release_action == 'gate-build':
+        return _print_json(build_industrial_release_gate(root=root))
+    if args.industrial_release_action == 'show':
+        return _print_json(show_industrial_release_artifact(args.artifact_id, root=root))
+    raise SystemExit(f'unknown industrial-release action {args.industrial_release_action}')
 
 
 def cmd_tool_contract(args: argparse.Namespace) -> int:
@@ -1274,6 +1308,28 @@ def build_parser() -> argparse.ArgumentParser:
     full_scale_usefulness.set_defaults(func=cmd_full_scale_plan)
     full_scale_readiness = full_scale_sub.add_parser('readiness-build')
     full_scale_readiness.set_defaults(func=cmd_full_scale_plan)
+
+    industrial_release = sub.add_parser('industrial-release')
+    industrial_release_sub = industrial_release.add_subparsers(dest='industrial_release_action', required=True)
+    industrial_release_phases = industrial_release_sub.add_parser('phases')
+    industrial_release_phases.set_defaults(func=cmd_industrial_release)
+    industrial_release_phase_show = industrial_release_sub.add_parser('phase-show')
+    industrial_release_phase_show.add_argument('--phase-id', required=True)
+    industrial_release_phase_show.set_defaults(func=cmd_industrial_release)
+    industrial_release_definition_build = industrial_release_sub.add_parser('definition-build')
+    industrial_release_definition_build.set_defaults(func=cmd_industrial_release)
+    industrial_release_definition_show = industrial_release_sub.add_parser('definition-show')
+    industrial_release_definition_show.set_defaults(func=cmd_industrial_release)
+    industrial_release_external = industrial_release_sub.add_parser('external-validation-build')
+    industrial_release_external.add_argument('--validation-dir')
+    industrial_release_external.set_defaults(func=cmd_industrial_release)
+    industrial_release_publication = industrial_release_sub.add_parser('publication-check')
+    industrial_release_publication.set_defaults(func=cmd_industrial_release)
+    industrial_release_gate = industrial_release_sub.add_parser('gate-build')
+    industrial_release_gate.set_defaults(func=cmd_industrial_release)
+    industrial_release_show = industrial_release_sub.add_parser('show')
+    industrial_release_show.add_argument('--artifact-id', required=True)
+    industrial_release_show.set_defaults(func=cmd_industrial_release)
 
     tool_contract = sub.add_parser('tool-contract')
     tool_contract_sub = tool_contract.add_subparsers(dest='tool_contract_action', required=True)

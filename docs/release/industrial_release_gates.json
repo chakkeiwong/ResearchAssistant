@@ -1,0 +1,129 @@
+{
+  "gate_version": "industrial-release-gates-v1",
+  "artifact_type": "industrial_release_gate_contract",
+  "current_release_level": "individual_pilot",
+  "requested_release_level": "industrial_production",
+  "release_levels": {
+    "individual_pilot": {
+      "description": "One user, private local workspace, no shared services.",
+      "release_decision": "allowed only as a limited pilot candidate"
+    },
+    "departmental_beta": {
+      "description": "Limited departmental trial with explicit owners, external validation, and local deterministic gates.",
+      "release_decision": "blocked until external validation, publication approval, identity/collaboration policy, parser benchmarks, security/ops, SOP, and final gate records are complete"
+    },
+    "industrial_production": {
+      "description": "Production departmental platform with storage, service, security, operations, SOP, and deployment signoff.",
+      "release_decision": "blocked until every M0/M1/M2/M3 gate has passed or has a documented owner waiver"
+    }
+  },
+  "gates": [
+    {
+      "phase_id": "phase_00_release_definition",
+      "release_gap": "release_scope",
+      "milestone_target": "M0",
+      "status": "m0_contract_complete"
+    },
+    {
+      "phase_id": "phase_01_external_validation",
+      "release_gap": "external_validation",
+      "milestone_target": "M1",
+      "status": "blocked_external_validation"
+    },
+    {
+      "phase_id": "phase_02_publication",
+      "release_gap": "publication",
+      "milestone_target": "M1",
+      "status": "blocked_manual_approval"
+    },
+    {
+      "phase_id": "phase_03_storage",
+      "release_gap": "storage",
+      "milestone_target": "M0",
+      "status": "blocked_for_governed_integration"
+    },
+    {
+      "phase_id": "phase_04_service_api",
+      "release_gap": "service_api",
+      "milestone_target": "M0",
+      "status": "m0_contract_complete"
+    },
+    {
+      "phase_id": "phase_05_identity_collaboration",
+      "release_gap": "identity_collaboration",
+      "milestone_target": "M0",
+      "status": "blocked_for_governed_integration"
+    },
+    {
+      "phase_id": "phase_06_parser_benchmarks",
+      "release_gap": "parser_certification",
+      "milestone_target": "M1",
+      "status": "m1_local_deterministic"
+    },
+    {
+      "phase_id": "phase_07_derivation_approval",
+      "release_gap": "derivation_approval",
+      "milestone_target": "M1",
+      "status": "blocked_human_approval"
+    },
+    {
+      "phase_id": "phase_08_experiment_reproducibility",
+      "release_gap": "experiment_reproducibility",
+      "milestone_target": "M1",
+      "status": "m1_local_deterministic"
+    },
+    {
+      "phase_id": "phase_09_traceability",
+      "release_gap": "traceability",
+      "milestone_target": "M1",
+      "status": "m1_local_deterministic"
+    },
+    {
+      "phase_id": "phase_10_search_graph",
+      "release_gap": "search_graph",
+      "milestone_target": "M0",
+      "status": "blocked_m1_implementation"
+    },
+    {
+      "phase_id": "phase_11_llm_governance",
+      "release_gap": "llm_governance",
+      "milestone_target": "M0",
+      "status": "blocked_for_governed_integration"
+    },
+    {
+      "phase_id": "phase_12_security_ops",
+      "release_gap": "security_operations",
+      "milestone_target": "M0",
+      "status": "blocked_for_governed_integration"
+    },
+    {
+      "phase_id": "phase_13_scalability",
+      "release_gap": "scalability",
+      "milestone_target": "M1",
+      "status": "blocked_external_validation"
+    },
+    {
+      "phase_id": "phase_14_ui_workbench",
+      "release_gap": "ui_workbench",
+      "milestone_target": "M0",
+      "status": "blocked_for_governed_integration"
+    },
+    {
+      "phase_id": "phase_15_sops",
+      "release_gap": "department_sops",
+      "milestone_target": "M0",
+      "status": "blocked_manual_approval"
+    },
+    {
+      "phase_id": "phase_16_final_gate",
+      "release_gap": "release_gate",
+      "milestone_target": "M1",
+      "status": "blocked"
+    }
+  ],
+  "contract_limitations": [
+    "This file is a release gate contract, not production approval.",
+    "Generated, parser, LLM, benchmark, derivation, readiness, and validation artifacts remain review material until explicitly approved.",
+    "M2/M3 integration gates require external owners, policy approval, security review, and target infrastructure."
+  ]
+}

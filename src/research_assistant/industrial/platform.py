@@ -1235,6 +1235,7 @@ def export_tool_contract(contract_id: str = "local_tool_contract", *, root: Path
         {"command": "industrial-validate", "inputs": [], "output": "artifact validation JSON"},
         {"command": "industrial-readiness", "inputs": ["build", "show"], "output": "industrial readiness JSON"},
         {"command": "full-scale-plan", "inputs": ["phases", "phase-show", "registry-build", "registry-show", "usefulness-build", "readiness-build"], "output": "full-scale implementation planning JSON"},
+        {"command": "industrial-release", "inputs": ["phases", "phase-show", "definition-build", "definition-show", "external-validation-build", "publication-check", "gate-build", "show"], "output": "industrial release gate JSON"},
         {"command": "domain-templates", "inputs": ["list", "show"], "output": "domain template JSON"},
         {"command": "derivation", "inputs": ["create", "show", "append", "notation", "link-steps", "comment"], "output": "derivation worksheet JSON"},
         {"command": "experiment", "inputs": ["create", "show", "record-run", "link-claim"], "output": "experiment JSON"},
