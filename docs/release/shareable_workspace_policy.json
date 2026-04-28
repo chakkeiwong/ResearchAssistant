@@ -1,0 +1,56 @@
+{
+  "schema_version": "shareable-workspace-policy-v1",
+  "artifact_type": "shareable_workspace_policy",
+  "release_target": "git_shared_research_release",
+  "allowed_patterns": [
+    "local_research/summaries/*.json",
+    "local_research/metadata/*.json",
+    "local_research/papers/source/records/*.json",
+    "local_research/links/*.json",
+    "local_research/reviews/*.json",
+    "local_research/reviews/metadata/*.json",
+    "local_research/analysis/derivations/*.json",
+    "local_research/experiments/*.json",
+    "local_research/analysis/traceability/*.json",
+    "local_research/benchmarks/manifests/*.json",
+    "local_research/benchmarks/runs/*.json",
+    "local_research/analysis/synthesis/*.json",
+    "local_research/analysis/citation_graph_reports/*.json",
+    "local_research/governance/model_policies/*.json"
+  ],
+  "rebuildable_patterns": [
+    "local_research/indices/**",
+    "local_research/jobs/*.json",
+    "local_research/exports/**",
+    "local_research/governance/industrial_release/*.json",
+    "local_research/governance/merge_reports/*.json",
+    "local_research/contracts/tools/*.json",
+    "local_research/benchmarks/runs/release_performance*.json"
+  ],
+  "forbidden_patterns": [
+    ".codex",
+    ".codex/**",
+    ".claude/**",
+    ".pytest_cache/**",
+    "**/__pycache__/**",
+    "build/**",
+    "dist/**",
+    "local_research/papers/raw/**",
+    "local_research/papers/extracted/**",
+    "local_research/exports/backups/**",
+    "**/*.tar",
+    "**/*.tar.gz",
+    "**/*.tgz",
+    "**/*.zip",
+    "**/*.pdf",
+    "**/*.tex",
+    "**/.env"
+  ],
+  "required_metadata_fields": [
+    "schema_version",
+    "provenance",
+    "review_status",
+    "limitations"
+  ],
+  "trust_boundary": "Generated, parser, benchmark, derivation, traceability, LLM, and readiness artifacts remain review material and must not be silently promoted to accepted conclusions."
+}

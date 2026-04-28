@@ -18,3 +18,13 @@ ra config show
 Networked discovery commands and future provider-backed features must remain explicit opt-in workflows. Do not use them for private papers unless the relevant policy has been reviewed.
 
 Release hardening checks such as clean install, demo, backup, restore, parser matrix, platform status, and performance smoke are designed to run without sending papers or notes to external providers.
+
+Before sharing a Git repository or importing another workspace, run:
+
+```bash
+ra repository-hygiene check
+```
+
+The hygiene check blocks obvious private/raw/generated files and validation
+records with forbidden private fields. Workspace merge skips rebuildable reports
+and refuses private source artifacts rather than copying them.

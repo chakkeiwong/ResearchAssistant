@@ -29,6 +29,29 @@ ra --root ~/research-assistant-workspace show --paper-id paper_example
 
 Generated derivations, synthesis, graph reports, benchmark reports, and readiness records are review material. They do not certify mathematical correctness.
 
+## Share Through Git
+
+Before committing a workspace for another researcher to inspect, run:
+
+```bash
+ra --root ~/research-assistant-workspace repository-hygiene check
+```
+
+To import from another checked-out repository, start with a dry run:
+
+```bash
+ra --root ~/research-assistant-workspace workspace merge --source /path/to/other/repo --target ~/research-assistant-workspace
+```
+
+Apply only after reviewing the report:
+
+```bash
+ra --root ~/research-assistant-workspace workspace merge --source /path/to/other/repo --target ~/research-assistant-workspace --apply --confirm-merge
+ra --root ~/research-assistant-workspace workspace rebuild-derived
+```
+
+See `docs/workflows/git_sharing_workflow.md`.
+
 ## Get Help Safely
 
 If something fails, run diagnostics on the demo or an empty workspace first and share only non-private output. See `docs/support.md` for the support checklist and private-data boundary.

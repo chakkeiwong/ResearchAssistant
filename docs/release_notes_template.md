@@ -41,6 +41,25 @@ ra --root ~/research-assistant-workspace doctor
 
 Default workflows are offline and provider-disabled.
 
+## Git Sharing
+
+This release target is an individual local tool with Git-based sharing.
+Validate a repository before sharing:
+
+```bash
+ra repository-hygiene check
+```
+
+Import from another checkout with dry-run first:
+
+```bash
+ra workspace merge --source /path/to/other/repo --target /path/to/mine
+ra workspace merge --source /path/to/other/repo --target /path/to/mine --apply --confirm-merge
+ra workspace rebuild-derived
+```
+
+Shared database, service deployment, SSO/RBAC, real-time collaboration, and hosted UI remain future work.
+
 ## Backup And Migration Notes
 
 Create a backup before upgrading:

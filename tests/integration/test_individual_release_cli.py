@@ -382,3 +382,167 @@ def test_backup_inspect_rejects_unsafe_archive(tmp_path: Path, capsys) -> None:
     assert payload["status"] == "blocked"
     assert any(issue["code"] == "manifest_missing" for issue in payload["issues"])
     assert any(issue["code"] == "unsafe_archive_path" for issue in payload["issues"])
+
+
+def _write_shareable_summary(root: Path, paper_id: str, title: str, audit_note: str = "reviewed") -> None:
+    summaries = root / "local_research" / "summaries"
+    summaries.mkdir(parents=True, exist_ok=True)
+    (summaries / f"{paper_id}.json").write_text(json.dumps({
+        "id": paper_id,
+        "title": title,
+        "authors": ["Git Share Fixture"],
+        "year": 2026,
+        "abstract": "",
+        "main_contribution": "",
+        "review_status": "needs_review",
+        "technical_audit": {
+            "claimed_results": [audit_note],
+            "derived_results": [],
+            "open_questions": [],
+        },
+        "schema_version": "summary-v1",
+        "provenance": {"fixture": True},
+        "limitations": [],
+    }))
+
+
+def test_repository_hygiene_policy_and_individual_git_gate(tmp_path: Path, capsys) -> None:
+    main(["--root", str(tmp_path), "init"])
+    capsys.readouterr()
+    _write_shareable_summary(tmp_path, "paper_a", "Safe shareable paper")
+
+    rc = main(["repository-hygiene", "policy"])
+    policy = _json_out(capsys)
+    assert rc == 0
+    assert policy["schema_version"] == "shareable-workspace-policy-v1"
+    assert "local_research/summaries/*.json" in policy["allowed_patterns"]
+
+    rc = main(["repository-hygiene", "classify", "local_research/summaries/paper_a.json"])
+    classified = _json_out(capsys)
+    assert rc == 0
+    assert classified["classification"] == "shareable"
+
+    rc = main(["--root", str(tmp_path), "repository-hygiene", "check"])
+    hygiene = _json_out(capsys)
+    assert rc == 0
+    assert hygiene["status"] in {"ok", "warnings"}
+    assert not hygiene["forbidden_files"]
+
+    raw = tmp_path / "local_research" / "papers" / "raw" / "private.pdf"
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    raw.write_text("private")
+    private_record = tmp_path / "local_research" / "summaries" / "private.json"
+    private_record.write_text(json.dumps({
+        "id": "private",
+        "title": "Private",
+        "private_pdf": "/home/example/private.pdf",
+    }))
+
+    rc = main(["--root", str(tmp_path), "repository-hygiene", "check"])
+    blocked = _json_out(capsys)
+    assert rc == 0
+    assert blocked["status"] == "blocked"
+    issue_codes = {issue["code"] for issue in blocked["issues"]}
+    assert "forbidden_files_present" in issue_codes
+    assert "private_payload_fields" in issue_codes
+
+    rc = main(["--root", str(tmp_path), "individual-git-release", "gate-build"])
+    gate = _json_out(capsys)
+    assert rc == 0
+    assert gate["artifact_type"] == "individual_git_release_gate"
+    assert gate["current_target"] == "git_shared_research_release"
+    assert gate["future_target"] == "future_multi_user_platform"
+    assert "shared database" in gate["deferred_future_platform_items"]
+    assert gate["status"] == "blocked"
+    gate_blocker_codes = {blocker["code"] for blocker in gate["blockers"]}
+    assert "repository_hygiene_blocked" in gate_blocker_codes
+
+
+def test_workspace_merge_dry_run_apply_and_rebuild(tmp_path: Path, capsys) -> None:
+    source = tmp_path / "source"
+    target = tmp_path / "target"
+    main(["--root", str(source), "init"])
+    capsys.readouterr()
+    main(["--root", str(target), "init"])
+    capsys.readouterr()
+    _write_shareable_summary(source, "paper_a", "Imported paper")
+    _write_shareable_summary(target, "paper_existing", "Existing paper")
+
+    generated = source / "local_research" / "indices" / "generated.json"
+    generated.parent.mkdir(parents=True, exist_ok=True)
+    generated.write_text(json.dumps({"generated": True}))
+    raw = source / "local_research" / "papers" / "raw" / "private.pdf"
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    raw.write_text("private")
+
+    rc = main([
+        "--root", str(target),
+        "workspace", "merge",
+        "--source", str(source),
+        "--target", str(target),
+    ])
+    dry_run = _json_out(capsys)
+    assert rc == 0
+    assert dry_run["status"] == "blocked"
+    assert dry_run["dry_run"] is True
+    assert dry_run["counts"]["copy_candidates"] == 1
+    assert dry_run["counts"]["skipped_rebuildable"] >= 1
+    assert dry_run["counts"]["blocked"] >= 1
+    assert "ra artifact-index build" in dry_run["next_actions"]
+    assert not (target / "local_research" / "summaries" / "paper_a.json").exists()
+
+    raw.unlink()
+    rc = main([
+        "--root", str(target),
+        "workspace", "merge",
+        "--source", str(source),
+        "--target", str(target),
+        "--apply",
+    ])
+    unconfirmed = _json_out(capsys)
+    assert rc == 0
+    assert unconfirmed["status"] == "blocked"
+    assert unconfirmed["blocked_apply_reason"] == "merge_confirmation_required"
+
+    rc = main([
+        "--root", str(target),
+        "workspace", "merge",
+        "--source", str(source),
+        "--target", str(target),
+        "--apply",
+        "--confirm-merge",
+    ])
+    applied = _json_out(capsys)
+    assert rc == 0
+    assert applied["status"] == "applied"
+    assert applied["counts"]["copied"] == 1
+    assert applied["backup"]["status"] == "created"
+    copied = target / "local_research" / "summaries" / "paper_a.json"
+    assert copied.exists()
+    copied_payload = json.loads(copied.read_text())
+    assert copied_payload["provenance"]["imported_from"][0]["merge_report_id"] == applied["artifact_id"]
+
+    _write_shareable_summary(source, "paper_existing", "Conflicting paper", audit_note="source audit")
+    rc = main([
+        "--root", str(target),
+        "workspace", "merge",
+        "--source", str(source),
+        "--target", str(target),
+    ])
+    conflict = _json_out(capsys)
+    assert rc == 0
+    assert conflict["status"] == "blocked"
+    conflict_codes = {
+        issue["code"]
+        for row in conflict["files"]
+        for issue in row["issues"]
+    }
+    assert "same_path_different_content" in conflict_codes
+    assert "accepted_audit_conflict" in conflict_codes
+
+    rc = main(["--root", str(target), "workspace", "rebuild-derived"])
+    rebuild = _json_out(capsys)
+    assert rc == 0
+    assert rebuild["artifact_type"] == "workspace_rebuild_report"
+    assert rebuild["network_required"] is False
+    assert rebuild["artifact_index_id"] == "post_merge_artifact_index"

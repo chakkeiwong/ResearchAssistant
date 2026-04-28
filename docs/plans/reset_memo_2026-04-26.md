@@ -1375,3 +1375,123 @@ Residual industrial-release gaps:
 Remaining local state:
 - `.codex` remains untracked.
 - `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored and uncommitted.
+
+
+## Update — individual Git release gap closure started
+
+New objective:
+- Execute `docs/plans/individual_git_release_gap_closure_plan_2026-04-28.md` after reframing the release target as an individual local tool with Git-based sharing.
+- Update the reset memo, audit the plan as another developer, execute every phase with the plan/execute/test/audit/tidy/memo loop, commit the modified files, and record completion.
+
+Current baseline:
+- Latest committed checkpoint: `970085a Record industrial release gate checkpoint`.
+- New uncommitted docs already exist from the target reset discussion:
+  - `docs/proposal/individual_git_release_target.md`
+  - `docs/plans/individual_git_release_gap_closure_plan_2026-04-28.md`
+- Pre-existing `.codex` remains untracked; `.claude/`, caches, `build/`, and `dist/` remain ignored.
+
+Execution boundary:
+- The current release target is individual local use plus Git checkout/import sharing.
+- Production database, shared service, SSO/RBAC, real-time collaboration, hosted UI, department SOP approval, and production deployment are future-platform concerns, not blockers for this release track.
+- Merge/import work must remain local, deterministic, dry-run by default, privacy-preserving, and unable to silently approve or overwrite accepted research conclusions.
+
+Tests run:
+- Not yet run for this individual Git release pass.
+
+Next safe step:
+- Audit the new plan, amend it if needed, then implement shareable workspace policy, repository hygiene, workspace merge dry-run/apply, post-merge rebuild, docs, and a revised individual Git release gate.
+
+
+## Update — individual Git release phases 0-5 executed
+
+Plan/audit:
+- Audited `docs/plans/individual_git_release_gap_closure_plan_2026-04-28.md` from product-scope, data-safety, research-trust, and engineering perspectives.
+- Audit finding: `workspace rebuild-derived` should be required rather than optional so post-merge rebuild is a testable release surface.
+- Chose a new individual-Git release module instead of bending the existing industrial-production gate, so future multi-user platform blockers remain visible but deferred.
+
+Execution:
+- Phase 0: rewrote release definition/gate contract around `limited_individual_pilot`, `broad_individual_release`, `git_shared_research_release`, and `future_multi_user_platform`.
+- Phase 1: added shareable workspace policy and Git sharing workflow docs.
+- Phase 2: added `ra repository-hygiene check/policy/classify`.
+- Phase 3: added `ra workspace merge` dry-run, with classification for copy candidates, already-present records, conflicts, forbidden files, rebuildable files, and unsupported files.
+- Phase 4: added explicit merge apply mode requiring `--apply --confirm-merge`, creating a backup and preserving import provenance.
+- Phase 5: added `ra workspace rebuild-derived` for deterministic post-merge artifact index/readiness/workspace validation.
+
+Focused validation:
+- `PYTHONPATH=src timeout 120 python -m pytest tests/integration/test_individual_release_cli.py::test_repository_hygiene_policy_and_individual_git_gate -q`: `1 passed in 0.35s`.
+- `PYTHONPATH=src timeout 120 python -m pytest tests/integration/test_individual_release_cli.py::test_workspace_merge_dry_run_apply_and_rebuild -q`: `1 passed in 0.24s`.
+
+Audit after execution:
+- Merge is dry-run by default.
+- Apply mode refuses without explicit confirmation.
+- Forbidden private/raw/generated files block merge or repository hygiene.
+- Accepted `technical_audit` conflicts are reported as blockers.
+- Imported JSON artifacts record source path/commit when available, merge timestamp, and merge report ID.
+- Generated indexes/reports are skipped during merge and rebuilt separately.
+
+Next safe step:
+- Execute phases 6-8: update release docs, add/revise the individual Git release gate docs/tests, run broader validation, tidy, update memo, and commit.
+
+
+## Update — individual Git release phases 6-8 executed
+
+Execution:
+- Phase 6 documentation: added `docs/workflows/git_sharing_workflow.md` and updated quickstart, privacy, known limitations, release checklist, and release notes template with the Git-sharing workflow.
+- Phase 7 gate revision: added `ra individual-git-release gate-build` and updated `docs/release/industrial_release_gates.json` to describe current individual/Git gates and deferred future-platform gates.
+- Phase 8 local validation: ran CLI smoke for `individual-git-release gate-build` and `repository-hygiene check`; no tag or publication was attempted.
+
+Focused/broad validation so far:
+- Individual release integration file: `11 passed in 1.43s`.
+- Industrial platform integration file after target-shift test update: `6 passed in 0.96s`.
+
+Audit after execution:
+- The old industrial CLI runtime gate still reports `industrial-release-gates-v1` for historical production-blocker reporting.
+- The static release gate contract now reports `individual-git-release-v1` as the current release target.
+- Future shared database, service deployment, SSO/RBAC, real-time collaboration, hosted UI, and department operations remain visible as deferred future-platform items rather than current release blockers.
+- The individual Git gate remains blocked for broad release until real colleague/platform validation and release-owner tag/publication approval are recorded.
+
+Next safe step:
+- Run fast/bounded validation, final diff audit, force-stage ignored plan/memo files, commit, and update this memo with completion details.
+
+
+## Update — individual Git release validation completed
+
+Validation completed:
+- `PYTHONPATH=src timeout 120 python -m pytest tests/integration/test_individual_release_cli.py::test_repository_hygiene_policy_and_individual_git_gate -q`: `1 passed in 0.35s`.
+- `PYTHONPATH=src timeout 120 python -m pytest tests/integration/test_individual_release_cli.py::test_workspace_merge_dry_run_apply_and_rebuild -q`: `1 passed in 0.24s`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `11 passed in 1.43s`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q`: `6 passed in 0.96s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 1.04s`.
+- `timeout 180 scripts/run_bounded_tests.sh`: `34 passed in 1.07s`.
+- CLI smoke: `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-individual-git-release individual-git-release gate-build` completed with status `blocked`, `ready_for_limited_individual_pilot: true`, and future database/service/RBAC/UI items deferred.
+- CLI smoke: `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-individual-git-release repository-hygiene check` completed with status `ok` on an empty temp workspace.
+- `git diff --check`: clean after removing a trailing blank line.
+
+Files touched:
+- `src/research_assistant/individual_git_release.py`
+- `src/research_assistant/cli.py`
+- `src/research_assistant/industrial/platform.py`
+- `tests/integration/test_individual_release_cli.py`
+- `tests/integration/test_industrial_platform_cli.py`
+- `docs/proposal/individual_git_release_target.md`
+- `docs/plans/individual_git_release_gap_closure_plan_2026-04-28.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+- `docs/release/industrial_release_definition.md`
+- `docs/release/industrial_release_gates.json`
+- `docs/release/shareable_workspace_policy.json`
+- `docs/workflows/git_sharing_workflow.md`
+- `docs/quickstart.md`
+- `docs/privacy.md`
+- `docs/known_limitations.md`
+- `docs/release_checklist.md`
+- `docs/release_notes_template.md`
+
+Residual risks:
+- Real colleague/platform validation and release-owner tag/publication approval remain manual gates.
+- Merge/import handles local JSON artifacts and conservative conflicts; it does not provide live collaboration or semantic research reconciliation.
+- Production database, service deployment, SSO/RBAC, real-time collaboration, hosted UI, and department SOPs remain deferred future-platform items.
+
+Current checkpoint:
+- Ready to stage and commit the individual Git release target implementation.
+- `docs/plans/individual_git_release_gap_closure_plan_2026-04-28.md` and this reset memo are under ignored `docs/plans/`; force-stage intentional plan/memo changes.
+- Keep `.codex`, `.claude/`, caches, `build/`, and `dist/` out of the commit.

@@ -33,6 +33,14 @@ from research_assistant.individual_release import (
     workspace_repair,
     workspace_validate,
 )
+from research_assistant.individual_git_release import (
+    classify_shareable_path,
+    individual_git_release_gate,
+    load_shareable_workspace_policy,
+    repository_hygiene_check,
+    workspace_merge,
+    workspace_rebuild_derived,
+)
 from research_assistant.industrial.full_scale import (
     build_execution_readiness,
     build_phase_registry,
@@ -283,6 +291,16 @@ def cmd_workspace(args: argparse.Namespace) -> int:
         return _print_json(workspace_migrate(root=root, dry_run=args.dry_run))
     if args.workspace_action == 'repair':
         return _print_json(workspace_repair(root=root, dry_run=args.dry_run))
+    if args.workspace_action == 'merge':
+        return _print_json(workspace_merge(
+            source=Path(args.source),
+            target=Path(args.target) if args.target else (root or Path.cwd()),
+            dry_run=False if args.apply else args.dry_run,
+            apply=args.apply,
+            confirm_merge=args.confirm_merge,
+        ))
+    if args.workspace_action == 'rebuild-derived':
+        return _print_json(workspace_rebuild_derived(root=root))
     raise SystemExit(f'unknown workspace action {args.workspace_action}')
 
 
@@ -330,6 +348,23 @@ def cmd_release_report(args: argparse.Namespace) -> int:
         root=Path(args.root) if args.root else None,
         output=Path(args.output) if args.output else None,
     ))
+
+
+def cmd_repository_hygiene(args: argparse.Namespace) -> int:
+    if args.repository_hygiene_action == 'check':
+        return _print_json(repository_hygiene_check(root=Path(args.root) if args.root else None))
+    if args.repository_hygiene_action == 'policy':
+        return _print_json(load_shareable_workspace_policy())
+    if args.repository_hygiene_action == 'classify':
+        return _print_json(classify_shareable_path(args.path))
+    raise SystemExit(f'unknown repository-hygiene action {args.repository_hygiene_action}')
+
+
+def cmd_individual_git_release(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.individual_git_release_action == 'gate-build':
+        return _print_json(individual_git_release_gate(root=root))
+    raise SystemExit(f'unknown individual-git-release action {args.individual_git_release_action}')
 
 
 def cmd_bounded_workflow(args: argparse.Namespace) -> int:
@@ -959,6 +994,15 @@ def build_parser() -> argparse.ArgumentParser:
     workspace_repair_cmd = workspace_sub.add_parser('repair')
     workspace_repair_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
     workspace_repair_cmd.set_defaults(func=cmd_workspace)
+    workspace_merge_cmd = workspace_sub.add_parser('merge')
+    workspace_merge_cmd.add_argument('--source', required=True)
+    workspace_merge_cmd.add_argument('--target')
+    workspace_merge_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
+    workspace_merge_cmd.add_argument('--apply', action='store_true')
+    workspace_merge_cmd.add_argument('--confirm-merge', action='store_true')
+    workspace_merge_cmd.set_defaults(func=cmd_workspace)
+    workspace_rebuild_cmd = workspace_sub.add_parser('rebuild-derived')
+    workspace_rebuild_cmd.set_defaults(func=cmd_workspace)
 
     backup_cmd = sub.add_parser('backup', help='Create, inspect, and dry-run restore local backups')
     backup_sub = backup_cmd.add_subparsers(dest='backup_action', required=True)
@@ -1000,6 +1044,21 @@ def build_parser() -> argparse.ArgumentParser:
     release_report_cmd = sub.add_parser('release-report', help='Summarize individual release candidate readiness')
     release_report_cmd.add_argument('--output')
     release_report_cmd.set_defaults(func=cmd_release_report)
+
+    repository_hygiene = sub.add_parser('repository-hygiene', help='Check whether a local workspace is safe to share through Git')
+    repository_hygiene_sub = repository_hygiene.add_subparsers(dest='repository_hygiene_action', required=True)
+    repository_hygiene_check_cmd = repository_hygiene_sub.add_parser('check')
+    repository_hygiene_check_cmd.set_defaults(func=cmd_repository_hygiene)
+    repository_hygiene_policy_cmd = repository_hygiene_sub.add_parser('policy')
+    repository_hygiene_policy_cmd.set_defaults(func=cmd_repository_hygiene)
+    repository_hygiene_classify_cmd = repository_hygiene_sub.add_parser('classify')
+    repository_hygiene_classify_cmd.add_argument('path')
+    repository_hygiene_classify_cmd.set_defaults(func=cmd_repository_hygiene)
+
+    individual_git_release_cmd = sub.add_parser('individual-git-release', help='Build the individual Git-sharing release gate')
+    individual_git_release_sub = individual_git_release_cmd.add_subparsers(dest='individual_git_release_action', required=True)
+    individual_git_release_gate_cmd = individual_git_release_sub.add_parser('gate-build')
+    individual_git_release_gate_cmd.set_defaults(func=cmd_individual_git_release)
 
     bounded_workflow_cmd = sub.add_parser('bounded-workflow', help='Write local timeout diagnostics for bounded workflow failures')
     bounded_sub = bounded_workflow_cmd.add_subparsers(dest='bounded_action', required=True)

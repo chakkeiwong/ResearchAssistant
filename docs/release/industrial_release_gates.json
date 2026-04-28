@@ -1,129 +1,75 @@
 {
-  "gate_version": "industrial-release-gates-v1",
-  "artifact_type": "industrial_release_gate_contract",
-  "current_release_level": "individual_pilot",
-  "requested_release_level": "industrial_production",
+  "gate_version": "individual-git-release-v1",
+  "artifact_type": "individual_git_release_gate_contract",
+  "current_target": "git_shared_research_release",
+  "current_release_level": "limited_individual_pilot",
   "release_levels": {
-    "individual_pilot": {
-      "description": "One user, private local workspace, no shared services.",
-      "release_decision": "allowed only as a limited pilot candidate"
+    "limited_individual_pilot": {
+      "description": "One researcher or close colleague using a private local workspace.",
+      "release_decision": "allowed as a limited pilot when local validation is recorded and limitations are explicit"
     },
-    "departmental_beta": {
-      "description": "Limited departmental trial with explicit owners, external validation, and local deterministic gates.",
-      "release_decision": "blocked until external validation, publication approval, identity/collaboration policy, parser benchmarks, security/ops, SOP, and final gate records are complete"
+    "broad_individual_release": {
+      "description": "Multiple researchers can install and use independent local workspaces.",
+      "release_decision": "blocked until install, docs, backup/restore, parser degradation, privacy, performance, and release notes are validated"
     },
-    "industrial_production": {
-      "description": "Production departmental platform with storage, service, security, operations, SOP, and deployment signoff.",
-      "release_decision": "blocked until every M0/M1/M2/M3 gate has passed or has a documented owner waiver"
+    "git_shared_research_release": {
+      "description": "Researchers exchange Git repositories or workspace snapshots and safely import selected artifacts.",
+      "release_decision": "blocked until repository hygiene, merge dry-run/apply, provenance, and post-merge rebuild validation are complete"
+    },
+    "future_multi_user_platform": {
+      "description": "Shared database, service deployment, SSO/RBAC, real-time collaboration, hosted UI, and department operations.",
+      "release_decision": "deferred future product line; not a blocker for the current individual Git-sharing release"
     }
   },
-  "gates": [
+  "current_target_gates": [
     {
-      "phase_id": "phase_00_release_definition",
-      "release_gap": "release_scope",
-      "milestone_target": "M0",
-      "status": "m0_contract_complete"
+      "gate_id": "installability",
+      "status": "local_deterministic_available"
     },
     {
-      "phase_id": "phase_01_external_validation",
-      "release_gap": "external_validation",
-      "milestone_target": "M1",
-      "status": "blocked_external_validation"
+      "gate_id": "workspace_validation",
+      "status": "local_deterministic_available"
     },
     {
-      "phase_id": "phase_02_publication",
-      "release_gap": "publication",
-      "milestone_target": "M1",
-      "status": "blocked_manual_approval"
+      "gate_id": "repository_hygiene",
+      "status": "required"
     },
     {
-      "phase_id": "phase_03_storage",
-      "release_gap": "storage",
-      "milestone_target": "M0",
-      "status": "blocked_for_governed_integration"
+      "gate_id": "shareable_workspace_policy",
+      "status": "required"
     },
     {
-      "phase_id": "phase_04_service_api",
-      "release_gap": "service_api",
-      "milestone_target": "M0",
-      "status": "m0_contract_complete"
+      "gate_id": "workspace_merge_dry_run",
+      "status": "required"
     },
     {
-      "phase_id": "phase_05_identity_collaboration",
-      "release_gap": "identity_collaboration",
-      "milestone_target": "M0",
-      "status": "blocked_for_governed_integration"
+      "gate_id": "workspace_merge_apply",
+      "status": "required"
     },
     {
-      "phase_id": "phase_06_parser_benchmarks",
-      "release_gap": "parser_certification",
-      "milestone_target": "M1",
-      "status": "m1_local_deterministic"
+      "gate_id": "post_merge_rebuild",
+      "status": "required"
     },
     {
-      "phase_id": "phase_07_derivation_approval",
-      "release_gap": "derivation_approval",
-      "milestone_target": "M1",
-      "status": "blocked_human_approval"
+      "gate_id": "external_validation",
+      "status": "manual_validation_required_for_broad_release"
     },
     {
-      "phase_id": "phase_08_experiment_reproducibility",
-      "release_gap": "experiment_reproducibility",
-      "milestone_target": "M1",
-      "status": "m1_local_deterministic"
-    },
-    {
-      "phase_id": "phase_09_traceability",
-      "release_gap": "traceability",
-      "milestone_target": "M1",
-      "status": "m1_local_deterministic"
-    },
-    {
-      "phase_id": "phase_10_search_graph",
-      "release_gap": "search_graph",
-      "milestone_target": "M0",
-      "status": "blocked_m1_implementation"
-    },
-    {
-      "phase_id": "phase_11_llm_governance",
-      "release_gap": "llm_governance",
-      "milestone_target": "M0",
-      "status": "blocked_for_governed_integration"
-    },
-    {
-      "phase_id": "phase_12_security_ops",
-      "release_gap": "security_operations",
-      "milestone_target": "M0",
-      "status": "blocked_for_governed_integration"
-    },
-    {
-      "phase_id": "phase_13_scalability",
-      "release_gap": "scalability",
-      "milestone_target": "M1",
-      "status": "blocked_external_validation"
-    },
-    {
-      "phase_id": "phase_14_ui_workbench",
-      "release_gap": "ui_workbench",
-      "milestone_target": "M0",
-      "status": "blocked_for_governed_integration"
-    },
-    {
-      "phase_id": "phase_15_sops",
-      "release_gap": "department_sops",
-      "milestone_target": "M0",
-      "status": "blocked_manual_approval"
-    },
-    {
-      "phase_id": "phase_16_final_gate",
-      "release_gap": "release_gate",
-      "milestone_target": "M1",
-      "status": "blocked"
+      "gate_id": "publication_approval",
+      "status": "manual_approval_required"
     }
   ],
+  "deferred_future_platform_gates": [
+    "shared database",
+    "service deployment",
+    "SSO/RBAC",
+    "real-time collaboration",
+    "hosted UI",
+    "department operations and SOP approval"
+  ],
   "contract_limitations": [
-    "This file is a release gate contract, not production approval.",
-    "Generated, parser, LLM, benchmark, derivation, readiness, and validation artifacts remain review material until explicitly approved.",
-    "M2/M3 integration gates require external owners, policy approval, security review, and target infrastructure."
+    "This file is a release gate contract for the individual Git-sharing release target.",
+    "Generated, parser, LLM, benchmark, derivation, readiness, merge, and validation artifacts remain review material until explicitly approved.",
+    "Future multi-user platform work is deferred and must not block the current individual local release."
   ]
 }

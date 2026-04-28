@@ -1,6 +1,8 @@
 # Known Limitations
 
 - This release is for private local use, not shared departmental deployment.
+- Git sharing is repository/snapshot based. The tool does not provide live multi-user editing, shared database writes, SSO/RBAC, hosted UI, or server-side locking.
+- Workspace merge/import is conservative: conflicts involving accepted audit facts require human resolution.
 - Live LLM/provider calls are disabled by default and are not part of the individual release workflow.
 - Generated derivations, experiments, synthesis, traceability, and readiness reports are review material, not mathematical approval.
 - Parser quality depends on local optional tools and source/PDF quality.

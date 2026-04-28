@@ -11,6 +11,8 @@ scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
 ra --root /tmp/research-assistant-final-release init
 ra --root /tmp/research-assistant-final-release release-report
+ra --root /tmp/research-assistant-final-release repository-hygiene check
+ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 ```
 
 Release gates:
@@ -26,6 +28,10 @@ Release gates:
 - `ra performance smoke --include-industrial-artifacts --include-backup --include-export` completes on a small synthetic corpus;
 - `scripts/build_release_artifacts.sh` produces `dist/release_artifacts_manifest.json`;
 - `ra platform-status` matches `docs/platform_support.md`;
+- `ra repository-hygiene check` reports no unsafe private/generated files for a shareable workspace;
+- `ra workspace merge` dry-run and `--apply --confirm-merge` pass on sanitized fixture repositories;
+- `ra workspace rebuild-derived` regenerates local derived reports after merge;
+- `ra individual-git-release gate-build` reports database/service/RBAC/UI as deferred future-platform items, not current release blockers;
 - generated artifacts are review material and not accepted mathematical conclusions;
 - known limitations are included in `ra release-report`.
 - release notes and support instructions are present;

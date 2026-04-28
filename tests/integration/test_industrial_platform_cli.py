@@ -626,9 +626,11 @@ def test_industrial_release_gates_block_production_without_external_approval(tmp
     assert definition['phase_count'] == 17
     assert 'industrial_production' in definition['release_levels']
     gate_contract = json.loads(Path('docs/release/industrial_release_gates.json').read_text())
-    assert gate_contract['gate_version'] == definition['gate_version']
-    assert gate_contract['current_release_level'] == 'individual_pilot'
-    assert [gate['phase_id'] for gate in gate_contract['gates']] == [phase['phase_id'] for phase in phases]
+    assert definition['gate_version'] == 'industrial-release-gates-v1'
+    assert gate_contract['gate_version'] == 'individual-git-release-v1'
+    assert gate_contract['current_release_level'] == 'limited_individual_pilot'
+    assert gate_contract['current_target'] == 'git_shared_research_release'
+    assert 'shared database' in gate_contract['deferred_future_platform_gates']
 
     validation_dir = tmp_path / 'external_validation'
     validation_dir.mkdir()
