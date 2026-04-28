@@ -1492,6 +1492,41 @@ Residual risks:
 - Production database, service deployment, SSO/RBAC, real-time collaboration, hosted UI, and department SOPs remain deferred future-platform items.
 
 Current checkpoint:
-- Ready to stage and commit the individual Git release target implementation.
+- Implementation commit completed: `05dbc1f Add individual Git release workflow`.
 - `docs/plans/individual_git_release_gap_closure_plan_2026-04-28.md` and this reset memo are under ignored `docs/plans/`; force-stage intentional plan/memo changes.
 - Keep `.codex`, `.claude/`, caches, `build/`, and `dist/` out of the commit.
+
+
+## Update — individual Git release workflow committed
+
+Commit completed:
+- `05dbc1f Add individual Git release workflow`
+
+Final state after this round:
+- The canonical release target is now documented as an individual local tool with Git-based sharing.
+- `ra repository-hygiene check/policy/classify` provides the shareability and privacy-hygiene surface.
+- `ra workspace merge` provides dry-run-by-default domain-aware merge reports and explicit apply mode with backup/confirmation.
+- `ra workspace rebuild-derived` rebuilds local derived reports after import.
+- `ra individual-git-release gate-build` answers the current release question and treats database/service/RBAC/UI as deferred future-platform items.
+- Release-facing docs now explain repository hygiene, Git sharing, merge/import, post-merge rebuild, and the future-platform boundary.
+
+Validation summary at commit:
+- Focused repository hygiene/gate test: `1 passed in 0.35s`.
+- Focused workspace merge/rebuild test: `1 passed in 0.24s`.
+- Individual release integration file: `11 passed in 1.43s`.
+- Industrial platform integration file: `6 passed in 0.96s`.
+- Fast suite: `14 passed in 1.04s`.
+- Bounded suite: `34 passed in 1.07s`.
+- CLI individual Git gate smoke completed with status `blocked` as intended pending external validation and release-owner approval.
+- CLI repository hygiene smoke completed with status `ok` on an empty temp workspace.
+- `git diff --check` and staged diff check were clean before commit.
+
+Remaining release gates:
+- Real colleague/platform validation is still manual and not completed by this local pass.
+- Tagging and artifact publication still require explicit release-owner approval.
+- Workspace merge is conservative and local; it does not provide live collaboration or semantic reconciliation of research disagreements.
+- Future multi-user platform work remains deferred: shared database, service deployment, SSO/RBAC, real-time collaboration, hosted UI, and department operations/SOPs.
+
+Remaining local state:
+- `.codex` remains untracked.
+- `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored and uncommitted.
