@@ -2096,3 +2096,40 @@ Phase 4 validation, audit, and tidy:
 
 Next safe step:
 - Commit the showcase report/docs/test/reset-memo packet.
+
+
+## Update - NeuTra/DSGE showcase enhancement completed
+
+Implementation commit:
+- `caa8584 Add NeuTra DSGE showcase to release report`.
+
+What changed:
+- Added `docs/plans/neutra_dsge_showcase_report_plan_2026-04-29.md`.
+- Added a substantial NeuTra-seeded DSGE normalizing-flow survey showcase to `proposal/research_development_assistant_design.tex`.
+- Rebuilt `proposal/research_development_assistant_design.pdf`; final PDF is 20 pages.
+- Added a shorter usage-doc showcase in `docs/usage.md`.
+- Added docs smoke assertions for the showcase in `tests/integration/test_individual_release_cli.py`.
+- Updated this reset memo with phase-by-phase plan, execution, validation, audit, tidy notes, and blockers.
+
+Validation:
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.68s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.95s`.
+- Two `pdflatex` passes from `proposal/`: passed.
+- `pdfinfo proposal/research_development_assistant_design.pdf`: 20 pages, PDF 1.7, size `215486` bytes.
+- `git diff --check`: clean before commit.
+
+Audit:
+- No code behavior changed.
+- The showcase is grounded in public paper titles and existing local project notes about NeuTra validation and literature traversal.
+- The text is intentionally adoption-oriented but still honest: the tool builds a reviewable evidence trail for survey writing and does not replace researcher judgment.
+- Parser/generated/review artifacts remain review material.
+- Current release scope remains individual local filesystem plus Git sharing.
+- Multi-user database/service/SSO/RBAC/hosted UI work remains future extension.
+
+Remaining local state:
+- `.codex` remains untracked.
+- `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, and `dist/` remain ignored and uncommitted.
+- No tag was created and no artifact was published.
+
+Next safe step:
+- Commit this final reset memo update as the closeout checkpoint.
