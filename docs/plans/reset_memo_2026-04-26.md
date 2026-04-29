@@ -2944,3 +2944,117 @@ Phase 5 tidy result:
 
 Next safe step:
 - Execute Phase 6 by committing intentional changes, cloning the exact commit into `/tmp`, and running clean-clone validation.
+
+## Update - final release readiness closure Phase 6 completed
+
+Phase 6 plan for the phase:
+- Validate from a clean clone of the exact release-readiness commit.
+- Because a clean clone requires a real commit, create an implementation checkpoint commit first, then record clean-clone evidence in a final reset-memo closeout commit.
+
+Implementation checkpoint commit:
+- `ebb4eaf Close final release readiness gaps`.
+
+Phase 6 execution result:
+- Exact commit validated: `ebb4eafdb1e54f7e6df0c015cc058ed0150e2c56`.
+- Cloned into:
+  - `/tmp/research-assistant-final-clean-ebb4eaf`.
+- Gate root:
+  - `/tmp/research-assistant-final-clean-gate-ebb4eaf`.
+
+Phase 6 validation:
+- In clean clone:
+  - `timeout 180 scripts/run_tests.sh`: `139 passed in 5.09s`.
+  - `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 1.04s`.
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.90s`.
+  - `GATE_ROOT=/tmp/research-assistant-final-clean-gate-ebb4eaf timeout 300 scripts/run_individual_git_release_gate.sh`: passed.
+- Gate result from the clean clone:
+  - `ready_for_limited_individual_pilot: true`;
+  - `ready_for_broad_individual_release: false`;
+  - `ready_for_git_shared_research_release: false`;
+  - `local_fixture_validation_complete: true`;
+  - `representative_workspace_performance_status: passed`;
+  - `merge_fixture_rehearsal_status: passed`;
+  - blockers remain `colleague_onboarding`, `macos`, and release-owner approval.
+- Clean clone `git diff --check`: passed.
+- Clean clone `git status --short --ignored`: only ignored `.pytest_cache/` and bytecode caches created by validation.
+
+Phase 6 audit as another developer:
+- Clean clone validation confirms the release-readiness commit is reproducible from a fresh checkout.
+- Gate behavior is correct: local fixture evidence supports limited pilot, while real external validation and approval still block broad/Git-shared release.
+- Generated gate workspaces under `/tmp` are not committed.
+
+Phase 6 tidy result:
+- `/tmp/research-assistant-final-clean-ebb4eaf` and `/tmp/research-assistant-final-clean-gate-ebb4eaf` are temporary validation artifacts and remain outside the repository.
+- No private/generated files staged.
+
+Next safe step:
+- Execute Phase 7 by recording release-owner tag/publication status as blocked/manual because no explicit approval to tag or publish was provided.
+
+## Update - final release readiness closure Phase 7 completed
+
+Phase 7 plan for the phase:
+- Summarize evidence and record tag/publication status.
+- Do not tag or publish without explicit release-owner approval.
+
+Phase 7 execution result:
+- No explicit approval to create `v0.1.0` was provided.
+- No explicit approval to publish artifacts was provided.
+- No tag was created.
+- No artifacts were published.
+
+Phase 7 evidence summary:
+- Exact validated commit: `ebb4eafdb1e54f7e6df0c015cc058ed0150e2c56`.
+- Exact tested wheel:
+  - `dist/research_assistant-0.1.0-py3-none-any.whl`;
+  - size `435243` bytes;
+  - SHA256 `d7c61cc8d4a79826a08754aee923be16065d3744bdcb316b797e74ffd71f03d6`.
+- Clean clone validation passed.
+- Gate remains limited-pilot ready and broad/Git-shared blocked.
+
+Phase 7 audit as another developer:
+- This correctly preserves the approval boundary.
+- Prior user instructions requested execution and commit, not tag creation or artifact publication.
+- Recording blocked/manual is the only truthful autonomous action for tag and publication approval.
+
+Phase 7 tidy result:
+- No tags created.
+- No publication artifacts uploaded.
+- `dist/` remains ignored and uncommitted.
+
+Next safe step:
+- Execute Phase 8 by committing this final reset-memo closeout and pushing normal commits to `origin/main` if credentials/network allow.
+
+## Update - final release readiness closure Phase 8 completed
+
+Phase 8 plan for the phase:
+- Update the reset memo with complete shutdown-recovery evidence.
+- Commit the final closeout packet.
+- Push normal commits to `origin/main` to make the release-readiness commit available for external validators.
+
+Phase 8 final status:
+- Agent-executable gaps closed:
+  - stale validation scripts/docs are portable and clean-checkout safe;
+  - release/publication/external-validation docs are aligned to individual local/Git release;
+  - process templates exist under `docs/plans/templates/`;
+  - final artifact hash is synchronized with the exact tested wheel;
+  - proposal PDF is rebuilt from the updated source;
+  - clean clone validation is recorded for exact commit `ebb4eafdb1e54f7e6df0c015cc058ed0150e2c56`.
+- Human/external blockers remaining:
+  - real fresh-reader onboarding is not recorded;
+  - real macOS validation is not recorded;
+  - real minimal-parser-tool machine validation is not recorded;
+  - release-owner tag approval is not recorded;
+  - release-owner publication approval is not recorded.
+- Current release status:
+  - suitable for limited individual pilot;
+  - not ready for broad non-pilot release;
+  - not tagged;
+  - not published.
+
+Final local state before closeout commit:
+- `.codex` remains untracked and uncommitted.
+- `.claude/`, `.pytest_cache/`, `build/`, `dist/`, bytecode caches, and `/tmp` validation clones remain ignored/uncommitted.
+- `docs/plans/whole_codebase_release_audit_2026-04-29.md` remains ignored local audit input and was not committed in this closeout.
+
+Next safe step:
+- Use the pushed commit for real colleague onboarding, macOS clean-install smoke, and minimal-parser-tool validation. Only after those records and explicit release-owner approval exist should a tag or publication be created.
