@@ -44,10 +44,20 @@
 
 \chapter{Executive Summary}
 
-`research-assistant' is a local-first research development package for people who
-regularly move between papers, notes, code, and technical writing. It is built
-for one serious researcher first: someone who wants a private, inspectable,
-file-based workspace rather than a shared hosted platform.
+Researchers already have enough raw materials: PDFs, browser tabs, note files,
+code comments, and assistant chats. What they usually lack is a durable,
+inspectable bridge between those materials. The daily cost of that missing bridge
+is not dramatic in any one moment, but it accumulates everywhere: re-reading the
+same paper because its relevance was never recorded cleanly, forgetting caveats
+that mattered when code was first written, repeating literature searches,
+reconstructing reviewer-facing explanations from memory, and spending more time
+on research glue work than on model design, validation, or writing.
+
+`research-assistant' is meant to remove part of that workflow tax. It is a
+local-first research development package for people who regularly move between
+papers, notes, code, and technical writing. It is built for one serious
+researcher first: someone who wants a private, inspectable, file-based workspace
+rather than a shared hosted platform.
 
 The current release focuses on a bounded but useful problem. It helps a
 researcher ingest papers, inspect source and parser evidence, preserve
@@ -56,16 +66,19 @@ writing or coding, and selectively share reviewable artifacts through Git. It is
 not a shared department server, not a database-backed collaboration product, not
 a hosted UI, and not a default live-provider workflow.
 
-The package is appealing precisely because it is modest in scope. A colleague
-can install it locally, initialize a workspace, ingest a paper, inspect the
-result, and decide what to trust without depending on a service operator or
-central infrastructure. The local-first design keeps the research trail visible,
-backups straightforward, and failure modes easier to understand.
+The package is persuasive because it is modest in scope. A colleague can install
+it locally, initialize a workspace, ingest a paper, inspect the result, and
+decide what to trust without depending on a service operator or central
+infrastructure. The local-first design keeps the research trail visible, backups
+straightforward, and failure modes easier to understand.
 
-The adoption argument is therefore practical rather than grand. The tool does
-not replace judgment, and it does not pretend that machine extraction is proof.
-Instead, it reduces context loss and manual literature bookkeeping for people who
-already do serious technical reading and implementation work.
+The before/after contrast is simple. Without a tool like this, paper context is
+fragmented across PDFs, notes, code comments, and ephemeral assistant memory.
+With it, the most important parts of that context become structured, reviewable,
+and reusable across later coding and writing work. The package does not replace
+judgment, and it does not pretend that machine extraction is proof. Instead, it
+reduces context loss and manual literature bookkeeping for people who already do
+serious technical reading and implementation work.
 
 \section{Current release scope}
 
@@ -90,8 +103,9 @@ The package deliberately does \emph{not} promise:
 \section{Why a colleague should care}
 
 A technically skeptical colleague usually does not need another generic paper
-manager or another generic AI interface. The useful gap is narrower: preserving
-an auditable bridge between literature reading and local implementation work.
+manager or another generic AI interface. The useful gap is narrower and more
+costly: preserving an auditable bridge between literature reading and local
+implementation work.
 
 That gap shows up in familiar ways:
 \begin{itemize}[nosep]
@@ -105,8 +119,18 @@ That gap shows up in familiar ways:
         inspectable research state.
 \end{itemize}
 
-`research-assistant' helps by giving those activities a local, structured, and
-reviewable home.
+Those frictions are not just annoying. They create repeated work. A researcher
+re-reads papers whose relevance was never captured properly, restates old
+reasoning to assistants, loses weakly documented caveats, and spends time
+cleaning up brittle literature notes that never became trustworthy local
+artifacts.
+
+The package helps by turning that invisible workflow tax into something more
+manageable. Instead of hoping that relevance, provenance, and uncertainty will
+still be reconstructible later, the user gets a local, structured, reviewable
+workspace. That means fewer avoidable mistakes, less repeated explanation,
+cleaner handoff from papers to code and writing, and a better chance that the
+next session starts from inspected evidence instead of vague memory.
 
 \chapter{The Concrete Workflow Problem}
 
@@ -124,15 +148,32 @@ The problem is that the evidence trail often fragments:
   \item uncertainty is hidden rather than recorded explicitly.
 \end{itemize}
 
+That fragmentation is expensive because it compounds over time. The researcher
+spends energy on repeated context reconstruction: searching for the same paper,
+re-reading the same section, re-explaining the same method to an assistant,
+recovering why a claim was treated cautiously, or reconstructing which nearby
+paper actually supported a coding or writing decision.
+
+The failure modes are also familiar and costly. The repository's own validation
+materials already name them: wrong metadata merge, ambiguous paper title
+resolution, summary mismatch, weak provenance, and usability gaps severe enough
+that a workflow may create more cleanup than time savings. Those are not edge
+cases. They are exactly the kinds of problems that make otherwise promising
+research tooling hard to trust.
+
 Existing tools usually solve only part of the problem. A PDF reader is good for
-reading but not for paper-to-code traceability. A coding assistant is good at
-local code context but does not automatically maintain a durable literature
-record. A note-taking workflow can hold conclusions, but often loses provenance
-and review status.
+reading but not for durable paper-to-code traceability. A coding assistant is
+good at local code context but does not automatically maintain a durable
+literature record. A note-taking workflow can hold conclusions, but often loses
+provenance and review status. A generic paper manager can organize files, but it
+does not necessarily preserve the specific bridge between what a paper claims,
+what local code does, and what a later technical note needs to say.
 
 The package is designed to close that narrower gap. It is not trying to replace
 every tool. It is trying to create a reliable local workflow for moving from
-paper ingestion to inspectable evidence to trusted downstream context.
+paper ingestion to inspectable evidence to trusted downstream context, so the
+researcher spends less time on glue work and more time on actual technical
+judgment.
 
 \chapter{What The Package Does In The Current Release}
 
@@ -429,7 +470,10 @@ assistant or script can use later.
 \chapter{A Practical Adoption Path}
 
 A colleague does not need to commit to a department-wide workflow to evaluate the
-package. The sensible adoption path is a small local pilot.
+package. The sensible adoption path is a small local pilot, and that is part of
+its appeal. The package is not asking the user to bet on a future platform before
+seeing value. It is asking the user to try a bounded workflow on one machine and
+judge whether it saves time or creates more cleanup.
 
 \section{Start from a wheel or local checkout}
 
@@ -443,6 +487,11 @@ ra --root ~/ra-workspace doctor
 A developer can also install from a checkout with `python -m pip install .', but
 the colleague-facing path is the wheel and first-workspace flow.
 
+The attraction here is practical: a user can test whether the package fits their
+own research habits before changing anything bigger. If it helps them preserve
+paper context, review evidence more carefully, and write or code with less
+reconstruction overhead, then the value is already proven locally.
+
 \section{Run the demo before trusting a real workflow}
 
 \begin{lstlisting}[language=bash]
@@ -452,7 +501,8 @@ ra --root /tmp/research-assistant-demo release-report
 \end{lstlisting}
 
 This gives the user a deterministic, non-sensitive first experience before any
-real paper is involved.
+real paper is involved. It is a low-risk way to decide whether the tool feels
+like genuine workflow leverage rather than another source of cleanup.
 
 \section{A release-proven use case: source-first NeuTra audit}
 
@@ -519,7 +569,8 @@ performed on a demo or empty workspace without exposing actual research content.
 Because the real cost is not reading alone. The cost is reconstructing later why
 a paper mattered, what was trusted, what was only provisional, and how the paper
 related to code or writing. A local structured workflow is useful when that
-continuity matters.
+continuity matters, especially when the alternative is repeated re-reading,
+repeated explanation, and weakly documented technical judgment.
 
 \section{Why not just use Claude Code directly?}
 
@@ -527,6 +578,19 @@ Claude Code is very useful for code and local context, but it does not by itself
 become the durable research record. The package gives the user a stable local
 workspace of summaries, provenance, review state, source artifacts, and trusted
 exports that can then be used in Claude Code more effectively.
+
+A good way to say this is: assistants are already useful, but without a durable
+research memory layer their usefulness plateaus. They help with the current
+window of context; this package helps preserve the context that should survive
+past the current window.
+
+\section{Why not just use a generic paper manager?}
+
+A generic paper manager can help organize files, but it usually does not solve
+the specific research-engineering problem here: trustworthy paper-to-code and
+paper-to-writing continuity. The issue is not only storing papers. It is keeping
+provenance, review status, source-grounded evidence, and downstream trusted
+context in a form that remains usable during implementation and writing.
 
 \section{Is this trying to automate research judgment?}
 
@@ -538,6 +602,15 @@ artifacts remain review material, and human approval remains explicit.
 No. The current release is intentionally smaller and more honest than that. It is
 a local-first individual workflow with Git-based sharing, not a hosted
 multi-user system.
+
+\section{Why is the bounded scope a strength rather than a weakness?}
+
+Because the package is most credible where it already changes daily work without
+pretending to solve everything. It is small enough to install locally, inspect,
+and validate against real research tasks, but complete enough to matter for
+literature triage, source-first audit, review discipline, and trusted-context
+export. That makes it easier to evaluate honestly: does it save time, reduce
+cleanup, and preserve context better than the status quo?
 
 \chapter{Future Extensions}
 
