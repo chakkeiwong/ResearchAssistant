@@ -1806,3 +1806,157 @@ Remaining local state:
 - `.codex` remains untracked.
 - `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, and `dist/` remain ignored and uncommitted.
 - This final reset memo update is included in the follow-up memo checkpoint commit.
+
+
+## Update - pre-final maintainability/report execution started
+
+New objective:
+- Execute `docs/plans/pre_final_release_maintability_report_plan_2026-04-29.md` if present, otherwise `docs/plans/pre_final_release_maintainability_report_plan_2026-04-29.md`.
+- Update this reset memo, audit the plan as another developer, execute every phase with the plan/execute/test/audit/tidy/memo loop, commit modified files, and update this memo on completion.
+
+Current baseline:
+- Latest committed checkpoint before this pass: `da61713 Record robust individual release checkpoint`.
+- The tracked worktree has no uncommitted tracked changes.
+- `docs/plans/pre_final_release_maintainability_report_plan_2026-04-29.md` exists under ignored `docs/plans/` and must be force-staged intentionally if committed.
+- `.codex` remains untracked; `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored local state.
+
+Independent plan audit before execution:
+- Product scope: plan correctly keeps the current release centered on an individual local filesystem tool with Git-based sharing. Shared database, service deployment, SSO/RBAC, hosted UI, real-time collaboration, and department operations remain future extension material.
+- Engineering risk: plan requires behavior-preserving refactors, compatibility facades when splitting modules, characterization tests before movement, and repeated focused/bounded validation.
+- Documentation accuracy: plan requires rewriting the tracked LaTeX report around what is actually implemented, including examples, tests, current limitations, and future multi-user extension framing.
+- Maintainer value: plan discourages blanket comments and asks for targeted comments/docstrings plus a maintainer guide explaining non-obvious release-critical invariants.
+- Release management: plan keeps fresh-reader, macOS, minimal-parser-machine, tag approval, and publication approval as manual gates that must not be faked.
+- Privacy/data safety: plan excludes private papers, private paths, credentials, provider keys, tokens, generated workspaces, backup archives, `.codex`, `.claude`, caches, `build/`, and `dist/` from commits.
+
+Audit clarification:
+- The requested plan path in this pass has the word "maintainability"; no file exists with the misspelled "maintability" variant. The existing plan file is `docs/plans/pre_final_release_maintainability_report_plan_2026-04-29.md`.
+
+Execution boundary for this pass:
+- Complete all locally automatable phases.
+- Keep refactors conservative and behavior-preserving.
+- Record unavailable external validations/approvals as manual blockers rather than attempting or fabricating them.
+- Do not create a tag or publish artifacts.
+
+Next safe step:
+- Phase 0 baseline characterization and refactor-boundary validation.
+
+Phase 0 baseline characterization:
+- Plan: establish release-critical behavior before refactoring.
+- Execute: reviewed the plan and baseline release-critical files; treated CLI command names, JSON schemas, gate readiness flags, backup/restore safety, repository hygiene, merge confirmation, and parser limitation wording as stable boundaries.
+- Tests:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.62s`.
+  - `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.88s`.
+  - `git diff --check`: clean.
+- Audit: baseline coverage is sufficient to start conservative behavior-preserving refactors; no behavior changes have been made.
+- Tidy: no generated evidence or build outputs staged.
+
+Next safe step:
+- Phase 1 targeted refactor of release-critical code, starting with CLI organization and preserving command behavior.
+
+Phase 1 targeted refactor:
+- Plan: make a small behavior-preserving maintainability improvement instead of a broad pre-release module split.
+- Execute:
+  - Extracted repository-hygiene CLI parser registration into `_register_repository_hygiene_commands`.
+  - Extracted individual Git release CLI parser registration into `_register_individual_git_release_commands`.
+  - Added targeted release-safety docstrings/comments for shareable path classification, validation-report local-vs-external gates, workspace merge trust boundary, and backup restore confirmation.
+- Tests:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.68s`.
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q`: `6 passed in 0.90s`.
+  - `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.96s`.
+  - `timeout 180 scripts/run_bounded_tests.sh`: `34 passed in 0.97s`.
+  - `git diff --check`: clean.
+- Audit: public CLI command names, JSON output shapes, release gate semantics, merge safeguards, and restore safeguards remain unchanged.
+- Tidy: no generated artifacts staged; refactor is intentionally narrow.
+
+Next safe step:
+- Phase 2 maintainer comments and programmer guide.
+
+Phase 2 maintainer comments and programmer guide:
+- Plan: add maintainer-facing guidance without blanket-commenting obvious code.
+- Execute:
+  - Added `docs/maintainer_guide.md` with release target, module map, trust boundaries, Git-sharing rules, release gate model, validation commands, LaTeX report guidance, and no-commit rules.
+  - Linked the maintainer guide from `docs/release_checklist.md`.
+  - Phase 1 comments/docstrings cover non-obvious safety invariants in release-critical code.
+- Tests:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.94s`.
+  - `git diff --check`: clean.
+- Audit: guide is scoped to current individual local + Git release and keeps multi-user work as future extension; comments explain safety policy rather than syntax.
+- Tidy: no generated or private files staged.
+
+Next safe step:
+- Phase 3 rewrite `proposal/research_development_assistant_design.tex` around the implemented release and rebuild or record the PDF status.
+
+Phase 3 LaTeX release report rewrite:
+- Plan: replace the old shared-backend monograph framing with a concise release report/manual for the implemented individual local + Git-sharing tool.
+- Execute:
+  - Rewrote `proposal/research_development_assistant_design.tex` around the current release target, command manual, workspace model, Git sharing, nontrivial showcases, validation evidence, known limitations, maintainer notes, and future multi-user extension.
+  - Removed optional LaTeX dependencies on `fancyhdr` and `tcolorbox` after the local TeX engine reported `fancyhdr.sty` missing.
+  - Rebuilt `proposal/research_development_assistant_design.pdf` with `pdflatex`; final PDF is 18 pages.
+  - Removed `.aux`, `.log`, `.out`, and `.toc` intermediates after build.
+- Tests:
+  - Initial `timeout 180 pdflatex -interaction=nonstopmode -halt-on-error research_development_assistant_design.tex` failed because local TinyTeX lacked `fancyhdr.sty`.
+  - After dependency simplification, two `timeout 180 pdflatex -interaction=nonstopmode -halt-on-error research_development_assistant_design.tex` passes from `proposal/` completed.
+  - `pdfinfo proposal/research_development_assistant_design.pdf`: 18 pages, PDF 1.7.
+  - `rg` smoke confirmed the report mentions individual local release, Git sharing, future extension, parser scientific accuracy limitation, `WHEEL_PATH`, `synthetic_git_1000`, and the manual blockers.
+  - `git diff --check`: clean.
+- Audit: report now describes what is implemented today and moves multi-user database/service/RBAC/hosted UI into future extension scope.
+- Tidy: TeX intermediates removed; only tracked `.tex` and `.pdf` remain modified.
+
+Next safe step:
+- Phase 4 cross-document consistency pass.
+
+Phase 4 cross-document consistency:
+- Plan: align release-facing docs after the LaTeX rewrite and pin the current story with docs smoke tests.
+- Execute:
+  - Rewrote `docs/usage.md` from old POC/v2 scaffold language to current individual local + Git-sharing release usage.
+  - Added docs smoke assertions in `tests/integration/test_individual_release_cli.py` for `docs/maintainer_guide.md`, `docs/usage.md`, and `proposal/research_development_assistant_design.tex`.
+  - Confirmed release-facing docs keep multi-user database/service/RBAC/hosted UI as future scope, preserve `WHEEL_PATH`, preserve parser scientific-accuracy limitation, and preserve manual blockers.
+- Tests:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.87s`.
+  - `git diff --check`: clean.
+- Audit: docs now tell one coherent release story; no checked release doc presents the current release as a live shared service.
+- Tidy: no generated or private files staged.
+
+Next safe step:
+- Phase 5 full local validation packet, including artifact build, clean install smoke, release gate, and clean-checkout gate.
+
+Phase 5 full local validation packet:
+- Plan: validate the maintainability/report changes as a release packet before committing.
+- Execute:
+  - Re-ran focused release, industrial CLI, fast, and bounded suites on the current tree.
+  - Rebuilt release artifacts with `scripts/build_release_artifacts.sh`.
+  - Ran the clean-install smoke against the exact rebuilt wheel via `WHEEL_PATH`.
+  - Updated `docs/platform_support.md` and `docs/release_notes_0.1.0.md` to the smoke-tested wheel hash from this final local artifact pass.
+  - Ran the individual Git release gate in `/tmp/research-assistant-maintainability-gate`.
+- Tests and evidence:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.94s`.
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q`: `6 passed in 1.02s`.
+  - `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 1.04s`.
+  - `timeout 180 scripts/run_bounded_tests.sh`: `34 passed in 1.10s`.
+  - `timeout 300 scripts/build_release_artifacts.sh`: passed; built `research_assistant-0.1.0-py3-none-any.whl`, SHA256 `6e1aa516630ad14bdcfe47b5803070b47007319a8a6600c002946cd26b364670`, size `127955` bytes.
+  - `WHEEL_PATH=/home/chakwong/python/ResearchAssistant/dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh`: passed; installed wheel completed `ra --help`, `ra version`, `init`, `doctor`, `demo setup`, `demo run`, and `release-report`.
+  - `GATE_ROOT=/tmp/research-assistant-maintainability-gate timeout 300 scripts/run_individual_git_release_gate.sh`: passed with expected blocked gate status.
+  - Gate suites inside the release gate: fast `14 passed in 0.98s`, bounded `34 passed in 0.99s`, individual release integration `14 passed in 1.81s`.
+  - Gate readiness: `ready_for_limited_individual_pilot: true`, `ready_for_git_shared_research_release: false`, `ready_for_broad_individual_release: false`.
+  - Gate blockers: real colleague onboarding, real macOS validation, real minimal parser-tool validation, release-owner tag approval, and publication approval remain manual/unavailable.
+  - `git diff --check`: clean.
+- Audit:
+  - Behavior-preserving code changes remain narrow.
+  - Report and release docs describe the implemented individual local + Git-sharing tool first.
+  - Generated/parser/benchmark/derivation/traceability/readiness artifacts remain review material.
+  - Manual external validation and release-owner approval were not fabricated or waived.
+  - The rebuilt wheel hash appears build-output sensitive; the docs now record the exact wheel used for the final local clean-install smoke in this pass.
+- Tidy:
+  - `dist/` and `build/` were regenerated but remain ignored and must not be committed.
+  - `.codex` remains untracked and must not be committed.
+  - `.claude/`, `.pytest_cache/`, bytecode caches, and generated test caches remain ignored.
+
+Phase 6 external manual release gates:
+- Plan: record non-automatable release gates explicitly.
+- Execute: no tag was created and no artifact was published because no release-owner approval was provided.
+- Tests: not locally automatable.
+- Audit: broad release remains correctly blocked until real fresh-reader onboarding, real macOS validation, real minimal parser-tool machine validation, tag approval, and publication approval are recorded.
+- Tidy: no external evidence records were invented.
+
+Next safe step:
+- Commit the implementation/docs/plan/reset-memo packet, clone the committed tree locally, run the clean-checkout gate, then update this memo with the clean-checkout evidence and final commit hash.

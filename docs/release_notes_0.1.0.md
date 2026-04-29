@@ -36,7 +36,7 @@ The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` a
 Current local rollout artifact from the 2026-04-29 build:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- SHA256: `981298e1b0d7610a5e8be2c7a1a353717291d4c309fdfb016db438ab2dfd568c`
+- SHA256: `6e1aa516630ad14bdcfe47b5803070b47007319a8a6600c002946cd26b364670`
 
 ## Supported Platforms
 

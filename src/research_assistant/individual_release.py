@@ -737,6 +737,13 @@ def restore_backup(
     allow_overwrite: bool = False,
     backup_current_first: bool = True,
 ) -> dict[str, Any]:
+    """Restore a local backup only after explicit safety checks.
+
+    Restore is intentionally dry-run by default. A real restore needs an
+    explicit confirmation, and overwrites need an additional opt-in so release
+    users cannot accidentally replace a research workspace while inspecting a
+    backup archive.
+    """
     inspection = inspect_backup(path)
     if inspection["status"] != "ok":
         return inspection

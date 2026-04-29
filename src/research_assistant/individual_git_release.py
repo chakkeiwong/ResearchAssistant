@@ -215,6 +215,12 @@ def _match_any(rel_path: str, patterns: list[str]) -> bool:
 
 
 def classify_shareable_path(rel_path: str, *, policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Classify a workspace path before Git sharing or merge/import.
+
+    The ordering is intentional: forbidden paths win over rebuildable and
+    shareable paths so a future policy edit cannot accidentally allow private
+    raw papers, archives, credentials, or local generated state into exchange.
+    """
     policy = policy or load_shareable_workspace_policy()
     if _match_any(rel_path, policy.get("forbidden_patterns", [])):
         return {"classification": "forbidden", "reason": "private, generated, archive, credential, or raw-paper path"}
@@ -614,6 +620,8 @@ def validation_report(*, root: Path | None = None) -> dict[str, Any]:
     def non_blocked_recorded(validation_type: str) -> bool:
         return any(row.get("result") in {"passed", "warnings"} for row in record_map.get(validation_type, []))
 
+    # Local substitutes can support pilot readiness, but broad-release gates
+    # require real_external/external_machine scopes and release-owner approval.
     local_fixture_complete = all(non_blocked_recorded(validation_type) for validation_type in LOCAL_FIXTURE_VALIDATION_TYPES)
     external_complete = all(passed(validation_type, scopes={"real_external", "external_machine"}) for validation_type in EXTERNAL_VALIDATION_TYPES)
     publication_approved = all(passed(validation_type, scopes={"release_owner"}) for validation_type in PUBLICATION_APPROVAL_TYPES)
@@ -669,6 +677,12 @@ def workspace_merge(
     apply: bool = False,
     confirm_merge: bool = False,
 ) -> dict[str, Any]:
+    """Merge shareable workspace artifacts without silently accepting research.
+
+    The command is dry-run by default, refuses apply without confirmation, and
+    blocks accepted-audit conflicts. Those safeguards are the trust boundary for
+    Git-based sharing between individual researchers.
+    """
     source_root = source.resolve()
     target_root = target.resolve()
     policy = load_shareable_workspace_policy()

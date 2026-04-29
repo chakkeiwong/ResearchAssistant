@@ -1,257 +1,126 @@
-# Personal Research Assistant POC
+# Usage
 
-## What exists now
+`research-assistant` is currently an individual local research tool with
+Git-based sharing. It is not a shared database, hosted service, SSO/RBAC system,
+real-time collaboration tool, or hosted UI.
 
-This first proof-of-concept supports:
-- paper ingestion from arXiv IDs, local PDFs, DOI-like query, arXiv-like query, or general title/topic query;
-- arXiv LaTeX source fetching, caching, flattening, and structural extraction;
-- raw PDF storage;
-- PDF text extraction via `pdftotext`;
-- OpenAlex metadata lookup and basic Crossref/arXiv enrichment;
-- draft structured paper summary generation;
-- local search over stored summaries;
-- explicit paper-to-code/document link creation;
-- simple claim-audit record generation;
-- workspace export generation for assistant-friendly context;
-- thin MCP-wrapper-ready backend functions.
+## Core Local Workflow
 
-## New v2 scaffolding now present
+```bash
+ra init
+ra doctor --matrix
+ra privacy status
+ra demo setup
+ra demo run
+ra release-report
+```
 
-The codebase now also includes early scaffolding for:
-- structured-source-first arXiv LaTeX audit artifacts
-- multi-parser document understanding
-- parser reconciliation and confidence reporting
-- parser preflight / availability diagnostics
-- discovery query support
+Use `--root <path>` to run commands against a specific workspace.
 
-Current structured-source scaffold includes:
-- `ra source-fetch --arxiv-id ...` for caching arXiv source bundles;
-- conservative main-TeX detection and `\input` / `\include` flattening;
-- source-derived sections, equations, theorem-like blocks, labels, refs, citations, bibliography entries, and macros;
-- `ra source-show`, `ra source-sections`, `ra source-section`, `ra source-equations`, `ra source-equation`, `ra source-theorems`, `ra source-theorem`, `ra source-citations`, `ra source-bibliography`, `ra source-macros`, `ra source-labels`, and `ra source-refs` for inspecting structured source artifacts.
-
-Current parser scaffold includes:
-- `pdftotext` (operational)
-- Marker (CLI-backed adapter wired, needs broader paper-family validation)
-- GROBID (health-check preflight and full-text TEI parsing adapter wired, requires local service validation)
-- MinerU (CLI-backed adapter scaffolded via `magic-pdf`, requires config and broader runtime validation)
-- MarkItDown (CLI-backed adapter wired, needs broader paper-family validation)
-
-Current discovery scaffold includes:
-- merged discovery results with source-status reporting
-- citation-neighborhood lookup with endpoint-status reporting
-- degraded-state handling for empty and unavailable remote sources
-
-## Useful commands
-
-### Ingest an arXiv paper with source-first extraction
+## Paper And Source Inspection
 
 ```bash
 ra ingest --arxiv-id 2401.00001 --query "paper title or identifying query"
-```
-
-### Fetch and inspect arXiv source artifacts
-
-```bash
 ra source-fetch --arxiv-id 2401.00001
 ra source-show --paper-id paper_example
 ra source-sections --paper-id paper_example
-ra source-section --paper-id paper_example --label sec:method
 ra source-equations --paper-id paper_example
-ra source-equation --paper-id paper_example --label eq:target
 ra source-theorems --paper-id paper_example
-ra source-theorem --paper-id paper_example --label thm:main
 ra source-citations --paper-id paper_example
 ra source-bibliography --paper-id paper_example
 ra source-macros --paper-id paper_example
-ra source-labels --paper-id paper_example
-ra source-refs --paper-id paper_example
 ```
 
-### Ingest a local PDF fallback
+arXiv LaTeX source is the preferred audit substrate when available. PDF parser
+output remains fallback and cross-check material.
+
+## PDF Parser Diagnostics
 
 ```bash
-ra ingest --pdf /path/to/paper.pdf --query "paper title or identifying query"
-```
-
-### Search the local library
-
-```bash
-ra find --query "transport maps"
-```
-
-Search output is tab-separated:
-
-```text
-paper_id    year    review_status    title
-```
-
-### Show a paper record
-
-```bash
-ra show --paper-id paper_example
-```
-
-This returns a review-focused JSON payload with:
-- top-level `review` status, provenance, identity-validation fields, and metadata-source statuses;
-- `source_extraction` details including structured source status, primary source, artifact paths, section/equation/theorem/citation counts, labels, bibliography, macros, provenance, diagnostics, and limitations;
-- `extraction` / `pdf_extraction` details including extracted text path, consensus section headings, parser reconciliation, parser disagreements, parser capability limits, and explicit extraction limitations;
-- top-level `technical_audit` placeholders for operator-entered technical reading notes;
-- raw `summary` and `metadata` payloads;
-- linked records.
-
-### Review queue
-
-```bash
-ra review-list
-ra review-list --status needs_review
-ra review-show --paper-id paper_example
-ra review-mark --paper-id paper_example --status approved
-```
-
-Review statuses are `approved`, `needs_review`, and `rejected`. Marking a paper does not erase provenance or merge notes.
-
-### Discovery and inbox workflow
-
-```bash
-ra discover --query "transport maps HMC"
-ra citation-neighborhood --paper-id paper_example
-ra download-paper --query "transport maps HMC"
-ra inbox-list
-ra inbox-list --duplicate-status possible_duplicate
-ra inbox-show --proposed-name candidate_paper.pdf
-```
-
-Discovery results are merged and ranked across supported scholarly APIs. `citation-neighborhood` returns JSON with compact `summary.top_citing` and `summary.top_cited` sections for reviewable survey building.
-
-Downloaded papers go to `local_research/inbox/`. Proposal metadata is saved under `local_research/inbox/metadata/`. The tool does not silently move papers into final library locations.
-
-Inbox proposals include duplicate-aware review signals against existing summaries and raw filenames. `inbox-show` exposes a `review_summary` section with duplicate counts and matched local paper ids.
-
-### Check parser readiness
-
-```bash
-ra doctor --matrix
 ra parser-tool-matrix
 ra parser-benchmark-smoke
-```
-
-These commands show which parser tools are:
-- available
-- unavailable
-- missing for workflows that require them
-
-The matrix and smoke reports also describe workflow readiness and parser capability limits. Treat section headings as partial, and treat equation and PDF-citation extraction as unreliable unless a later manual parser validation proves otherwise for the specific paper.
-
-before you try to parse anything.
-
-### Run parser consensus on a PDF
-
-```bash
 ra parse-pdf --pdf /path/to/paper.pdf
 ```
 
-`parse-pdf` returns the reconciled parser payload, including each parser output, derived title/author/section candidates, parser disagreements, parse confidence, and the same capability limits reported by preflight. Use it as an inspection checkpoint before trusting `ingest` metadata.
+These commands report local tool availability, fixture-smoke behavior, parser
+disagreements, and capability limits. Parser scientific accuracy is not
+certified; review parsed evidence before relying on it.
 
-### Manual parser checks
+## Review And Export
 
-#### MarkItDown
 ```bash
-markitdown /path/to/paper.pdf -o /tmp/markitdown_test.md
+ra find --query "transport maps"
+ra show --paper-id paper_example
+ra review-list
+ra review-show --paper-id paper_example
+ra review-mark --paper-id paper_example --status approved
+ra export-context --review-status approved --output /tmp/paper_context.json
 ```
 
-#### Marker
+Human review decisions are explicit. Machine extraction and generated proposals
+do not automatically become accepted `technical_audit` conclusions.
+
+## Research Artifacts
+
 ```bash
-marker_single /path/to/paper.pdf --output_dir /tmp/marker_test --output_format markdown --disable_multiprocessing
+ra derivation create --paper-id paper_example --title "Derivation worksheet"
+ra experiment checklists
+ra experiment create --paper-id paper_example --claim-id claim_1 --checklist-id reproducibility
+ra synthesis propose --paper-id paper_example
+ra traceability build --paper-id paper_example
 ```
 
-#### MinerU
+Derivations, experiments, synthesis proposals, traceability reports, and
+readiness outputs are review material. They do not certify mathematical
+correctness.
+
+## Backup And Restore
+
 ```bash
-magic-pdf --path /path/to/paper.pdf --output-dir /tmp/mineru_test --method auto
+ra backup create
+ra backup inspect --path /path/to/backup.tar.gz
+ra --root /tmp/restore-check backup restore --path /path/to/backup.tar.gz
+ra --root /tmp/restore-check backup restore --path /path/to/backup.tar.gz --no-dry-run --confirm-restore
 ```
 
-#### GROBID health check
+Restore is dry-run by default. Overwrite requires an additional opt-in.
+
+## Git Sharing
+
+Before sharing a repository:
+
 ```bash
-curl http://localhost:8070/api/isalive
+ra repository-hygiene check --strict
 ```
 
-## Literature-audit workflow
+To inspect another researcher's checked-out repository:
 
-Use structured source as the primary path when doing careful technical reading. For arXiv papers, LaTeX source preserves sections, equations, labels, theorem/proof environments, macros, citations, and bibliography structure better than PDF text extraction. PDF parser reconciliation remains useful as fallback and rendered-output cross-check. Remote discovery and citation enrichment are useful for survey building, but they are allowed to be empty or unavailable without blocking local audit work.
+```bash
+ra workspace merge --source /path/to/other/repo --dry-run
+```
 
-1. Fetch or ingest arXiv source when available:
+To apply only after review:
 
-   ```bash
-   ra source-fetch --arxiv-id 2401.00001
-   ra source-show --paper-id paper_example
-   ra ingest --arxiv-id 2401.00001 --query "paper title or identifying query"
-   ```
+```bash
+ra workspace merge --source /path/to/other/repo --apply --confirm-merge
+ra workspace rebuild-derived
+```
 
-   Inspect source status, flattened source path, section/equation/theorem/citation extraction, macro table, provenance, diagnostics, and limitations. Treat source-derived evidence as machine extraction, not as human-verified audit conclusions.
+Private papers, extracted text, backup archives, credentials, `.codex`,
+`.claude`, caches, `build/`, `dist/`, and bytecode must not be committed.
 
-2. Check parser readiness before a PDF fallback audit:
+## Release Validation
 
-   ```bash
-   ra doctor --matrix
-   ra parser-tool-matrix
-   ra parser-benchmark-smoke
-   ```
+```bash
+scripts/run_fast_tests.sh
+scripts/run_bounded_tests.sh
+PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
+scripts/build_release_artifacts.sh
+WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
+scripts/run_individual_git_release_gate.sh
+```
 
-   Confirm which parser tools are available and read their capability limits. Today, section headings are only partial, while equations and PDF citations are unreliable as structured output.
-
-3. Run parser consensus directly when you want to inspect PDF extraction before committing a record:
-
-   ```bash
-   ra parse-pdf --pdf /path/to/paper.pdf
-   ```
-
-   Inspect `parse_confidence`, `requires_manual_review`, `disagreements`, `consensus_section_headings`, and each row in `parser_outputs`.
-
-4. Ingest the local PDF fallback and inspect the stored record:
-
-   ```bash
-   ra ingest --pdf /path/to/paper.pdf --query "paper title or identifying query"
-   ra show --paper-id paper_example
-   ```
-
-   Use `ra show` to check source extraction when present, the stored extracted text path, parser reconciliation details, parser-output capability limits, metadata-source statuses, identity validation, and the empty `technical_audit` fields before marking the paper trusted.
-
-5. Record human technical audit notes in the summary JSON when needed. Keep these notes separate from machine extraction. The durable fields include `transport_definition`, `objective`, `transformed_target`, `claimed_results`, `derived_results`, `open_questions`, `relevant_equations`, `relevant_sections`, and `assumptions_for_reuse`.
-
-6. Use remote enrichment opportunistically:
-
-   ```bash
-   ra discover --query "transport maps HMC"
-   ra citation-neighborhood --paper-id paper_example
-   ```
-
-   Check `status` and `source_statuses`. `empty` means at least one source responded but produced no results; `unavailable` means all relevant sources failed or could not be reached.
-
-7. Approve only after inspection, then export trusted context:
-
-   ```bash
-   ra review-mark --paper-id paper_example --status approved
-   ra export-context --review-status approved --output /tmp/paper_context.json
-   ```
-
-   The export preserves `technical_audit`, review status, provenance, and summary fields for downstream synthesis.
-
-
-This is still a POC. Current limitations include:
-- arXiv LaTeX source is the preferred audit substrate when available, with PDF parsing retained as fallback and cross-check;
-- remote discovery and citation endpoints can return `available`, `empty`, or `unavailable` source statuses, including HTTP rate-limit codes;
-- claim-support audit is still summary-based and conservative rather than full evidence extraction;
-- source-derived equations, theorem-like blocks, citations, bibliography, and macros are extracted conservatively from LaTeX and still require human technical review;
-- parser capability reporting is explicit, but equations and PDF citations remain unreliable as PDF-derived structured output;
-- section headings are partially supported through parser reconciliation and should be checked against the extracted text;
-- Marker, MarkItDown, GROBID, and MinerU still need more representative runtime validation;
-- the MCP adapter remains a thin wrapper layer and not yet a full protocol implementation.
-
-## Recommended next steps
-
-1. validate arXiv source-first ingest on representative mathematical papers;
-2. improve LaTeX extraction around custom macros, theorem variants, and bibliography edge cases;
-3. finish validating MarkItDown and Marker on representative local papers;
-4. resolve MinerU config and implement real output ingestion;
-5. implement GROBID header/fulltext extraction in the parser adapter;
-6. add structured-source MCP tools after the internal CLI path stabilizes.
+Broad release still requires real fresh-reader onboarding, real macOS
+validation, real minimal parser-tool machine validation, release-owner tag
+approval, and release-owner publication approval. Until those are recorded, the
+release remains pilot-scoped.

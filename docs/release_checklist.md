@@ -22,6 +22,9 @@ ra --root /tmp/research-assistant-final-release individual-git-release validatio
 ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 ```
 
+Maintainers should also read `docs/maintainer_guide.md` before changing
+release-gate, repository-hygiene, backup/restore, or workspace-merge behavior.
+
 Release gates:
 - `ra --help` and `ra version` work after install;
 - `ra init` is idempotent;
