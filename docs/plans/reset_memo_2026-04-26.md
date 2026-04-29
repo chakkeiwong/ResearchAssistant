@@ -2133,3 +2133,107 @@ Remaining local state:
 
 Next safe step:
 - Commit this final reset memo update as the closeout checkpoint.
+
+
+## Update - release-audit second-agent request execution started
+
+New objective:
+- Execute the user's requested second-agent release-audit review and gap closure.
+- User referenced `release_audit_second_agent_review_request_2026-04-20.md`; no file with that date exists in the workspace.
+- Available matching request: `docs/proposal/release_audit_second_agent_review_request_2026-04-29.md`.
+- Available audit under review: `docs/plans/whole_codebase_release_audit_2026-04-29.md`.
+
+Baseline:
+- Latest commit before this pass: `c1cf81d Record NeuTra DSGE showcase checkpoint`.
+- Working tree had only expected local state: `.codex` untracked; `.claude/`, caches, bytecode, `build/`, and `dist/` ignored; plus untracked/ignored audit-plan files.
+
+Independent audit of the audit request:
+- The audit scope is correct: current release is individual local filesystem plus Git sharing, not the future multi-user platform.
+- The strongest concrete findings are valid on inspection:
+  - `scripts/run_tests.sh` hard-codes `/home/chakwong/research-assistant` and does not set `PYTHONPATH=src`.
+  - `tests/integration/test_cli_commands.py` uses a hard-coded personal Palazzo PDF path outside the repo.
+  - `docs/release_notes_0.1.0.md` says `Date: 2026-04-28` while describing a 2026-04-29 artifact.
+  - Release checklist/gate wording can better show that representative performance evidence must be run before validation report/gate-build.
+- The manual validation blockers are expected release blockers, not code bugs.
+- The branch-hygiene finding is partly stale: previous doc/report changes are now committed, but `.codex` remains untracked and local caches/build outputs remain ignored.
+
+Executable plan:
+- Added `docs/plans/release_audit_gap_closure_plan_2026-04-29.md`.
+- Phases:
+  - Phase 0: baseline and claim verification.
+  - Phase 1: make `scripts/run_tests.sh` portable.
+  - Phase 2: remove personal PDF dependency from the integration test.
+  - Phase 3: align release notes/checklist evidence wording.
+  - Phase 4: run validation, audit, tidy.
+  - Phase 5: commit implementation and final memo.
+
+Phase 0 baseline and claim verification:
+- Plan: verify audit claims against current files before modifying anything.
+- Execute: inspected the second-agent request, whole-codebase audit, `scripts/run_tests.sh`, `tests/integration/test_cli_commands.py`, `docs/release_notes_0.1.0.md`, and `docs/release_checklist.md`.
+- Evidence:
+  - `scripts/run_tests.sh` still used a hard-coded absolute root and no `PYTHONPATH`.
+  - `test_cli_ingest_palazzo_uses_parser_consensus` still referenced `/home/chakwong/research-assistant/local_research/papers/raw/...pdf`.
+  - Release notes still mixed 2026-04-28 document date with 2026-04-29 artifact evidence.
+  - Release checklist included performance commands but did not explicitly state they are required before `validation-report`/`gate-build`.
+- Audit: the audit is substantially correct and should be executed as release-gap closure, with the branch-hygiene item updated to current local state.
+- Tidy: no private/generated files staged.
+
+Phase 1 portable full test script:
+- Plan: normalize `scripts/run_tests.sh` to the same repo-local pattern as other release scripts.
+- Execute:
+  - Derived `ROOT` from the script location.
+  - Exported `PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"`.
+  - Added `TIMEOUT_SECONDS` with default `300`.
+  - Wrapped the full unit/integration pytest command in `timeout`.
+- Focused test: deferred to Phase 4 full script execution.
+- Audit: this removes the hard-coded maintainer-local path and makes the official full test script usable from a clean checkout.
+- Tidy: no generated files created.
+
+Phase 2 remove personal PDF dependency:
+- Plan: preserve parser-consensus precedence coverage without depending on a private PDF outside the repo.
+- Execute:
+  - Replaced the hard-coded Palazzo PDF path with a temporary sanitized fixture file under `tmp_path`.
+  - Monkeypatched `cli.extract_pdf_text` and `cli.parse_with_all` to provide deterministic parser-consensus evidence.
+  - Kept the existing assertions that metadata and summary identity come from parser consensus and require manual review.
+- Test:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_cli_commands.py::test_cli_ingest_palazzo_uses_parser_consensus -q`: `1 passed in 0.15s`.
+- Audit: the test no longer leaks or depends on private local paper storage, and still covers the intended release-critical parser-consensus behavior.
+- Tidy: temporary fixture is created only inside pytest `tmp_path`.
+
+Phase 3 release notes and checklist alignment:
+- Plan: make the release evidence wording internally current and make performance evidence ordering explicit.
+- Execute:
+  - Updated `docs/release_notes_0.1.0.md` date to `2026-04-29`.
+  - Clarified the artifact as the final local 2026-04-29 validation-pass artifact.
+  - Added wording that performance commands must run before `validation-report` and `gate-build`.
+  - Added the same ordering warning to `docs/release_checklist.md`.
+- Audit: docs remain pilot-scoped and keep external/manual blockers visible.
+- Tidy: no generated files created.
+
+Phase 4 validation, audit, and tidy:
+- Plan: run the audit-plan validation packet after the portability, test-fixture, and docs changes.
+- Execute:
+  - Ran affected integration coverage for `test_cli_commands.py` and `test_industrial_platform_cli.py`.
+  - Ran the now-portable `scripts/run_tests.sh`.
+  - Ran individual release integration tests.
+  - Ran the fast test script.
+  - Ran `git diff --check` and status review.
+- Evidence:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_cli_commands.py tests/integration/test_industrial_platform_cli.py -q`: `26 passed in 1.92s`.
+  - `timeout 180 scripts/run_tests.sh`: `139 passed in 4.72s`.
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.80s`.
+  - `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.93s`.
+  - `git diff --check`: clean.
+- Audit:
+  - The two concrete clean-checkout reproducibility blockers are fixed.
+  - The rewritten review request now points to the executable plan instead of remaining a stale read-only request.
+  - Release docs now consistently use the 2026-04-29 candidate date/evidence wording and make performance evidence ordering explicit.
+  - Broad release remains correctly blocked on real external/manual validation and release-owner approvals.
+- Tidy:
+  - `.codex` remains untracked and uncommitted.
+  - `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, `dist/`, and test cache directories remain ignored and uncommitted.
+  - `docs/plans/release_audit_gap_closure_plan_2026-04-29.md` is ignored by pattern and must be force-staged intentionally.
+  - `docs/plans/whole_codebase_release_audit_2026-04-29.md` remains an ignored local audit input and is not staged in this pass.
+
+Next safe step:
+- Commit the audit gap closure implementation packet, then add a final reset memo closeout.

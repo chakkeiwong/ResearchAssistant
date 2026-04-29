@@ -333,8 +333,31 @@ def test_cli_export_context_writes_filtered_payload(tmp_path: Path, capsys) -> N
 def test_cli_ingest_palazzo_uses_parser_consensus(tmp_path: Path, capsys, monkeypatch) -> None:
     monkeypatch.setattr(metadata_resolve, '_fetch_json', lambda url: {'results': [], 'message': {'items': []}})
     monkeypatch.setattr(metadata_resolve, 'choose_best_semanticscholar_result', lambda *args, **kwargs: ({}, []))
+    monkeypatch.setattr(cli, 'extract_pdf_text', lambda raw_path: 'Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy')
+    monkeypatch.setattr(cli, 'parse_with_all', lambda raw_path: [
+        ParsedDocument(
+            parser_name='fixture_parser_a',
+            parser_version='1.0',
+            title_candidates=['Credit Risk and the Transmission of Interest Rate Shocks'],
+            authors=['Berardino Palazzo', 'Ram Yamarthy'],
+            section_headings=['Introduction'],
+            body_markdown='Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy',
+            parse_status='ok',
+        ),
+        ParsedDocument(
+            parser_name='fixture_parser_b',
+            parser_version='1.0',
+            title_candidates=['Credit Risk and the Transmission of Interest Rate Shocks'],
+            authors=['Berardino Palazzo', 'Ram Yamarthy'],
+            section_headings=['Introduction'],
+            body_markdown='Credit Risk and the Transmission of Interest Rate Shocks\nBerardino Palazzo\nRam Yamarthy',
+            parse_status='ok',
+        ),
+    ])
 
-    pdf = Path('/home/chakwong/research-assistant/local_research/papers/raw/paper_credit_risk_and_the_transmission_of_interest_rate_shocks_palazzo_20_7e82ec19.pdf')
+    pdf = tmp_path / 'fixtures' / 'credit_risk_transmission_palazzo.pdf'
+    pdf.parent.mkdir(parents=True)
+    pdf.write_bytes(b'%PDF-1.4\n% sanitized parser-consensus fixture\n')
     query = 'Credit Risk and the Transmission of Interest Rate Shocks Palazzo'
     rc = main(['--root', str(tmp_path), 'ingest', '--pdf', str(pdf), '--query', query])
     captured = capsys.readouterr()

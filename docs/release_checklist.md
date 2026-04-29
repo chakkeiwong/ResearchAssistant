@@ -22,6 +22,10 @@ ra --root /tmp/research-assistant-final-release individual-git-release validatio
 ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 ```
 
+The performance commands are not optional bookkeeping for the release gate.
+Run them before `validation-report` and `gate-build` so
+`representative_workspace_performance` is recorded in the validation evidence.
+
 Maintainers should also read `docs/maintainer_guide.md` before changing
 release-gate, repository-hygiene, backup/restore, or workspace-merge behavior.
 

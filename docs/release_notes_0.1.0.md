@@ -1,6 +1,6 @@
 # Release Notes 0.1.0
 
-Date: 2026-04-28
+Date: 2026-04-29
 
 ## Release Scope
 
@@ -33,7 +33,7 @@ scripts/build_release_artifacts.sh
 
 The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` and includes SHA256 hashes. Build outputs under `dist/` are not committed to Git.
 
-Current local rollout artifact from the 2026-04-29 build:
+Current local rollout artifact from the final local 2026-04-29 validation pass:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
 - SHA256: `6e1aa516630ad14bdcfe47b5803070b47007319a8a6600c002946cd26b364670`
@@ -47,7 +47,9 @@ Current local rollout artifact from the 2026-04-29 build:
 
 ## Validation Summary
 
-Release gate commands for this candidate:
+Release gate commands for this candidate. Run the performance commands before
+`validation-report` and `gate-build`; the gate expects representative workspace
+performance evidence to be recorded alongside the local fixture evidence.
 
 ```bash
 scripts/run_fast_tests.sh
