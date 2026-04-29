@@ -2687,3 +2687,260 @@ Remaining local state:
 - `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, `dist/`, and test cache directories remain ignored and uncommitted.
 
 This closing reset memo update is included in the final memo checkpoint commit.
+
+
+## Update - final release readiness closure started
+
+New objective:
+- Execute `docs/plans/final_release_readiness_closure_plan_2026-04-29.md` to close the remaining individual-release gaps where possible and record true blockers where human/external evidence is unavailable.
+
+Non-negotiable boundary:
+- Current release remains an individual local filesystem tool with Git-based sharing.
+- Multi-user database/service/SSO/RBAC/hosted UI work remains future scope.
+- Real fresh-reader onboarding, real macOS validation, real minimal-parser-tool validation, tag approval, and publication approval must not be faked.
+- No tags or publication will be created without explicit release-owner approval.
+
+Independent plan audit:
+- The plan correctly separates agent-executable gaps from human/external blockers.
+- The plan preserves the individual local/Git release scope and does not reframe v0.1 as the older industrial/shared-platform release.
+- Tagging and publication are guarded by explicit approval requirements.
+- Artifact hashes are intentionally regenerated only after final artifact build and clean-install smoke.
+- Private/generated/local-only files are explicitly excluded from commits.
+- Validation commands are bounded with `timeout`.
+- Audit correction applied before execution:
+  - Phase 0 now records that local `main` is ahead of `origin/main` but defers push until after the final release-readiness commit.
+  - Phase 5 now uses the shell-safe `env WHEEL_PATH=... timeout ...` command form for clean-install smoke.
+
+Phase 0 plan for the phase:
+- Establish current commit, remote state, local ignored/untracked state, and scope lock before editing validation docs.
+
+Phase 0 execution result:
+- Current `HEAD`: `f31d986d2afd186b7590865c3d9c5a85df78fdc0`.
+- Current `origin/main`: `eeb139dd6aa5e5373a9693bd7a4688404af04564`.
+- Branch status: `main...origin/main [ahead 20]`.
+- Remote: `origin https://github.com/chakkeiwong/ResearchAssistant`.
+- Local untracked/ignored state:
+  - `.codex` untracked and must not be committed;
+  - `.claude/`, `.pytest_cache/`, `build/`, `dist/`, bytecode caches, and local audit inputs remain ignored.
+- Scope lock checked in:
+  - `docs/release_notes_0.1.0.md`;
+  - `docs/known_limitations.md`;
+  - `docs/proposal/individual_git_release_target.md`.
+
+Phase 0 validation:
+- `git diff --check`: passed.
+- Scope search confirmed individual local/Git posture and explicit non-goals for shared database, hosted UI, SSO/RBAC, and publication approval.
+
+Phase 0 audit as another developer:
+- Baseline is suitable for continuing local release-readiness work.
+- Remote synchronization is not complete, but pushing is correctly deferred until after this execution round commits its changes.
+- The release remains pilot-scoped until real external validation and approvals exist.
+
+Phase 0 tidy result:
+- No generated outputs created.
+- No private/generated files staged.
+
+Next safe step:
+- Execute Phase 1 by cleaning stale validation scripts and validation docs, then run parser preflight, the deterministic Palazzo parser-consensus regression, full tests, and diff hygiene.
+
+## Update - final release readiness closure Phase 1 completed
+
+Phase 1 plan for the phase:
+- Remove maintainer-local validation assumptions from parser preflight and clean-ingest helper scripts.
+- Replace the old private-PDF Palazzo validation path with the deterministic sanitized pytest regression.
+- Update validation docs and product acceptance criteria to describe portable commands.
+- Run focused validation and the full deterministic suite.
+
+Phase 1 execution result:
+- Updated `scripts/run_parser_preflight.sh` to:
+  - derive `ROOT` from the script location;
+  - export repo-local `PYTHONPATH`;
+  - use bounded `timeout` calls;
+  - run repo-local CLI commands through `python -m research_assistant.cli` so the script works even when `ra` is not installed on `PATH`.
+- Replaced `scripts/run_clean_ingest_palazzo.sh` with a deterministic pytest wrapper for `tests/integration/test_cli_commands.py::test_cli_ingest_palazzo_uses_parser_consensus`.
+- Updated:
+  - `docs/validation_scripts.md`;
+  - `docs/product_spec.md`;
+  - `README.md`.
+- Restored a concise NeuTra/DSGE showcase in `proposal/research_development_assistant_design.tex` because the release docs smoke test correctly protects that adoption showcase.
+- Hardened brittle report-source assertions in `tests/integration/test_individual_release_cli.py` so they survive LaTeX line wrapping while preserving the intended checks.
+
+Phase 1 validation:
+- Initial `timeout 120 scripts/run_parser_preflight.sh` failed because `ra` was not on `PATH`; this exposed a real clean-checkout portability issue.
+- After patching the script to use `python -m research_assistant.cli`, `timeout 120 scripts/run_parser_preflight.sh` passed.
+- `timeout 180 scripts/run_clean_ingest_palazzo.sh`: `1 passed in 0.05s`.
+- Initial `timeout 180 scripts/run_tests.sh` failed because the report rewrite no longer contained exact source strings asserted by the docs smoke test.
+- After restoring the NeuTra/DSGE showcase and making two assertions robust to case/line wrapping:
+  - `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py::test_git_sharing_walkthrough_and_gate_script_reference_current_commands -q`: `1 passed in 0.06s`;
+  - `timeout 180 scripts/run_tests.sh`: `139 passed in 4.71s`.
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- The private-PDF release validation dependency is removed from active scripts.
+- The Palazzo regression remains valuable because it now uses a sanitized temporary fixture and monkeypatched parser output.
+- The parser preflight script is more robust because it no longer depends on the console script being installed.
+- Remaining `Palazzo` hits are intentional test fixtures, historical audit notes, or explicit "no private PDF" documentation, not active private-path dependencies.
+- Remaining `local_research/papers/raw` hits are legitimate workspace/shareability policy references, not validation requirements.
+
+Phase 1 tidy result:
+- No private PDFs, generated workspaces, caches, `build/`, or `dist/` files were staged.
+- `.codex` remains untracked and excluded.
+
+Next safe step:
+- Execute Phase 2 by aligning release, publication, and external-validation docs to the individual local/Git release target.
+
+## Update - final release readiness closure Phase 2 completed
+
+Phase 2 plan for the phase:
+- Align external-validation and publication docs to the individual local/Git release target.
+- Remove misleading current-release "industrial release" wording.
+- Preserve future/deferred platform references only where they are clearly non-goals.
+
+Phase 2 execution result:
+- Updated `docs/release/external_validation_protocol.md` so it now describes real target-machine evidence for the individual local/Git release, not an industrial hosted release.
+- Updated `docs/release/publication_runbook.md` so publication checks use:
+  - `ra release-artifacts manifest`;
+  - `ra individual-git-release validation-report`;
+  - `ra individual-git-release gate-build`.
+- Updated clean-install smoke examples in:
+  - `docs/platform_support.md`;
+  - `docs/maintainer_guide.md`;
+  to use the shell-safe `env WHEEL_PATH=... timeout ...` form.
+
+Phase 2 validation:
+- `rg -n "industrial release|departmental beta|industrial production|shared database|hosted UI|SSO/RBAC|industrial-release|industrial_release" ...` now reports only intentional non-goal, future/deferred, policy, or historical file-name references.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.73s`.
+- `git diff --check`: passed.
+
+Phase 2 audit as another developer:
+- Current release docs now consistently point to the individual local/Git gate.
+- Remaining shared database, hosted UI, SSO/RBAC, and industrial references are explicitly future/deferred or policy paths, not current-release claims.
+- Manual validation and release-owner approval blockers remain visible.
+
+Phase 2 tidy result:
+- No generated outputs created.
+- No private/generated files staged.
+
+Next safe step:
+- Execute Phase 3 by resolving `docs/plans/templates/` references with generic, privacy-safe templates or by removing stale references.
+
+## Update - final release readiness closure Phase 3 completed
+
+Phase 3 plan for the phase:
+- Search for stale `docs/plans/templates/` references.
+- Add short generic process templates if the directory is missing.
+- Keep templates privacy-safe and useful for future autonomous release work.
+
+Phase 3 execution result:
+- Added:
+  - `docs/plans/templates/reset-memo-template.md`;
+  - `docs/plans/templates/phase-execution-template.md`;
+  - `docs/plans/templates/external-validation-record-template.md`.
+- The templates cover objective, scope, plan, execution, validation, audit, tidy, blockers, and next step.
+- The external-validation template includes explicit privacy checks and a sanitized `individual-git-release validation-record` command shape.
+
+Phase 3 validation:
+- `find docs/plans/templates -maxdepth 2 -type f -print | sort` listed all three new templates.
+- `rg -n "docs/plans/templates|reset-memo-template|phase-execution-template|external-validation-record-template|experiment-plan-template|experiment-result-template" docs` returned no stale references.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- The new templates are generic and do not include private paths, usernames, credentials, paper content, or generated workspace state.
+- Since no stale references remain, the templates are a release-process guardrail rather than a required product feature.
+- Files are under ignored `docs/plans/` and must be force-staged intentionally at commit time.
+
+Phase 3 tidy result:
+- No generated outputs created.
+- No private/generated files staged.
+
+Next safe step:
+- Execute Phase 4 by checking for real external validation evidence and recording unavailable fresh-reader, macOS, and minimal-parser-tool evidence as blocked/manual if no real evidence exists.
+
+## Update - final release readiness closure Phase 4 completed
+
+Phase 4 plan for the phase:
+- Check whether real external validation records already exist.
+- If no real fresh-reader, macOS, or minimal-parser-tool evidence exists, record the status as blocked/manual without creating fake records.
+- Keep release notes and support docs explicit about pilot status.
+
+Phase 4 execution result:
+- Searched for existing validation evidence and found no real external validation records for:
+  - `colleague_onboarding`;
+  - `macos`;
+  - `minimal_parser_tools`.
+- Updated `docs/release_notes_0.1.0.md` with explicit current external validation status:
+  - real fresh-reader onboarding: blocked/manual, not yet recorded;
+  - real macOS clean-install smoke: blocked/manual, not yet recorded;
+  - real minimal-parser-tool machine validation: blocked/manual, not yet recorded.
+- Updated `docs/support.md` to state that the current status is a limited individual pilot candidate until those real validations are complete.
+
+Phase 4 validation:
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/research-assistant-external-validation-status individual-git-release validation-report`: status `blocked`, `record_count: 0`, missing `colleague_onboarding`, `macos`, and `minimal_parser_tools`.
+- `PYTHONPATH=src python -m research_assistant.cli --root /tmp/research-assistant-external-validation-status individual-git-release gate-build`: `ready_for_limited_individual_pilot: true`, `ready_for_broad_individual_release: false`, `ready_for_git_shared_research_release: false`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.91s`.
+- `git diff --check`: passed.
+
+Phase 4 audit as another developer:
+- The phase correctly records unavailable external validation as a blocker instead of fabricating records.
+- The temporary `/tmp/research-assistant-external-validation-status` root is not committed and contains no private research data.
+- Release notes and support docs are clearer about the pilot boundary.
+
+Phase 4 tidy result:
+- No external validation artifacts were staged.
+- No private/generated files staged.
+
+Next safe step:
+- Execute Phase 5 by rebuilding release artifacts, running exact-wheel clean-install smoke, and synchronizing the release notes hash with the tested wheel.
+
+## Update - final release readiness closure Phase 5 completed
+
+Phase 5 plan for the phase:
+- Run packaging smoke.
+- Rebuild release artifacts.
+- Run clean-install smoke against the exact rebuilt wheel.
+- Synchronize release notes/platform support with the tested wheel hash and size.
+- Rebuild the tracked proposal PDF because the report source changed in Phase 1.
+
+Phase 5 execution result:
+- `timeout 300 scripts/run_packaging_smoke.sh`: passed.
+  - entrypoint metadata test: `1 passed in 0.07s`;
+  - pip dry-run reported `Would install research-assistant-0.1.0`.
+- `timeout 300 scripts/build_release_artifacts.sh`: passed.
+  - removed old artifacts from `dist/`;
+  - built `research_assistant-0.1.0-py3-none-any.whl`;
+  - generated `dist/release_artifacts_manifest.json`.
+- Manifest evidence:
+  - wheel: `research_assistant-0.1.0-py3-none-any.whl`;
+  - size: `435243` bytes;
+  - SHA256: `d7c61cc8d4a79826a08754aee923be16065d3744bdcb316b797e74ffd71f03d6`.
+- `env WHEEL_PATH=/home/chakwong/python/ResearchAssistant/dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh`: passed.
+  - installed the exact wheel in a temporary venv;
+  - `ra --help`, `ra version`, `ra init`, `ra doctor`, `ra demo setup`, `ra demo run`, and `ra release-report` all executed.
+- Updated:
+  - `docs/release_notes_0.1.0.md`;
+  - `docs/platform_support.md`;
+  - `tests/integration/test_individual_release_cli.py`;
+  - tracked packaging metadata `src/research_assistant.egg-info/PKG-INFO`.
+- Rebuilt `proposal/research_development_assistant_design.pdf` from the updated `.tex` source:
+  - two `pdflatex` passes in `/tmp/research-assistant-design-build`;
+  - final PDF: 23 pages, A4, unencrypted, `236513` bytes.
+
+Phase 5 validation:
+- `PYTHONPATH=src python -m research_assistant.cli release-artifacts manifest --dist-dir dist`: status `ok`, hash matches release notes.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.78s`.
+- `git diff --check`: passed.
+
+Phase 5 audit as another developer:
+- The release notes hash now matches the exact wheel used for clean-install smoke.
+- `dist/` remains ignored and must not be committed.
+- The proposal PDF is synchronized with the restored NeuTra/DSGE showcase.
+- `src/research_assistant.egg-info/PKG-INFO` changed only because the tracked package metadata reflects the README text; keeping it synchronized is appropriate for this repository because the egg-info file is tracked.
+
+Phase 5 tidy result:
+- Temporary clean-install workspace was removed by the smoke script.
+- LaTeX auxiliary files stayed under `/tmp/research-assistant-design-build`.
+- `dist/` and `build/` remain ignored and uncommitted.
+- No private/generated files staged.
+
+Next safe step:
+- Execute Phase 6 by committing intentional changes, cloning the exact commit into `/tmp`, and running clean-clone validation.

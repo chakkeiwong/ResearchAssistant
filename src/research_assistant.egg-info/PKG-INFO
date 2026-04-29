@@ -119,3 +119,7 @@ scripts/run_parser_preflight.sh
 scripts/run_clean_ingest_palazzo.sh
 python tests/scripts/run_parser_benchmark.py
 ```
+
+`scripts/run_clean_ingest_palazzo.sh` uses the deterministic sanitized
+parser-consensus regression in the test suite. It does not require a private
+paper file.

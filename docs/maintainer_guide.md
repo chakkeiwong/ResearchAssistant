@@ -73,7 +73,7 @@ PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_pl
 timeout 120 scripts/run_fast_tests.sh
 timeout 180 scripts/run_bounded_tests.sh
 timeout 300 scripts/build_release_artifacts.sh
-WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh
+env WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh
 GATE_ROOT=/tmp/research-assistant-maintainer-gate timeout 300 scripts/run_individual_git_release_gate.sh
 git diff --check
 git status --short --ignored

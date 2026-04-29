@@ -318,6 +318,12 @@ write the survey automatically. It gives the researcher a durable workspace for
 seed papers, citation neighborhoods, architecture taxonomies, chapter links,
 code experiments, review notes, and trusted context exports.
 
+The strongest current version of this workflow is source-first when the seed
+paper is known and available on arXiv. In that setting, the package is most
+useful not as an automatic literature engine, but as a local evidence layer that
+lets the researcher inspect what the paper explicitly says before updating code,
+notes, or chapter prose.
+
 \begin{lstlisting}[language=bash]
 ra --root ~/ra-workspace ingest \
   --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
@@ -333,10 +339,10 @@ ra --root ~/ra-workspace export-context \
   --output /tmp/dsge_flow_chapter_context.json
 \end{lstlisting}
 
-The attractive point for colleagues is not automation theatre. It is that the
-literature trail, provisional taxonomy, open questions, and chapter context are
-kept reviewable instead of being scattered across PDFs, notes, and assistant
-conversations.
+This broad showcase is useful for chapter planning and evidence organization. But
+for mathematically sensitive material, the higher-trust workflow is often to fetch
+and inspect source directly, then treat discovery and synthesis as secondary,
+reviewable aids.
 
 \chapter{Scope Boundaries And Non-Goals}
 
@@ -398,6 +404,12 @@ practical design choice for mathematical material because source often provides 
 better audit substrate than PDF parsing alone. The package therefore treats PDF
 parser output as fallback and cross-check material rather than as a silently
 trusted primary source.
+
+In practice, a good rule is: if the paper is known and source is available, use
+`source-fetch' first when the task is chapter audit, derivation checking,
+code-literature alignment, or equation-level review. That workflow is especially
+useful when the researcher needs to verify what a paper explicitly claims before
+rewriting technical documentation or implementation notes.
 
 \section{Explicit parser limits}
 

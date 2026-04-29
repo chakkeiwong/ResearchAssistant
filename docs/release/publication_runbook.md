@@ -3,14 +3,15 @@
 ## Purpose
 
 This runbook defines the steps required before tagging or publishing an
-industrial release artifact.
+individual local/Git release artifact.
 
 ## Build And Verify
 
 ```bash
-timeout 180 scripts/build_release_artifacts.sh
+timeout 300 scripts/build_release_artifacts.sh
 ra release-artifacts manifest
-ra industrial-release publication-check
+ra individual-git-release validation-report
+ra individual-git-release gate-build
 ```
 
 ## Required Evidence
@@ -20,7 +21,8 @@ ra industrial-release publication-check
 - release notes with matching SHA256;
 - version consistency;
 - approval from release owner;
-- explicit decision for pilot, departmental beta, or industrial production.
+- explicit decision for limited pilot, broad individual release, Git-shared
+  research release, or no publication.
 
 ## Tag Policy
 
@@ -38,6 +40,10 @@ Do not create or push tags as part of autonomous validation.
 Attach only intended release artifacts and checksum/manifest files. Do not
 attach private workspaces, backup archives, logs, local corpora, `.codex`,
 `.claude`, credentials, or generated caches.
+
+The current release is not a hosted service, shared database, SSO/RBAC system,
+real-time collaboration product, or department platform. Those capabilities are
+future extensions and must not be implied by a v0.1 publication.
 
 ## Rollback
 

@@ -8,6 +8,14 @@ This is a limited pilot release candidate for researchers who want a private loc
 
 The candidate should remain pilot-scoped until real colleague onboarding, macOS validation, real minimal-parser-tool validation, release-owner tag approval, and publication approval are recorded.
 
+Current external validation status for this candidate:
+- real fresh-reader onboarding: blocked/manual, not yet recorded;
+- real macOS clean-install smoke: blocked/manual, not yet recorded;
+- real minimal-parser-tool machine validation: blocked/manual, not yet recorded.
+
+Do not treat local substitute records, synthetic fixtures, or maintainer-machine
+smoke tests as real external validation.
+
 ## Primary Install Path
 
 Recommended colleague path:
@@ -36,7 +44,8 @@ The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` a
 Current local rollout artifact from the final local 2026-04-29 validation pass:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- SHA256: `6e1aa516630ad14bdcfe47b5803070b47007319a8a6600c002946cd26b364670`
+- Size: `435243` bytes
+- SHA256: `d7c61cc8d4a79826a08754aee923be16065d3744bdcb316b797e74ffd71f03d6`
 
 ## Supported Platforms
 
@@ -63,7 +72,7 @@ ra --root /tmp/research-assistant-final-release individual-git-release validatio
 ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 scripts/run_packaging_smoke.sh
 scripts/build_release_artifacts.sh
-WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
+env WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
 ra --root /tmp/research-assistant-final-release release-report
 ```
@@ -71,6 +80,50 @@ ra --root /tmp/research-assistant-final-release release-report
 The exact command results for the current candidate are recorded in `docs/plans/reset_memo_2026-04-26.md`.
 
 Local evidence now includes a validation schema under `local_research/governance/individual_git_release/validation/`, deterministic Git-sharing fixture rehearsal, strict repository hygiene, explicit-wheel clean install smoke, and synthetic representative workspace performance through `synthetic_git_1000`. Real external validation and release-owner approval remain blocked/manual when unavailable.
+
+## Showcase: source-first NeuTra chapter audit
+
+This release was exercised on a realistic research task: auditing a
+DSGE/HMC monograph chapter built around *NeuTra-lizing Bad Geometry in
+Hamiltonian Monte Carlo Using Neural Transport*.
+
+In that workflow, the researcher used `research-assistant` to:
+- create a private local workspace;
+- ingest the NeuTra paper by arXiv ID;
+- fetch the arXiv LaTeX source;
+- inspect structured sections, equations, and citations from source rather
+  than relying only on PDF heuristics;
+- compare the paper's explicit claims with local code and chapter text;
+- export reviewed context for downstream writing.
+
+Representative commands:
+
+```bash
+ra --root /tmp/ra-neutra-audit init
+ra --root /tmp/ra-neutra-audit ingest --arxiv-id 1903.03704 --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
+ra --root /tmp/ra-neutra-audit source-fetch --arxiv-id 1903.03704
+ra --root /tmp/ra-neutra-audit find --query "NeuTra"
+ra --root /tmp/ra-neutra-audit source-sections --paper-id paper_arxiv_1903_aa33312a
+ra --root /tmp/ra-neutra-audit source-equations --paper-id paper_arxiv_1903_aa33312a
+ra --root /tmp/ra-neutra-audit source-show --paper-id paper_arxiv_1903_aa33312a
+```
+
+What this showed in practice:
+- source-first inspection is already useful for mathematical literature
+  audits;
+- structured source outputs make chapter/code verification easier than
+  PDF-only review;
+- human judgment is still required for interpretation and for related-work
+  selection.
+
+What it did not show:
+- automatic survey writing;
+- automatic mathematical certification;
+- or reliable open-ended literature discovery without human review.
+
+Release takeaway: `research-assistant` is already strong as a local,
+source-grounded evidence tool for known-paper audits. It should currently be
+presented that way, rather than as automatic literature intelligence.
 
 ## Git Sharing
 

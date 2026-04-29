@@ -21,19 +21,28 @@ scripts/run_clean_ingest_palazzo.sh
 python tests/scripts/run_parser_benchmark.py
 ```
 
-The parser benchmark output includes a `report` block with fixture counts, aggregate scores, missing PDFs, and whether the benchmark corpus is ready to act as a release gate.
+`scripts/run_clean_ingest_palazzo.sh` is now a deterministic pytest wrapper. It
+does not require a private Palazzo PDF or any file under a maintainer's
+`local_research/papers/raw/` directory.
+
+The parser benchmark and smoke checks report fixture counts, aggregate scores,
+missing PDFs, parser/tool availability, and whether fixture evidence is ready to
+act as a release gate. These checks are availability and regression checks, not
+scientific parser-certification evidence.
 
 ## Recommended Claude Code permissions
 
-Add these to `~/.claude/settings.json` under `permissions.allow`:
+If a local Claude Code configuration needs explicit script allow-rules, use
+repository-relative command patterns for your checkout rather than hard-coded
+personal paths. For example:
 
 ```json
-"Bash(/home/chakwong/research-assistant/scripts/run_tests.sh)",
-"Bash(/home/chakwong/research-assistant/scripts/run_tests.sh *)",
-"Bash(/home/chakwong/research-assistant/scripts/run_parser_preflight.sh)",
-"Bash(/home/chakwong/research-assistant/scripts/run_parser_preflight.sh *)",
-"Bash(/home/chakwong/research-assistant/scripts/run_clean_ingest_palazzo.sh)",
-"Bash(/home/chakwong/research-assistant/scripts/run_clean_ingest_palazzo.sh *)"
+"Bash(scripts/run_tests.sh)",
+"Bash(scripts/run_tests.sh *)",
+"Bash(scripts/run_parser_preflight.sh)",
+"Bash(scripts/run_parser_preflight.sh *)",
+"Bash(scripts/run_clean_ingest_palazzo.sh)",
+"Bash(scripts/run_clean_ingest_palazzo.sh *)"
 ```
 
 ## Why use scripts instead of long ad hoc commands?
@@ -50,18 +59,27 @@ Add these to `~/.claude/settings.json` under `permissions.allow`:
 Runs deterministic unit and integration tests:
 
 ```bash
-python -m pytest tests/unit tests/integration -q
+timeout "${TIMEOUT_SECONDS:-300}s" python -m pytest tests/unit tests/integration -q
 ```
 
-### Parser diagnostics
-Run parser availability diagnostics and report each parser workflow's current capability limits for section headings, equations, and citations:
+### `run_parser_preflight.sh`
+Runs parser availability diagnostics and reports each parser workflow's current
+capability limits for section headings, equations, and citations:
 
 ```bash
+ra parser-preflight
 ra doctor --matrix
 ra parser-tool-matrix
 ra parser-benchmark-smoke
 ```
 
 ### `run_clean_ingest_palazzo.sh`
-Creates a fresh temporary research store and re-runs the local PDF ingest validation for the Palazzo paper.
-This is the main regression check for parser-first local PDF ingest behavior.
+Runs the parser-consensus identity regression:
+
+```bash
+python -m pytest tests/integration/test_cli_commands.py::test_cli_ingest_palazzo_uses_parser_consensus -q
+```
+
+The test constructs a sanitized temporary fixture and monkeypatched parser
+outputs. It verifies parser-consensus identity behavior without requiring a
+private PDF.

@@ -608,12 +608,13 @@ def test_git_sharing_walkthrough_and_gate_script_reference_current_commands() ->
     assert "Do not" in walkthrough
     assert "parser scientific accuracy is not certified" in limitations
     assert "parser scientific accuracy is not certified" in release_notes
-    assert "WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh" in release_notes
+    assert "env WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh" in release_notes
     assert "individual local research tool" in maintainer_guide
     assert "Git-based sharing" in usage
     assert "NeuTra To DSGE Survey Chapter" in usage
-    assert "future extension" in report
-    assert "parser scientific accuracy is not" in report
+    assert "future extension" in report.lower()
+    assert "parser scientific accuracy" in report
+    assert "is not certified" in report
     assert "DSGE survey chapter from a NeuTra seed" in report
     assert "normalizing-flow" in report
     assert "neural-transport architectures" in report

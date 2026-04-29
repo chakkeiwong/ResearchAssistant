@@ -2,6 +2,10 @@
 
 This support process is for private individual installs. Share diagnostics, not research data.
 
+Current release status: limited individual pilot candidate. Broad non-pilot
+rollout still requires real fresh-reader onboarding, macOS clean-install smoke,
+and minimal-parser-tool machine validation.
+
 ## Before Asking For Help
 
 Run these commands from a fresh terminal:

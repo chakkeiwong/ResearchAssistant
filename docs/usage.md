@@ -34,6 +34,18 @@ ra source-macros --paper-id paper_example
 arXiv LaTeX source is the preferred audit substrate when available. PDF parser
 output remains fallback and cross-check material.
 
+When to use `source-fetch` first:
+- when the paper is already known and available on arXiv;
+- when you need to verify mathematical derivations or exact equation wording;
+- when you want section structure, citation keys, or theorem/equation blocks
+  from source rather than from parser heuristics;
+- when you are auditing a chapter, derivation note, or code path against what a
+  paper explicitly claims.
+
+For mathematical review, source-first inspection is usually the higher-trust
+workflow. PDF parsing remains useful as fallback and cross-check material, not
+as a replacement for source when source is available.
+
 ## PDF Parser Diagnostics
 
 ```bash

@@ -55,6 +55,6 @@ Reviewable local library:
 ## Acceptance criteria
 - `scripts/run_tests.sh` passes.
 - `scripts/run_parser_preflight.sh` reports parser readiness clearly.
-- `scripts/run_clean_ingest_palazzo.sh` confirms parser-consensus identity on the Palazzo regression.
+- `scripts/run_clean_ingest_palazzo.sh` confirms parser-consensus identity using the sanitized deterministic regression fixture, without a private PDF dependency.
 - parser benchmark script emits a release report and fixture-level results.
 - review and inbox commands work on temporary local stores in integration tests.
