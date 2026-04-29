@@ -309,6 +309,35 @@ That export is intentionally bounded. It should come from reviewed records, not
 from everything that happened to be ingested. The package therefore helps with
 speed \emph{and} discipline.
 
+\section{Nontrivial showcase: DSGE survey chapter from a NeuTra seed}
+
+A more persuasive use case is a DSGE survey chapter from a NeuTra seed. Suppose a
+researcher wants to compare normalizing-flow and neural-transport architectures
+for difficult posterior geometry. The package does not replace the researcher or
+write the survey automatically. It gives the researcher a durable workspace for
+seed papers, citation neighborhoods, architecture taxonomies, chapter links,
+code experiments, review notes, and trusted context exports.
+
+\begin{lstlisting}[language=bash]
+ra --root ~/ra-workspace ingest \
+  --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
+ra --root ~/ra-workspace ingest \
+  --query "Normalizing Flows for Probabilistic Modeling and Inference"
+ra --root ~/ra-workspace citation-neighborhood \
+  --paper-id neutra_hmc --limit 25
+ra --root ~/ra-workspace synthesis propose \
+  --paper-id neutra_hmc --kind survey_chapter_outline
+ra --root ~/ra-workspace traceability build --paper-id neutra_hmc
+ra --root ~/ra-workspace export-context \
+  --review-status approved \
+  --output /tmp/dsge_flow_chapter_context.json
+\end{lstlisting}
+
+The attractive point for colleagues is not automation theatre. It is that the
+literature trail, provisional taxonomy, open questions, and chapter context are
+kept reviewable instead of being scattered across PDFs, notes, and assistant
+conversations.
+
 \chapter{Scope Boundaries And Non-Goals}
 
 A colleague should adopt the package for what it already does well, not for what
@@ -412,6 +441,47 @@ ra --root /tmp/research-assistant-demo release-report
 
 This gives the user a deterministic, non-sensitive first experience before any
 real paper is involved.
+
+\section{A release-proven use case: source-first NeuTra audit}
+
+The release was exercised on a realistic research task: auditing a
+DSGE/HMC monograph chapter built around \emph{NeuTra-lizing Bad Geometry in
+Hamiltonian Monte Carlo Using Neural Transport}. This is a good colleague-facing
+example because it shows where the package is already genuinely useful: a
+known-paper audit with source-grounded inspection and downstream writing support.
+
+Representative commands:
+\begin{lstlisting}[language=bash]
+ra --root /tmp/ra-neutra-audit init
+ra --root /tmp/ra-neutra-audit ingest --arxiv-id 1903.03704 \
+  --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
+ra --root /tmp/ra-neutra-audit source-fetch --arxiv-id 1903.03704
+ra --root /tmp/ra-neutra-audit find --query "NeuTra"
+ra --root /tmp/ra-neutra-audit source-sections --paper-id paper_arxiv_1903_aa33312a
+ra --root /tmp/ra-neutra-audit source-equations --paper-id paper_arxiv_1903_aa33312a
+ra --root /tmp/ra-neutra-audit source-show --paper-id paper_arxiv_1903_aa33312a
+\end{lstlisting}
+
+What this illustrates in practice:
+\begin{itemize}[nosep]
+  \item source-first inspection is already useful for mathematical literature
+        audits;
+  \item structured source outputs make chapter and code verification easier than
+        PDF-only review;
+  \item reviewed context can then be exported into later writing or coding
+        workflows.
+\end{itemize}
+
+What it does \emph{not} illustrate:
+\begin{itemize}[nosep]
+  \item automatic survey writing;
+  \item automatic mathematical certification;
+  \item reliable open-ended literature discovery without human review.
+\end{itemize}
+
+This is exactly the level at which the current release should be presented to
+colleagues: strong for local, source-grounded audits of known papers, and honest
+about where human judgment still dominates.
 
 \section{Use support commands safely}
 
