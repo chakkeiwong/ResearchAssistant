@@ -2237,3 +2237,36 @@ Phase 4 validation, audit, and tidy:
 
 Next safe step:
 - Commit the audit gap closure implementation packet, then add a final reset memo closeout.
+
+
+## Update - release-audit second-agent request execution completed
+
+Implementation commit:
+- `8a53d77 Close release audit reproducibility gaps`.
+
+What changed:
+- Rewrote `docs/proposal/release_audit_second_agent_review_request_2026-04-29.md` from a read-only review request into a second-agent review and execution plan.
+- Added `docs/plans/release_audit_gap_closure_plan_2026-04-29.md`.
+- Made `scripts/run_tests.sh` repo-portable, `PYTHONPATH=src` aware, and bounded by `timeout`.
+- Replaced the hard-coded personal Palazzo PDF dependency in `tests/integration/test_cli_commands.py` with a temporary sanitized fixture and deterministic monkeypatched parser/extractor output.
+- Updated `docs/release_notes_0.1.0.md` to the 2026-04-29 candidate date/evidence wording.
+- Updated `docs/release_checklist.md` to state that performance evidence must run before `validation-report` and `gate-build`.
+
+Validation:
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_cli_commands.py tests/integration/test_industrial_platform_cli.py -q`: `26 passed in 1.92s`.
+- `timeout 180 scripts/run_tests.sh`: `139 passed in 4.72s`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.80s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.93s`.
+- `git diff --check`: clean before commit.
+
+Final audit:
+- The review request's major concrete findings were correct and are now addressed locally.
+- The broad release is still correctly blocked on real fresh-reader onboarding, real macOS validation, real minimal parser-tool machine validation, release-owner tag approval, and publication approval.
+- `docs/plans/whole_codebase_release_audit_2026-04-29.md` remains an ignored local audit input and was not committed in this pass.
+- No tag was created and no artifact was published.
+
+Remaining local state:
+- `.codex` remains untracked.
+- `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, `dist/`, and test cache directories remain ignored and uncommitted.
+
+This closing reset memo update is included in the final memo checkpoint commit.
