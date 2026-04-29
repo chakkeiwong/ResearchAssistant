@@ -1960,3 +1960,50 @@ Phase 6 external manual release gates:
 
 Next safe step:
 - Commit the implementation/docs/plan/reset-memo packet, clone the committed tree locally, run the clean-checkout gate, then update this memo with the clean-checkout evidence and final commit hash.
+
+
+## Update - pre-final maintainability/report execution completed
+
+Implementation checkpoint:
+- Commit: `674cbec Prepare pre-final release maintainability packet`.
+- Changed files intentionally included release-critical code comments/refactor, maintainer docs, usage/release docs, the rewritten LaTeX report and PDF, integration docs smoke coverage, this reset memo, and `docs/plans/pre_final_release_maintainability_report_plan_2026-04-29.md`.
+- No private papers, private local paths, credentials, provider keys, tokens, `.codex`, `.claude`, caches, bytecode, `build/`, `dist/`, temporary clones, generated workspaces, or backup archives were committed.
+
+Clean-checkout validation after implementation commit:
+- Clean local clone: `/tmp/research-assistant-maintainability-clean-674cbec`.
+- Clean clone commit: `674cbec`.
+- Initial clean-clone `git status --short --ignored`: clean.
+- `GATE_ROOT=/tmp/research-assistant-maintainability-clean-gate-674cbec timeout 300 scripts/run_individual_git_release_gate.sh`: completed.
+- Clean-checkout gate suites:
+  - fast suite: `14 passed in 1.08s`;
+  - bounded suite: `34 passed in 0.95s`;
+  - individual release integration: `14 passed in 1.75s`.
+- Clean-checkout gate status: `blocked`, as expected.
+- Clean-checkout readiness:
+  - `ready_for_limited_individual_pilot: true`;
+  - `ready_for_git_shared_research_release: false`;
+  - `ready_for_broad_individual_release: false`.
+- Clean-checkout blockers:
+  - real fresh-reader onboarding was not completed;
+  - real macOS validation was not completed;
+  - real minimal parser-tool machine validation was not completed;
+  - release-owner tag approval was not provided;
+  - release-owner publication approval was not provided.
+- Clean-checkout warnings:
+  - `release_artifacts_not_built` appears in the clean clone because `dist/` is intentionally ignored and uncommitted;
+  - repository-hygiene warnings appear for generated/rebuildable gate evidence in the temporary gate workspace and for strict hygiene outside a Git repository.
+- Clean clone post-validation `git status --short --ignored` showed only ignored `.pytest_cache/` and bytecode caches.
+
+Final local source-tree state before this memo checkpoint:
+- Working tree has no tracked modifications other than this reset memo update.
+- `.codex` remains untracked.
+- `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, and `dist/` remain ignored local state.
+- No tag was created and no artifact was published.
+
+Final result of this pass:
+- All locally automatable phases in the maintainability/report plan are complete.
+- The release target remains individual local filesystem storage plus Git-based sharing.
+- The multi-user database/service/SSO/RBAC/hosted UI target remains a future extension.
+- The final local smoke-tested wheel evidence recorded in release docs is SHA256 `6e1aa516630ad14bdcfe47b5803070b47007319a8a6600c002946cd26b364670`.
+- Broad release remains blocked on real external validation and release-owner approval.
+- This closing reset memo update is included in the final memo checkpoint commit.
