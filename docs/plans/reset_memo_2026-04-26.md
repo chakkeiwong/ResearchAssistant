@@ -715,7 +715,224 @@ Next safe step:
 - Commit the 12-gap scaffold implementation, noting that focused and broad deterministic validations passed while the full-suite attempt was interrupted without a final summary.
 
 
-## Update — industrial scale implementation pass started
+## Update — MCP prompt-and-transcript proposal expansion started
+
+New objective:
+- expand `proposal/research_development_assistant_design.tex` so MCP prompt-to-tool behavior and realistic assistant conversations become a first-class early adoption hook for colleagues.
+
+Execution plan written to:
+- `/home/chakwong/.claude/plans/joyful-mapping-hickey.md`
+
+Phase 0 status:
+- In progress.
+
+Phase 0 rewrite boundary:
+- keep the proposal bounded to the real current local-first release;
+- show realistic natural-language prompts and likely MCP tool triggers;
+- add an early chapter that makes the assistant workflow vivid before deep technical detail;
+- keep transcripts honest, review-aware, and non-magical;
+- do not imply mathematical certification, automatic survey writing, or fully autonomous multi-user platform behavior.
+
+Phase 0 source review:
+- Re-read the current proposal front matter and early chapters.
+- Re-read workflow and truth-source docs:
+  - `README.md`
+  - `docs/product_spec.md`
+  - `docs/usage.md`
+  - `docs/release_notes_0.1.0.md`
+  - `docs/test_plan.md`
+- Reviewed planning/exploration support identifying realistic transcript candidates and prompt-to-tool mapping patterns.
+
+Phase 0 current state assessment:
+- The proposal now motivates the tool better than before, but it still mainly describes workflows rather than showing what a realistic MCP conversation would feel like.
+- The biggest missing adoption hook is a colleague-facing demonstration that natural-language prompts can reliably trigger the right tools and preserve review boundaries.
+
+Phase 0 inventory of new material to add:
+- add a new early chapter for representative assistant conversations;
+- add a prompt-to-tool mapping section;
+- add a prompt-analysis subsection explaining why some requests map to one tool while others require sequences or clarifications;
+- add realistic transcripts for the main showcases later in the proposal;
+- keep Git-sharing and safety transcripts bounded and conservative.
+
+Phase 0 audit as another developer:
+- The plan direction is strong because it turns the proposal toward the actual day-to-day experience of using the MCP, which is likely the most persuasive colleague-facing story.
+- Main execution risks to watch:
+  - overclaiming tool autonomy;
+  - making transcripts unrealistically frictionless;
+  - letting maintainer/release-ops detail overwhelm the colleague narrative;
+  - implying every CLI command is already a polished one-shot MCP behavior.
+
+Phase 0 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Perform an explicit independent audit of the MCP transcript expansion plan, then execute Phase 1 by restructuring the proposal so the new assistant-conversation chapter appears very early.
+
+## Update — MCP prompt-and-transcript plan audit completed
+
+Independent audit result:
+- The plan direction is strong: prompt-to-capability behavior and realistic assistant conversations are likely the strongest remaining adoption hook for the proposal.
+- However, the initial version of the plan was too loose for autonomous execution and risked:
+  - overclaiming a frozen MCP API when the repo documents CLI/workflow behavior more strongly than a finalized MCP surface;
+  - duplicating existing example/showcase sections rather than restructuring them;
+  - adding too many transcripts and bloating the proposal;
+  - under-specifying release-maturity and known-limitations checks;
+  - introducing formatting risk through overly wide tables or brittle transcript layouts.
+
+Plan fixes applied before execution:
+- The plan now frames the mapping section as prompt-to-documented-capability behavior plus likely tool/command sequences, not as a guaranteed frozen public MCP API.
+- The plan now requires restructuring and consolidation instead of only appending new material.
+- The plan now limits the detailed transcript count to two or three major showcases rather than every workflow.
+- The plan now expands prompt categories to include safe first-run/demo, parser readiness, privacy posture, and release maturity.
+- The plan now requires direct consistency checks against `docs/known_limitations.md` and pilot status in `docs/release_notes_0.1.0.md`.
+- The plan now adds explicit LaTeX/layout discipline: prefer compact prose and listings over fragile wide transcript tables, and watch for overfull/underfull issues.
+
+Audit conclusion as another developer:
+- No blocking plan defects remain after the fixes above.
+- The proposal can now be edited autonomously with a lower risk of overclaim, duplication, or formatting failure.
+
+Tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 1 by restructuring the proposal to insert the new assistant-conversation chapter after essential scope/trust framing, and consolidate overlapping workflow sections.
+
+## Update — MCP prompt-and-transcript Phase 1 completed
+
+Phase 1 plan for the phase:
+- Insert a new early chapter that shows how real assistant conversations should trigger documented package behavior.
+- Consolidate overlapping assistant-workflow explanation rather than only appending more material.
+
+Phase 1 execution result:
+- Replaced the old `How It Fits Into Current Assistant Workflows` chapter with a new early chapter: `How A Real Assistant Conversation Works`.
+- Added:
+  - a prompt-to-documented-behavior mapping section;
+  - a prompt-analysis section explaining single-tool vs multi-step behavior;
+  - three realistic conversation transcripts:
+    1. source-first audit of a known paper;
+    2. ingest, inspect, review, and export trusted context;
+    3. discovery plus safe sharing / merge-preview.
+- Kept the `Concrete Example Workflows` chapter after the new early conversation chapter so the proposal now shows assistant interaction first and broader workflow examples second.
+- Removed the now-redundant old assistant-workflow-fit chapter to reduce duplication.
+
+Phase 1 focused validation:
+- Structural checks passed:
+  - new early conversation chapter present;
+  - prompt-mapping section present;
+  - prompt-analysis section present;
+  - three realistic conversation sections present;
+  - old assistant-workflow-fit chapter removed;
+  - `Concrete Example Workflows` chapter still present after restructuring.
+
+Phase 1 audit as another developer:
+- The new chapter is a stronger adoption hook because it shows what the MCP-driven experience feels like before deeper workflow detail.
+- The consolidation avoided the most obvious duplication risk.
+- The main remaining risk is transcript realism: later phases must verify that the prompts, tool sequences, and outcomes stay tightly grounded in documented repo behavior and known limitations.
+
+Phase 1 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 2 by auditing each prompt/tool mapping against documented workflows and tightening any transcript that feels too magical, too specific, or too API-like.
+
+## Update — MCP prompt-and-transcript Phase 2 completed
+
+Phase 2 plan for the phase:
+- Audit the new prompt-mapping and transcript material against documented workflows and known limitations.
+- Tighten any section that overclaims, omits key prompt categories, or hides review-boundary language.
+
+Phase 2 execution result:
+- Expanded the prompt-mapping chapter to include explicit categories for:
+  - local setup, demo, privacy, and diagnostics;
+  - parser readiness and capability checks.
+- Strengthened the prompt-analysis section to state plainly that generated artifacts remain review material, not approval.
+- Kept the mapping framed as prompt-to-documented behavior and likely tool or command sequences rather than a frozen public MCP API.
+
+Phase 2 focused validation:
+- Transcript-realism and scope audit passed after fixes:
+  - demo/setup/diagnostic prompt category present;
+  - parser-readiness prompt category present;
+  - review-material boundary phrase present in the prompt-analysis section;
+  - no frozen-MCP-API language introduced;
+  - no autonomy overclaim introduced;
+  - all three realistic conversations remain present.
+
+Phase 2 audit as another developer:
+- The chapter is now better aligned with the actual documented workflow surface because it covers first-run trust-building and parser-readiness prompts, not just research workflows.
+- The explicit review-material wording reduces the risk that transcripts sound like approvals rather than bounded assistance.
+- The next remaining risk is document bloat and formatting: a long mapping chapter with transcript sections can easily become hard to scan if not checked carefully in the rendered PDF.
+
+Phase 2 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 3 by checking for remaining duplication with later workflow sections, tightening any repeated showcase language, and then moving to build validation.
+
+## Update — MCP prompt-and-transcript Phase 3 completed
+
+Phase 3 plan for the phase:
+- Consolidate overlapping workflow and showcase material so the new early prompt/transcript chapter becomes the main adoption hook instead of creating a longer repetitive proposal.
+
+Phase 3 execution result:
+- Tightened the later `Nontrivial showcase: DSGE survey chapter from a NeuTra seed` section so it now references the earlier assistant-conversation chapter instead of re-explaining the same audit story at full length.
+- Tightened the later `A release-proven use case: source-first NeuTra audit` section so it now explicitly points back to the earlier detailed conversation and keeps only the concise adoption takeaway.
+- Preserved later sections as shorter reinforcement rather than duplicated primary explanations.
+
+Phase 3 focused validation:
+- Consolidation checks passed:
+  - later showcase explicitly references the earlier assistant-conversation chapter;
+  - later release-proven use case explicitly references the earlier detailed conversation;
+  - the strongest NeuTra explanatory line is no longer duplicated in full.
+
+Phase 3 audit as another developer:
+- The proposal is now more disciplined because the early MCP chapter carries the main experiential burden and later sections reinforce it instead of restaging it.
+- This reduces document bloat and makes the opening stronger.
+- The remaining risk is mostly formatting: the longtable-based prompt mappings and transcript-heavy early chapter now need full PDF validation for readability and page-break quality.
+
+Phase 3 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Validate the updated proposal document by compiling the PDF, reviewing the early chapter layout, and confirming that the transcript-heavy structure remains readable.
+
+## Update — MCP prompt-and-transcript validation completed
+
+Validation plan for this phase:
+- Rebuild the proposal after the new MCP chapter, prompt-analysis section, and transcript consolidation work.
+- Confirm that the transcript-heavy early chapter is readable in the rendered PDF and that the “do not trigger a tool” distinction appears clearly.
+
+Validation execution result:
+- Rebuilt the proposal successfully with `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=/tmp/ra-proposal-build`.
+- The resulting PDF output was reported at 30 pages.
+- Extracted the rebuilt PDF text and inspected the early MCP chapter markers.
+
+Focused validation results:
+- The rebuilt PDF includes the early chapter `How A Real Assistant Conversation Works`.
+- The rendered table of contents includes the new subsection `When the assistant should not trigger a tool`.
+- Extracted PDF text confirms the early chapter now visibly contains:
+  - prompt lines;
+  - review-boundary lines;
+  - prompt categories for demo, diagnostics, parser readiness, source-first audit, review/export, discovery, Git sharing, and backup;
+  - examples of prompts that may seem like tool triggers but usually should not trigger tools.
+- LaTeX build completed with no fatal errors.
+- Remaining build warnings are minor underfull `\vbox` spacing warnings, not structural failures.
+
+Validation audit as another developer:
+- The proposal now demonstrates the MCP value proposition much more concretely because it shows both when tools should trigger and when the assistant should simply answer.
+- The new negative examples are especially important: they clarify that the package adds value when local evidence matters, not for every generic question.
+- The main remaining step is final repository hygiene and the requested commit.
+
+Tidy result:
+- Build artifacts remained outside the repository in `/tmp/ra-proposal-build`.
+- No private or non-shareable files were introduced.
+
+Next safe step:
+- Review the final diff, stage intentional files only, and create the requested commit.
 
 New objective:
 - Turn the committed industrial scaffolds into a stricter local operational layer for departmental mathematical finance/economics research workflows.
