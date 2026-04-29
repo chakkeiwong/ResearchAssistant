@@ -2007,3 +2007,92 @@ Final result of this pass:
 - The final local smoke-tested wheel evidence recorded in release docs is SHA256 `6e1aa516630ad14bdcfe47b5803070b47007319a8a6600c002946cd26b364670`.
 - Broad release remains blocked on real external validation and release-owner approval.
 - This closing reset memo update is included in the final memo checkpoint commit.
+
+
+## Update - NeuTra/DSGE showcase enhancement started
+
+New objective:
+- Make `proposal/research_development_assistant_design.tex` less skeletal by adding a real colleague-facing showcase: using NeuTra as a seed paper for a DSGE survey chapter on normalizing-flow and neural-transport architectures.
+- Update supporting docs/tests only as needed.
+- Preserve the current release target: individual local filesystem tool plus Git sharing.
+- Do not claim the tool automatically writes, validates, or scientifically approves the survey.
+
+Independent audit before execution:
+- Product value: a DSGE/NeuTra survey showcase is useful because local plans already identify NeuTra as a representative validation paper and identify chapter-writing/literature traversal as a real pain point.
+- Accuracy: the showcase must describe evidence organization, citation traversal, review notes, architecture taxonomy, links to chapter sections/code, and exportable context; it must not claim automatic correctness.
+- Scope: no multi-user server/database/hosted UI requirement should be introduced.
+- Privacy: examples must use public paper titles and placeholder paths only; no private PDFs, private local paths, or unpublished notes should be exposed.
+- Implementation risk: documentation-only changes are appropriate; no code behavior should change.
+
+Execution plan:
+- Phase 0: baseline/read current report and NeuTra references.
+- Phase 1: add a substantial NeuTra/DSGE showcase section to the LaTeX report.
+- Phase 2: add a concise usage-doc pointer and docs smoke assertions so the showcase does not regress.
+- Phase 3: rebuild the PDF if local TeX succeeds; remove intermediates.
+- Phase 4: run focused validation, audit, tidy, update this memo, and commit.
+
+Phase 0 baseline:
+- Plan: locate existing NeuTra/normalizing-flow references and confirm the report gap.
+- Execute: reviewed `proposal/research_development_assistant_design.tex`, `docs/test_plan.md`, `docs/validation_run_log.md`, `docs/hardening_plan.md`, `README.md`, and the docs smoke test.
+- Evidence:
+  - `docs/test_plan.md` lists "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport" as a directly relevant representative paper.
+  - `docs/validation_run_log.md` records NeuTra query-only ingest and metadata-hardening evidence.
+  - `docs/hardening_plan.md` says a NeuTra seed should support first-pass literature graph traversal for citing papers, second-order papers, criticisms, remedies, and applications.
+  - The current report's "Nontrivial Showcases" chapter is mostly release mechanics.
+- Audit: a real research showcase is missing and can be added without changing release scope or behavior.
+- Tidy: no files changed yet for this phase.
+
+Phase 1 report showcase:
+- Plan: add a substantial real research scenario to the report's "Nontrivial Showcases" chapter.
+- Execute: added "DSGE survey chapter from a NeuTra seed" to `proposal/research_development_assistant_design.tex`.
+- Content added:
+  - NeuTra as the seed paper for a DSGE survey chapter on normalizing-flow and neural-transport architectures.
+  - Architecture taxonomy examples: transport maps, neural reparameterizations, planar/radial/autoregressive/coupling/spline/continuous normalizing flows, HMC and variational-inference relevance, criticisms, failure modes, remedies, code experiments, and derivation notes.
+  - Current CLI examples for ingest, discovery, citation neighborhood, audit notes, links, derivation worksheet creation, synthesis proposal, traceability, review approval, and context export.
+- Audit: the text is motivational but keeps outputs as review material and says the tool does not replace the researcher's judgment.
+- Tidy: no private paths or private papers were referenced.
+
+Phase 2 usage pointer and docs smoke:
+- Plan: expose the showcase outside the PDF and protect it with focused docs assertions.
+- Execute:
+  - Added "Showcase: NeuTra To DSGE Survey Chapter" to `docs/usage.md`.
+  - Added docs smoke assertions in `tests/integration/test_individual_release_cli.py` for the NeuTra/DSGE showcase and normalizing-flow wording.
+- Audit: examples use existing CLI commands; the usage doc says the goal is a reviewable evidence trail, not automatic survey writing.
+- Tidy: no generated files staged.
+
+Phase 3 PDF rebuild:
+- Plan: rebuild the tracked report PDF after the showcase addition.
+- Execute:
+  - Ran two `pdflatex` passes from `proposal/`.
+  - Removed `.aux`, `.log`, `.out`, and `.toc` intermediates.
+- Evidence:
+  - `timeout 180 pdflatex -interaction=nonstopmode -halt-on-error research_development_assistant_design.tex`: passed twice.
+  - `pdfinfo proposal/research_development_assistant_design.pdf`: 20 pages, PDF 1.7, size `215486` bytes.
+  - LaTeX reported a non-fatal overfull hbox near `synthetic_git_1000`; this was not introduced as a release blocker.
+- Audit: the PDF contains the new showcase and remains built from the tracked `.tex`.
+- Tidy: TeX intermediates removed.
+
+Phase 4 validation, audit, and tidy:
+- Plan: verify the docs/report-only change and prepare a clean commit.
+- Execute:
+  - Ran focused individual release integration tests after fixing a brittle exact-string docs assertion caused by a line wrap in the LaTeX source.
+  - Ran fast tests.
+  - Ran whitespace diff checks and status review.
+- Evidence:
+  - Initial `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: failed once because the asserted phrase "normalizing-flow and neural-transport architectures" wrapped across a line in the report source.
+  - Fixed the assertion to check `normalizing-flow` and `neural-transport architectures` separately.
+  - Final `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.68s`.
+  - `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.95s`.
+  - `git diff --check`: clean.
+- Audit:
+  - No code behavior changed.
+  - The added showcase is grounded in public paper titles and existing local plan/test references.
+  - The report remains honest that the tool builds a reviewable evidence trail and does not replace researcher judgment.
+  - Current release scope remains individual local filesystem plus Git sharing; multi-user platform work is still future extension.
+- Tidy:
+  - `.codex` remains untracked and uncommitted.
+  - `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, and `dist/` remain ignored and uncommitted.
+  - `docs/plans/neutra_dsge_showcase_report_plan_2026-04-29.md` is ignored by pattern and must be force-staged intentionally if committed.
+
+Next safe step:
+- Commit the showcase report/docs/test/reset-memo packet.

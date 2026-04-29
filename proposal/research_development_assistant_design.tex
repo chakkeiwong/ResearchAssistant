@@ -274,6 +274,146 @@ review possible without pretending that imported material is locally accepted.
 
 \chapter{Nontrivial Showcases}
 
+\section{DSGE survey chapter from a NeuTra seed}
+
+A realistic adoption story is not "the tool writes a paper." A better story is:
+a researcher needs to write a DSGE survey chapter on normalizing-flow and
+neural-transport architectures for difficult posterior geometry, and wants an
+auditable workspace rather than a folder of disconnected PDFs, notes, code
+experiments, and partially remembered assistant conversations.
+
+One useful seed paper for this workflow is "NeuTra-lizing Bad Geometry in
+Hamiltonian Monte Carlo Using Neural Transport." From that seed, the researcher
+can build a chapter map around:
+\begin{itemize}[nosep]
+  \item transport maps and neural reparameterizations for posterior geometry;
+  \item planar, radial, autoregressive, coupling, spline, and continuous
+        normalizing-flow architectures;
+  \item the relationship between flow expressiveness, Jacobian cost, and HMC or
+        variational-inference workflows;
+  \item which methods look directly relevant to DSGE posterior sampling and
+        which are only generally relevant machine-learning background;
+  \item criticisms, failure modes, diagnostics, and remedies reported by later
+        citing papers;
+  \item code experiments or derivation notes needed before a method can be
+        trusted in a chapter.
+\end{itemize}
+
+\subsection{Workspace setup}
+
+The researcher starts by creating a local workspace and ingesting a small
+public seed set. The exact paper identifiers may vary by metadata source, so
+the first pass is treated as review material.
+
+\begin{lstlisting}[language=bash]
+ra init
+ra ingest --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
+ra ingest --query "Normalizing Flows for Probabilistic Modeling and Inference"
+ra ingest --query "Riemann Manifold Langevin and Hamiltonian Monte Carlo Methods"
+ra find --query "neural transport HMC"
+ra show --paper-id neutra_hmc
+\end{lstlisting}
+
+The important behavior is not that the first summary is perfect. The important
+behavior is that the metadata, summary, provenance, extraction status, and
+limitations are inspectable before the paper is trusted.
+
+\subsection{Literature graph expansion}
+
+After the seed paper is in the local store, citation commands help replace
+manual graph traversal. A reviewer can inspect nearby work, not blindly accept
+it.
+
+\begin{lstlisting}[language=bash]
+ra citation-neighborhood --paper-id neutra_hmc --limit 25
+ra discover --query "normalizing flows posterior geometry HMC DSGE"
+ra discover --query "transport maps Bayesian inference Hamiltonian Monte Carlo"
+\end{lstlisting}
+
+A useful output for the chapter is a first-pass table with columns such as:
+architecture family, representative paper, inference target, claimed benefit,
+cost or limitation, DSGE relevance, and review status. This table can live in a
+chapter draft, a review note, or an exported context packet. The package's job
+is to make the evidence trail durable: every row should point back to a paper
+record, citation neighborhood, source section, derivation worksheet, or code
+experiment.
+
+\subsection{Architecture taxonomy as review notes}
+
+The researcher can record a provisional taxonomy without pretending it is final
+truth. For example:
+
+\begin{lstlisting}[language=bash]
+ra audit-note append --paper-id neutra_hmc --field open_questions \
+  --value "Does the learned transport remain stable for DSGE posterior ridges?"
+ra audit-note append --paper-id neutra_hmc --field relevant_sections \
+  --value "Use as neural-transport seed for normalizing-flow survey chapter."
+ra audit-note append --paper-id normalizing_flows_review --field claimed_results \
+  --value "Classify flow families by invertibility, Jacobian cost, and expressiveness."
+\end{lstlisting}
+
+Those notes are intentionally review notes. They guide the chapter but do not
+become accepted technical conclusions until the researcher approves them.
+
+\subsection{Connecting papers to chapter sections and code}
+
+A chapter usually fails when the literature, derivations, experiments, and text
+drift apart. The link workflow keeps those references explicit.
+
+\begin{lstlisting}[language=bash]
+ra link-add --paper-id neutra_hmc \
+  --target docs/chapters/dsge_normalizing_flows.tex \
+  --relationship "supports chapter section on neural transport HMC" \
+  --target-type chapter_section --target-ref "sec:neutra"
+
+ra link-add --paper-id neutra_hmc \
+  --target experiments/dsge_neutra_posterior_geometry.py \
+  --relationship "motivates posterior-geometry experiment" \
+  --target-type code
+
+ra derivation create --paper-id neutra_hmc \
+  --title "Transport reparameterization and HMC geometry checklist"
+ra synthesis propose --paper-id neutra_hmc --kind "survey_chapter_outline"
+ra traceability build --paper-id neutra_hmc
+\end{lstlisting}
+
+The result is not a finished chapter. The result is a workspace where a
+colleague can ask: "Which paper supports this claim, what assumptions were
+recorded, what experiment checks it, and what still needs human review?"
+
+\subsection{Exporting chapter context}
+
+Once a subset of records has been reviewed, the researcher can export context
+for writing in another tool.
+
+\begin{lstlisting}[language=bash]
+ra review-mark --paper-id neutra_hmc --status approved
+ra export-context --review-status approved --output /tmp/dsge_flow_chapter_context.json
+\end{lstlisting}
+
+This export is useful input for a writing session, a code-generation session,
+or a colleague handoff. It is also deliberately conservative: only explicitly
+approved records should be used as trusted context, and even approved records
+remain traceable to source artifacts.
+
+\subsection{Why this attracts colleagues}
+
+For a colleague, the appeal is practical. The package shortens the path from
+"I have a seed paper and a vague chapter topic" to:
+\begin{itemize}[nosep]
+  \item a local literature workspace;
+  \item a visible citation neighborhood;
+  \item a provisional but reviewable architecture taxonomy;
+  \item paper-to-chapter and paper-to-code links;
+  \item derivation and experiment checklists;
+  \item an exportable context packet for writing;
+  \item explicit uncertainty and review state.
+\end{itemize}
+
+That is the honest adoption claim: the tool reduces context loss and manual
+literature bookkeeping for serious technical writing. It does not replace the
+researcher's judgment.
+
 \section{Limited-pilot release packet}
 
 \begin{lstlisting}[language=bash]

@@ -74,6 +74,26 @@ Derivations, experiments, synthesis proposals, traceability reports, and
 readiness outputs are review material. They do not certify mathematical
 correctness.
 
+## Showcase: NeuTra To DSGE Survey Chapter
+
+A realistic workflow is to seed a DSGE survey chapter from NeuTra and related
+normalizing-flow papers, then keep the literature, architecture taxonomy,
+chapter links, code experiments, and review notes in one auditable workspace.
+
+```bash
+ra ingest --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
+ra ingest --query "Normalizing Flows for Probabilistic Modeling and Inference"
+ra citation-neighborhood --paper-id neutra_hmc --limit 25
+ra audit-note append --paper-id neutra_hmc --field open_questions --value "Does the learned transport remain stable for DSGE posterior ridges?"
+ra link-add --paper-id neutra_hmc --target docs/chapters/dsge_normalizing_flows.tex --relationship "supports chapter section on neural transport HMC" --target-type chapter_section
+ra synthesis propose --paper-id neutra_hmc --kind survey_chapter_outline
+ra traceability build --paper-id neutra_hmc
+ra export-context --review-status approved --output /tmp/dsge_flow_chapter_context.json
+```
+
+The goal is not automatic survey writing. The goal is a reviewable evidence
+trail for writing faster while preserving human judgment.
+
 ## Backup And Restore
 
 ```bash
