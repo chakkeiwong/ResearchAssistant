@@ -8,7 +8,7 @@ scripts/run_bounded_tests.sh
 PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
 scripts/run_packaging_smoke.sh
 scripts/build_release_artifacts.sh
-scripts/run_clean_install_smoke.sh
+WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
 scripts/run_individual_git_release_gate.sh
 ra --root /tmp/research-assistant-final-release init
@@ -17,6 +17,7 @@ ra --root /tmp/research-assistant-final-release repository-hygiene check --stric
 ra --root /tmp/research-assistant-final-release individual-git-release validation-substitutes
 ra --root /tmp/research-assistant-final-release individual-git-release fixture-rehearsal
 ra --root /tmp/research-assistant-final-release individual-git-release performance --synthetic-count 100
+ra --root /tmp/research-assistant-final-release individual-git-release performance --tier synthetic_git_1000 --synthetic-count 1000 --timeout-seconds 600
 ra --root /tmp/research-assistant-final-release individual-git-release validation-report
 ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 ```
@@ -39,6 +40,7 @@ Release gates:
 - `ra workspace merge` dry-run and `--apply --confirm-merge` pass on sanitized fixture repositories;
 - `ra workspace rebuild-derived` regenerates local derived reports after merge;
 - `ra individual-git-release validation-report` distinguishes local substitutes from real external validation;
+- `ra individual-git-release performance --tier synthetic_git_1000 --synthetic-count 1000` completes or records a concrete smaller supported tier;
 - `ra individual-git-release gate-build` reports database/service/RBAC/UI as deferred future-platform items, not current release blockers;
 - generated artifacts are review material and not accepted mathematical conclusions;
 - known limitations are included in `ra release-report`.

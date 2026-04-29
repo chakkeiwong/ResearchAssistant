@@ -33,10 +33,10 @@ scripts/build_release_artifacts.sh
 
 The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` and includes SHA256 hashes. Build outputs under `dist/` are not committed to Git.
 
-Current local rollout artifact from the 2026-04-28 build:
+Current local rollout artifact from the 2026-04-29 build:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- SHA256: `914e0993539067bd5cb309cb645edcc49bb1338930edbfd771a096718887161d`
+- SHA256: `981298e1b0d7610a5e8be2c7a1a353717291d4c309fdfb016db438ab2dfd568c`
 
 ## Supported Platforms
 
@@ -61,14 +61,14 @@ ra --root /tmp/research-assistant-final-release individual-git-release validatio
 ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 scripts/run_packaging_smoke.sh
 scripts/build_release_artifacts.sh
-scripts/run_clean_install_smoke.sh
+WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
 ra --root /tmp/research-assistant-final-release release-report
 ```
 
 The exact command results for the current candidate are recorded in `docs/plans/reset_memo_2026-04-26.md`.
 
-Local evidence now includes a validation schema under `local_research/governance/individual_git_release/validation/`, deterministic Git-sharing fixture rehearsal, strict repository hygiene, and synthetic representative workspace performance. Real external validation and release-owner approval remain blocked/manual when unavailable.
+Local evidence now includes a validation schema under `local_research/governance/individual_git_release/validation/`, deterministic Git-sharing fixture rehearsal, strict repository hygiene, explicit-wheel clean install smoke, and synthetic representative workspace performance through `synthetic_git_1000`. Real external validation and release-owner approval remain blocked/manual when unavailable.
 
 ## Git Sharing
 
@@ -104,7 +104,7 @@ Restore defaults to dry-run. A real restore requires `--no-dry-run --confirm-res
 - Parser-tool availability and degradation are checked, but parser scientific accuracy is not certified.
 - A real colleague onboarding trial and macOS validation remain required before broad non-pilot rollout.
 - Minimal parser-tool validation on a real minimal machine remains required before broad non-pilot rollout.
-- Git-sharing merge/import performance is measured with synthetic records and does not certify real personal libraries.
+- Git-sharing merge/import performance has been measured through `synthetic_git_1000` and does not certify real personal libraries.
 - Tagging and artifact publication require explicit release-owner approval.
 
 See `docs/known_limitations.md` and `docs/support.md`.

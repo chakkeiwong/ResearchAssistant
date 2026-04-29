@@ -23,6 +23,7 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert Path("CHANGELOG.md").exists()
     assert Path("scripts/run_clean_install_smoke.sh").exists()
     assert os.access("scripts/run_clean_install_smoke.sh", os.X_OK)
+    assert 'WHEEL_PATH="${WHEEL_PATH:-}"' in Path("scripts/run_clean_install_smoke.sh").read_text()
     assert Path("scripts/build_release_artifacts.sh").exists()
     assert os.access("scripts/build_release_artifacts.sh", os.X_OK)
     assert Path("docs/onboarding_trial.md").exists()
@@ -595,11 +596,16 @@ def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, caps
 
 def test_git_sharing_walkthrough_and_gate_script_reference_current_commands() -> None:
     walkthrough = Path("docs/workflows/git_sharing_walkthrough.md").read_text()
+    limitations = Path("docs/known_limitations.md").read_text()
+    release_notes = Path("docs/release_notes_0.1.0.md").read_text()
     assert "repository-hygiene check --strict" in walkthrough
     assert "workspace merge" in walkthrough
     assert "workspace rebuild-derived" in walkthrough
     assert "validation-report" in walkthrough
     assert "Do not" in walkthrough
+    assert "parser scientific accuracy is not certified" in limitations
+    assert "parser scientific accuracy is not certified" in release_notes
+    assert "WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh" in release_notes
 
     script = Path("scripts/run_individual_git_release_gate.sh")
     assert script.exists()

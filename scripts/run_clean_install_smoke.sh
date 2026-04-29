@@ -11,6 +11,7 @@ TMP_DIR="$(mktemp -d "${TMP_PARENT%/}/research-assistant-clean-install.XXXXXX")"
 VENV_DIR="${TMP_DIR}/venv"
 WORKSPACE="${TMP_DIR}/workspace"
 DIST_DIR="${DIST_DIR:-${ROOT}/dist}"
+WHEEL_PATH="${WHEEL_PATH:-}"
 
 cleanup() {
   if [[ "${KEEP_TMP}" != "1" ]]; then
@@ -29,7 +30,13 @@ PYTHON="${VENV_DIR}/bin/python"
 RA="${VENV_DIR}/bin/ra"
 
 WHEEL=""
-if [[ -d "${DIST_DIR}" ]]; then
+if [[ -n "${WHEEL_PATH}" ]]; then
+  if [[ ! -f "${WHEEL_PATH}" ]]; then
+    echo "WHEEL_PATH does not exist: ${WHEEL_PATH}" >&2
+    exit 1
+  fi
+  WHEEL="${WHEEL_PATH}"
+elif [[ -d "${DIST_DIR}" ]]; then
   WHEEL="$(find "${DIST_DIR}" -maxdepth 1 -type f -name 'research_assistant-*.whl' | sort | tail -n 1 || true)"
 fi
 if [[ -n "${WHEEL}" ]]; then

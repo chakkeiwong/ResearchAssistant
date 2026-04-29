@@ -1377,6 +1377,48 @@ Remaining local state:
 - `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored and uncommitted.
 
 
+## Update — robust individual-user release gap closure started
+
+New objective:
+- Execute `docs/plans/robust_individual_user_release_gap_closure_plan_2026-04-28.md` after the 2026-04-29 request.
+- Update this reset memo, audit the plan as another developer, execute every phase with the plan/execute/test/audit/tidy/memo loop, commit the modified files, and update this memo on completion.
+
+Current baseline:
+- Latest committed checkpoint before this pass: `c12f542 Record individual Git final gap checkpoint`.
+- Tracked worktree is clean.
+- `docs/plans/robust_individual_user_release_gap_closure_plan_2026-04-28.md` exists under ignored `docs/plans/` and must be force-staged intentionally if committed.
+- `.codex` remains untracked; `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored local state.
+
+Independent plan audit before execution:
+- Product scope: plan stays focused on individual local use and Git-based sharing. Database, service deployment, SSO/RBAC, hosted UI, real-time collaboration, and department operations remain out of scope.
+- Release management: validation records, clean install, artifact hash, performance tier, clean checkout gate, tag approval, and publication approval are explicit.
+- Privacy/data safety: plan requires sanitized evidence and excludes private papers, paths, backup archives, credentials, provider keys, tokens, `.codex`, `.claude`, caches, `build/`, and `dist/` from commits.
+- Research trust: parser and merge outputs remain review material; parser scientific accuracy is not certified.
+- Engineering: local automation is deterministic; external validations and release-owner approvals are separated from local substitutes.
+- Audit finding 1: because this execution has no human intervention, phases requiring a real fresh reader, real macOS machine, real minimal parser-tool machine, or release-owner approval must be recorded as blocked/manual rather than attempted or faked.
+- Audit finding 2: `scripts/run_clean_install_smoke.sh` should accept an explicit `WHEEL_PATH` so the clean install evidence is tied to the exact built artifact.
+
+Execution boundary for this pass:
+- Complete all locally automatable phases.
+- Record unavailable external validations and approvals as blocked/manual.
+- Do not create a tag or publish artifacts.
+
+Phase 4 implementation checkpoint:
+- Updated `scripts/run_clean_install_smoke.sh` to accept explicit `WHEEL_PATH`.
+- Updated release checklist and release notes to run clean install against `dist/research_assistant-0.1.0-py3-none-any.whl`.
+- Added/updated docs smoke assertions for explicit wheel install and parser scientific-accuracy limitation wording.
+
+Focused validation:
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.64s`.
+
+Audit:
+- Clean-install evidence can now be tied to a specific wheel path instead of whichever wheel happens to sort last in `dist/`.
+- Parser limitation language remains conservative.
+
+Next safe step:
+- Record unavailable external validations/approvals as blocked/manual evidence, then run local artifact build, clean install smoke, performance, and clean-checkout gate.
+
+
 ## Update — individual Git final gap closure validation completed
 
 Execution completed for `docs/plans/individual_git_release_final_gap_closure_plan_2026-04-28.md`.
@@ -1664,3 +1706,66 @@ Remaining release gates:
 Remaining local state:
 - `.codex` remains untracked.
 - `.claude/`, caches, bytecode, `build/`, and `dist/` remain ignored and uncommitted.
+
+
+## Update - robust individual-user release local execution completed
+
+Execution completed locally for `docs/plans/robust_individual_user_release_gap_closure_plan_2026-04-28.md`.
+
+Phase results:
+- Phases 1, 2, 3, and 8 require real external actors or release-owner approval. They were not faked. Evidence records were written as blocked/manual for fresh-reader onboarding, macOS validation, real minimal parser-tool machine validation, tag approval, and publication approval.
+- Phase 4 completed: `scripts/run_clean_install_smoke.sh` now accepts explicit `WHEEL_PATH`, and the clean-install smoke was run against `dist/research_assistant-0.1.0-py3-none-any.whl`.
+- Phase 5 completed locally: synthetic Git performance was expanded to `synthetic_git_1000`.
+- Phase 6 was prepared for post-commit clean-checkout validation; a clean checkout should be made from the implementation commit.
+- Phase 7 completed: parser wording remains conservative and says parser scientific accuracy is not certified.
+- Phase 9 completed for local docs and this reset memo before commit.
+
+Artifact and install evidence:
+- `timeout 300 scripts/build_release_artifacts.sh`: built `research_assistant-0.1.0-py3-none-any.whl`.
+- Wheel SHA256: `981298e1b0d7610a5e8be2c7a1a353717291d4c309fdfb016db438ab2dfd568c`.
+- `WHEEL_PATH=/home/chakwong/python/ResearchAssistant/dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh`: passed twice in this pass. The installed wheel completed `ra --help`, `ra version`, `init`, `doctor`, `demo setup`, `demo run`, and `release-report`.
+- Installed-package `release-report` warnings about missing repository docs/scripts/fixtures are expected in wheel-only context and were not treated as release blockers for the install smoke.
+
+Performance and evidence workspace:
+- Evidence workspace: `/tmp/research-assistant-robust-release-evidence`.
+- `PYTHONPATH=src timeout 700 python -m research_assistant.cli --root /tmp/research-assistant-robust-release-evidence individual-git-release performance --tier synthetic_git_1000 --synthetic-count 1000 --timeout-seconds 600`: passed.
+- Performance result: elapsed `1.050277` seconds; source files `1000`; target files `1254`; dry-run copy candidates `750`; already present `250`; conflicts/blockers `0`; apply copied `750`; backup size `152592` bytes.
+- Fixture rehearsal passed in the evidence workspace.
+- Strict repository hygiene in the evidence workspace produced warnings only for non-Git workspace context, rebuildable generated evidence, and `.research-assistant/config.json` being unsupported for sharing.
+
+Validation report and gate evidence:
+- `PYTHONPATH=src timeout 180 python -m research_assistant.cli --root /tmp/research-assistant-robust-release-evidence individual-git-release validation-report`: status `blocked`, record count `9`, local fixture validation complete, external validation incomplete.
+- Blocked required validation: `colleague_onboarding`, `macos`, `minimal_parser_tools`.
+- Publication approval: not approved.
+- `PYTHONPATH=src timeout 180 python -m research_assistant.cli --root /tmp/research-assistant-robust-release-evidence individual-git-release gate-build`: status `blocked`, `ready_for_limited_individual_pilot: true`, `ready_for_git_shared_research_release: false`, `ready_for_broad_individual_release: false`.
+- Fresh local gate workspace: `GATE_ROOT=/tmp/research-assistant-robust-gate-20260429 timeout 300 scripts/run_individual_git_release_gate.sh` passed the local command sequence. It produced fast suite `14 passed`, bounded suite `34 passed`, individual release integration suite `14 passed`, fixture rehearsal passed, synthetic Git 100 performance passed, validation record count `8`, and final gate status `blocked` only for manual external validation and release-owner approval.
+
+Validation commands completed in this pass:
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q`: `14 passed in 1.76s`.
+- `PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q`: `6 passed in 0.94s`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed in 0.91s`.
+- `timeout 180 scripts/run_bounded_tests.sh`: `34 passed in 0.97s`.
+- `timeout 300 scripts/run_individual_git_release_gate.sh`: completed with final gate status `blocked` as expected.
+- `GATE_ROOT=/tmp/research-assistant-robust-gate-20260429 timeout 300 scripts/run_individual_git_release_gate.sh`: completed with final gate status `blocked` as expected from a fresh gate workspace.
+- `git diff --check`: clean.
+
+Files intentionally changed:
+- `scripts/run_clean_install_smoke.sh`
+- `tests/integration/test_individual_release_cli.py`
+- `docs/known_limitations.md`
+- `docs/platform_support.md`
+- `docs/release_checklist.md`
+- `docs/release_notes_0.1.0.md`
+- `docs/plans/robust_individual_user_release_gap_closure_plan_2026-04-28.md`
+- `docs/plans/reset_memo_2026-04-26.md`
+
+Audit and tidy:
+- No tag was created and no artifact was published.
+- No private papers, private local paths, backup archives, credentials, provider keys, tokens, `.codex`, `.claude`, caches, `build/`, or `dist/` are intended for commit.
+- The ignored plan file must be force-staged intentionally.
+- `dist/` contains rebuilt artifacts but remains ignored and uncommitted.
+- `.codex` remains untracked; `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, and `dist/` remain ignored local state.
+
+Next safe step:
+- Commit the implementation and docs changes.
+- Create a clean local clone from that implementation commit, run the clean-checkout gate, then update this memo with the clean-checkout result and final commit checkpoint.
