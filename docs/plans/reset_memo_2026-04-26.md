@@ -367,6 +367,42 @@ Phase 1 tidy result:
 Next safe step:
 - Execute Phase 2 by strengthening the opening pages and then audit them against `README.md`, `docs/product_spec.md`, and `docs/known_limitations.md` before compile validation.
 
+## Update — design document rewrite Phase 2 completed
+
+Phase 2 plan for the phase:
+- Make the first pages strong enough for colleague adoption by clearly stating scope, workflow problem, value proposition, and trust boundary.
+- Ensure the title/subtitle and opening sections stop sounding like a release-review manual.
+
+Phase 2 execution result:
+- Rewrote the title to `A Local-First Research Workflow For Papers, Code, and Technical Writing`.
+- Recast the opening as a colleague-adoption proposal with:
+  - a practical value proposition;
+  - explicit local-first scope;
+  - clear non-goals;
+  - an upfront explanation that the package does not replace judgment.
+- Moved trust-boundary and workflow-problem language into the opening chapters instead of burying them later.
+
+Phase 2 focused validation:
+- Opening-scope audit passed:
+  - one-researcher-first language present;
+  - local-filesystem language present;
+  - Git-based-sharing language present;
+  - provider-disabled/offline-default posture present;
+  - review-material boundary present;
+  - non-hosted/shared-backend posture still explicit.
+
+Phase 2 audit as another developer:
+- The opening is now much more persuasive for a skeptical peer because it explains what problem the package solves before listing commands.
+- The title no longer over-centers release operations.
+- The main remaining risk is that example quality must now carry more of the persuasion burden; strong workflow examples are therefore critical.
+
+Phase 2 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 3 by rewriting the examples, building a command-verification checklist, and keeping all examples privacy-safe and review-boundary-aware.
+
 Current phase:
 - Phases 1 through 12 of `docs/plans/industrial_gap_closure_plan_2026-04-26.md` have been implemented as deterministic scaffolds.
 
