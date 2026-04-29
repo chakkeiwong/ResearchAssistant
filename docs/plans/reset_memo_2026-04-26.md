@@ -1769,3 +1769,40 @@ Audit and tidy:
 Next safe step:
 - Commit the implementation and docs changes.
 - Create a clean local clone from that implementation commit, run the clean-checkout gate, then update this memo with the clean-checkout result and final commit checkpoint.
+
+
+## Update - robust individual-user release checkpoint committed
+
+Implementation commit completed:
+- `5587871 Close robust individual release gaps`
+
+Clean-checkout validation:
+- Clean local clone: `/tmp/research-assistant-clean-5587871`.
+- Clean clone commit: `5587871`.
+- Initial `git status --short --ignored` in the clone was clean.
+- `GATE_ROOT=/tmp/research-assistant-clean-5587871-gate timeout 300 scripts/run_individual_git_release_gate.sh`: completed.
+- Clean-checkout gate validation included fast suite `14 passed in 1.06s`, bounded suite `34 passed in 0.95s`, and individual release integration suite `14 passed in 1.72s`.
+- The clean-checkout gate recorded Linux/WSL local validation, local parser-tool substitute evidence, blocked fresh-reader onboarding, blocked macOS validation, blocked release-owner tag approval, blocked publication approval, fixture rehearsal passed, and synthetic Git 100 performance passed.
+- Clean-checkout final gate status: `blocked`.
+- Clean-checkout readiness flags: `ready_for_limited_individual_pilot: true`, `ready_for_git_shared_research_release: false`, `ready_for_broad_individual_release: false`.
+- Clean-checkout blockers were expected: real colleague/macOS/minimal-machine validation remains manual, and release-owner tag/publication approval was not provided.
+- Clean clone post-validation `git status --short --ignored` showed only ignored `.pytest_cache/` and bytecode caches.
+
+Final state after this round:
+- Explicit wheel clean-install smoke support is implemented through `WHEEL_PATH`.
+- Release docs now point the clean install smoke at the exact wheel path and record SHA256 `981298e1b0d7610a5e8be2c7a1a353717291d4c309fdfb016db438ab2dfd568c`.
+- Parser claims are calibrated: parser-tool checks do not certify scientific parser accuracy.
+- Local robust-release evidence now includes explicit-wheel clean install, synthetic Git 1000 performance, fixture rehearsal, validation-report/gate evidence, and clean-checkout gate evidence.
+- No tag was created and no artifact was published.
+
+Remaining robust-release blockers:
+- Real fresh-reader onboarding from the docs.
+- Real macOS validation.
+- Real minimal parser-tool machine validation.
+- Explicit release-owner approval for tag creation.
+- Explicit release-owner approval for artifact publication.
+
+Remaining local state:
+- `.codex` remains untracked.
+- `.claude/`, `.pytest_cache/`, bytecode caches, `build/`, and `dist/` remain ignored and uncommitted.
+- This final reset memo update is included in the follow-up memo checkpoint commit.
