@@ -32,8 +32,8 @@
 \pagestyle{plain}
 
 \title{\Huge\textbf{Research Assistant}\\[8pt]
-\Large Individual Local Release Report, User Manual, and Future Extension Plan}
-\author{Prepared for Release Review}
+\Large A Local-First Research Workflow For Papers, Code, and Technical Writing}
+\author{Colleague Adoption Proposal}
 \date{\today}
 
 \begin{document}
@@ -44,78 +44,132 @@
 
 \chapter{Executive Summary}
 
-\section{Current release target}
+`research-assistant' is a local-first research development package for people who
+regularly move between papers, notes, code, and technical writing. It is built
+for one serious researcher first: someone who wants a private, inspectable,
+file-based workspace rather than a shared hosted platform.
 
-The current `research-assistant' release is an individual local research tool.
-It is designed for one researcher working in a private filesystem workspace,
-with offline-by-default workflows and Git-based sharing between researchers.
+The current release focuses on a bounded but useful problem. It helps a
+researcher ingest papers, inspect source and parser evidence, preserve
+provenance and review state, discover nearby work, export trusted context for
+writing or coding, and selectively share reviewable artifacts through Git. It is
+not a shared department server, not a database-backed collaboration product, not
+a hosted UI, and not a default live-provider workflow.
 
-The release is not a shared department server, not a database-backed
-collaboration system, not an SSO/RBAC platform, and not a hosted user
-interface. Those capabilities are future extensions.
+The package is appealing precisely because it is modest in scope. A colleague
+can install it locally, initialize a workspace, ingest a paper, inspect the
+result, and decide what to trust without depending on a service operator or
+central infrastructure. The local-first design keeps the research trail visible,
+backups straightforward, and failure modes easier to understand.
 
-\section{What has been built}
+The adoption argument is therefore practical rather than grand. The tool does
+not replace judgment, and it does not pretend that machine extraction is proof.
+Instead, it reduces context loss and manual literature bookkeeping for people who
+already do serious technical reading and implementation work.
 
-The implemented tool provides:
+\section{Current release scope}
+
+The current release target is:
+\begin{itemize}[nosep]
+  \item one local researcher first;
+  \item local filesystem storage;
+  \item offline/provider-disabled default workflows;
+  \item Git-based sharing by repository exchange and explicit merge/import;
+  \item explicit review status and provenance rather than silent trust.
+\end{itemize}
+
+The package deliberately does \emph{not} promise:
+\begin{itemize}[nosep]
+  \item shared backend infrastructure;
+  \item shared database writes;
+  \item hosted UI, SSO/RBAC, or real-time collaboration;
+  \item parser scientific accuracy certification;
+  \item automatic promotion of generated artifacts into accepted conclusions.
+\end{itemize}
+
+\section{Why a colleague should care}
+
+A technically skeptical colleague usually does not need another generic paper
+manager or another generic AI interface. The useful gap is narrower: preserving
+an auditable bridge between literature reading and local implementation work.
+
+That gap shows up in familiar ways:
+\begin{itemize}[nosep]
+  \item papers are downloaded, skimmed, and then lost in folders;
+  \item context about why a paper mattered disappears between coding sessions;
+  \item implementation decisions drift away from the literature that motivated
+        them;
+  \item later writing requires reconstructing claims, caveats, and nearby work
+        from memory;
+  \item assistant conversations produce useful draft thinking but not durable,
+        inspectable research state.
+\end{itemize}
+
+`research-assistant' helps by giving those activities a local, structured, and
+reviewable home.
+
+\chapter{The Concrete Workflow Problem}
+
+A serious research workflow is usually not blocked by a lack of PDFs. It is
+blocked by weak continuity between reading, implementation, and writing.
+
+A researcher may begin with a seed paper, inspect code, try a derivation, follow
+some citations, and eventually draft a note or chapter. Each step is reasonable.
+The problem is that the evidence trail often fragments:
+\begin{itemize}[nosep]
+  \item paper metadata lives in a filename or browser tab;
+  \item extracted text or notes live somewhere else;
+  \item coding decisions live in comments or memory;
+  \item literature relevance is rediscovered from scratch during later writing;
+  \item uncertainty is hidden rather than recorded explicitly.
+\end{itemize}
+
+Existing tools usually solve only part of the problem. A PDF reader is good for
+reading but not for paper-to-code traceability. A coding assistant is good at
+local code context but does not automatically maintain a durable literature
+record. A note-taking workflow can hold conclusions, but often loses provenance
+and review status.
+
+The package is designed to close that narrower gap. It is not trying to replace
+every tool. It is trying to create a reliable local workflow for moving from
+paper ingestion to inspectable evidence to trusted downstream context.
+
+\chapter{What The Package Does In The Current Release}
+
+The current package provides a conservative ingest, review, discover, and export
+workflow.
+
+\section{Core capabilities}
+
+The implemented release supports:
 \begin{itemize}[nosep]
   \item local workspace initialization, validation, repair, and configuration;
-  \item privacy and offline-readiness reporting;
-  \item demo setup and demo run workflows;
-  \item paper ingestion from arXiv IDs, local PDFs, DOI-like queries, and title
-        or topic queries;
-  \item source-first arXiv LaTeX inspection when source is available;
-  \item parser-tool readiness diagnostics and fixture-only parser benchmark
-        smoke checks;
-  \item review notes, derivation worksheets, experiment records, synthesis
-        proposals, traceability reports, and governance scaffolds;
-  \item backup, inspect, and restore workflows with dry-run and confirmation
-        safeguards;
-  \item repository hygiene checks for shareable Git repositories;
-  \item workspace merge dry-run, explicit apply, provenance preservation, and
-        post-merge rebuild;
-  \item individual Git release validation records, validation reports, fixture
-        rehearsals, performance rehearsals, and release gates;
-  \item release reports and release artifact manifests.
+  \item paper ingestion from arXiv IDs, local PDFs, and identifying queries;
+  \item structured-source-first inspection when arXiv LaTeX source is available;
+  \item parser readiness checks, parser capability-limit reporting, and
+        parser-benchmark smoke checks;
+  \item explicit review state for local paper records;
+  \item discovery of related, citing, and cited work through scholarly APIs when
+        available;
+  \item duplicate-aware download proposals into a local inbox;
+  \item trusted-context export for downstream writing and coding workflows;
+  \item backup, restore, privacy-status, and release-report workflows;
+  \item Git-sharing hygiene, dry-run merge, explicit apply, and post-merge
+        rebuild.
 \end{itemize}
 
-\section{Release status}
+\section{What the package promises}
 
-Local validation supports a limited individual pilot. Broad individual or
-Git-shared release remains blocked until the following manual gates are
-completed:
+The package is strongest where its promises are deliberately narrow:
 \begin{itemize}[nosep]
-  \item real fresh-reader onboarding from the documentation;
-  \item real macOS validation;
-  \item real minimal parser-tool machine validation;
-  \item explicit release-owner approval for tag creation;
-  \item explicit release-owner approval for artifact publication.
+  \item structured-source-first for arXiv papers when source is available;
+  \item local-first and file-based behavior;
+  \item conservative handling of uncertainty;
+  \item clear provenance and review status;
+  \item explicit parser capability limits rather than implied reliability;
+  \item remote enrichment that degrades visibly instead of blocking local work;
+  \item no silent final moves for downloaded papers.
 \end{itemize}
-
-The release gate intentionally reports those blockers. They must not be waived
-or marked as passed unless the real evidence exists.
-
-\chapter{Product Model}
-
-\section{One researcher at a time}
-
-The core product assumption is simple: one researcher runs the tool locally on a
-private workspace. The workspace is a directory containing configuration,
-papers, source records, summaries, reviews, derived artifacts, indexes, backup
-archives, and governance records.
-
-This makes the tool easy to inspect, easy to back up, and easy to debug. It
-also avoids requiring a database administrator, service operator, identity
-provider, or shared hosting environment for the current release.
-
-\section{Git as the sharing layer}
-
-Sharing is done by Git. A researcher may publish or exchange a repository that
-contains only shareable artifacts. Another researcher can clone that repository,
-inspect it, run repository hygiene checks, dry-run a workspace merge, apply a
-safe subset only with explicit confirmation, and rebuild derived artifacts.
-
-Git is not treated as a transactional database. Merge conflicts and research
-disagreements remain human review events.
 
 \section{Trust boundary}
 
@@ -124,438 +178,325 @@ derivation worksheets, experiment records, synthesis proposals, traceability
 reports, readiness reports, and validation records do not certify mathematical
 correctness, scientific parser accuracy, or research approval.
 
-Accepted human conclusions must stay explicit. The tool must not silently
-promote another researcher's generated artifact into accepted local conclusions.
+That boundary is not a disclaimer attached at the end. It is the core product
+posture. The value of the package is that it helps a researcher keep evidence,
+provenance, and uncertainty visible while human judgment remains explicit.
 
-\chapter{Workspace And Artifact Model}
+\chapter{Why Local-First Is The Right Design}
 
-\section{Local directories}
+The current release is intentionally local-first and file-based so it remains
+inspectable and easy to debug.
 
-A typical initialized workspace contains:
+That design has practical advantages for the intended user:
+\begin{itemize}[nosep]
+  \item the workspace can be inspected with ordinary filesystem tools;
+  \item backups are simple and explicit;
+  \item failure modes are easier to reason about than in opaque hosted systems;
+  \item the package can be useful without depending on central infrastructure;
+  \item a user can choose when and how to share artifacts rather than being
+        forced into a default shared state.
+\end{itemize}
 
-\begin{center}
-\begin{tabularx}{\textwidth}{@{}lX@{}}
-\toprule
-Path & Purpose \\
-\midrule
-`.research-assistant/' & local configuration \\
-`local\_research/papers/raw/' & private raw PDFs and paper files \\
-`local\_research/papers/extracted/' & extracted text and parser output \\
-`local\_research/papers/source/' & cached source bundles and source records \\
-`local\_research/metadata/' & metadata records \\
-`local\_research/summaries/' & paper summary records \\
-`local\_research/reviews/' & review records \\
-`local\_research/analysis/' & derivations, synthesis, traceability, reports \\
-`local\_research/experiments/' & experiment plans and run records \\
-`local\_research/governance/' & validation, release, model policy, and gate records \\
-`local\_research/indices/' & rebuildable indexes \\
-`local\_research/exports/' & exports and backups \\
-\bottomrule
-\end{tabularx}
-\end{center}
+For this release, Git is the sharing layer rather than a transactional database.
+A researcher can publish or exchange a repository that contains only shareable
+artifacts, another researcher can inspect it, run repository hygiene checks,
+dry-run a workspace merge, and apply a safe subset only with explicit
+confirmation.
 
-\section{Shareable and private files}
+This makes collaboration possible without pretending that Git solves semantic
+research disagreement. Merge conflicts and accepted-audit conflicts remain human
+review events.
 
-The release intentionally separates shareable research artifacts from private
-or generated local state.
+\chapter{How It Fits Into Current Assistant Workflows}
 
-Shareable examples include sanitized summaries, metadata, source records,
-links, reviews, derivation worksheets, experiment records, traceability records,
-synthesis proposals, benchmark manifests, model policies, and citation graph
-reports.
+The package is best understood as a local research memory and evidence layer that
+complements coding assistants.
 
-Private or non-shareable examples include raw PDFs, extracted paper text,
-backup archives, credentials, provider keys, tokens, `.codex', `.claude',
-caches, bytecode, `build/', and `dist/'.
+\section{Claude Code and terminal workflows}
 
-\chapter{Command Manual}
+The strongest fit today is a researcher who already uses Claude Code or ordinary
+terminal workflows. In that setting, the package provides durable local context:
+structured summaries, source records, review state, discovery output, trusted
+exports, and linkage artifacts that survive beyond a single assistant session.
 
-\section{Install and initialize}
+\section{Why this is better than assistant-only memory}
+
+Assistant conversations are helpful, but they are not automatically the canonical
+research record. A local package helps when the user wants:
+\begin{itemize}[nosep]
+  \item inspectable artifacts rather than hidden state;
+  \item repeatable commands rather than only conversational recall;
+  \item provenance and explicit review status;
+  \item exports that can be reused for later coding or writing.
+\end{itemize}
+
+\section{What the package does not replace}
+
+The package is not a replacement for Claude Code, Cursor, Copilot, or a PDF
+reader. It fills the space between them by preserving structured local research
+state that those tools can then consume more effectively.
+
+\chapter{Concrete Example Workflows}
+
+\section{Example 1: Ingest a paper and inspect what is safe to trust}
+
+A common first-use case is simple: a researcher has a paper that may matter for a
+project, but does not want to trust a vague memory or a one-shot summary.
+
+The workflow can begin with a local workspace and a single ingest:
 
 \begin{lstlisting}[language=bash]
-ra --help
-ra version
-ra init
-ra doctor
-ra doctor --matrix
+ra --root ~/research-assistant-workspace init
+ra --root ~/research-assistant-workspace ingest --pdf ~/papers/example.pdf --query "paper title"
+ra --root ~/research-assistant-workspace show --paper-id paper_example
+ra --root ~/research-assistant-workspace review-show --paper-id paper_example
 \end{lstlisting}
 
-`ra init' creates an idempotent local workspace. `ra doctor' reports optional
-tool status, offline status, platform status, and workflow readiness.
+The important point is not that the first output is magically final. The useful
+behavior is that the researcher can inspect:
+\begin{itemize}[nosep]
+  \item metadata provenance;
+  \item parser/source extraction status;
+  \item confidence and review state;
+  \item what still requires human review.
+\end{itemize}
 
-\section{Demo workflow}
+This is a better starting point than a disconnected PDF folder because the
+uncertainty is visible rather than hidden.
+
+\section{Example 2: Expand nearby literature without losing the evidence trail}
+
+Suppose the researcher has found one promising seed paper and wants a fast but
+reviewable picture of nearby work.
 
 \begin{lstlisting}[language=bash]
-ra --root /tmp/research-assistant-demo init
+ra --root ~/research-assistant-workspace find --query "Neural Transport HMC"
+ra --root ~/research-assistant-workspace citation-neighborhood --paper-id neutra_hmc
+ra --root ~/research-assistant-workspace discover --query "transport maps hmc"
+ra --root ~/research-assistant-workspace inbox-list
+\end{lstlisting}
+
+This does not turn literature discovery into an automatic truth engine. It helps
+a researcher see what is nearby, what is available, and what needs explicit
+inspection. Remote enrichment may be empty or unavailable; the package surfaces
+that status rather than pretending success.
+
+That behavior is useful for real work because it reduces manual graph traversal
+while keeping the review boundary intact.
+
+\section{Example 3: Export trusted context for writing or coding}
+
+A later pain point is not finding papers, but recovering trusted local context
+for a coding session or technical note.
+
+\begin{lstlisting}[language=bash]
+ra --root ~/research-assistant-workspace review-mark --paper-id neutra_hmc --status approved
+ra --root ~/research-assistant-workspace export-context --review-status approved --output /tmp/paper_context.json
+\end{lstlisting}
+
+The value here is practical. Once the researcher has approved a subset of local
+records, the package can produce a conservative context export for downstream use
+in writing or coding tools.
+
+That export is intentionally bounded. It should come from reviewed records, not
+from everything that happened to be ingested. The package therefore helps with
+speed \emph{and} discipline.
+
+\chapter{Scope Boundaries And Non-Goals}
+
+A colleague should adopt the package for what it already does well, not for what
+it might become later.
+
+\section{Current boundaries}
+
+This release is:
+\begin{itemize}[nosep]
+  \item private local use rather than shared departmental deployment;
+  \item Git sharing by repository or snapshot rather than real-time
+        collaboration;
+  \item offline/provider-disabled by default;
+  \item strongest on local auditability, provenance, and trusted-context export.
+\end{itemize}
+
+\section{Non-goals for the current release}
+
+This release does not aim to provide:
+\begin{itemize}[nosep]
+  \item a GUI-first rewrite;
+  \item a database requirement;
+  \item bulk scraping or broad web crawling;
+  \item silent auto-organization of a paper library;
+  \item high-stakes claim verification without explicit evidence support.
+\end{itemize}
+
+\section{Known limits that matter to adoption}
+
+Colleagues should know the practical limits up front:
+\begin{itemize}[nosep]
+  \item parser quality depends on local optional tools and source/PDF quality;
+  \item parser-tool availability can be checked, but parser scientific accuracy
+        is not certified;
+  \item Git-sharing performance evidence is currently synthetic at the
+        `synthetic\_git\_1000' tier unless a non-sensitive real corpus is
+        explicitly recorded;
+  \item real colleague onboarding, real macOS validation, and real minimal
+        parser-tool validation remain manual release gates.
+\end{itemize}
+
+\chapter{Technical Credibility Without The Monograph}
+
+The package is persuasive only if technically serious readers believe the design
+is disciplined.
+
+\section{Structured local artifacts and provenance}
+
+The workspace keeps local records for metadata, summaries, reviews, source
+artifacts, downloaded-paper proposals, and exportable trusted context. This is
+not just a storage choice. It means the user can inspect where information came
+from and what status it currently has.
+
+\section{Source-first audit posture}
+
+For arXiv papers, LaTeX source is preferred when available. That is a strong and
+practical design choice for mathematical material because source often provides a
+better audit substrate than PDF parsing alone. The package therefore treats PDF
+parser output as fallback and cross-check material rather than as a silently
+trusted primary source.
+
+\section{Explicit parser limits}
+
+The package is careful about parser claims. Commands such as `ra doctor --matrix',
+`ra parser-tool-matrix', and `ra parser-benchmark-smoke' exist to surface tool
+availability, workflow readiness, fixture smoke behavior, and capability limits.
+That is more trustworthy than pretending equations, citations, or section
+structure are always reliable.
+
+\section{Complements existing coding assistants}
+
+The package becomes more useful when paired with existing assistant workflows.
+Its role is to preserve durable local research state --- reviewed paper records,
+source-derived evidence, discovery results, and trusted exports --- that an
+assistant or script can use later.
+
+\chapter{A Practical Adoption Path}
+
+A colleague does not need to commit to a department-wide workflow to evaluate the
+package. The sensible adoption path is a small local pilot.
+
+\section{Start from a wheel or local checkout}
+
+\begin{lstlisting}[language=bash]
+python -m pip install research_assistant-0.1.0-py3-none-any.whl
+ra version
+ra --root ~/research-assistant-workspace init
+ra --root ~/research-assistant-workspace doctor
+\end{lstlisting}
+
+A developer can also install from a checkout with `python -m pip install .', but
+the colleague-facing path is the wheel and first-workspace flow.
+
+\section{Run the demo before trusting a real workflow}
+
+\begin{lstlisting}[language=bash]
 ra --root /tmp/research-assistant-demo demo setup
 ra --root /tmp/research-assistant-demo demo run
 ra --root /tmp/research-assistant-demo release-report
 \end{lstlisting}
 
-The demo creates a small synthetic research workflow with review material,
-derivation, experiment, traceability, governance, and backup artifacts.
+This gives the user a deterministic, non-sensitive first experience before any
+real paper is involved.
 
-\section{Source and parser inspection}
+\section{Use support commands safely}
 
+If something fails, the support boundary is explicit: share diagnostics, not
+research data.
+
+Useful commands include:
 \begin{lstlisting}[language=bash]
-ra source-fetch --arxiv-id 2401.00001
-ra source-show --paper-id paper_example
-ra source-sections --paper-id paper_example
-ra source-equations --paper-id paper_example
-ra source-theorems --paper-id paper_example
-ra parser-tool-matrix
-ra parser-benchmark-smoke
-ra parse-pdf --pdf /path/to/paper.pdf
-\end{lstlisting}
-
-Source inspection is strongest when arXiv LaTeX source is available. PDF parser
-workflows are useful for inspection but parser scientific accuracy is not
-certified.
-
-\section{Review and research artifacts}
-
-\begin{lstlisting}[language=bash]
-ra find --query "transport maps"
-ra show --paper-id paper_example
-ra review-list
-ra review-show --paper-id paper_example
-ra review-mark --paper-id paper_example --status approved
-ra derivation create --paper-id paper_example --title "Derivation worksheet"
-ra experiment create --paper-id paper_example --claim-id claim_1 --checklist-id reproducibility
-ra synthesis propose --paper-id paper_example
-ra traceability build --paper-id paper_example
-\end{lstlisting}
-
-These commands create or inspect review material. They do not by themselves
-create accepted mathematical conclusions.
-
-\section{Backup and restore}
-
-\begin{lstlisting}[language=bash]
-ra backup create
-ra backup inspect --path /path/to/backup.tar.gz
-ra --root /tmp/restore-check backup restore --path /path/to/backup.tar.gz
-ra --root /tmp/restore-check backup restore --path /path/to/backup.tar.gz --no-dry-run --confirm-restore
-\end{lstlisting}
-
-Restore is dry-run by default. A real restore requires confirmation. Overwrite
-requires an additional opt-in.
-
-\chapter{Git Sharing Workflow}
-
-\section{Repository hygiene}
-
-\begin{lstlisting}[language=bash]
-ra repository-hygiene policy
-ra repository-hygiene classify local_research/summaries/example.json
-ra repository-hygiene check --strict
-\end{lstlisting}
-
-Strict hygiene checks Git state, private/generated path classes, and
-secret-like payload fields. It is intended to run before publishing or sharing a
-research repository.
-
-\section{Merge dry-run and apply}
-
-\begin{lstlisting}[language=bash]
-ra --root /path/to/my/workspace workspace merge --source /path/to/other/repo --dry-run
-ra --root /path/to/my/workspace workspace merge --source /path/to/other/repo --apply --confirm-merge
-ra --root /path/to/my/workspace workspace rebuild-derived
-\end{lstlisting}
-
-Dry-run is the default. Apply refuses to proceed without explicit confirmation,
-and conflicts involving accepted review material remain blockers.
-
-\section{Provenance}
-
-Applied imports preserve provenance showing the source repository, source Git
-commit when available, merge report ID, and merge timestamp. This makes later
-review possible without pretending that imported material is locally accepted.
-
-\chapter{Nontrivial Showcases}
-
-\section{DSGE survey chapter from a NeuTra seed}
-
-A realistic adoption story is not "the tool writes a paper." A better story is:
-a researcher needs to write a DSGE survey chapter on normalizing-flow and
-neural-transport architectures for difficult posterior geometry, and wants an
-auditable workspace rather than a folder of disconnected PDFs, notes, code
-experiments, and partially remembered assistant conversations.
-
-One useful seed paper for this workflow is "NeuTra-lizing Bad Geometry in
-Hamiltonian Monte Carlo Using Neural Transport." From that seed, the researcher
-can build a chapter map around:
-\begin{itemize}[nosep]
-  \item transport maps and neural reparameterizations for posterior geometry;
-  \item planar, radial, autoregressive, coupling, spline, and continuous
-        normalizing-flow architectures;
-  \item the relationship between flow expressiveness, Jacobian cost, and HMC or
-        variational-inference workflows;
-  \item which methods look directly relevant to DSGE posterior sampling and
-        which are only generally relevant machine-learning background;
-  \item criticisms, failure modes, diagnostics, and remedies reported by later
-        citing papers;
-  \item code experiments or derivation notes needed before a method can be
-        trusted in a chapter.
-\end{itemize}
-
-\subsection{Workspace setup}
-
-The researcher starts by creating a local workspace and ingesting a small
-public seed set. The exact paper identifiers may vary by metadata source, so
-the first pass is treated as review material.
-
-\begin{lstlisting}[language=bash]
-ra init
-ra ingest --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
-ra ingest --query "Normalizing Flows for Probabilistic Modeling and Inference"
-ra ingest --query "Riemann Manifold Langevin and Hamiltonian Monte Carlo Methods"
-ra find --query "neural transport HMC"
-ra show --paper-id neutra_hmc
-\end{lstlisting}
-
-The important behavior is not that the first summary is perfect. The important
-behavior is that the metadata, summary, provenance, extraction status, and
-limitations are inspectable before the paper is trusted.
-
-\subsection{Literature graph expansion}
-
-After the seed paper is in the local store, citation commands help replace
-manual graph traversal. A reviewer can inspect nearby work, not blindly accept
-it.
-
-\begin{lstlisting}[language=bash]
-ra citation-neighborhood --paper-id neutra_hmc --limit 25
-ra discover --query "normalizing flows posterior geometry HMC DSGE"
-ra discover --query "transport maps Bayesian inference Hamiltonian Monte Carlo"
-\end{lstlisting}
-
-A useful output for the chapter is a first-pass table with columns such as:
-architecture family, representative paper, inference target, claimed benefit,
-cost or limitation, DSGE relevance, and review status. This table can live in a
-chapter draft, a review note, or an exported context packet. The package's job
-is to make the evidence trail durable: every row should point back to a paper
-record, citation neighborhood, source section, derivation worksheet, or code
-experiment.
-
-\subsection{Architecture taxonomy as review notes}
-
-The researcher can record a provisional taxonomy without pretending it is final
-truth. For example:
-
-\begin{lstlisting}[language=bash]
-ra audit-note append --paper-id neutra_hmc --field open_questions \
-  --value "Does the learned transport remain stable for DSGE posterior ridges?"
-ra audit-note append --paper-id neutra_hmc --field relevant_sections \
-  --value "Use as neural-transport seed for normalizing-flow survey chapter."
-ra audit-note append --paper-id normalizing_flows_review --field claimed_results \
-  --value "Classify flow families by invertibility, Jacobian cost, and expressiveness."
-\end{lstlisting}
-
-Those notes are intentionally review notes. They guide the chapter but do not
-become accepted technical conclusions until the researcher approves them.
-
-\subsection{Connecting papers to chapter sections and code}
-
-A chapter usually fails when the literature, derivations, experiments, and text
-drift apart. The link workflow keeps those references explicit.
-
-\begin{lstlisting}[language=bash]
-ra link-add --paper-id neutra_hmc \
-  --target docs/chapters/dsge_normalizing_flows.tex \
-  --relationship "supports chapter section on neural transport HMC" \
-  --target-type chapter_section --target-ref "sec:neutra"
-
-ra link-add --paper-id neutra_hmc \
-  --target experiments/dsge_neutra_posterior_geometry.py \
-  --relationship "motivates posterior-geometry experiment" \
-  --target-type code
-
-ra derivation create --paper-id neutra_hmc \
-  --title "Transport reparameterization and HMC geometry checklist"
-ra synthesis propose --paper-id neutra_hmc --kind "survey_chapter_outline"
-ra traceability build --paper-id neutra_hmc
-\end{lstlisting}
-
-The result is not a finished chapter. The result is a workspace where a
-colleague can ask: "Which paper supports this claim, what assumptions were
-recorded, what experiment checks it, and what still needs human review?"
-
-\subsection{Exporting chapter context}
-
-Once a subset of records has been reviewed, the researcher can export context
-for writing in another tool.
-
-\begin{lstlisting}[language=bash]
-ra review-mark --paper-id neutra_hmc --status approved
-ra export-context --review-status approved --output /tmp/dsge_flow_chapter_context.json
-\end{lstlisting}
-
-This export is useful input for a writing session, a code-generation session,
-or a colleague handoff. It is also deliberately conservative: only explicitly
-approved records should be used as trusted context, and even approved records
-remain traceable to source artifacts.
-
-\subsection{Why this attracts colleagues}
-
-For a colleague, the appeal is practical. The package shortens the path from
-"I have a seed paper and a vague chapter topic" to:
-\begin{itemize}[nosep]
-  \item a local literature workspace;
-  \item a visible citation neighborhood;
-  \item a provisional but reviewable architecture taxonomy;
-  \item paper-to-chapter and paper-to-code links;
-  \item derivation and experiment checklists;
-  \item an exportable context packet for writing;
-  \item explicit uncertainty and review state.
-\end{itemize}
-
-That is the honest adoption claim: the tool reduces context loss and manual
-literature bookkeeping for serious technical writing. It does not replace the
-researcher's judgment.
-
-\section{Limited-pilot release packet}
-
-\begin{lstlisting}[language=bash]
-ra --root /tmp/research-assistant-final-release init
-ra --root /tmp/research-assistant-final-release release-report
-ra --root /tmp/research-assistant-final-release repository-hygiene check --strict
-ra --root /tmp/research-assistant-final-release individual-git-release validation-substitutes
-ra --root /tmp/research-assistant-final-release individual-git-release fixture-rehearsal
-ra --root /tmp/research-assistant-final-release individual-git-release performance --tier synthetic_git_1000 --synthetic-count 1000 --timeout-seconds 600
-ra --root /tmp/research-assistant-final-release individual-git-release validation-report
-ra --root /tmp/research-assistant-final-release individual-git-release gate-build
-\end{lstlisting}
-
-This demonstrates that local fixture evidence can be complete while broad
-release remains blocked for real external validation and approval.
-
-\section{Clean install from exact wheel}
-
-\begin{lstlisting}[language=bash]
-scripts/build_release_artifacts.sh
-WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
-\end{lstlisting}
-
-The explicit `WHEEL\_PATH' avoids accidentally installing whichever wheel sorts
-last in `dist/'.
-
-\section{Parser degradation inspection}
-
-\begin{lstlisting}[language=bash]
+ra version
 ra doctor --matrix
+ra platform-status
+ra privacy status
 ra parser-tool-matrix
-ra parser-benchmark-smoke
 \end{lstlisting}
 
-These commands show what parser workflows are available on the local machine.
-They are availability and fixture checks, not scientific parser certification.
+This is another adoption advantage of the local-first posture: diagnosis can be
+performed on a demo or empty workspace without exposing actual research content.
 
-\chapter{Validation Evidence}
+\chapter{Skeptical Questions And Straight Answers}
 
-\section{Local tests}
+\section{Why not just keep using a PDF reader and a note folder?}
 
-The release validation packet includes:
+Because the real cost is not reading alone. The cost is reconstructing later why
+a paper mattered, what was trusted, what was only provisional, and how the paper
+related to code or writing. A local structured workflow is useful when that
+continuity matters.
+
+\section{Why not just use Claude Code directly?}
+
+Claude Code is very useful for code and local context, but it does not by itself
+become the durable research record. The package gives the user a stable local
+workspace of summaries, provenance, review state, source artifacts, and trusted
+exports that can then be used in Claude Code more effectively.
+
+\section{Is this trying to automate research judgment?}
+
+No. The package is deliberately conservative. Generated and parser-derived
+artifacts remain review material, and human approval remains explicit.
+
+\section{Is this already a shared research platform?}
+
+No. The current release is intentionally smaller and more honest than that. It is
+a local-first individual workflow with Git-based sharing, not a hosted
+multi-user system.
+
+\chapter{Future Extensions}
+
+Future work may extend the package, but those possibilities should not be
+confused with the current adoption case.
+
+Possible later directions include:
 \begin{itemize}[nosep]
-  \item focused individual release integration tests;
-  \item industrial scaffold regression tests;
-  \item `scripts/run\_fast\_tests.sh';
-  \item `scripts/run\_bounded\_tests.sh';
-  \item packaging and artifact build smoke;
-  \item explicit wheel clean-install smoke;
-  \item individual Git release gate script;
-  \item clean-checkout gate reproduction.
+  \item stronger parser and source benchmarks on gold corpora;
+  \item richer sanitized real-corpus scalability evidence;
+  \item optional governed provider workflows;
+  \item more developed team conventions around artifact exchange.
 \end{itemize}
 
-\section{Representative performance}
+Those are not prerequisites for the current package to be useful. The present
+value proposition is that the local tool is already inspectable, bounded, and
+practically helpful.
 
-The current local evidence includes synthetic Git-sharing performance through
-the `synthetic\_git\_1000' tier. This validates mechanics at that synthetic
-size. It does not certify performance on private real corpora.
+\appendix
+\chapter{Operational Notes Kept Briefly}
 
-\section{Known blocked gates}
+\section{Git sharing remains conservative}
 
-The release gate remains blocked for:
-\begin{itemize}[nosep]
-  \item fresh-reader onboarding not yet recorded;
-  \item macOS validation not yet recorded;
-  \item minimal parser-tool machine validation not yet recorded;
-  \item release-owner tag approval not yet recorded;
-  \item release-owner publication approval not yet recorded.
-\end{itemize}
+Before sharing a repository, a researcher should run:
 
-\chapter{Maintainer Notes}
+\begin{lstlisting}[language=bash]
+ra repository-hygiene check --strict
+ra workspace merge --source /path/to/other/repo --target ~/research-assistant-workspace
+ra workspace merge --source /path/to/other/repo --target ~/research-assistant-workspace --apply --confirm-merge
+ra workspace rebuild-derived
+\end{lstlisting}
 
-\section{Where to look}
+Dry-run is the default. Apply requires explicit confirmation. Accepted-audit
+conflicts remain human review events.
 
-Maintainers should start with:
-\begin{itemize}[nosep]
-  \item `docs/maintainer\_guide.md';
-  \item `docs/proposal/individual\_git\_release\_target.md';
-  \item `docs/release\_checklist.md';
-  \item `src/research\_assistant/cli.py';
-  \item `src/research\_assistant/individual\_release.py';
-  \item `src/research\_assistant/individual\_git\_release.py'.
-\end{itemize}
+\section{Release maturity remains pilot-scoped}
 
-\section{High-risk changes}
-
-Treat these changes as release-critical:
-\begin{itemize}[nosep]
-  \item changing backup restore confirmation semantics;
-  \item changing merge dry-run or apply confirmation behavior;
-  \item changing forbidden path or secret scanning policy;
-  \item changing validation scopes or gate readiness flags;
-  \item weakening parser limitation language;
-  \item changing JSON schema versions or artifact IDs.
-\end{itemize}
-
-\chapter{Known Limitations}
-
-\begin{itemize}[nosep]
-  \item The current release is local and file-based.
-  \item Git sharing is not real-time collaboration.
-  \item Parser scientific accuracy is not certified.
-  \item Generated artifacts remain review material.
-  \item Real external platform and human onboarding evidence is still missing.
-  \item Tagging and publication require explicit release-owner approval.
-  \item Multi-user database/service/RBAC/hosted UI work is future scope.
-\end{itemize}
-
-\chapter{Future Multi-User Extension}
-
-The future extension path may include:
-\begin{itemize}[nosep]
-  \item shared storage with migration policy;
-  \item service deployment and background jobs;
-  \item SSO/RBAC and audit-log policy;
-  \item hosted UI for inspection and review;
-  \item department operations and support SOPs;
-  \item stronger parser/source benchmarks on gold corpora;
-  \item real-world scalability validation on sanitized corpora;
-  \item governed live-provider or LLM integration.
-\end{itemize}
-
-Those are not prerequisites for the current individual release. They should be
-planned and validated separately so the local tool can remain simple,
-inspectable, and useful.
+Broad release still requires real fresh-reader onboarding, real macOS
+validation, real minimal parser-tool machine validation, release-owner tag
+approval, and release-owner publication approval. Until those are recorded, the
+release remains pilot-scoped.
 
 \backmatter
-\chapter{Release Checklist Summary}
+\chapter{Closing Note}
 
-\begin{lstlisting}[language=bash]
-scripts/run_fast_tests.sh
-scripts/run_bounded_tests.sh
-PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
-scripts/build_release_artifacts.sh
-WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
-scripts/run_individual_git_release_gate.sh
-git diff --check
-git status --short --ignored
-\end{lstlisting}
-
-Final broad release requires real external validation and release-owner
-approval. Until then, the tool is suitable for limited individual pilot use with
-documented limitations.
+The honest reason to adopt `research-assistant' is not that it promises a future
+research platform. It is that, today, it offers a private, local, inspectable,
+and conservative workflow for carrying paper context into coding and writing work
+without losing provenance or review discipline.
 
 \end{document}

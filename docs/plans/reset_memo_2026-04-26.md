@@ -245,7 +245,127 @@ Next safe step:
 - Implement the 12 gap-closure phases as deterministic schemas, CLI/backend commands, exports, and focused tests.
 
 
-## Update — industrial 12-gap closure scaffolded
+## Update — design document rewrite execution started
+
+New objective:
+- rewrite `proposal/research_development_assistant_design.tex` into a colleague-facing adoption proposal that is more readable, more appealing, and more persuasive while remaining faithful to the bounded individual local release.
+
+Execution plan written to:
+- `docs/plans/design_doc_rewrite_execution_plan_2026-04-29.md`
+
+Independent plan audit result:
+- The initial rewrite plan was directionally correct but too subjective for autonomous execution.
+- The plan was strengthened before execution to add:
+  - normative truth-source hierarchy;
+  - a keep/cut/move/compress inventory phase;
+  - measurable acceptance criteria;
+  - command-verification checks against current docs;
+  - claim-audit checks against product posture and known limitations;
+  - privacy-safe example rules;
+  - intermediate compile checks and PDF inspection checkpoints.
+
+Phase 0 status:
+- In progress.
+
+Phase 0 rewrite boundary:
+- The package remains an individual local, private, offline/provider-disabled default workflow with Git-based sharing.
+- The proposal must not reintroduce hosted/shared-platform framing as the main story.
+- The document must lead with realistic day-one value: ingest, inspect, review, discover, and export trusted context.
+- Generated/parser/benchmark/derivation/traceability/governance/readiness artifacts remain review material, not scientific approval.
+- Example commands must be real current CLI commands documented in `README.md`, `docs/usage.md`, or `docs/workflows/individual_research_workflow.md`.
+- Example paths must stay privacy-safe (`/tmp/...`, `~/research-assistant-workspace`, generic placeholders, or public papers only).
+
+Phase 0 current-document inventory:
+- Keep with rewrite:
+  - current release scope and trust-boundary language;
+  - local workspace model;
+  - source-first and parser-limit posture;
+  - Git-sharing explanation;
+  - realistic NeuTra/DSGE-style example material where it remains public and bounded.
+- Compress:
+  - command-manual sections;
+  - validation evidence sections;
+  - technical workspace inventory detail;
+  - future-extension discussion.
+- Move later or appendix:
+  - maintainer notes;
+  - release checklist summary;
+  - operational release-validation packet detail;
+  - any release-owner/manual-gate specifics that are not central to adoption.
+- Remove or heavily demote:
+  - report/manual-first framing in title and opening narrative;
+  - any lingering future-extension emphasis in the title/subtitle;
+  - any content that makes scaffolding/governance artifacts look like the main reason to adopt the package.
+
+Phase 0 validation:
+- Read and cross-checked:
+  - `proposal/research_development_assistant_design.tex`
+  - `README.md`
+  - `docs/usage.md`
+  - `docs/product_spec.md`
+  - `docs/known_limitations.md`
+  - `docs/workflows/individual_research_workflow.md`
+  - `docs/support.md`
+  - `docs/installation.md`
+  - `docs/quickstart.md`
+- No code or build test required for Phase 0.
+
+Phase 0 audit as another developer:
+- The rewrite boundary is now explicit enough to prevent accidental scope drift.
+- The current document inventory preserves trust-boundary material while giving permission to demote release-ops-heavy sections.
+- The main remaining execution risk is not scope confusion; it is preserving enough technical credibility while simplifying the narrative.
+
+Phase 0 tidy result:
+- No generated outputs created.
+- No private paths or release artifacts introduced.
+
+Next safe step:
+- Execute Phase 1 by restructuring the LaTeX document into the new colleague-facing narrative order, then run an intermediate compile check.
+
+## Update — design document rewrite Phase 1 completed
+
+Phase 1 plan for the phase:
+- Restructure the proposal so the top-level narrative becomes colleague-facing rather than release-report-first.
+- Move practical adoption material ahead of operational release material.
+- Remove maintainer-only and release-checklist-heavy chapters from the main narrative.
+
+Phase 1 execution result:
+- Rewrote `proposal/research_development_assistant_design.tex` into a new chapter flow centered on:
+  - executive summary;
+  - concrete workflow problem;
+  - current-release package value;
+  - local-first design rationale;
+  - assistant-fit explanation;
+  - concrete example workflows;
+  - scope boundaries;
+  - technical credibility;
+  - practical adoption path;
+  - skeptical questions;
+  - bounded future extensions.
+- Removed maintainer-notes and release-checklist-summary chapters from the main narrative.
+- Moved Git-sharing and pilot-release maturity details into a short appendix-style operational section.
+- Replaced the title/subtitle framing so it no longer foregrounds release review or future-extension planning.
+
+Phase 1 focused validation:
+- Structural source check passed:
+  - executive summary present;
+  - concrete workflow problem chapter present;
+  - concrete examples chapter present;
+  - old future-extension title framing removed;
+  - maintainer-notes chapter removed;
+  - release-checklist-summary chapter removed.
+
+Phase 1 audit as another developer:
+- The document now reads structurally like a colleague-facing proposal rather than a maintainer release packet.
+- Future-platform material no longer dominates the opening or title.
+- The main remaining risk is preserving enough technical specificity and strong examples so the new structure does not become too generic.
+
+Phase 1 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 2 by strengthening the opening pages and then audit them against `README.md`, `docs/product_spec.md`, and `docs/known_limitations.md` before compile validation.
 
 Current phase:
 - Phases 1 through 12 of `docs/plans/industrial_gap_closure_plan_2026-04-26.md` have been implemented as deterministic scaffolds.
