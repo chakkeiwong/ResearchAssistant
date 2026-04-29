@@ -246,10 +246,12 @@ project, but does not want to trust a vague memory or a one-shot summary.
 The workflow can begin with a local workspace and a single ingest:
 
 \begin{lstlisting}[language=bash]
-ra --root ~/research-assistant-workspace init
-ra --root ~/research-assistant-workspace ingest --pdf ~/papers/example.pdf --query "paper title"
-ra --root ~/research-assistant-workspace show --paper-id paper_example
-ra --root ~/research-assistant-workspace review-show --paper-id paper_example
+ra --root ~/ra-workspace init
+ra --root ~/ra-workspace ingest \
+  --pdf ~/papers/example.pdf \
+  --query "paper title"
+ra --root ~/ra-workspace show --paper-id paper_example
+ra --root ~/ra-workspace review-show --paper-id paper_example
 \end{lstlisting}
 
 The important point is not that the first output is magically final. The useful
@@ -270,10 +272,11 @@ Suppose the researcher has found one promising seed paper and wants a fast but
 reviewable picture of nearby work.
 
 \begin{lstlisting}[language=bash]
-ra --root ~/research-assistant-workspace find --query "Neural Transport HMC"
-ra --root ~/research-assistant-workspace citation-neighborhood --paper-id neutra_hmc
-ra --root ~/research-assistant-workspace discover --query "transport maps hmc"
-ra --root ~/research-assistant-workspace inbox-list
+ra --root ~/ra-workspace find --query "Neural Transport HMC"
+ra --root ~/ra-workspace citation-neighborhood \
+  --paper-id neutra_hmc
+ra --root ~/ra-workspace discover --query "transport maps hmc"
+ra --root ~/ra-workspace inbox-list
 \end{lstlisting}
 
 This does not turn literature discovery into an automatic truth engine. It helps
@@ -290,8 +293,12 @@ A later pain point is not finding papers, but recovering trusted local context
 for a coding session or technical note.
 
 \begin{lstlisting}[language=bash]
-ra --root ~/research-assistant-workspace review-mark --paper-id neutra_hmc --status approved
-ra --root ~/research-assistant-workspace export-context --review-status approved --output /tmp/paper_context.json
+ra --root ~/ra-workspace review-mark \
+  --paper-id neutra_hmc \
+  --status approved
+ra --root ~/ra-workspace export-context \
+  --review-status approved \
+  --output /tmp/paper_context.json
 \end{lstlisting}
 
 The value here is practical. Once the researcher has approved a subset of local
@@ -388,8 +395,8 @@ package. The sensible adoption path is a small local pilot.
 \begin{lstlisting}[language=bash]
 python -m pip install research_assistant-0.1.0-py3-none-any.whl
 ra version
-ra --root ~/research-assistant-workspace init
-ra --root ~/research-assistant-workspace doctor
+ra --root ~/ra-workspace init
+ra --root ~/ra-workspace doctor
 \end{lstlisting}
 
 A developer can also install from a checkout with `python -m pip install .', but
@@ -476,8 +483,13 @@ Before sharing a repository, a researcher should run:
 
 \begin{lstlisting}[language=bash]
 ra repository-hygiene check --strict
-ra workspace merge --source /path/to/other/repo --target ~/research-assistant-workspace
-ra workspace merge --source /path/to/other/repo --target ~/research-assistant-workspace --apply --confirm-merge
+ra workspace merge \
+  --source /path/to/other/repo \
+  --target ~/ra-workspace
+ra workspace merge \
+  --source /path/to/other/repo \
+  --target ~/ra-workspace \
+  --apply --confirm-merge
 ra workspace rebuild-derived
 \end{lstlisting}
 

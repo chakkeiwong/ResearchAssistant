@@ -403,6 +403,267 @@ Phase 2 tidy result:
 Next safe step:
 - Execute Phase 3 by rewriting the examples, building a command-verification checklist, and keeping all examples privacy-safe and review-boundary-aware.
 
+## Update — design document rewrite Phase 3 completed
+
+Phase 3 plan for the phase:
+- Replace weaker release-ops-heavy examples with 2–3 strong colleague-facing examples.
+- Use only current documented commands, privacy-safe paths, and explicit review-boundary language.
+
+Phase 3 execution result:
+- Replaced the previous long NeuTra/DSGE showcase and release-packet-heavy example sequence with three compact primary examples:
+  1. ingest a paper and inspect what is safe to trust;
+  2. expand nearby literature without losing the evidence trail;
+  3. export trusted context for writing or coding.
+- Kept examples focused on realistic day-one value rather than governance/release scaffolding.
+- Used only privacy-safe paths such as `~/research-assistant-workspace` and `/tmp/paper_context.json`.
+- Kept explicit review-boundary language in every example section.
+
+Phase 3 focused validation:
+- Command-verification checklist passed for primary examples:
+  - `ra --root ~/research-assistant-workspace init`
+  - `ra --root ~/research-assistant-workspace ingest --pdf ~/papers/example.pdf --query "paper title"`
+  - `ra --root ~/research-assistant-workspace show --paper-id paper_example`
+  - `ra --root ~/research-assistant-workspace review-show --paper-id paper_example`
+  - `ra --root ~/research-assistant-workspace find --query "Neural Transport HMC"`
+  - `ra --root ~/research-assistant-workspace citation-neighborhood --paper-id neutra_hmc`
+  - `ra --root ~/research-assistant-workspace discover --query "transport maps hmc"`
+  - `ra --root ~/research-assistant-workspace inbox-list`
+  - `ra --root ~/research-assistant-workspace review-mark --paper-id neutra_hmc --status approved`
+  - `ra --root ~/research-assistant-workspace export-context --review-status approved --output /tmp/paper_context.json`
+- All commands retained in the primary examples are real current commands documented in the repo docs.
+
+Phase 3 audit as another developer:
+- The examples are materially better for persuasion because they now reflect realistic first-use workflows instead of maintainership or release gating.
+- The examples remain honest because they explain why the outputs are useful without claiming automatic correctness.
+- The remaining risk is that too much operational material could still linger later in the document if not compressed further.
+
+Phase 3 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 4 by compressing or demoting remaining operational and maintainer-heavy material while preserving adoption-critical truth and technical credibility.
+
+## Update — design document rewrite Phase 4 completed
+
+Phase 4 plan for the phase:
+- Demote remaining operational, maintainer, and release-validation-heavy material.
+- Keep only a brief appendix-style operational note and a concise pilot-maturity statement.
+
+Phase 4 execution result:
+- Removed the old `Validation Evidence`, `Maintainer Notes`, and `Release Checklist Summary` chapters entirely from the main narrative.
+- Collapsed remaining operational material into a short appendix-style `Operational Notes Kept Briefly` chapter.
+- Kept only one bounded future-extension chapter and removed broader repeated operational framing.
+- Preserved Git-sharing and pilot-maturity content only where it still supports truthful adoption decisions.
+
+Phase 4 focused validation:
+- Operational-content audit passed:
+  - one concise operational appendix present;
+  - no `Validation Evidence` chapter remains;
+  - no `Maintainer Notes` chapter remains;
+  - no `Release Checklist Summary` chapter remains;
+  - exactly one `Future Extensions` chapter remains.
+
+Phase 4 audit as another developer:
+- The main body is now clearly centered on adoption rather than release operations.
+- The remaining appendix content is brief enough to preserve truth without hijacking the narrative.
+- The remaining risk is now mostly one of balance: the technical-credibility section must be strong enough that the document does not feel oversimplified.
+
+Phase 4 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 5 by auditing and, if needed, strengthening the technical-credibility section against the product promises and known limitations.
+
+## Update — design document rewrite Phase 5 completed
+
+Phase 5 plan for the phase:
+- Ensure the simplified document still feels technically rigorous.
+- Audit the technical-credibility section directly against product promises and known limitations.
+
+Phase 5 execution result:
+- Kept a bounded technical-credibility chapter focused on:
+  - structured local artifacts and provenance;
+  - source-first arXiv audit posture;
+  - explicit parser limits;
+  - why the package complements rather than replaces coding assistants.
+- Preserved the package’s conservative trust posture instead of switching to marketing-style overclaim.
+
+Phase 5 focused validation:
+- Technical-credibility audit passed:
+  - structured local artifacts and provenance section present;
+  - source-first arXiv audit posture section present;
+  - explicit parser limits section present;
+  - assistant-complement section present;
+  - source-first promise still stated;
+  - conservative posture still stated;
+  - provenance language still present;
+  - visible remote-enrichment degradation still described;
+  - no-silent-final-moves concept preserved.
+
+Phase 5 audit as another developer:
+- The document now keeps enough technical specificity to satisfy a serious reader without collapsing back into a monograph.
+- The credibility section is especially strong because it explains why the design choices are trustworthy rather than merely listing features.
+- The remaining risk is now mostly mechanical: perform the final readability/claim audit carefully so no contradictions or LaTeX issues survive.
+
+Phase 5 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 6 by doing the final readability pass, running the claim-audit matrix, and then performing an intermediate compile check.
+
+## Update — design document rewrite Phase 6 completed
+
+Phase 6 plan for the phase:
+- Perform the final readability pass and run an explicit claim audit against the package posture.
+- Ensure the simplified proposal still states the correct target user, trust boundary, sharing model, provider posture, and maturity boundary.
+
+Phase 6 execution result:
+- Completed the readability-focused rewrite pass already reflected in the new proposal structure and wording.
+- Retained direct language about current scope, trust boundaries, and pilot maturity instead of softening those claims.
+- Kept LaTeX structure simple and removed the old cluttered report/manual framing.
+
+Phase 6 focused validation:
+- Claim-audit matrix passed for the rewritten proposal:
+  - target user = local researcher;
+  - storage model = local filesystem;
+  - sharing model = Git-based;
+  - provider default posture = offline/provider-disabled by default;
+  - parser trust posture = parser limits remain explicit;
+  - generated artifact trust posture = review material only;
+  - release maturity = pilot/manual-gate language retained;
+  - platform posture = no current hosted UI/shared service story.
+
+Phase 6 audit as another developer:
+- The rewritten proposal now stays aligned with the product posture instead of drifting into a broader platform pitch.
+- The wording is materially cleaner and easier to scan.
+- The next remaining risk is mechanical correctness: the document still needs full LaTeX build validation and PDF inspection.
+
+Phase 6 tidy result:
+- No generated files created.
+- No private or non-shareable paths introduced.
+
+Next safe step:
+- Execute Phase 7 by compiling the LaTeX document, rerunning the build if needed, and inspecting the resulting PDF against the checklist.
+
+## Update — design document rewrite resumed plan audit completed
+
+Resumed audit plan:
+- Treat the already recorded Phases 0 through 6 as implementation evidence.
+- Re-audit `docs/plans/design_doc_rewrite_execution_plan_2026-04-29.md` as another developer before completing the remaining work.
+- Confirm that no missing plan point blocks autonomous completion.
+
+Resumed independent audit result:
+- The plan remains faithful to the individual local filesystem release target.
+- The plan has explicit controls against overclaiming hosted, database, SSO/RBAC, real-time collaboration, parser-certification, or generated-artifact approval capabilities.
+- The example strategy is adequate because it requires current CLI commands, privacy-safe paths, and review-boundary language.
+- Verification coverage is adequate for a documentation/report rewrite: source claim audit, command verification, LaTeX build, rendered-PDF inspection, diff hygiene, and commit.
+- One non-blocking clarification was added to the plan: if the tracked PDF changes after a validated LaTeX build, the rebuilt PDF must be reviewed and committed with the source and reset memo.
+
+Resumed independent audit conclusion:
+- No blocking plan defects remain.
+- The remaining executable work is Phase 7 compile/PDF validation and Phase 8 final audit, tidy, reset memo, and commit.
+
+Tidy result:
+- No private paths, credentials, raw papers, caches, or auxiliary LaTeX files were introduced.
+- Temporary build outputs remain outside the repository.
+
+Next safe step:
+- Execute Phase 7 by rebuilding `proposal/research_development_assistant_design.tex`, inspecting the rendered PDF, and replacing the tracked PDF only after validation passes.
+
+## Update — design document rewrite Phase 7 completed
+
+Phase 7 plan for the phase:
+- Compile the rewritten LaTeX report in a temporary build directory.
+- Rerun LaTeX if outlines or table of contents require it.
+- Inspect the rendered PDF for title/subtitle accuracy, table-of-contents order, first-page scope fidelity, readable example sections, limitations placement, future-scope placement, and pilot-maturity language.
+
+Phase 7 execution result:
+- Ran:
+  - `timeout 120 pdflatex -interaction=nonstopmode -halt-on-error -output-directory=/tmp/research-assistant-design-build proposal/research_development_assistant_design.tex`
+  - repeated the same command after the first build requested outline/table-of-contents stabilization.
+- Inspected build diagnostics with:
+  - `grep -n "Warning\|Error\|Fatal\|Overfull\|Underfull\|Rerun" /tmp/research-assistant-design-build/research_development_assistant_design.log`
+  - only the loaded `rerunfilecheck` package line remained; no fatal errors and no overfull/underfull layout warnings were reported.
+- Extracted PDF text with:
+  - `pdftotext /tmp/research-assistant-design-build/research_development_assistant_design.pdf /tmp/research-assistant-design-build/research_development_assistant_design.txt`
+- Inspected PDF metadata with:
+  - `pdfinfo /tmp/research-assistant-design-build/research_development_assistant_design.pdf`
+  - result: 21 pages, A4, unencrypted.
+- Copied the validated PDF into `proposal/research_development_assistant_design.pdf`.
+
+Phase 7 focused validation:
+- Title/subtitle check passed:
+  - `Research Assistant`
+  - `A Local-First Research Workflow For Papers, Code, and Technical Writing`
+  - `Colleague Adoption Proposal`
+- Table-of-contents order check passed:
+  - executive summary;
+  - concrete workflow problem;
+  - current package capabilities;
+  - local-first rationale;
+  - assistant-workflow fit;
+  - concrete examples;
+  - scope boundaries and non-goals;
+  - technical credibility;
+  - adoption path;
+  - skeptical Q&A;
+  - future extensions;
+  - brief operational appendix.
+- Example-section inspection passed:
+  - three primary examples are present and readable;
+  - commands use `~/ra-workspace` or `/tmp/...` paths;
+  - review-boundary language remains explicit.
+- Scope and limitation inspection passed:
+  - one local researcher, local filesystem, offline/provider-disabled defaults, Git-based sharing, and review-material boundaries appear in the first pages;
+  - hosted/database/shared-platform language appears as non-goal or future scope;
+  - real fresh-reader, macOS, and minimal parser-tool validation remain manual release gates.
+
+Phase 7 audit as another developer:
+- The rebuilt PDF is acceptable for a colleague-facing adoption proposal.
+- The rendered document is more persuasive than the previous skeletal report while remaining conservative about current capabilities.
+- The narrow listing cleanup improved command readability without changing product claims or inventing commands.
+
+Phase 7 tidy result:
+- LaTeX auxiliary files stayed under `/tmp/research-assistant-design-build`.
+- The only repository PDF update is the intentionally refreshed tracked PDF.
+- No private or non-shareable files were added.
+
+Next safe step:
+- Execute Phase 8 by running final diff hygiene, staging intentional files, committing them, and recording final reset-memo status.
+
+## Update — design document rewrite Phase 8 completed
+
+Phase 8 plan for the phase:
+- Final-audit the report as another developer.
+- Confirm the rendered report stays in scope, has honest limitations, and contains strong current-release examples.
+- Run final diff hygiene.
+- Commit only intentional files.
+
+Phase 8 final audit result:
+- A skeptical colleague would now see a clear reason to try the package: it preserves local research continuity between papers, code, and writing without pretending to automate judgment.
+- The document remains aligned with the current release target: individual local filesystem use with Git-based sharing.
+- Limitations are stated honestly, including parser limits, generated-artifact review boundaries, synthetic performance evidence, and remaining manual release gates.
+- The future-extension section is correctly demoted and no longer drives the opening story.
+- The PDF was rebuilt from the checked source and inspected before staging.
+
+Phase 8 validation:
+- `git diff --check` passed before staging.
+- `git status --short` showed only intentional tracked documentation/report changes plus known untracked local `.codex` tooling state before staging.
+- The ignored plan file was force-staged intentionally because it now contains the required resumed independent audit evidence for this execution round.
+
+Phase 8 tidy result:
+- No caches, bytecode, build directories, distribution artifacts, private papers, credentials, `.claude/`, or `.codex` content were staged.
+- Temporary LaTeX artifacts remain outside the repository under `/tmp/research-assistant-design-build`.
+
+Completion status:
+- The design-document rewrite execution plan has been audited.
+- Phases 7 and 8 have been completed after the already recorded Phases 0 through 6.
+- The proposal source and PDF are updated and validated.
+- The next action is to create the requested git commit.
+
 Current phase:
 - Phases 1 through 12 of `docs/plans/industrial_gap_closure_plan_2026-04-26.md` have been implemented as deterministic scaffolds.
 
