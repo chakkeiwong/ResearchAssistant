@@ -934,6 +934,44 @@ Tidy result:
 Next safe step:
 - Review the final diff, stage intentional files only, and create the requested commit.
 
+## Update — MCP prompt-and-transcript execution completed
+
+Final audit result as another developer:
+- The proposal now shows not only what the package does, but what a realistic MCP-guided interaction feels like.
+- The new early chapter is a strong adoption hook because it combines:
+  - prompt-to-documented-behavior mapping;
+  - explanation of when tools should and should not trigger;
+  - realistic transcripts for key workflows;
+  - explicit review-boundary language.
+- The rewrite remains bounded to the actual current release: local-first, private, conservative, and pilot-scoped.
+- The new negative examples help prevent a common misunderstanding that every good question should trigger tools automatically.
+
+Completion status:
+- Reset memo updated for the new MCP prompt-and-transcript objective.
+- Independent plan audit completed and the plan was tightened before execution.
+- All plan phases were executed using the plan/execute/test/audit/tidy/reset-memo loop.
+- The proposal was rebuilt successfully after the transcript-heavy rewrite.
+- The final changes were committed.
+
+Validation summary:
+- `git diff --check` passed before commit.
+- `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=/tmp/ra-proposal-build proposal/research_development_assistant_design.tex` completed successfully.
+- Rendered PDF inspection confirmed the early MCP chapter, trigger-boundary section, realistic prompt examples, and transcript sections appear in the output.
+- Remaining LaTeX warnings are minor underfull `\vbox` spacing warnings, not structural errors.
+
+Commit created:
+- `73b530f` — `Add MCP prompt and transcript proposal chapter`
+
+Tidy result:
+- Only intentional files were committed:
+  - `proposal/research_development_assistant_design.tex`
+  - `docs/plans/reset_memo_2026-04-26.md`
+- Temporary build artifacts remain outside the repository in `/tmp/ra-proposal-build`.
+- The only remaining working-tree item is the unrelated untracked `.codex` file.
+
+Next safe step:
+- If desired, polish the prose or typography of the new early MCP chapter further, but the requested rewrite / validation / commit cycle is complete.
+
 New objective:
 - Turn the committed industrial scaffolds into a stricter local operational layer for departmental mathematical finance/economics research workflows.
 
