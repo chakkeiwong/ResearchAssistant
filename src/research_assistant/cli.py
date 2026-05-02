@@ -125,7 +125,8 @@ from research_assistant.industrial.platform import (
     validate_industrial_artifacts,
 )
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
-from research_assistant.ingest.arxiv_batch import load_arxiv_candidate_file, plan_arxiv_batch_intake, run_arxiv_batch_intake
+from research_assistant.ingest.arxiv_batch import discover_arxiv_query_candidates, load_arxiv_candidate_file, plan_arxiv_batch_intake, run_arxiv_batch_intake
+from research_assistant.ingest.pdf_batch_policy import run_pdf_batch_download
 from research_assistant.ingest.pdf_extract import extract_pdf_text
 from research_assistant.ingest.normalize_text import normalize_extracted_text
 from research_assistant.ingest.metadata_resolve import resolve_metadata
@@ -403,6 +404,14 @@ def cmd_mcp(args: argparse.Namespace) -> int:
 
 def cmd_arxiv_batch(args: argparse.Namespace) -> int:
     root = Path(args.root) if args.root else None
+    if args.arxiv_batch_action == "discover":
+        return _print_json(discover_arxiv_query_candidates(
+            query=args.query,
+            max_candidates=args.max_candidates,
+            output_candidate_file=Path(args.output_candidate_file),
+            timeout_seconds=args.timeout_seconds,
+            root=root,
+        ))
     if args.arxiv_batch_action == "plan":
         return _print_json(plan_arxiv_batch_intake(
             query=args.query,
@@ -424,6 +433,23 @@ def cmd_arxiv_batch(args: argparse.Namespace) -> int:
             arxiv_ids=_split_csv(args.ids),
             candidate_file=Path(args.candidate_file) if args.candidate_file else None,
             root=root,
+        ))
+    if args.arxiv_batch_action == "pdf-run":
+        candidate_result = load_arxiv_candidate_file(Path(args.candidate_file))
+        if candidate_result["status"] != "ok":
+            return _print_json({
+                "status": "blocked",
+                "grant_id": args.grant_id,
+                "plan_hash": args.plan_hash,
+                "issues": candidate_result["issues"],
+            })
+        return _print_json(run_pdf_batch_download(
+            grant_id=args.grant_id,
+            plan_hash=args.plan_hash,
+            candidates=candidate_result["payload"]["candidates"],
+            candidate_file=Path(args.candidate_file),
+            root=root,
+            timeout_seconds=args.timeout_seconds,
         ))
     raise SystemExit(f"unknown arxiv-batch action {args.arxiv_batch_action}")
 
@@ -1280,6 +1306,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     arxiv_batch = sub.add_parser('arxiv-batch', help='Plan and run bounded arXiv batch intake')
     arxiv_batch_sub = arxiv_batch.add_subparsers(dest='arxiv_batch_action', required=True)
+    arxiv_batch_discover = arxiv_batch_sub.add_parser('discover')
+    arxiv_batch_discover.add_argument('--query', required=True)
+    arxiv_batch_discover.add_argument('--max-candidates', type=int, required=True)
+    arxiv_batch_discover.add_argument('--timeout-seconds', type=int, default=30)
+    arxiv_batch_discover.add_argument('--output-candidate-file', required=True)
+    arxiv_batch_discover.set_defaults(func=cmd_arxiv_batch)
     arxiv_batch_plan = arxiv_batch_sub.add_parser('plan')
     arxiv_batch_plan.add_argument('--ids')
     arxiv_batch_plan.add_argument('--query')
@@ -1299,6 +1331,12 @@ def build_parser() -> argparse.ArgumentParser:
     arxiv_batch_run.add_argument('--ids')
     arxiv_batch_run.add_argument('--candidate-file')
     arxiv_batch_run.set_defaults(func=cmd_arxiv_batch)
+    arxiv_batch_pdf_run = arxiv_batch_sub.add_parser('pdf-run')
+    arxiv_batch_pdf_run.add_argument('--grant-id', required=True)
+    arxiv_batch_pdf_run.add_argument('--plan-hash', required=True)
+    arxiv_batch_pdf_run.add_argument('--candidate-file', required=True)
+    arxiv_batch_pdf_run.add_argument('--timeout-seconds', type=int, default=30)
+    arxiv_batch_pdf_run.set_defaults(func=cmd_arxiv_batch)
 
     release_artifacts = sub.add_parser('release-artifacts', help='Inspect release artifact manifests')
     release_artifacts_sub = release_artifacts.add_subparsers(dest='release_artifacts_action', required=True)

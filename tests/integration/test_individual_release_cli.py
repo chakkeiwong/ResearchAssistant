@@ -183,11 +183,17 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"
     assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "accepted_25_50_100_public_id_runs_2026_05_03"
     assert gates["explicit_id_arxiv_source_batch"]["live_protocol"] == "docs/validation/local_mcp_live_arxiv_scale_protocol.md"
-    assert gates["query_discovery"]["live_query_enabled"] is False
+    assert gates["query_discovery"]["status"] == "bounded_cli_discovery_available_mcp_disabled"
+    assert gates["query_discovery"]["cli_live_query_enabled"] is True
+    assert gates["query_discovery"]["mcp_live_query_enabled"] is False
+    assert gates["query_discovery"]["live_validation_evidence"] == "accepted_bounded_10_candidate_arxiv_query_2026_05_03"
     assert gates["query_discovery"]["live_protocol"] == "docs/validation/local_mcp_live_query_discovery_protocol.md"
-    assert gates["pdf_batch_intake"]["execution_enabled"] is False
+    assert gates["pdf_batch_intake"]["execution_enabled"] is True
+    assert gates["pdf_batch_intake"]["mcp_exposed"] is False
+    assert gates["pdf_batch_intake"]["live_smoke_evidence"] == "accepted_one_pdf_arxiv_inbox_download_2026_05_03"
     assert gates["pdf_batch_intake"]["policy_checks_available"] is True
-    assert gates["pdf_batch_intake"]["policy"]["execution_enabled"] is False
+    assert gates["pdf_batch_intake"]["policy"]["execution_enabled"] is True
+    assert gates["pdf_batch_intake"]["policy"]["mcp_exposed"] is False
     assert gates["pdf_batch_intake"]["preconditions"] == "docs/validation/local_mcp_write_surface_preconditions.md"
     assert gates["review_write"]["mcp_exposed"] is False
     assert gates["review_write"]["preconditions"] == "docs/validation/local_mcp_write_surface_preconditions.md"

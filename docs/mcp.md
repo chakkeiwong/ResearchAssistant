@@ -117,8 +117,18 @@ ra --root /tmp/ra-demo mcp grant arxiv-intake --plan-hash <plan_hash> --max-pape
 ra --root /tmp/ra-demo arxiv-batch run --grant-id <grant_id> --plan-hash <plan_hash> --ids 2401.00001
 ```
 
-Query-based live arXiv discovery and PDF batch downloads remain future work.
-Pinned candidate-file planning is available for offline query-discovery
+Bounded live arXiv discovery is available as a CLI-only validation path that
+writes a pinned candidate file. It is not exposed through MCP:
+
+```bash
+ra arxiv-batch discover \
+  --query "transport maps HMC" \
+  --max-candidates 10 \
+  --timeout-seconds 30 \
+  --output-candidate-file /tmp/ra-live-query/candidates.json
+```
+
+Pinned candidate-file planning is available for query-discovery outputs and
 fixtures:
 
 ```bash
@@ -126,8 +136,33 @@ ra arxiv-batch candidate-file inspect --path <candidate_file.json>
 ra arxiv-batch plan --candidate-file <candidate_file.json> --max-papers 25
 ```
 
-This path does not query arXiv. It binds the candidate-file checksum and exact
-ordered arXiv IDs into the plan hash before any grant is created.
+The planning path itself does not query arXiv. It binds the candidate-file
+checksum and exact ordered arXiv IDs into the plan hash before any grant is
+created.
+
+Grant-bound PDF inbox download is also CLI-only and remains absent from MCP:
+
+```bash
+ra --root /tmp/ra-demo arxiv-batch plan \
+  --candidate-file /tmp/ra-live-query/candidates.json \
+  --max-papers 1 \
+  --destination inbox \
+  --operation pdf_inbox_download
+ra --root /tmp/ra-demo mcp grant arxiv-intake \
+  --plan-hash <plan_hash> \
+  --operation pdf_inbox_download \
+  --destination inbox \
+  --max-papers 1 \
+  --ids <ordered-candidate-id> \
+  --skip-duplicates
+ra --root /tmp/ra-demo arxiv-batch pdf-run \
+  --grant-id <grant_id> \
+  --plan-hash <plan_hash> \
+  --candidate-file /tmp/ra-live-query/candidates.json
+```
+
+Downloaded PDFs remain inbox review material. They are not approved paper
+records.
 
 For a validation checklist, see `docs/mcp_trial_checklist.md`.
 For external/live validation records and pass/narrow/fail criteria, see
@@ -138,14 +173,14 @@ For PDF execution and MCP review-write preconditions, see
 ## Deferred Write Modes
 
 Query-based arXiv discovery has a design gate in
-`docs/architecture/mcp_arxiv_query_discovery_design.md`. It is not live-enabled
-through MCP yet.
+`docs/architecture/mcp_arxiv_query_discovery_design.md`. A bounded CLI
+candidate-file path is available, but it is not live-enabled through MCP.
 
 PDF batch downloads have a separate design gate in
-`docs/architecture/mcp_pdf_batch_intake_design.md`. PDF batch execution remains
-disabled until byte limits, duplicate handling, cleanup, and tests are in
-place. Executable policy checks are available in the codebase, but they do not
-download PDFs and are not exposed as an MCP write tool.
+`docs/architecture/mcp_pdf_batch_intake_design.md`. Grant-bound CLI PDF inbox
+download is available with byte limits, duplicate handling, cleanup, manifests,
+audits, and one-PDF live smoke evidence. It is not exposed as an MCP write
+tool.
 
 Review-write is being prototyped through CLI confirmation commands, not MCP:
 

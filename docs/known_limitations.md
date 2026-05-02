@@ -21,18 +21,12 @@
   automatic approval.
 - MCP is optional; absence of the MCP extra does not block the base local CLI
   workflow.
-- MCP query-based arXiv discovery is not live-enabled. The design requires
-  bounded candidate counts, endpoint limits, deterministic candidate lists, and
-  grant binding to the exact candidate list before future enablement.
-- Offline arXiv candidate-file planning is available and binds candidate-file
-  checksum and exact ordered IDs into the plan hash, but it does not perform
-  live query discovery.
-- MCP PDF batch downloads are not enabled. PDF batch intake needs explicit byte
-  limits, duplicate/no-overwrite behavior, checksum capture, cleanup semantics,
-  and tests before execution.
-- PDF batch policy checks are executable for count, byte, destination, overwrite,
-  and domain constraints, but they do not download files and do not enable an
-  MCP PDF batch tool.
+- MCP query-based arXiv discovery is not live-enabled. Bounded CLI live
+  discovery can write a pinned candidate file, and planning binds the
+  candidate-file checksum and exact ordered IDs into the plan hash.
+- MCP PDF batch downloads are not enabled. Grant-bound CLI PDF inbox download is
+  available with byte limits, duplicate/no-overwrite behavior, checksum capture,
+  cleanup semantics, manifest/audit records, and one-PDF live-smoke evidence.
 - Review-write is currently a CLI-only prototype. It records old/new values,
   file hashes, expiration, and audit events, but MCP review mutation remains
   disabled.
@@ -40,8 +34,9 @@
   removes only expired proposal records when explicitly applied.
 - Deterministic mocked arXiv batch tests validate local plan/grant/run mechanics
   at 25-paper scale; live arXiv 25/50/100 public explicit-ID source intake was
-  accepted on 2026-05-03, but query discovery and PDF download execution remain
-  unvalidated.
+  accepted on 2026-05-03. Bounded live query discovery and one-PDF live inbox
+  download were also accepted on 2026-05-03, but broader PDF batch scale remains
+  experimental.
 - H1 external MCP setup was accepted on 2026-05-03 from an external-agent stdio
   client trial against demo data. Human colleague trials should still use
   `docs/mcp_colleague_trial_record_template.md` when available.

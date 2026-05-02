@@ -18,8 +18,8 @@ in.
 | --- | --- | --- |
 | H1 external MCP setup | `accepted` | External-agent stdio MCP setup trial passed on 2026-05-03; first tool call completed in 0.305s; unsafe tools and MCP review-write were absent. |
 | H2 live explicit-ID arXiv source scale | `accepted` | Public explicit-ID live runs completed for 25/50/100 on 2026-05-03; duplicate rerun bug found and fixed. |
-| H3-live query discovery smoke | `manual_live_approval_required` | Offline candidate-file planning exists; live query disabled. |
-| H4 PDF execution readiness | `preconditions_required` | Policy checks exist; downloader disabled. |
+| H3-live query discovery smoke | `accepted` | Approved bounded live query returned 10 candidates from one arXiv API page on 2026-05-03; pinned file drove grant-bound source intake. |
+| H4 PDF execution readiness | `accepted_cli_only` | Grant-bound CLI PDF inbox download passed deterministic preconditions and a one-PDF live smoke on 2026-05-03; MCP PDF tool remains absent. |
 | H5 MCP review-write readiness | `preconditions_required` | CLI prototype exists; MCP mutation disabled. |
 
 ## H1 External MCP Setup Record
@@ -195,6 +195,71 @@ Fail criteria:
 
 Use `docs/validation/local_mcp_live_query_discovery_protocol.md`.
 
+Current classification: `accepted`.
+
+Approval:
+
+- approving person: user;
+- approval date: 2026-05-03 Asia/Hong_Kong;
+- approved scope: H3 bounded live arXiv query smoke and H4 PDF execution test;
+- exact query: `transport maps HMC`;
+- query privacy: public/non-private;
+- max candidates: 10;
+- pagination cap used: 1 page;
+- timeout: 30 seconds;
+- candidate workspace root: `/tmp/ra-live-query-smoke-2026-05-03`;
+- source-intake workspace root: `/tmp/ra-live-query-source-2026-05-03`;
+- committed evidence: sanitized summaries only.
+
+Sanitized live query result:
+
+- endpoint: `https://export.arxiv.org/api/query`;
+- candidate count: 10;
+- elapsed discovery time: 1.218s;
+- candidate file checksum:
+  `352215ef794ba214e8c009d9a6db5c2d617f3644652cb626651039b5ecfa62a6`;
+- ordered IDs:
+  `2006.03435v1`, `2007.11549v3`, `0907.5491v3`, `2312.04800v1`,
+  `2111.11612v1`, `2311.10663v4`, `2508.02659v1`, `2512.16839v1`,
+  `2402.04976v1`, `1409.0087v1`;
+- candidate-file inspect status: `ok`;
+- planning status from saved candidate file: `ready_for_grant`;
+- candidate-file plan hash in the first workspace:
+  `90e030670fe9e801521ceff6f33adea06d06c21bb2de75b95a19b9ce030da505`;
+- first source-intake grant:
+  `mcp_grant_5a7c5f51c1f99b85`;
+- first source-intake run remained sandboxed and produced 10 unavailable source
+  records because source fetch had no network. This is recorded as a sandbox
+  artifact, not H3 acceptance evidence.
+
+Sanitized live source follow-up:
+
+- source-intake workspace root:
+  `/tmp/ra-live-query-source-2026-05-03`;
+- source-intake plan hash:
+  `5a2b675112fb6baa6b96b3d507e6e5377afe513e77fc7823fa2c70b38a10a286`;
+- grant: `mcp_grant_1e0453af422696ed`;
+- attempted: 10;
+- available structured sources: 7;
+- source-structure failures: 3;
+- command failures: 0;
+- audit events: 13;
+- review policy: `review_material_only`;
+- no approved review records were found in the live workspaces.
+
+Safety and interpretation:
+
+- H3 is accepted for bounded CLI live query discovery that writes only a pinned
+  candidate file.
+- The saved candidate file bound exact ordered IDs and checksum into planning.
+- Source intake used the existing local grant path and the saved candidate
+  file.
+- The query results were noisy, but bounded, inspectable, and safely usable as
+  review material.
+- Live query discovery remains absent from MCP.
+- No raw API responses, source archives, manifests, audit logs, extracted text,
+  or private paths are committed.
+
 Required evidence:
 
 - exact query;
@@ -205,7 +270,7 @@ Required evidence:
 - candidate file checksum;
 - ordered arXiv IDs;
 - plan hash from saved candidate file;
-- proof that live query discovery remains disabled until approval is recorded.
+- proof that live query discovery remains bounded and absent from MCP.
 
 Privacy exclusions:
 
@@ -235,6 +300,71 @@ Fail criteria:
 
 Use `docs/validation/local_mcp_write_surface_preconditions.md`.
 
+Current classification: `accepted_cli_only`.
+
+Approval:
+
+- approving person: user;
+- approval date: 2026-05-03 Asia/Hong_Kong;
+- approved scope: H4 grant-bound PDF execution test;
+- live workspace roots:
+  `/tmp/ra-live-pdf-smoke-2026-05-03` and
+  `/tmp/ra-live-pdf-smoke2-2026-05-03`;
+- committed evidence: sanitized summaries only.
+
+Implementation evidence:
+
+- PDF execution is CLI-only through `ra arxiv-batch pdf-run`;
+- execution requires a matching local grant with operation
+  `pdf_inbox_download`, destination `inbox`, and matching plan hash;
+- downloader writes only to `local_research/inbox`;
+- allowed domains are `arxiv.org` and `export.arxiv.org`;
+- redirects to unapproved domains are blocked;
+- max file count, per-file bytes, total bytes, destination, overwrite, missing
+  URL, invalid declared bytes, and domain policy are tested;
+- checksum and byte count are recorded for successful downloads;
+- duplicate/no-overwrite rerun is tested;
+- partial temp cleanup after stream-limit failure is tested;
+- manifest/audit records are tested;
+- no MCP PDF download tool is exposed.
+
+Live smoke result:
+
+- candidate query: `transport maps HMC`;
+- max candidates: 1;
+- candidate ID: `2006.03435v1`;
+- candidate file checksum:
+  `b29f4eb4342e2543276d2b6c25a085d2816cd990d3cb9c24a1ee5c146e9f56ea`;
+- first live smoke plan hash:
+  `cd5ba14263bcfb1d807ff8ca47a97a4f99fffd5f5cd90799d2b39a44c0b2f913`;
+- first live smoke grant:
+  `mcp_grant_f7f0d5879d3d092f`;
+- first live smoke result: blocked before download because candidate-file plan
+  identity was not preserved during PDF run recomputation;
+- fix: `run_pdf_batch_download(...)` now accepts `candidate_file` and binds
+  candidate-file metadata during plan-hash recomputation;
+- patched live smoke plan hash:
+  `e311b7640a1690d0b468b851b7c46620d6f0cd94e7b4c0ae88f0fe6eca1331d9`;
+- patched live smoke grant:
+  `mcp_grant_13187f4136c4cd5c`;
+- patched live smoke result: attempted 1, downloaded 1, failures 0;
+- downloaded PDF size: 2,454,305 bytes;
+- downloaded PDF SHA256:
+  `c5a1d48f2ccd9016be5f7744442fe41b378eb8e20997edb574cc331cb75b6f3c`;
+- duplicate rerun result: attempted 1, downloaded 0, skipped duplicate 1,
+  failures 0;
+- audit events after live run and duplicate rerun: 7.
+
+Safety and interpretation:
+
+- H4 is accepted for grant-bound CLI-only PDF inbox download at tiny live-smoke
+  scale.
+- H4 does not approve large PDF batch defaults for routine use; broader sizes
+  need separate scale evidence.
+- Downloaded PDFs remain review material and are not trusted paper records.
+- MCP PDF execution remains disabled/absent.
+- No raw PDFs, manifests, audit logs, or local grant files are committed.
+
 Required evidence before enabling any downloader:
 
 - policy checks pass;
@@ -248,8 +378,9 @@ Required evidence before enabling any downloader:
 
 Current status:
 
-- policy checks exist;
-- execution is disabled.
+- grant-bound CLI execution exists;
+- one-PDF live smoke passed;
+- MCP PDF execution is disabled/absent.
 
 ## H5 MCP Review-Write Precondition Record
 

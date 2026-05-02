@@ -4185,6 +4185,201 @@ Interpretation and next-phase justification:
 - H5 remains deferred behind UX/audit/undo/confirmation design evidence before
   any MCP mutation exposure.
 
+## Update - local MCP H3/H4 approved live validation started
+
+New input:
+- The user approved H3 and H4 testing on 2026-05-03 Asia/Hong_Kong.
+
+Plan for H3:
+- Implement a bounded CLI-only live arXiv query discovery path that writes only
+  a pinned candidate file.
+- Use public query `transport maps HMC`, max 10 candidates, one arXiv API page,
+  30s request timeout, and `/tmp` workspaces.
+- Inspect and plan from the saved candidate file.
+- Use the existing local grant path for source intake from the pinned file.
+- Keep live query discovery absent from MCP.
+
+Plan for H4:
+- Implement the smallest grant-bound CLI-only PDF inbox downloader needed to
+  satisfy the PDF execution preconditions.
+- Enforce inbox-only destination, allowed domains, redirect checks, count/byte
+  limits, no-overwrite duplicate behavior, checksum recording, temp cleanup,
+  manifest/audit records, and review-material-only output.
+- Run deterministic tests first.
+- Run a one-PDF live smoke in `/tmp`.
+- Keep PDF download execution absent from MCP.
+
+## Update - local MCP H3 live query discovery accepted
+
+H3 execution result:
+- Added CLI command:
+  - `ra arxiv-batch discover --query ... --max-candidates ... --timeout-seconds
+    ... --output-candidate-file ...`.
+- Discovery is bounded to `export.arxiv.org`, max 50 candidates hard cap, and a
+  candidate file only.
+- Live approved discovery command first failed in the sandbox with DNS
+  resolution failure, then succeeded with approved network escalation.
+- Live query:
+  - query: `transport maps HMC`;
+  - workspace: `/tmp/ra-live-query-smoke-2026-05-03`;
+  - max candidates: 10;
+  - pagination count: 1;
+  - elapsed discovery: 1.218s;
+  - candidate count: 10;
+  - candidate file checksum:
+    `352215ef794ba214e8c009d9a6db5c2d617f3644652cb626651039b5ecfa62a6`;
+  - ordered IDs:
+    `2006.03435v1`, `2007.11549v3`, `0907.5491v3`, `2312.04800v1`,
+    `2111.11612v1`, `2311.10663v4`, `2508.02659v1`, `2512.16839v1`,
+    `2402.04976v1`, `1409.0087v1`.
+- Candidate-file inspection returned `ok`.
+- Planning from the saved file returned `ready_for_grant`.
+- First source-intake run in the original workspace was sandboxed and produced
+  10 unavailable source records. This was recorded as a sandbox artifact and
+  was not used as H3 acceptance evidence.
+- Fresh source-intake workspace:
+  `/tmp/ra-live-query-source-2026-05-03`.
+- Fresh source-intake plan hash:
+  `5a2b675112fb6baa6b96b3d507e6e5377afe513e77fc7823fa2c70b38a10a286`.
+- Fresh source-intake grant:
+  `mcp_grant_1e0453af422696ed`.
+- Approved live source follow-up result:
+  - attempted: 10;
+  - available structured sources: 7;
+  - source-structure failures: 3;
+  - command failures: 0;
+  - audit events: 13;
+  - review policy: `review_material_only`.
+
+H3 tests:
+- Included in focused final validation below:
+  - `tests/integration/test_arxiv_batch_intake.py`;
+  - `tests/integration/test_individual_release_cli.py`;
+  - `tests/integration/test_mcp_adapter.py`.
+
+H3 audit as another developer:
+- The live query did not fetch source or PDF content before candidate-file
+  inspection and grant creation.
+- Candidate-file checksum and exact ordered IDs are bound into the plan hash.
+- The live query results were noisy, but bounded and inspectable.
+- Live query discovery remains absent from MCP.
+- No raw API response, source archive, manifest, audit log, local grant, or
+  private path is committed.
+
+H3 interpretation:
+- H3 is accepted for bounded CLI live query discovery that creates pinned
+  candidate files and can drive existing grant-bound source intake.
+- H3 does not justify MCP live query exposure.
+
+## Update - local MCP H4 PDF execution accepted as CLI-only
+
+H4 execution result:
+- Added grant-bound CLI PDF runner:
+  - `ra arxiv-batch pdf-run --grant-id ... --plan-hash ...
+    --candidate-file ...`.
+- Added `run_pdf_batch_download(...)`.
+- PDF execution requires operation `pdf_inbox_download`, destination `inbox`,
+  matching grant, matching plan hash, and matching candidate-file identity.
+- Added policy/enforcement for:
+  - inbox-only writes;
+  - allowed domains;
+  - redirect-domain block;
+  - max file count;
+  - per-file bytes;
+  - total bytes;
+  - no overwrite;
+  - duplicate skip;
+  - SHA256 and byte count capture;
+  - partial temp cleanup on stream-limit abort;
+  - manifest/audit records;
+  - review-material-only output.
+- PDF execution remains CLI-only and is not exposed through MCP.
+- First live H4 smoke correctly blocked before download because the PDF runner
+  recomputed plan identity without candidate-file metadata:
+  - first plan hash:
+    `cd5ba14263bcfb1d807ff8ca47a97a4f99fffd5f5cd90799d2b39a44c0b2f913`;
+  - first grant: `mcp_grant_f7f0d5879d3d092f`;
+  - result: `recomputed_plan_hash_mismatch`.
+- Fixed the bug by passing `candidate_file` into
+  `run_pdf_batch_download(...)` and binding candidate-file metadata during
+  plan-hash recomputation.
+- Patched live H4 smoke:
+  - workspace: `/tmp/ra-live-pdf-smoke2-2026-05-03`;
+  - candidate ID: `2006.03435v1`;
+  - candidate file checksum:
+    `b29f4eb4342e2543276d2b6c25a085d2816cd990d3cb9c24a1ee5c146e9f56ea`;
+  - plan hash:
+    `e311b7640a1690d0b468b851b7c46620d6f0cd94e7b4c0ae88f0fe6eca1331d9`;
+  - grant: `mcp_grant_13187f4136c4cd5c`;
+  - first patched run: attempted 1, downloaded 1, failures 0;
+  - PDF size: 2,454,305 bytes;
+  - PDF SHA256:
+    `c5a1d48f2ccd9016be5f7744442fe41b378eb8e20997edb574cc331cb75b6f3c`;
+  - duplicate rerun: attempted 1, downloaded 0, skipped duplicate 1,
+    failures 0;
+  - audit events after both runs: 7.
+
+H4 tests:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_pdf_batch_policy.py tests/integration/test_arxiv_batch_intake.py -q`:
+  `27 passed`.
+- Final focused validation below also covered MCP absence and release-report.
+
+H4 audit as another developer:
+- The first blocked live attempt found a real candidate-file grant-binding bug.
+- The fixed path now preserves candidate-file identity during PDF execution.
+- The live smoke wrote exactly one public arXiv PDF under `/tmp` inbox.
+- Duplicate rerun skipped without overwrite.
+- MCP tool inventory remains unchanged; no PDF download MCP tool was added.
+- Downloaded PDF, manifest, grant, and audit files remain local generated
+  artifacts and are not committed.
+- No review record was marked approved.
+
+H4 interpretation:
+- H4 is accepted for grant-bound CLI-only one-PDF inbox download.
+- H4 does not validate broad PDF batch scale, non-arXiv domains, or MCP PDF
+  execution.
+- Broader PDF batch sizes should remain experimental until separate scale
+  evidence exists.
+
+## Update - local MCP H3/H4 final validation completed
+
+Final validation commands:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `78 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `PYTHONPATH=src timeout 60 python -m research_assistant.cli release-report`:
+  completed with expected workspace warnings and showed:
+  - `query_discovery.status:
+    bounded_cli_discovery_available_mcp_disabled`;
+  - `query_discovery.cli_live_query_enabled: true`;
+  - `query_discovery.mcp_live_query_enabled: false`;
+  - `pdf_batch_intake.status:
+    grant_bound_cli_execution_available_mcp_disabled`;
+  - `pdf_batch_intake.execution_enabled: true`;
+  - `pdf_batch_intake.mcp_exposed: false`;
+  - no `ra_download_paper` or PDF batch MCP tool in `mcp_tools`.
+- `git diff --check`: passed.
+
+Final audit:
+- H1, H2, H3, and H4 now have accepted bounded evidence.
+- H3 and H4 are CLI-only; neither adds a new MCP write tool.
+- H5 remains deferred behind human UX/audit/undo/confirmation design before any
+  MCP review mutation.
+- Live/generated artifacts remain under `/tmp` or ignored paths.
+- No raw PDFs, arXiv source archives, extracted text, local manifests, audit
+  logs, grants, or private paths are staged for commit.
+
+Final interpretation and next hypotheses:
+- H3 next hypothesis: whether candidate quality is good enough for the intended
+  researcher workflow. Test with 3-5 representative non-private queries and
+  measure relevance/noise before considering MCP exposure.
+- H4 next hypothesis: whether PDF batch scale is comfortable at 5 and 10 files
+  with no overwrite, checksum, cleanup, and audit ergonomics. This should be
+  approved separately because it downloads more PDFs.
+- H5 next hypothesis: whether the CLI review-write proposal/apply flow is
+  understandable to a real user on demo data and whether the correction policy
+  is sufficient before designing MCP mutation.
+
 ## Update - local MCP H2 live arXiv scale validation completed
 
 Objective:

@@ -3,13 +3,33 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import time
+import urllib.parse
 
 from research_assistant.cli import main
 from research_assistant.adapters.mcp_permissions import create_arxiv_batch_grant
-from research_assistant.ingest.arxiv_batch import load_arxiv_candidate_file, plan_arxiv_batch_intake, run_arxiv_batch_intake
+from research_assistant.ingest.arxiv_batch import discover_arxiv_query_candidates, load_arxiv_candidate_file, plan_arxiv_batch_intake, run_arxiv_batch_intake
 
 
 FIXTURE_CANDIDATE_FILE = Path("tests/fixtures/mcp/arxiv_candidates/query_transport_maps_hmc.json")
+
+
+class _FakeArxivQueryResponse:
+    def __init__(self, body: bytes, url: str) -> None:
+        self._body = body
+        self._url = url
+        self.status = 200
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        return False
+
+    def read(self, _size: int = -1) -> bytes:
+        return self._body
+
+    def geturl(self) -> str:
+        return self._url
 
 
 def test_arxiv_batch_plan_explicit_ids_is_stable_and_read_only(tmp_path: Path) -> None:
@@ -72,6 +92,63 @@ def test_arxiv_batch_candidate_file_inspect_and_plan_is_read_only(tmp_path: Path
     assert plan["candidate_file"]["candidate_file_sha256"]
     assert plan["plan_hash"] == repeat["plan_hash"]
     assert before == after
+
+
+def test_arxiv_batch_discover_writes_bounded_candidate_file(tmp_path: Path, monkeypatch) -> None:
+    output = tmp_path / "candidates.json"
+    atom = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+      <entry>
+        <id>http://arxiv.org/abs/1903.03704v1</id>
+        <title>NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport</title>
+        <author><name>Matthew D. Hoffman</name></author>
+        <link href="https://arxiv.org/abs/1903.03704v1" rel="alternate" />
+        <link href="https://arxiv.org/pdf/1903.03704v1" title="pdf" type="application/pdf" />
+        <arxiv:primary_category term="stat.ML" />
+      </entry>
+    </feed>
+    """
+
+    def fake_urlopen(url: str, timeout: int):
+        parsed = urllib.parse.urlparse(url)
+        assert parsed.netloc == "export.arxiv.org"
+        assert timeout == 30
+        return _FakeArxivQueryResponse(atom, url)
+
+    monkeypatch.setattr("research_assistant.ingest.arxiv_batch.urllib.request.urlopen", fake_urlopen)
+    result = discover_arxiv_query_candidates(
+        query="transport maps HMC",
+        max_candidates=1,
+        output_candidate_file=output,
+        root=tmp_path,
+    )
+    inspected = load_arxiv_candidate_file(output)
+    plan = plan_arxiv_batch_intake(candidate_file=output, max_papers=1, root=tmp_path)
+
+    assert result["status"] == "created"
+    assert result["candidate_count"] == 1
+    assert result["ordered_arxiv_ids"] == ["1903.03704v1"]
+    assert inspected["status"] == "ok"
+    assert inspected["metadata"]["candidate_count"] == 1
+    assert plan["status"] == "ready_for_grant"
+    assert plan["candidate_file"]["candidate_file_sha256"] == result["candidate_file_sha256"]
+
+
+def test_arxiv_batch_discover_cli_blocks_unbounded_count(tmp_path: Path, capsys) -> None:
+    rc = main([
+        "--root", str(tmp_path),
+        "arxiv-batch", "discover",
+        "--query", "transport maps HMC",
+        "--max-candidates", "51",
+        "--output-candidate-file", str(tmp_path / "candidates.json"),
+    ])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert payload["status"] == "blocked"
+    assert payload["writes_during_discovery"] is False
+    assert payload["issues"][0]["code"] == "max_candidates_exceeds_live_cap"
+    assert not (tmp_path / "candidates.json").exists()
 
 
 def test_arxiv_batch_candidate_file_order_changes_plan_hash(tmp_path: Path) -> None:

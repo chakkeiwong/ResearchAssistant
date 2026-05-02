@@ -3,8 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 from pathlib import Path
 from typing import Any, Literal
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
 
 from research_assistant.adapters.mcp_permissions import (
     ALLOWED_ARXIV_DOMAINS,
@@ -18,6 +22,7 @@ from research_assistant.adapters.mcp_permissions import (
 from research_assistant.config import get_paths
 from research_assistant.individual_release import atomic_write_json
 from research_assistant.ingest.source_manifest import canonical_paper_id
+from research_assistant.schemas.artifact import stable_id
 from research_assistant.schemas.paper_record import PaperRecord
 from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
 from research_assistant.source.structured_source import source_record_path
@@ -26,6 +31,9 @@ ARXIV_ID_PATTERN = re.compile(r"^\d{4}\.\d{4,5}(v\d+)?$|^[a-zA-Z-]+(\.[A-Z]{2})?
 MAX_CANDIDATE_FILE_BYTES = 1_000_000
 MAX_CANDIDATE_FILE_IDS = 100
 ARXIV_CANDIDATE_SCHEMA_VERSION = "arxiv-query-candidates-v1"
+ARXIV_QUERY_ENDPOINT = "https://export.arxiv.org/api/query"
+MAX_LIVE_QUERY_CANDIDATES = 50
+MAX_ARXIV_QUERY_RESPONSE_BYTES = 2_000_000
 
 
 def normalize_arxiv_id(arxiv_id: str) -> str:
@@ -64,6 +72,190 @@ def _stable_plan_hash(payload: dict[str, Any]) -> str:
 
 def candidate_file_checksum(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _utc_now_iso() -> str:
+    from datetime import datetime, timezone
+
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def _atom_text(element: ET.Element, path: str, namespaces: dict[str, str]) -> str | None:
+    found = element.find(path, namespaces)
+    if found is None or found.text is None:
+        return None
+    return " ".join(found.text.split())
+
+
+def _arxiv_id_from_entry(entry: ET.Element, namespaces: dict[str, str]) -> str | None:
+    raw_id = _atom_text(entry, "atom:id", namespaces)
+    if not raw_id:
+        return None
+    value = raw_id.rstrip("/").rsplit("/", 1)[-1]
+    try:
+        return normalize_arxiv_id(value)
+    except ValueError:
+        return None
+
+
+def discover_arxiv_query_candidates(
+    *,
+    query: str,
+    max_candidates: int,
+    output_candidate_file: Path,
+    timeout_seconds: int = 30,
+    root: Path | None = None,
+    endpoint_url: str = ARXIV_QUERY_ENDPOINT,
+) -> dict[str, Any]:
+    normalized_query = " ".join(query.split()).strip()
+    issues: list[dict[str, Any]] = []
+    if not normalized_query:
+        issues.append({"code": "empty_query"})
+    if max_candidates <= 0:
+        issues.append({"code": "invalid_max_candidates", "max_candidates": max_candidates})
+    if max_candidates > MAX_LIVE_QUERY_CANDIDATES:
+        issues.append({"code": "max_candidates_exceeds_live_cap", "max_candidates": max_candidates, "cap": MAX_LIVE_QUERY_CANDIDATES})
+    if timeout_seconds <= 0:
+        issues.append({"code": "invalid_timeout_seconds", "timeout_seconds": timeout_seconds})
+    endpoint_host = urllib.parse.urlparse(endpoint_url).netloc.lower()
+    if endpoint_host != "export.arxiv.org":
+        issues.append({"code": "endpoint_domain_not_allowed", "endpoint_url": endpoint_url, "allowed_domain": "export.arxiv.org"})
+    if issues:
+        return {"status": "blocked", "issues": issues, "writes_during_discovery": False}
+
+    params = urllib.parse.urlencode({
+        "search_query": f"all:{normalized_query}",
+        "start": "0",
+        "max_results": str(max_candidates),
+        "sortBy": "relevance",
+        "sortOrder": "descending",
+    })
+    request_url = f"{endpoint_url}?{params}"
+    started = time.perf_counter()
+    try:
+        with urllib.request.urlopen(request_url, timeout=timeout_seconds) as response:
+            final_url = response.geturl()
+            final_host = urllib.parse.urlparse(final_url).netloc.lower()
+            if final_host != "export.arxiv.org":
+                return {
+                    "status": "blocked",
+                    "issues": [{"code": "query_redirect_domain_not_allowed", "host": final_host, "allowed_domain": "export.arxiv.org"}],
+                    "writes_during_discovery": False,
+                }
+            body = response.read(MAX_ARXIV_QUERY_RESPONSE_BYTES + 1)
+            http_status = getattr(response, "status", None)
+    except Exception as exc:
+        return {
+            "status": "blocked",
+            "issues": [{"code": "query_request_failed", "message": str(exc)}],
+            "writes_during_discovery": False,
+        }
+    elapsed = time.perf_counter() - started
+    if len(body) > MAX_ARXIV_QUERY_RESPONSE_BYTES:
+        return {
+            "status": "blocked",
+            "issues": [{"code": "query_response_too_large", "max_bytes": MAX_ARXIV_QUERY_RESPONSE_BYTES}],
+            "writes_during_discovery": False,
+        }
+
+    namespaces = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
+    try:
+        feed = ET.fromstring(body)
+    except ET.ParseError as exc:
+        return {
+            "status": "blocked",
+            "issues": [{"code": "query_response_invalid_xml", "message": str(exc)}],
+            "writes_during_discovery": False,
+        }
+
+    candidates: list[dict[str, Any]] = []
+    skipped_entries: list[dict[str, Any]] = []
+    for index, entry in enumerate(feed.findall("atom:entry", namespaces)):
+        arxiv_id = _arxiv_id_from_entry(entry, namespaces)
+        if arxiv_id is None:
+            skipped_entries.append({"index": index, "reason": "missing_or_invalid_arxiv_id"})
+            continue
+        title = _atom_text(entry, "atom:title", namespaces) or f"arXiv {arxiv_id}"
+        authors = [
+            name
+            for author in entry.findall("atom:author", namespaces)
+            if (name := _atom_text(author, "atom:name", namespaces))
+        ]
+        entry_url = f"https://arxiv.org/abs/{arxiv_id}"
+        pdf_url = f"https://arxiv.org/pdf/{arxiv_id}"
+        for link in entry.findall("atom:link", namespaces):
+            href = link.attrib.get("href")
+            if not href:
+                continue
+            if link.attrib.get("title") == "pdf" or link.attrib.get("type") == "application/pdf":
+                pdf_url = href
+            elif link.attrib.get("rel") == "alternate":
+                entry_url = href
+        primary = entry.find("arxiv:primary_category", namespaces)
+        primary_category = primary.attrib.get("term") if primary is not None else None
+        candidates.append({
+            "arxiv_id": arxiv_id,
+            "title": title,
+            "authors": authors,
+            "entry_url": entry_url,
+            "pdf_url": pdf_url,
+            "source_url": f"https://arxiv.org/e-print/{arxiv_id}",
+            "primary_category": primary_category,
+            "provenance_index": len(candidates),
+        })
+        if len(candidates) >= max_candidates:
+            break
+
+    if not candidates:
+        return {
+            "status": "blocked",
+            "issues": [{"code": "query_returned_no_candidates", "skipped_entries": skipped_entries}],
+            "writes_during_discovery": False,
+        }
+
+    created_at = _utc_now_iso()
+    output_path = output_candidate_file.expanduser()
+    payload = {
+        "schema_version": ARXIV_CANDIDATE_SCHEMA_VERSION,
+        "candidate_batch_id": stable_id("arxiv_query_candidates", normalized_query.lower(), max_candidates, created_at),
+        "created_at": created_at,
+        "workspace_root": str(get_paths(root).root),
+        "query": query,
+        "normalized_query": normalized_query.lower(),
+        "endpoint_url": endpoint_url,
+        "max_candidates": max_candidates,
+        "request_timeout_seconds": timeout_seconds,
+        "result_ordering": "api_relevance_order",
+        "pagination_count": 1,
+        "source_status": {
+            "status": "available",
+            "http_status": http_status,
+            "elapsed_seconds": round(elapsed, 3),
+            "skipped_entry_count": len(skipped_entries),
+        },
+        "candidates": candidates,
+    }
+    atomic_write_json(output_path, payload)
+    checksum = candidate_file_checksum(output_path)
+    return {
+        "status": "created",
+        "query": query,
+        "max_candidates": max_candidates,
+        "candidate_count": len(candidates),
+        "candidate_file": str(output_path),
+        "candidate_file_sha256": checksum,
+        "ordered_arxiv_ids": [candidate["arxiv_id"] for candidate in candidates],
+        "pagination_count": 1,
+        "elapsed_seconds": round(elapsed, 3),
+        "source_status": payload["source_status"],
+        "writes_during_discovery": True,
+        "written_outputs": ["candidate_file"],
+        "limitations": [
+            "Live discovery writes only a pinned candidate file.",
+            "No source or PDF intake is performed by discovery.",
+            "Live query discovery is not exposed through MCP.",
+        ],
+    }
 
 
 def load_arxiv_candidate_file(candidate_file: Path) -> dict[str, Any]:

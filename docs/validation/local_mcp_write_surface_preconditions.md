@@ -7,7 +7,8 @@ This document gates two high-risk future surfaces:
 
 Current status:
 
-- PDF batch policy checks exist, but PDF download execution is disabled.
+- PDF batch policy checks and grant-bound CLI PDF inbox execution exist.
+- PDF batch execution remains absent from MCP.
 - Review-write has a CLI-only prototype, but MCP review mutation is disabled.
 
 Do not enable either surface until the relevant preconditions below are

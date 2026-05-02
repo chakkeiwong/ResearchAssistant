@@ -3,7 +3,7 @@
 Use this protocol only after the operator explicitly approves a live arXiv query
 smoke. Live query discovery is not enabled in MCP or the default CLI workflow.
 
-Current status: `manual_live_approval_required`.
+Current status: `accepted`.
 
 ## Purpose
 
@@ -72,8 +72,8 @@ Each candidate should include:
 
 ## Future Command Shape
 
-This command is not implemented/enabled yet; it records the intended live
-interface:
+This command is implemented as a CLI-only validation path. It is not exposed
+through MCP:
 
 ```bash
 ra --root /tmp/ra-live-query-smoke arxiv-batch discover \
@@ -154,4 +154,4 @@ audit logs.
 
 | Date | Query | Max Candidates | Candidate Count | Result | Notes |
 | --- | --- | --- | --- | --- | --- |
-| pending | | 10 | | `manual_live_approval_required` | |
+| 2026-05-03 | `transport maps HMC` | 10 | 10 | `accepted` | One `export.arxiv.org` page in 1.218s; candidate checksum `352215ef794ba214e8c009d9a6db5c2d617f3644652cb626651039b5ecfa62a6`; pinned file drove grant-bound source intake with 7 available sources, 3 source-structure failures, and 0 command failures. |
