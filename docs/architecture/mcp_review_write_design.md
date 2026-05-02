@@ -73,3 +73,6 @@ new state rather than overwriting it.
 - destructive correction;
 - automatic mathematical approval;
 - review writes through hosted/shared MCP.
+
+The current precondition checklist for any future MCP review-write exposure is
+maintained in `docs/validation/local_mcp_write_surface_preconditions.md`.

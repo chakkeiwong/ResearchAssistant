@@ -130,6 +130,10 @@ This path does not query arXiv. It binds the candidate-file checksum and exact
 ordered arXiv IDs into the plan hash before any grant is created.
 
 For a validation checklist, see `docs/mcp_trial_checklist.md`.
+For external/live validation records and pass/narrow/fail criteria, see
+`docs/validation/local_mcp_external_validation_records.md`.
+For PDF execution and MCP review-write preconditions, see
+`docs/validation/local_mcp_write_surface_preconditions.md`.
 
 ## Deferred Write Modes
 

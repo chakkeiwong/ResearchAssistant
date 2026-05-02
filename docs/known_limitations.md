@@ -42,3 +42,6 @@
 - Real colleague MCP setup should be recorded with
   `docs/mcp_colleague_trial_record_template.md`; local surrogate runs do not
   count as external usability evidence.
+- Local MCP external/live evidence should be indexed in
+  `docs/validation/local_mcp_external_validation_records.md`; absence of a
+  record means the corresponding external/live claim remains unvalidated.

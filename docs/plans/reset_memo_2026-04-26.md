@@ -4092,6 +4092,278 @@ Initial gap interpretation:
 Next safe step:
 - Run Phase 0 baseline and independent plan audit.
 
+## Update - local MCP external/live validation Phase 0 completed
+
+Phase 0 plan for the phase:
+- Confirm the repo baseline remains green.
+- Audit the new external/live validation plan before execution.
+
+Phase 0 execution result:
+- `git status --short --branch`: `main...origin/main [ahead 3]`.
+- Recent HEAD: `1737050 Close local MCP readiness gaps`.
+- `python -m research_assistant.cli release-report` still reports:
+  - colleague MCP trial: `manual_external_required`;
+  - explicit-ID arXiv live scale: `manual_bounded_validation_pending`;
+  - live query discovery: disabled;
+  - PDF batch execution: disabled;
+  - review-write MCP exposure: false.
+
+Phase 0 tests:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `11 passed`.
+- `git diff --check`: passed.
+
+Phase 0 audit as another developer:
+- The plan uses existing validation templates and stays local-MCP scoped.
+- It does not claim a real colleague trial or live arXiv evidence.
+- It does not add hosted/shared MCP work.
+- It does not authorize live network execution during this autonomous pass.
+- Clarified that live command snippets in this plan/protocol docs are future
+  operator commands and are not executed without separate approval.
+
+Phase 0 tidy result:
+- No generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- Baseline is green and the plan is honest about external/live gates.
+- Phase 1 is justified to create a sanitized validation record pack for future
+  evidence.
+
+## Update - local MCP external/live validation Phase 1 completed
+
+Phase 1 plan for the phase:
+- Create a sanitized local MCP validation record index using existing templates.
+- Link it from MCP docs/checklist/limitations.
+- Keep all external/live evidence statuses conservative.
+
+Phase 1 execution result:
+- Added `docs/validation/local_mcp_external_validation_records.md`.
+- The record pack includes:
+  - H1 real colleague MCP setup evidence requirements;
+  - H2 live explicit-ID arXiv source scale record requirements;
+  - H3-live query-discovery smoke record requirements;
+  - H4 PDF execution precondition record;
+  - H5 MCP review-write precondition record.
+- Linked the record pack from:
+  - `docs/mcp_trial_checklist.md`;
+  - `docs/mcp.md`;
+  - `docs/known_limitations.md`.
+
+Phase 1 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- The record pack explicitly prohibits private papers, raw PDFs, extracted text,
+  workspace archives, grant/audit logs, credentials, tokens, shell history, and
+  private colleague identity.
+- H1/H2/H3 remain manual/external/live required.
+- H4/H5 remain precondition-gated.
+
+Phase 1 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- There is now one safe index for future local MCP external/live evidence.
+- Phase 2 remains justified to define the bounded live arXiv source scale
+  protocol without running live network.
+
+## Update - local MCP external/live validation Phase 2 completed
+
+Phase 2 plan for the phase:
+- Add an approval-gated live arXiv source scale protocol.
+- Define 25/50/100 paper bounds, commands, metrics, and stop conditions.
+- Do not run live network in this autonomous pass.
+
+Phase 2 execution result:
+- Added `docs/validation/local_mcp_live_arxiv_scale_protocol.md`.
+- The protocol defines:
+  - explicit approval gate;
+  - `/tmp` workspace convention;
+  - allowed domains;
+  - 25/50/100 escalation order;
+  - timeouts of 900/1800/3600 seconds;
+  - plan/grant/run/audit commands;
+  - metrics to record;
+  - pass/narrow/fail criteria;
+  - sanitized result table.
+- The validation record pack points to the live scale protocol.
+
+Phase 2 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `15 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 2 audit as another developer:
+- No live network was executed.
+- The protocol requires explicit approval before future live runs.
+- It prohibits committing source archives, manifests, audit logs, extracted text,
+  and private workspace content.
+- H2 remains `manual_live_approval_required`.
+
+Phase 2 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H2 now has a bounded operator protocol but no live evidence yet.
+- Phase 3 remains justified to define the live query-discovery smoke protocol
+  without enabling live query in code or MCP.
+
+## Update - local MCP external/live validation Phase 3 completed
+
+Phase 3 plan for the phase:
+- Add a live query discovery pre-enablement protocol.
+- Keep live query discovery disabled in code and MCP.
+- Tie any future live query to pinned candidate-file planning.
+
+Phase 3 execution result:
+- Added `docs/validation/local_mcp_live_query_discovery_protocol.md`.
+- The protocol defines:
+  - explicit approval gate;
+  - allowed endpoint `https://export.arxiv.org/api/query`;
+  - initial max candidates of 10 and hard pre-approval maximum of 50;
+  - pagination and timeout bounds;
+  - candidate-file schema requirements;
+  - safe plan/grant/run flow through a saved candidate file;
+  - metrics and pass/narrow/fail criteria.
+
+Phase 3 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `15 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- Live query discovery remains disabled.
+- The future command shape is documented as not implemented/enabled.
+- No network was run.
+- The only execution path described after discovery is the existing
+  grant-bound pinned candidate-file path.
+
+Phase 3 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H3-live now has a bounded approval protocol but no live evidence.
+- Phase 4 remains justified to define PDF execution and MCP review-write
+  preconditions without enabling either write surface.
+
+## Update - local MCP external/live validation Phase 4 completed
+
+Phase 4 plan for the phase:
+- Add a shared PDF execution and MCP review-write precondition checklist.
+- Link it from MCP and architecture docs.
+- Do not enable PDF execution or MCP review mutation.
+
+Phase 4 execution result:
+- Added `docs/validation/local_mcp_write_surface_preconditions.md`.
+- The document defines:
+  - shared write-surface rules;
+  - PDF batch execution implementation requirements;
+  - PDF tests and tiny-live-smoke requirements;
+  - MCP review-write implementation requirements;
+  - MCP review-write tests and human review requirements;
+  - stop conditions for both surfaces.
+- Linked the precondition document from:
+  - `docs/mcp.md`;
+  - `docs/architecture/mcp_pdf_batch_intake_design.md`;
+  - `docs/architecture/mcp_review_write_design.md`.
+
+Phase 4 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 4 audit as another developer:
+- No PDF downloader was added.
+- No MCP review mutation was exposed.
+- Preconditions explicitly forbid automatic approval and hosted/shared MCP drift.
+- H4/H5 remain precondition-gated.
+
+Phase 4 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H4/H5 now have concrete precondition checklists.
+- Phase 5 remains justified to point release-report gate entries to the new
+  validation/protocol docs while keeping statuses conservative.
+
+## Update - local MCP external/live validation Phase 5 completed
+
+Phase 5 plan for the phase:
+- Add validation/protocol doc path references to release-report MCP gates.
+- Add regression assertions.
+- Keep all statuses conservative.
+
+Phase 5 execution result:
+- Updated `mcp_readiness_status(...)` gate entries with:
+  - `docs/mcp_colleague_trial_record_template.md`;
+  - `docs/validation/local_mcp_external_validation_records.md`;
+  - `docs/validation/local_mcp_live_arxiv_scale_protocol.md`;
+  - `docs/validation/local_mcp_live_query_discovery_protocol.md`;
+  - `docs/validation/local_mcp_write_surface_preconditions.md`.
+- Added assertions to `tests/integration/test_individual_release_cli.py`.
+- `python -m research_assistant.cli release-report` now displays those protocol
+  paths under `mcp_readiness.gate_status`.
+
+Phase 5 tests:
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 5 audit as another developer:
+- Release-report now points to concrete evidence/protocol docs.
+- No manual/live evidence is marked passed.
+- Live query remains disabled, PDF execution disabled, and MCP review mutation
+  disabled.
+- `release-report` rewrote ignored generated artifact metadata; it remains
+  ignored and must not be committed.
+
+Phase 5 tidy result:
+- No generated/private artifacts staged.
+
+Interpretation and next-phase justification:
+- Manual gates are now discoverable from release-report.
+- Phase 6 final validation and commit are justified.
+
+## Update - local MCP external/live validation final validation completed
+
+Final validation commands:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `70 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  passed.
+- `python -m research_assistant.cli release-report`: completed with existing
+  workspace warnings and showed protocol paths for:
+  - external validation records;
+  - live arXiv source scale;
+  - live query discovery;
+  - PDF/review-write preconditions.
+- `git status --short --ignored`: only intended tracked/untracked docs/code
+  changes plus ignored generated/scratch artifacts.
+- `git diff --check`: passed.
+
+Final audit:
+- No real colleague trial was fabricated.
+- No live arXiv network was executed.
+- Live query discovery remains disabled.
+- PDF batch execution remains disabled.
+- MCP review mutation remains disabled.
+- Generated/scratch artifacts remain ignored and must not be committed.
+
+Final interpretation:
+- The remaining external/live gaps now have explicit record/protocol documents
+  and release-report references.
+- The actual evidence remains pending until a real colleague trial or explicitly
+  approved live run is completed.
+
 ## Update - local MCP remaining gap closure Phase 0 completed
 
 Phase 0 plan for the phase:
@@ -4450,3 +4722,34 @@ Final interpretation:
   evidence.
 - The remaining gaps require either a real colleague or explicit bounded live
   network validation.
+
+## Update - local MCP external/live validation plan started
+
+New objective:
+- Execute `docs/plans/local_mcp_external_live_validation_plan_2026-05-02.md`
+  after commit `1737050 Close local MCP readiness gaps`.
+
+Requested execution loop:
+- write a plan under `docs/plans`, using templates where possible;
+- update this reset memo;
+- audit the plan as another developer;
+- execute every justified phase using plan/execute/test/audit/tidy/reset-memo
+  updates;
+- continue automatically unless the next phase is not justified;
+- commit modified files;
+- summarize results and next hypotheses.
+
+Initial repo baseline:
+- Branch: `main...origin/main [ahead 3]`.
+- Recent HEAD: `1737050 Close local MCP readiness gaps`.
+- Working tree before this pass: clean.
+
+Initial interpretation:
+- The remaining gaps are primarily external/live evidence gates, not ordinary
+  local implementation gaps.
+- This pass should create sanitized evidence protocols and release-report
+  references, but must not claim real colleague or live arXiv validation unless
+  such evidence exists.
+
+Next safe step:
+- Run Phase 0 baseline and independent plan audit.

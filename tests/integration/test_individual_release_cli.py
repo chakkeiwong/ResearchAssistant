@@ -176,13 +176,19 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
     gates = report["mcp_readiness"]["gate_status"]
     assert gates["colleague_mcp_trial"]["status"] == "manual_external_required"
+    assert gates["colleague_mcp_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
+    assert gates["colleague_mcp_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
     assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"
     assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "manual_bounded_validation_pending"
+    assert gates["explicit_id_arxiv_source_batch"]["live_protocol"] == "docs/validation/local_mcp_live_arxiv_scale_protocol.md"
     assert gates["query_discovery"]["live_query_enabled"] is False
+    assert gates["query_discovery"]["live_protocol"] == "docs/validation/local_mcp_live_query_discovery_protocol.md"
     assert gates["pdf_batch_intake"]["execution_enabled"] is False
     assert gates["pdf_batch_intake"]["policy_checks_available"] is True
     assert gates["pdf_batch_intake"]["policy"]["execution_enabled"] is False
+    assert gates["pdf_batch_intake"]["preconditions"] == "docs/validation/local_mcp_write_surface_preconditions.md"
     assert gates["review_write"]["mcp_exposed"] is False
+    assert gates["review_write"]["preconditions"] == "docs/validation/local_mcp_write_surface_preconditions.md"
 
 
 def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> None:

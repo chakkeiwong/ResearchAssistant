@@ -2,7 +2,8 @@
 
 Use this checklist for a colleague-like local MCP trial. Record only
 non-private metadata. Use `docs/mcp_colleague_trial_record_template.md` for the
-final trial note.
+final trial note, and see `docs/validation/local_mcp_external_validation_records.md`
+for the full local MCP evidence index.
 
 ## Setup
 

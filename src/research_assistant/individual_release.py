@@ -1224,18 +1224,24 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
             "status": "manual_external_required",
             "evidence": "not_recorded",
             "claim": "A real colleague MCP client setup trial is still required.",
+            "record_template": "docs/mcp_colleague_trial_record_template.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
         },
         "explicit_id_arxiv_source_batch": {
             "status": "available_with_local_grant",
             "deterministic_scale_evidence": "mocked_25_paper_passed",
             "live_scale_evidence": "manual_bounded_validation_pending",
             "review_policy": "review_material_only",
+            "live_protocol": "docs/validation/local_mcp_live_arxiv_scale_protocol.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
         },
         "query_discovery": {
             "status": "offline_candidate_file_planning_available",
             "offline_candidate_file_planning": True,
             "live_query_enabled": False,
             "claim": "Pinned candidate-file planning is available; live query discovery is disabled until bounded live validation is recorded.",
+            "live_protocol": "docs/validation/local_mcp_live_query_discovery_protocol.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
         },
         "pdf_batch_intake": {
             "status": "policy_checks_available_execution_disabled",
@@ -1243,6 +1249,8 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
             "execution_enabled": False,
             "policy": pdf_policy_status,
             "claim": "PDF batch download execution is disabled.",
+            "preconditions": "docs/validation/local_mcp_write_surface_preconditions.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
         },
         "review_write": {
             "status": "cli_prototype_only",
@@ -1250,6 +1258,8 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
             "supported_operations": ["mark_review_status"],
             "proposal_counts": review_write_readiness.get("proposal_counts", {}),
             "claim": "Review mutation is not exposed through MCP.",
+            "preconditions": "docs/validation/local_mcp_write_surface_preconditions.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
         },
         "packaging_after_mcp_gap_work": {
             "status": "manual_rebuild_recommended",

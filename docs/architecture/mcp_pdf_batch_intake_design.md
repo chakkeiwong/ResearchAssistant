@@ -132,3 +132,6 @@ Do not expose `ra_run_pdf_batch_intake` or similar MCP tools until:
 - docs describe byte limits and inbox-only behavior;
 - release-report identifies PDF batch intake as experimental or disabled;
 - one tiny live smoke is explicitly approved and recorded.
+
+The current precondition checklist is maintained in
+`docs/validation/local_mcp_write_surface_preconditions.md`.
