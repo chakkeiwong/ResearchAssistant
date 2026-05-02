@@ -175,7 +175,7 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert "ra_review_mark" not in report["mcp_readiness"].get("mcp_tools", [])
     assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
     gates = report["mcp_readiness"]["gate_status"]
-    assert gates["colleague_mcp_trial"]["status"] == "manual_external_required"
+    assert gates["colleague_mcp_trial"]["status"] == "blocked_external"
     assert gates["colleague_mcp_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
     assert gates["colleague_mcp_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
     assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"

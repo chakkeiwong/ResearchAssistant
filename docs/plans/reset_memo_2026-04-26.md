@@ -4092,6 +4092,59 @@ Initial gap interpretation:
 Next safe step:
 - Run Phase 0 baseline and independent plan audit.
 
+## Update - local MCP H1 external agent handoff completed
+
+Objective:
+- Answer the H1 handoff question by writing explicit instructions for another
+  agent in another environment and defining the exact sanitized result needed
+  to update the evidence record.
+
+Execution result:
+- Added `docs/validation/local_mcp_h1_external_agent_instructions.md`.
+- Linked it from `docs/mcp_trial_checklist.md`.
+- Linked it from the H1 section of
+  `docs/validation/local_mcp_external_validation_records.md`.
+
+What the handoff asks the external agent to do:
+- Install with MCP support.
+- Create a fresh demo workspace under `/tmp/ra-mcp-h1-trial`.
+- Configure a local stdio MCP client using `ra-mcp --root
+  /tmp/ra-mcp-h1-trial`.
+- Exercise required MCP tools against `demo_transport_paper`.
+- Confirm unsafe `research-assistant` MCP tools are absent.
+- Confirm `ra review-write status` reports `mcp_exposed: false`.
+- Return a sanitized Markdown result with environment, timing, tool inventory,
+  required tool-call outcomes, review-write boundary, optional batch-grant
+  boundary, problems/suggestions, and privacy confirmation.
+
+Audit as another developer:
+- The handoff uses demo data only and forbids private papers, PDFs, extracted
+  text, credentials, shell history, private paths, and workspace archives.
+- It distinguishes required H1 setup/read-only evidence from the optional
+  batch-grant boundary check.
+- It does not require live arXiv execution for H1.
+- It does not claim H1 is complete without the returned external result.
+- It lets the runner use an anonymous label unless they explicitly opt in to
+  being identified.
+
+Validation after writing the handoff:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `git diff --check`: passed.
+
+Interpretation:
+- H1 remains `blocked_external` until a real external result is returned.
+- Release-report H1 gate status is also `blocked_external`, matching the
+  validation record.
+- Once a result is returned, update
+  `docs/validation/local_mcp_external_validation_records.md` and optionally
+  fill `docs/mcp_colleague_trial_record_template.md`.
+
+Next safe step:
+- Send `docs/validation/local_mcp_h1_external_agent_instructions.md` to the
+  external agent or fresh environment.
+
 ## Update - local MCP external/live validation Phase 0 completed
 
 Phase 0 plan for the phase:
@@ -4363,6 +4416,103 @@ Final interpretation:
   and release-report references.
 - The actual evidence remains pending until a real colleague trial or explicitly
   approved live run is completed.
+
+## Update - local MCP H1-H5 full hypothesis test plan started
+
+New objective:
+- Execute `docs/plans/local_mcp_h1_h5_full_hypothesis_test_plan_2026-05-02.md`
+  after commit `3dd4ab6 Document local MCP external validation gates`.
+
+Requested execution loop:
+- create a detailed plan under `docs/plans`;
+- update this reset memo;
+- audit the plan as another developer;
+- execute every phase using plan/execute/test/audit/tidy/reset-memo updates;
+- continue automatically if no major issue;
+- ask for direction when the next phase is not justified;
+- commit modified files;
+- summarize results and next hypotheses.
+
+Initial repo baseline:
+- Branch: `main...origin/main [ahead 4]`.
+- Recent HEAD: `3dd4ab6 Document local MCP external validation gates`.
+- Working tree before this pass: clean.
+
+Initial interpretation:
+- Full acceptance/rejection/narrowing of H1-H3 requires external/live evidence.
+- H4/H5 require explicit decisions before enabling higher-risk write surfaces.
+- This pass can proceed only as far as evidence and approvals allow; otherwise
+  it must record blockers rather than overclaim completion.
+
+Next safe step:
+- Run Phase 0 baseline and audit the full H1-H5 plan.
+
+## Update - local MCP H1-H5 full hypothesis Phase 0 completed
+
+Phase 0 plan for the phase:
+- Confirm the current local MCP implementation remains green.
+- Audit the full H1-H5 hypothesis plan before attempting external/live tests.
+
+Phase 0 execution result:
+- `git status --short --branch`: `main...origin/main [ahead 4]`.
+- Recent HEAD: `3dd4ab6 Document local MCP external validation gates`.
+- Added `docs/plans/local_mcp_h1_h5_full_hypothesis_test_plan_2026-05-02.md`.
+
+Phase 0 tests:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `70 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 0 audit as another developer:
+- The plan correctly states that H1 needs a real colleague/fresh reader.
+- The plan correctly states that H2/H3-live need explicit live network approval
+  and sanitized inputs.
+- The plan keeps PDF execution and MCP review-write behind safety gates.
+- The plan does not add hosted/shared MCP scope.
+- The evidence rule prevents marking accepted/rejected/narrowed without direct
+  evidence.
+
+Phase 0 tidy result:
+- No generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- The local baseline is green.
+- Phase 1 cannot be completed in this autonomous session without a real
+  colleague or fresh reader. Under the plan, H1 can only be classified as
+  `blocked_external` unless the user provides/arranges real colleague evidence.
+
+## Update - local MCP H1-H5 full hypothesis Phase 1 completed
+
+Phase 1 plan for the phase:
+- Attempt H1 real colleague MCP setup validation.
+- If no real colleague/fresh-reader evidence is available, classify H1 as
+  `blocked_external` rather than overclaiming.
+
+Phase 1 execution result:
+- The user chose to record H1 as blocked and proceed.
+- Updated `docs/validation/local_mcp_external_validation_records.md`:
+  - H1 current status is now `blocked_external`;
+  - reason is no real colleague/fresh-reader MCP client trial is available in
+    this autonomous run.
+- Updated `mcp_readiness.gate_status.colleague_mcp_trial.status` to
+  `blocked_external`.
+- Updated release-report assertions accordingly.
+
+Phase 1 tests:
+- Pending focused validation after this memo update.
+
+Phase 1 audit as another developer:
+- This is honest: local surrogate evidence is not counted as H1 completion.
+- No colleague identity or private metadata was recorded.
+- The classification is a blocker, not acceptance/rejection/narrowing.
+
+Interpretation and next-phase justification:
+- H1 is classified as `blocked_external`.
+- Phase 2 is justified only if explicit live network approval and sanitized
+  arXiv ID lists are available; otherwise H2 must be classified as
+  `blocked_live_approval`.
 
 ## Update - local MCP remaining gap closure Phase 0 completed
 

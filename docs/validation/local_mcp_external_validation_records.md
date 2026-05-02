@@ -16,7 +16,7 @@ in.
 
 | Hypothesis | Status | Evidence |
 | --- | --- | --- |
-| H1 real colleague MCP setup | `manual_external_required` | No real colleague MCP trial recorded. |
+| H1 real colleague MCP setup | `blocked_external` | No real colleague MCP trial recorded; user chose to record the external blocker and proceed. |
 | H2 live explicit-ID arXiv source scale | `manual_live_approval_required` | Mocked 25-paper mechanics passed; live 25/50/100 not recorded. |
 | H3-live query discovery smoke | `manual_live_approval_required` | Offline candidate-file planning exists; live query disabled. |
 | H4 PDF execution readiness | `preconditions_required` | Policy checks exist; downloader disabled. |
@@ -24,7 +24,15 @@ in.
 
 ## H1 Real Colleague MCP Setup Record
 
-Use `docs/mcp_colleague_trial_record_template.md` for the detailed record.
+Use `docs/mcp_colleague_trial_record_template.md` for the detailed record. If
+the trial is delegated to another agent or environment, send
+`docs/validation/local_mcp_h1_external_agent_instructions.md` and paste back
+only the sanitized result.
+
+Current classification: `blocked_external`.
+
+Reason: no real colleague or fresh-reader MCP client trial is available in this
+autonomous run. Local surrogate evidence does not count as H1 completion.
 
 Required evidence:
 

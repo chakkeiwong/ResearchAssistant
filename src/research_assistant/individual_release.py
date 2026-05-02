@@ -1221,9 +1221,9 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
     review_write_readiness = review_write_status(root=root)
     gate_status = {
         "colleague_mcp_trial": {
-            "status": "manual_external_required",
+            "status": "blocked_external",
             "evidence": "not_recorded",
-            "claim": "A real colleague MCP client setup trial is still required.",
+            "claim": "A real colleague MCP client setup trial is blocked until a real colleague or fresh reader completes the trial.",
             "record_template": "docs/mcp_colleague_trial_record_template.md",
             "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
         },

@@ -5,6 +5,10 @@ non-private metadata. Use `docs/mcp_colleague_trial_record_template.md` for the
 final trial note, and see `docs/validation/local_mcp_external_validation_records.md`
 for the full local MCP evidence index.
 
+If delegating H1 to another agent or environment, use
+`docs/validation/local_mcp_h1_external_agent_instructions.md` for the complete
+handoff, exact tool calls, and required result format.
+
 ## Setup
 
 ```bash
