@@ -32,6 +32,9 @@ server deployment.
 
 See [docs/mcp.md](docs/mcp.md).
 
+This checkout also includes project/workspace MCP config for Claude Code and
+VS Code. See [docs/mcp_client_setup.md](docs/mcp_client_setup.md).
+
 ## Product posture
 
 This is a validation-first personal research tool, not an automatic paper-library manager. Uncertain records should surface review signals instead of being silently accepted.

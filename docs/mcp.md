@@ -6,6 +6,9 @@ clients that support Model Context Protocol.
 This adapter is local stdio only. It is not a hosted service, shared database,
 HTTP API, SSO/RBAC system, or live collaboration server.
 
+For checked-in Claude Code and VS Code workspace setup, see
+`docs/mcp_client_setup.md`.
+
 ## Install
 
 Base install:
