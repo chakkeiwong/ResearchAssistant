@@ -5530,3 +5530,71 @@ Final interpretation:
 - Next evidence should test candidate quality, PDF batch ergonomics at small
   bounded sizes, and H5 review-write UX/correction policy before considering any
   MCP write expansion.
+
+## Update - source-checkout agent ergonomics completed
+
+Objective:
+- Make common local CLI, MCP, and validation commands easy for agents and
+  maintainers without repeatedly typing `PYTHONPATH=src python -m ...`.
+- Preserve the safety boundary: helper commands should reduce source-checkout
+  friction, not bypass live-network, PDF-download, review-mutation, restore,
+  merge-apply, or destructive approvals.
+
+Execution result:
+- Added `scripts/ra-dev`:
+  - sets `PYTHONPATH` to the checkout `src/`;
+  - delegates to `python -m research_assistant.cli`.
+- Added `scripts/ra-mcp-dev`:
+  - sets `PYTHONPATH` to the checkout `src/`;
+  - delegates to `python -m research_assistant.adapters.mcp_server`.
+- Added `scripts/ra-agent` with safe/common presets:
+  - `cli`;
+  - `release-report`;
+  - `mcp-status`;
+  - `review-write-status`;
+  - `privacy-status`;
+  - `doctor-matrix`;
+  - `mcp-help`;
+  - `fast-tests`;
+  - `focused-tests`;
+  - `pytest`;
+  - `diff-check`;
+  - `status`.
+- Updated docs:
+  - `README.md`;
+  - `docs/usage.md`;
+  - `docs/release_checklist.md`;
+  - `docs/maintainer_guide.md`;
+  - `docs/mcp.md`;
+  - `docs/quickstart.md`.
+- Added regression coverage in
+  `tests/integration/test_individual_release_cli.py`.
+
+Validation:
+- `scripts/ra-dev version`: passed.
+- `scripts/ra-mcp-dev --help`: passed.
+- `scripts/ra-agent --help`: passed.
+- `scripts/ra-agent mcp-status`: passed and reported `default_mode:
+  read_only`, `destructive_tools_enabled: false`, and `review_write_enabled:
+  false`.
+- `scripts/ra-agent pytest tests/integration/test_individual_release_cli.py::test_source_checkout_agent_helpers_are_documented_and_bounded -q`:
+  `1 passed`.
+- `scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q`:
+  `15 passed`.
+- `scripts/ra-agent fast-tests`: `14 passed`.
+- `scripts/ra-agent diff-check`: passed.
+
+Audit as another developer:
+- The helpers are source-checkout shims over existing entry points and tests.
+- `scripts/ra-agent` does not provide presets for `pdf-run`, `download-paper`,
+  restore confirmation, merge confirmation, or review-write apply.
+- The docs explicitly state that live network work, review mutation, PDF
+  downloads, restore, merge apply, and destructive actions still require
+  approval, explicit CLI confirmation, or a bounded local grant.
+- Existing ignored/generated artifacts remain ignored and uncommitted.
+
+Interpretation:
+- Agents and maintainers can now use stable local commands instead of spelling
+  out `PYTHONPATH=src python -m ...`.
+- The next release-validation loop should prefer `scripts/ra-agent focused-tests`
+  and `scripts/ra-agent fast-tests` for source-checkout checks.

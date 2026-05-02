@@ -40,6 +40,30 @@ See [docs/product_spec.md](docs/product_spec.md) for the v0.1 product contract.
 
 ## Core commands
 
+From an installed package, use `ra`. From a source checkout, use
+`scripts/ra-dev` to run the same CLI without manually exporting
+`PYTHONPATH=src`:
+
+```bash
+scripts/ra-dev version
+scripts/ra-dev --root /tmp/ra-demo demo setup
+scripts/ra-dev --root /tmp/ra-demo release-report
+```
+
+For agent-friendly local validation presets, use:
+
+```bash
+scripts/ra-agent release-report
+scripts/ra-agent release-report --root /tmp/ra-demo
+scripts/ra-agent mcp-status
+scripts/ra-agent fast-tests
+scripts/ra-agent focused-tests
+```
+
+These helpers do not bypass safety policy. Live network work, review mutation,
+PDF downloads, and destructive actions still require explicit approval or a
+bounded local grant.
+
 ```bash
 ra init
 ra doctor
@@ -124,6 +148,8 @@ ra citation-neighborhood --paper-id neutra_hmc
 ## Validation
 
 ```bash
+scripts/ra-agent fast-tests
+scripts/ra-agent focused-tests
 scripts/run_tests.sh
 scripts/run_parser_preflight.sh
 scripts/run_clean_ingest_palazzo.sh

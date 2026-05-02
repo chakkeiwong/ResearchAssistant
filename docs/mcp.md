@@ -43,6 +43,16 @@ ra --root /tmp/ra-demo demo setup
 RA_ROOT=/tmp/ra-demo ra-mcp
 ```
 
+From a source checkout, the equivalent no-install helpers are:
+
+```bash
+scripts/ra-dev --root /tmp/ra-demo demo setup
+scripts/ra-mcp-dev --root /tmp/ra-demo
+```
+
+These helpers set `PYTHONPATH=src` for the current checkout and then delegate to
+the same Python entry points as `ra` and `ra-mcp`.
+
 ## Client Configuration Shape
 
 Use a stdio command in your MCP client configuration:

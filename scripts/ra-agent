@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="${ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+export PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
+TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-240}"
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/ra-agent <command> [args...]
+
+Source-checkout helpers that set PYTHONPATH=src automatically.
+
+Safe/read-only commands:
+  cli <ra args...>        Run the research-assistant CLI from this checkout.
+  release-report          Run ra release-report from this checkout.
+  mcp-status              Run ra mcp status from this checkout.
+  review-write-status     Run ra review-write status from this checkout.
+  privacy-status          Run ra privacy status from this checkout.
+  doctor-matrix           Run ra doctor --matrix from this checkout.
+  mcp-help                Show local MCP server help from this checkout.
+  diff-check              Run git diff --check.
+  status                  Run git status --short --ignored.
+
+Validation commands:
+  fast-tests              Run scripts/run_fast_tests.sh.
+  focused-tests           Run the local MCP/release focused integration suite.
+  pytest <args...>        Run pytest from this checkout.
+
+Examples:
+  scripts/ra-agent release-report
+  scripts/ra-agent cli --root /tmp/ra-demo demo setup
+  scripts/ra-agent focused-tests
+
+Live network, review mutation, PDF downloads, and destructive actions still
+require explicit user approval or a bounded local grant.
+USAGE
+}
+
+if [[ $# -lt 1 ]]; then
+  usage
+  exit 2
+fi
+
+command_name="$1"
+shift
+
+cd "$ROOT"
+
+case "$command_name" in
+  cli)
+    exec python -m research_assistant.cli "$@"
+    ;;
+  release-report)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli "$@" release-report
+    ;;
+  mcp-status)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli "$@" mcp status
+    ;;
+  review-write-status)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli "$@" review-write status
+    ;;
+  privacy-status)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli "$@" privacy status
+    ;;
+  doctor-matrix)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli "$@" doctor --matrix
+    ;;
+  mcp-help)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.adapters.mcp_server --help "$@"
+    ;;
+  fast-tests)
+    exec timeout "${TIMEOUT_SECONDS}s" scripts/run_fast_tests.sh "$@"
+    ;;
+  focused-tests)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m pytest \
+      tests/integration/test_mcp_adapter.py \
+      tests/integration/test_mcp_permissions.py \
+      tests/integration/test_arxiv_batch_intake.py \
+      tests/integration/test_pdf_batch_policy.py \
+      tests/integration/test_cli_commands.py \
+      tests/integration/test_individual_release_cli.py \
+      -q "$@"
+    ;;
+  pytest)
+    exec timeout "${TIMEOUT_SECONDS}s" python -m pytest "$@"
+    ;;
+  diff-check)
+    exec git diff --check "$@"
+    ;;
+  status)
+    exec git status --short --ignored "$@"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    echo "Unknown ra-agent command: ${command_name}" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

@@ -3,9 +3,11 @@
 Run these bounded checks before sending a release candidate to colleagues:
 
 ```bash
+scripts/ra-agent fast-tests
+scripts/ra-agent focused-tests
 scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
-PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
+scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q
 scripts/run_packaging_smoke.sh
 scripts/build_release_artifacts.sh
 WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh

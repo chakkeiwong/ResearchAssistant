@@ -38,6 +38,33 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert Path(".github/ISSUE_TEMPLATE/individual_release_bug.md").exists()
     assert Path("scripts/run_individual_git_release_gate.sh").exists()
     assert os.access("scripts/run_individual_git_release_gate.sh", os.X_OK)
+    for helper in ["scripts/ra-dev", "scripts/ra-mcp-dev", "scripts/ra-agent"]:
+        helper_path = Path(helper)
+        assert helper_path.exists()
+        assert os.access(helper_path, os.X_OK)
+
+
+def test_source_checkout_agent_helpers_are_documented_and_bounded() -> None:
+    ra_agent = Path("scripts/ra-agent").read_text()
+    assert "PYTHONPATH=\"${ROOT}/src" in ra_agent
+    assert "focused-tests" in ra_agent
+    assert "release-report" in ra_agent
+    assert "Live network, review mutation, PDF downloads, and destructive actions still" in ra_agent
+    assert "pdf-run" not in ra_agent
+    assert "download-paper" not in ra_agent
+    assert "--confirm-merge" not in ra_agent
+    assert "--confirm-restore" not in ra_agent
+
+    usage = Path("docs/usage.md").read_text()
+    readme = Path("README.md").read_text()
+    maintainer = Path("docs/maintainer_guide.md").read_text()
+    mcp_doc = Path("docs/mcp.md").read_text()
+    assert "scripts/ra-dev" in usage
+    assert "scripts/ra-agent focused-tests" in usage
+    assert "scripts/ra-dev" in readme
+    assert "scripts/ra-agent focused-tests" in readme
+    assert "scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q" in maintainer
+    assert "scripts/ra-mcp-dev --root /tmp/ra-demo" in mcp_doc
 
 
 def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, capsys) -> None:
