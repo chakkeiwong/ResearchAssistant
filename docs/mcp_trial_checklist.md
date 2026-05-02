@@ -14,11 +14,18 @@ handoff, exact tool calls, and required result format.
 ```bash
 python -m pip install ".[mcp]"
 ra --root /tmp/ra-mcp-trial demo setup
+command -v ra-mcp
 ra-mcp --root /tmp/ra-mcp-trial
 ```
 
 Configure a local MCP client with stdio command `ra-mcp --root
 /tmp/ra-mcp-trial`.
+
+Use a fresh virtual environment when available. If venv creation is unavailable,
+using an existing active Python environment is acceptable; record that install
+mode. If a sandboxed MCP client times out during stdio initialization but
+`ra-mcp --help` works, retry outside the sandbox and record the client-specific
+issue.
 
 ## Read-Only Trial
 
@@ -106,6 +113,7 @@ Expected result:
 Do not record private titles, private paper paths, raw PDFs, extracted text, or
 credentials.
 
-Local surrogate runs are useful for debugging setup mechanics, but H1 should
-remain manual/external until a real colleague trial is recorded with the
-template.
+Local surrogate runs are useful for debugging setup mechanics. H1 acceptance
+requires a returned external result, either from a real colleague or from the
+external-agent handoff in
+`docs/validation/local_mcp_h1_external_agent_instructions.md`.

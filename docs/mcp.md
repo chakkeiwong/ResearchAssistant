@@ -169,6 +169,21 @@ If `ra-mcp` reports that the MCP SDK is missing, install the optional extra:
 python -m pip install ".[mcp]"
 ```
 
+A fresh virtual environment is preferred for external trials, but an existing
+active Python environment is acceptable when system venv creation is
+unavailable. Verify that the MCP server entrypoint resolves from the same
+environment:
+
+```bash
+command -v ra-mcp
+ra-mcp --help
+```
+
+Some MCP clients run stdio servers inside an additional sandbox. If stdio
+initialization times out there but `ra-mcp --help` works, retry with the same
+Python environment outside the client sandbox and record the behavior in the
+trial note.
+
 Check the local workspace:
 
 ```bash

@@ -1221,11 +1221,12 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
     review_write_readiness = review_write_status(root=root)
     gate_status = {
         "colleague_mcp_trial": {
-            "status": "blocked_external",
-            "evidence": "not_recorded",
-            "claim": "A real colleague MCP client setup trial is blocked until a real colleague or fresh reader completes the trial.",
+            "status": "accepted",
+            "evidence": "external_agent_stdio_trial_passed_2026_05_03",
+            "claim": "An external-agent local stdio MCP setup trial passed against demo data under the 15 minute target; unsafe tools and MCP review mutation were absent.",
             "record_template": "docs/mcp_colleague_trial_record_template.md",
             "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
+            "result_record": "docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md",
         },
         "explicit_id_arxiv_source_batch": {
             "status": "available_with_local_grant",

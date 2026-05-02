@@ -4092,6 +4092,99 @@ Initial gap interpretation:
 Next safe step:
 - Run Phase 0 baseline and independent plan audit.
 
+## Update - local MCP H1 external trial result accepted
+
+New input:
+- The user provided a sanitized H1 external MCP trial result from another
+  environment on 2026-05-03.
+- The trial runner was a Codex external agent using Linux WSL2, Python 3.11.14,
+  `research-assistant==0.1.0`, and Python MCP SDK `mcp==1.26.0`.
+- The trial used demo workspace `/tmp/ra-mcp-h1-trial` and no maintainer
+  assistance.
+
+Plan for this update:
+- Treat the returned H1 result as direct external evidence.
+- Record the sanitized result without private papers, raw PDFs, extracted text,
+  credentials, or private paths.
+- Update the validation index and release-report H1 gate status from
+  `blocked_external` to `accepted`.
+- Capture the two setup lessons: active Python environment fallback when venv
+  creation is unavailable, and sandboxed stdio clients may need an
+  outside-sandbox retry.
+- Tidy generated packaging metadata by removing tracked `egg-info` files from
+  version control while keeping `*.egg-info/` ignored.
+
+Execution result:
+- Added
+  `docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
+- Updated `docs/validation/local_mcp_external_validation_records.md`:
+  - H1 is now `accepted`;
+  - first successful MCP tool call took 0.305 seconds;
+  - required read-only tools passed;
+  - unsafe tools were absent;
+  - `review-write status` reported `mcp_exposed: false`;
+  - optional live batch-grant check was skipped, which is acceptable for H1.
+- Updated `mcp_readiness.gate_status.colleague_mcp_trial`:
+  - `status: accepted`;
+  - `evidence: external_agent_stdio_trial_passed_2026_05_03`;
+  - `result_record:
+    docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
+- Updated release-report assertions in
+  `tests/integration/test_individual_release_cli.py`.
+- Updated troubleshooting/checklist docs:
+  - `docs/mcp.md`;
+  - `docs/troubleshooting.md`;
+  - `docs/mcp_trial_checklist.md`;
+  - `docs/validation/local_mcp_h1_external_agent_instructions.md`.
+- Updated release notes and known limitations to reflect:
+  - H1 external setup accepted;
+  - H2 live explicit-ID source intake accepted;
+  - H3 query discovery, H4 PDF execution, and H5 MCP review-write still gated.
+- Removed tracked generated packaging metadata under
+  `src/research_assistant.egg-info/`; `*.egg-info/` is already ignored.
+
+Validation:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_individual_release_cli.py tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `25 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `PYTHONPATH=src timeout 300 scripts/run_packaging_smoke.sh`: passed; dry-run
+  install would install `research-assistant-0.1.0`.
+- `PYTHONPATH=src timeout 60 python -m research_assistant.cli release-report`:
+  completed with expected workspace warnings and showed H1
+  `colleague_mcp_trial.status: accepted`.
+- `git diff --check`: passed.
+
+Audit as another developer:
+- H1 acceptance is now backed by direct returned external evidence, not a local
+  surrogate.
+- The accepted H1 claim is intentionally narrow: demo-workspace local stdio MCP
+  setup, read-only tool usability, and unsafe-tool absence.
+- H1 does not validate H2 live arXiv execution, H3 live query discovery, H4 PDF
+  download execution, or H5 MCP review mutation.
+- Review-write remains absent from MCP.
+- The external result reported a sandbox-specific stdio issue, but the same
+  server/client succeeded outside the sandbox; this is a documentation
+  follow-up, not a server blocker.
+- Removing tracked `src/research_assistant.egg-info/` is appropriate because
+  install/build metadata is generated and already ignored by `.gitignore`.
+
+Tidy result:
+- `UNKNOWN.egg-info/`, `dist/`, `build/`, pycache, and local workspace outputs
+  remain ignored generated artifacts and are not staged.
+- No raw artifacts, source archives, audit logs, manifests, PDFs, credentials,
+  or private paths were introduced.
+
+Interpretation and next-phase justification:
+- H1 is accepted for local stdio MCP setup/read-only safety in a demo
+  workspace.
+- H2 is already accepted for grant-bound explicit-ID source intake at 25/50/100
+  public IDs.
+- H3-live remains `manual_live_approval_required`; it should only proceed after
+  explicit approval for a bounded non-private live query smoke.
+- H4 remains deferred behind PDF execution preconditions.
+- H5 remains deferred behind UX/audit/undo/confirmation design evidence before
+  any MCP mutation exposure.
+
 ## Update - local MCP H2 live arXiv scale validation completed
 
 Objective:

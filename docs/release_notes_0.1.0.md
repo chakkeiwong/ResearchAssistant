@@ -12,8 +12,9 @@ Current external validation status for this candidate:
 - real fresh-reader onboarding: blocked/manual, not yet recorded;
 - real macOS clean-install smoke: blocked/manual, not yet recorded;
 - real minimal-parser-tool machine validation: blocked/manual, not yet recorded;
-- real colleague MCP setup trial: blocked/manual, not yet recorded. Use
-  `docs/mcp_colleague_trial_record_template.md` when this trial is performed.
+- external MCP setup trial: accepted on 2026-05-03 using the sanitized
+  external-agent stdio result in
+  `docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
 
 Do not treat local substitute records, synthetic fixtures, or maintainer-machine
 smoke tests as real external validation.
@@ -163,8 +164,9 @@ Current MCP limitations:
   enabled;
 - review-write is a CLI-only confirmation prototype with proposal counts and
   expired-proposal cleanup; it is not exposed through MCP;
-- mocked 25-paper batch scale tests validate local mechanics, not live arXiv
-  reliability.
+- live explicit-ID arXiv source intake passed bounded public-ID scale tests at
+  25, 50, and 100 attempted records on 2026-05-03; this validates H2 source
+  intake only, not query discovery or PDF downloads.
 
 ## Backup And Restore
 
@@ -184,8 +186,9 @@ Restore defaults to dry-run. A real restore requires `--no-dry-run --confirm-res
 - A real colleague onboarding trial and macOS validation remain required before broad non-pilot rollout.
 - Minimal parser-tool validation on a real minimal machine remains required before broad non-pilot rollout.
 - Git-sharing merge/import performance has been measured through `synthetic_git_1000` and does not certify real personal libraries.
-- Local MCP real colleague setup and live arXiv 25/50/100 paper batch behavior
-  remain bounded manual validation items.
+- Local MCP external setup and live explicit-ID arXiv 25/50/100 source intake
+  have bounded accepted evidence. Query discovery, PDF batch execution, and MCP
+  review-write remain gated.
 - Tagging and artifact publication require explicit release-owner approval.
 
 See `docs/known_limitations.md` and `docs/support.md`.

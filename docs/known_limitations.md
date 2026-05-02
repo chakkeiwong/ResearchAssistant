@@ -14,6 +14,8 @@
 - Shell scripts target Linux, macOS, and WSL-style POSIX environments.
 - macOS and colleague-machine onboarding remain pilot-release validation items until completed on real machines.
 - Native Windows is unvalidated; use WSL for Windows colleagues.
+- Local installs may generate `*.egg-info/` metadata in the checkout. These
+  files are ignored and should not be committed.
 - MCP support is local stdio and read-only by default. Write-capable arXiv
   batch intake requires bounded grants and remains review material, not
   automatic approval.
@@ -37,11 +39,12 @@
 - Review-write expired proposal cleanup is CLI-only, dry-run by default, and
   removes only expired proposal records when explicitly applied.
 - Deterministic mocked arXiv batch tests validate local plan/grant/run mechanics
-  at 25-paper scale; live arXiv 25/50/100 paper reliability remains a bounded
-  manual validation item.
-- Real colleague MCP setup should be recorded with
-  `docs/mcp_colleague_trial_record_template.md`; local surrogate runs do not
-  count as external usability evidence.
+  at 25-paper scale; live arXiv 25/50/100 public explicit-ID source intake was
+  accepted on 2026-05-03, but query discovery and PDF download execution remain
+  unvalidated.
+- H1 external MCP setup was accepted on 2026-05-03 from an external-agent stdio
+  client trial against demo data. Human colleague trials should still use
+  `docs/mcp_colleague_trial_record_template.md` when available.
 - Local MCP external/live evidence should be indexed in
   `docs/validation/local_mcp_external_validation_records.md`; absence of a
   record means the corresponding external/live claim remains unvalidated.

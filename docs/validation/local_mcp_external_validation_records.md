@@ -16,34 +16,64 @@ in.
 
 | Hypothesis | Status | Evidence |
 | --- | --- | --- |
-| H1 real colleague MCP setup | `blocked_external` | No real colleague MCP trial recorded; user chose to record the external blocker and proceed. |
+| H1 external MCP setup | `accepted` | External-agent stdio MCP setup trial passed on 2026-05-03; first tool call completed in 0.305s; unsafe tools and MCP review-write were absent. |
 | H2 live explicit-ID arXiv source scale | `accepted` | Public explicit-ID live runs completed for 25/50/100 on 2026-05-03; duplicate rerun bug found and fixed. |
 | H3-live query discovery smoke | `manual_live_approval_required` | Offline candidate-file planning exists; live query disabled. |
 | H4 PDF execution readiness | `preconditions_required` | Policy checks exist; downloader disabled. |
 | H5 MCP review-write readiness | `preconditions_required` | CLI prototype exists; MCP mutation disabled. |
 
-## H1 Real Colleague MCP Setup Record
+## H1 External MCP Setup Record
 
-Use `docs/mcp_colleague_trial_record_template.md` for the detailed record. If
-the trial is delegated to another agent or environment, send
+Use `docs/mcp_colleague_trial_record_template.md` for a human colleague record.
+If the trial is delegated to another agent or environment, send
 `docs/validation/local_mcp_h1_external_agent_instructions.md` and paste back
 only the sanitized result.
 
-Current classification: `blocked_external`.
+Current classification: `accepted`.
 
-Reason: no real colleague or fresh-reader MCP client trial is available in this
-autonomous run. Local surrogate evidence does not count as H1 completion.
+Detailed sanitized record:
+`docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
 
-Required evidence:
+Evidence summary:
 
-- real colleague or fresh reader;
-- MCP client configuration using local stdio;
-- demo workspace only or other non-private workspace;
-- time-to-first-tool-call;
-- required read-only tools exercised;
-- unsafe tools absent;
-- `ra review-write status` reports `mcp_exposed: false`;
-- trial outcome: `passed`, `narrowed`, or `failed`.
+- date: 2026-05-03;
+- trial runner: external Codex agent in another environment;
+- environment: Linux WSL2, Python 3.11.14, package
+  `research-assistant==0.1.0`;
+- install source: local source checkout at commit
+  `0ea4a094c65b4e62da614fca768953f5db5eb6a8`;
+- MCP client: Python MCP SDK stdio client, `mcp==1.26.0`;
+- workspace root: `/tmp/ra-mcp-h1-trial`;
+- maintainer assistance: no;
+- time to first successful MCP tool call: 0.305s;
+- setup completed comfortably under the 15 minute target;
+- required read-only MCP tool calls passed against demo data;
+- unsafe tools were absent;
+- `review-write status` reported `mcp_exposed: false`;
+- review mutation was not offered through MCP;
+- optional live batch-grant check was skipped, which is acceptable for H1.
+
+Tools observed:
+
+- `ra_workspace_status`;
+- `ra_find_paper`;
+- `ra_get_paper_summary`;
+- `ra_paper_code_links`;
+- `ra_claim_support_audit`;
+- `ra_review_list`;
+- `ra_review_show`;
+- `ra_source_show`;
+- `ra_parser_tool_matrix`;
+- `ra_privacy_status`;
+- `ra_plan_arxiv_batch_intake`;
+- `ra_run_arxiv_batch_intake`.
+
+Interpretation:
+
+- H1 is accepted for local stdio MCP setup against a demo workspace.
+- The accepted claim is setup/read-only usability and permission-surface safety.
+- H1 does not validate live arXiv execution, query discovery, PDF downloads, or
+  MCP review mutation.
 
 Privacy exclusions:
 
@@ -53,23 +83,16 @@ Privacy exclusions:
 - no private local paths beyond generic demo/temp paths;
 - no colleague name unless they explicitly opt in.
 
-Pass criteria:
+Follow-up improvements:
 
-- colleague configures `ra-mcp` in an MCP client in under 15 minutes;
-- required read-only tools work against demo data;
-- unsafe tools are absent.
-
-Narrow criteria:
-
-- setup succeeds only after maintainer assistance;
-- docs are confusing but correctable;
-- client-specific issue requires documentation.
-
-Fail criteria:
-
-- setup cannot complete;
-- required read-only tools fail;
-- unsafe tools appear.
+- document that an existing Python environment is acceptable when fresh venv
+  creation is unavailable;
+- ask external runners to verify `ra-mcp` with `command -v ra-mcp` or
+  `ra-mcp --help`;
+- mention that some sandboxed stdio clients may time out even when the same
+  server works outside the sandbox;
+- keep generated `*.egg-info/` metadata ignored and out of commits. The
+  repository no longer tracks `src/research_assistant.egg-info/`.
 
 ## H2 Live Explicit-ID ArXiv Source Scale Record
 

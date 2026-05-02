@@ -48,6 +48,11 @@ under `/tmp/ra-mcp-h1-trial` are okay.
 - An MCP-capable client that can start a local stdio server.
 - Permission to install the optional MCP dependency in the trial environment.
 
+Using a fresh virtual environment is preferred, but it is not required. If
+fresh venv creation is unavailable, for example because `python3-venv` is not
+installed on the system Python, use an existing active Python environment and
+record that choice in the result.
+
 Record the exact install source in the result:
 
 - source checkout commit hash;
@@ -64,6 +69,7 @@ python -m pip install ".[mcp]"
 ra --root /tmp/ra-mcp-h1-trial demo setup
 ra --root /tmp/ra-mcp-h1-trial review-write status
 ra --root /tmp/ra-mcp-h1-trial mcp status
+command -v ra-mcp
 ra-mcp --help
 ```
 
@@ -74,6 +80,7 @@ Expected setup facts:
 - `review-write status` reports `mcp_exposed: false`.
 - `mcp status` reports `default_mode: read_only`,
   `destructive_tools_enabled: false`, and `review_write_enabled: false`.
+- `command -v ra-mcp` locates the server entrypoint.
 - `ra-mcp --help` succeeds.
 
 ## MCP Client Configuration
@@ -93,6 +100,11 @@ Configure a local stdio MCP server named `research-assistant`:
 
 If `ra-mcp` is not on `PATH`, use the full executable path from the Python
 environment where `research-assistant[mcp]` was installed.
+
+If stdio initialization times out inside a sandboxed MCP client but the server
+starts with `ra-mcp --help`, retry in the same Python environment outside that
+sandbox and record the sandbox-specific behavior. A sandbox transport failure
+is a client/environment finding, not automatically a server failure.
 
 Start timing when you begin MCP client configuration. Stop timing at the first
 successful `research-assistant` MCP tool call. Record this as
@@ -256,6 +268,7 @@ Return exactly this shape, filled with sanitized values:
 - `ra --root /tmp/ra-mcp-h1-trial demo setup`:
 - `ra --root /tmp/ra-mcp-h1-trial review-write status`:
 - `ra --root /tmp/ra-mcp-h1-trial mcp status`:
+- `command -v ra-mcp`:
 - `ra-mcp --help`:
 
 ## MCP Tool Inventory

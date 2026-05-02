@@ -63,6 +63,21 @@ If `ra-mcp` reports that the MCP SDK is missing, install the optional extra:
 python -m pip install ".[mcp]"
 ```
 
+If a fresh virtual environment is unavailable, for example because
+`python3-venv` is missing, install into the active Python environment and record
+that install mode in the trial result. Confirm the server entrypoint comes from
+that environment:
+
+```bash
+command -v ra-mcp
+ra-mcp --help
+```
+
+Some MCP clients launch stdio servers inside a sandbox. If initialization times
+out there but the same `ra-mcp` command works outside the sandbox, record it as
+a client/environment issue and retry outside that sandbox for the H1 setup
+trial.
+
 The MCP adapter is local stdio and read-only by default. It should not expose
 ingest, download, review mutation, backup restore, delete, or arbitrary file
 tools.

@@ -175,9 +175,11 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert "ra_review_mark" not in report["mcp_readiness"].get("mcp_tools", [])
     assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
     gates = report["mcp_readiness"]["gate_status"]
-    assert gates["colleague_mcp_trial"]["status"] == "blocked_external"
+    assert gates["colleague_mcp_trial"]["status"] == "accepted"
+    assert gates["colleague_mcp_trial"]["evidence"] == "external_agent_stdio_trial_passed_2026_05_03"
     assert gates["colleague_mcp_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
     assert gates["colleague_mcp_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
+    assert gates["colleague_mcp_trial"]["result_record"] == "docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md"
     assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"
     assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "accepted_25_50_100_public_id_runs_2026_05_03"
     assert gates["explicit_id_arxiv_source_batch"]["live_protocol"] == "docs/validation/local_mcp_live_arxiv_scale_protocol.md"
