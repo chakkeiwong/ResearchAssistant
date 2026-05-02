@@ -5297,3 +5297,236 @@ Initial interpretation:
 
 Next safe step:
 - Run Phase 0 baseline and independent plan audit.
+
+## Update - H3/H4 release closure documentation started
+
+New objective:
+- Create a dedicated H3/H4 release-closure plan after commit
+  `7c1e2c4 Accept H3 H4 live MCP validation`.
+- Update `proposal/research_development_assistant_design.tex` so the
+  colleague-facing proposal describes the local MCP addition, H3/H4 evidence,
+  permission boundaries, and release scope in detail.
+
+Phase 0 plan for the phase:
+- Inspect current repo state and recent commits.
+- Read H3/H4 validation records and the proposal LaTeX.
+- Write a dedicated closeout plan under `docs/plans`.
+- Record the initial reset-memo checkpoint.
+
+Phase 0 execution result:
+- Baseline commit: `7c1e2c4 Accept H3 H4 live MCP validation`.
+- Working tree had no tracked modifications before this pass.
+- Existing ignored/generated artifacts were present, including `.claude/`,
+  `.codex`, `.pytest_cache/`, `UNKNOWN.egg-info/`, `build/`, `dist/`,
+  `local_research/`, pycache folders, and synthetic TeX aux/log files.
+- Added plan:
+  `docs/plans/local_mcp_h3_h4_release_closure_plan_2026-05-03.md`.
+
+Phase 0 audit as another developer:
+- H3 and H4 are already accepted in the validation records, so this pass should
+  not rerun live network commands unless new evidence is needed and separately
+  approved.
+- The safe next step is documentation/release-claim closure, not expansion of
+  MCP write tools.
+- The plan keeps live query discovery and PDF execution CLI-only and absent from
+  MCP.
+- H5 remains gated because MCP review-write still lacks final UX/audit/undo and
+  explicit confirmation approval.
+
+Interpretation and next-phase justification:
+- Phase 1 independent plan audit remains justified before editing the proposal,
+  because the proposal will become the release-facing explanation of the MCP
+  capability and must not overclaim beyond local colleague/pilot readiness.
+
+## Update - H3/H4 release closure Phase 1 completed
+
+Phase 1 plan for the phase:
+- Audit the closeout plan as another developer before editing the
+  release-facing LaTeX proposal.
+- Check permission story, clear confirmation behavior, privacy hygiene, MCP
+  exposure boundaries, release-scope boundaries, and evidence traceability.
+
+Phase 1 execution result:
+- Reviewed the closeout plan against the validation records and write-surface
+  preconditions.
+- Patched the plan to require the proposal to describe clear confirmation
+  mechanics:
+  - write execution uses a generated plan hash plus an expiring local grant ID;
+  - grants bind operation, destination, maximum count, ordered IDs, and
+    duplicate policy;
+  - execution recomputes the plan identity and blocks on mismatch;
+  - MCP review-write remains disabled until an exact old/new value plus
+    file-hash confirmation payload is approved.
+
+Phase 1 test:
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- The plan now covers the main missing release-writing risk: vague
+  "grant-bound" wording could otherwise obscure the actual confirmation
+  behavior.
+- The plan continues to forbid hosted MCP, MCP live query execution, MCP PDF
+  execution, and MCP review mutation.
+- The plan does not claim broad/public/department readiness.
+
+Interpretation and next-phase justification:
+- The plan is sufficiently explicit for proposal editing.
+- Phase 2 is justified to update
+  `proposal/research_development_assistant_design.tex` with the local MCP
+  adapter, H1-H4 evidence, H5 boundary, and local colleague/pilot release scope.
+
+## Update - H3/H4 release closure Phase 2 completed
+
+Phase 2 plan for the phase:
+- Update `proposal/research_development_assistant_design.tex` with a detailed
+  local MCP section and release interpretation.
+- Include the permission story, clear grant/confirmation behavior, H3/H4
+  accepted evidence, H5 boundary, and pilot-scoped release claim.
+
+Phase 2 execution result:
+- Added executive-summary wording that the optional MCP adapter is local stdio
+  and read-only by default.
+- Updated current release scope, current capabilities, and trust-boundary
+  sections to include:
+  - read-only MCP workspace access;
+  - no hosted/shared/HTTP MCP;
+  - no MCP review mutation;
+  - no MCP live query discovery;
+  - no MCP PDF execution.
+- Added a new assistant-workflow section explaining:
+  - local MCP read-only tools;
+  - the separate CLI grant model for batch writes;
+  - plan-hash and expiring-grant confirmation behavior;
+  - H3 bounded live query discovery through a pinned candidate file;
+  - H4 CLI-only PDF inbox download with one-PDF live-smoke evidence.
+- Added concrete example workflows for:
+  - running `ra-mcp` against a demo workspace;
+  - approving one bounded arXiv batch grant instead of per-file prompts.
+- Updated scope, skeptical-questions, future-work, and appendix sections to make
+  the release interpretation explicit:
+  - H1-H4 support local colleague/pilot readiness;
+  - H4 does not prove broad PDF batch scale;
+  - H5 MCP review-write remains not accepted;
+  - broad/public/department release remains outside current evidence.
+
+Phase 2 tests:
+- `pdflatex -interaction=nonstopmode -halt-on-error -output-directory /tmp/ra-proposal-tex proposal/research_development_assistant_design.tex`:
+  passed and produced a 28-page PDF in `/tmp/ra-proposal-tex`.
+- The first compile reported one overfull line from a long inline MCP tool-name
+  list; the proposal was patched to use a short itemized list and recompiled.
+- The second compile passed with only non-blocking underfull page-fill warnings.
+
+Phase 2 audit as another developer:
+- The proposal now makes MCP valuable without presenting it as a hosted or
+  write-capable platform.
+- The H3 section is bounded to CLI query discovery and pinned candidate files.
+- The H4 section is bounded to CLI-only inbox download and one-PDF live-smoke
+  evidence.
+- The text says H5 MCP review-write is not accepted and remains gated.
+- No private titles, raw PDFs, extracted text, manifests, audit logs, local
+  grants, or workspace archives were introduced.
+
+Interpretation and next-phase justification:
+- The proposal now reflects the accepted H3/H4 evidence and current MCP
+  permission story accurately.
+- Phase 3 deterministic validation and artifact tidy remains justified before
+  final reset-memo update and commit.
+
+## Update - H3/H4 release closure Phase 3 completed
+
+Phase 3 plan for the phase:
+- Run deterministic release checks after the proposal update.
+- Re-run the LaTeX compile check into `/tmp`.
+- Review ignored/generated artifacts and keep them uncommitted.
+
+Phase 3 tests:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `78 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `PYTHONPATH=src timeout 60 python -m research_assistant.cli release-report`:
+  completed with expected repo-root workspace warnings and showed:
+  - `default_mode: read_only`;
+  - `query_discovery.status:
+    bounded_cli_discovery_available_mcp_disabled`;
+  - `query_discovery.cli_live_query_enabled: true`;
+  - `query_discovery.mcp_live_query_enabled: false`;
+  - `pdf_batch_intake.status:
+    grant_bound_cli_execution_available_mcp_disabled`;
+  - `pdf_batch_intake.execution_enabled: true`;
+  - `pdf_batch_intake.mcp_exposed: false`;
+  - `review_write.mcp_exposed: false`.
+- `pdflatex -interaction=nonstopmode -halt-on-error -output-directory /tmp/ra-proposal-tex proposal/research_development_assistant_design.tex`:
+  passed after the long inline tool-name list was changed to an itemized list.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- The deterministic tests cover the MCP adapter, permission surface,
+  arXiv-batch planning/run behavior, PDF policy/execution behavior,
+  CLI commands, and release-report gates.
+- Release-report continues to show MCP read-only status with H3/H4 CLI-only and
+  H5 MCP-disabled.
+- The LaTeX document compiles successfully.
+- Ignored/generated artifacts remain uncommitted.
+
+Phase 3 tidy result:
+- Reviewed `git status --short --ignored`.
+- Existing ignored artifacts remain ignored, including `.claude/`, `.codex`,
+  `.pytest_cache/`, `UNKNOWN.egg-info/`, `build/`, `dist/`, `local_research/`,
+  `hoffman.json`, `out.txt`, pycache folders, and synthetic TeX aux/log files.
+- The dedicated closeout plan is under ignored `docs/plans/` and must be
+  force-staged intentionally.
+- No generated/private artifacts are staged.
+
+Interpretation and next-phase justification:
+- The proposal update is validated and the release-report state matches the
+  intended permission story.
+- Phase 4 final reset-memo update, commit, and summary are justified.
+
+## Update - H3/H4 release closure Phase 4 completed
+
+Phase 4 plan for the phase:
+- Record final interpretation in this reset memo.
+- Commit only intended documentation changes:
+  - dedicated H3/H4 closeout plan;
+  - proposal LaTeX update;
+  - reset memo updates.
+- Summarize next hypotheses after the commit.
+
+Phase 4 execution result:
+- Prepared final documentation set:
+  - `docs/plans/local_mcp_h3_h4_release_closure_plan_2026-05-03.md`;
+  - `proposal/research_development_assistant_design.tex`;
+  - `docs/plans/reset_memo_2026-04-26.md`.
+- The dedicated plan is intentionally under ignored `docs/plans/` and must be
+  force-staged.
+- No code or test files were changed in this closeout pass.
+
+Phase 4 final audit as another developer:
+- The closeout does not rerun or invent live network evidence; it relies on the
+  already accepted H3/H4 validation records.
+- The proposal now states the MCP permission story clearly:
+  - local stdio only;
+  - read-only MCP default;
+  - no hosted/shared/HTTP MCP;
+  - no MCP live query discovery;
+  - no MCP PDF execution;
+  - no MCP review mutation.
+- The proposal describes clear confirmation behavior for batch writes:
+  - plan hash plus expiring local grant ID;
+  - operation, destination, maximum count, ordered IDs, and duplicate policy
+    bound into the grant;
+  - execution recomputes the plan identity and blocks on mismatch.
+- H3 is framed as accepted for bounded CLI live query discovery and pinned
+  candidate-file source follow-up, not MCP exposure.
+- H4 is framed as accepted for CLI-only one-PDF inbox download readiness, not
+  broad routine PDF batch scale.
+- H5 remains a future gated hypothesis.
+
+Final interpretation:
+- Closing H3 and H4 plus updating the proposal is sufficient to support a local
+  colleague/pilot release-readiness claim, assuming final release-owner approval
+  and release notes keep the exclusions explicit.
+- It is not sufficient for broad/public/department release readiness.
+- Next evidence should test candidate quality, PDF batch ergonomics at small
+  bounded sizes, and H5 review-write UX/correction policy before considering any
+  MCP write expansion.

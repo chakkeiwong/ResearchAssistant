@@ -66,6 +66,13 @@ writing or coding, and selectively share reviewable artifacts through Git. It is
 not a shared department server, not a database-backed collaboration product, not
 a hosted UI, and not a default live-provider workflow.
 
+The release now also includes an optional local Model Context Protocol (MCP)
+adapter. That matters because it lets an assistant client inspect the same
+durable local research memory without turning the package into a hosted service.
+The first-stage MCP surface is local stdio and read-only by default. Riskier
+actions such as live query discovery, PDF inbox download, and review mutation
+remain outside MCP and stay behind CLI-only grants or future confirmation gates.
+
 The package is persuasive because it is modest in scope. A colleague can install
 it locally, initialize a workspace, ingest a paper, inspect the result, and
 decide what to trust without depending on a service operator or central
@@ -87,6 +94,7 @@ The current release target is:
   \item one local researcher first;
   \item local filesystem storage;
   \item offline/provider-disabled default workflows;
+  \item optional local stdio MCP access to read-only workspace context;
   \item Git-based sharing by repository exchange and explicit merge/import;
   \item explicit review status and provenance rather than silent trust.
 \end{itemize}
@@ -96,6 +104,7 @@ The package deliberately does \emph{not} promise:
   \item shared backend infrastructure;
   \item shared database writes;
   \item hosted UI, SSO/RBAC, or real-time collaboration;
+  \item hosted MCP, HTTP MCP, or shared MCP write access;
   \item parser scientific accuracy certification;
   \item automatic promotion of generated artifacts into accepted conclusions.
 \end{itemize}
@@ -193,6 +202,11 @@ The implemented release supports:
   \item discovery of related, citing, and cited work through scholarly APIs when
         available;
   \item duplicate-aware download proposals into a local inbox;
+  \item optional local stdio MCP tools for read-only assistant access;
+  \item grant-bound explicit-ID arXiv source intake for larger known-ID batches;
+  \item bounded CLI query discovery that writes a pinned candidate file;
+  \item grant-bound CLI PDF inbox download with byte limits, checksums,
+        duplicate handling, manifests, and audit events;
   \item trusted-context export for downstream writing and coding workflows;
   \item backup, restore, privacy-status, and release-report workflows;
   \item Git-sharing hygiene, dry-run merge, explicit apply, and post-merge
@@ -209,6 +223,8 @@ The package is strongest where its promises are deliberately narrow:
   \item clear provenance and review status;
   \item explicit parser capability limits rather than implied reliability;
   \item remote enrichment that degrades visibly instead of blocking local work;
+  \item read-only MCP access unless a future write surface is separately
+        designed, tested, and approved;
   \item no silent final moves for downloaded papers.
 \end{itemize}
 
@@ -222,6 +238,11 @@ correctness, scientific parser accuracy, or research approval.
 That boundary is not a disclaimer attached at the end. It is the core product
 posture. The value of the package is that it helps a researcher keep evidence,
 provenance, and uncertainty visible while human judgment remains explicit.
+
+The same boundary applies to MCP. MCP tool responses are assistant-readable
+review material, not approval events. The adapter does not expose review-write
+mutation, PDF download execution, live query execution, restore, delete, or
+destructive filesystem operations.
 
 \chapter{Why Local-First Is The Right Design}
 
@@ -259,6 +280,60 @@ The strongest fit today is a researcher who already uses Claude Code or ordinary
 terminal workflows. In that setting, the package provides durable local context:
 structured summaries, source records, review state, discovery output, trusted
 exports, and linkage artifacts that survive beyond a single assistant session.
+
+\section{Local MCP adapter for assistant clients}
+
+The optional MCP adapter makes that fit more direct. A local assistant client can
+ask for workspace status, find papers, inspect summaries, review records, source
+records, parser-tool readiness, paper-code links, claim-support audits, and
+privacy status through local stdio. The assistant sees the same local artifacts
+the user can inspect on disk.
+
+The permission model is intentionally simple:
+\begin{itemize}[nosep]
+  \item the MCP server is local stdio only;
+  \item the default MCP surface is read-only;
+  \item the adapter is not a hosted service, HTTP endpoint, shared database, or
+        team authorization layer;
+  \item review-write is not exposed through MCP;
+  \item live arXiv query discovery is not exposed through MCP;
+  \item PDF download execution is not exposed through MCP.
+\end{itemize}
+
+This is the right first stage because it gives assistant workflows durable
+research memory without giving the assistant broad write authority over the
+workspace. The user can point an MCP client at a demo or real local workspace,
+but should treat anything visible there as visible to the assistant client.
+
+\section{Grant-bound batch work stays outside MCP}
+
+Some research tasks need more than one paper at a time. The package therefore
+supports a separate CLI grant model for bounded batch work. The important design
+choice is that a batch write is not confirmed by a vague flag. It is confirmed
+by a plan hash and an expiring local grant.
+
+For explicit-ID arXiv source intake, the user plans a bounded set of public
+arXiv IDs, inspects the plan hash, creates a local grant for that exact plan, and
+then runs intake with the matching grant ID and plan hash. Execution recomputes
+the plan identity and blocks if the candidate set, operation, destination, or
+other grant-bound inputs drift. The output remains review material; no paper is
+marked approved by batch intake.
+
+H3 closes the query-discovery version of the same problem. The live query path is
+CLI-only and bounded: it writes a checksum-pinned candidate file with exact
+ordered arXiv IDs, and any source follow-up uses the existing grant-bound
+candidate-file path. In the accepted live smoke, the public query
+`transport maps HMC' returned ten candidates from one arXiv API page; the pinned
+file then drove source intake with seven available structured sources, three
+source-structure limitations, and zero command failures.
+
+H4 closes the first PDF execution gate, but only narrowly. The accepted path is a
+CLI-only PDF inbox download guarded by operation, destination, count, byte,
+domain, checksum, duplicate, manifest, and audit checks. The live evidence is a
+one-PDF smoke: one public candidate was downloaded to the inbox, its checksum was
+recorded, and a duplicate rerun skipped the existing file without overwrite. That
+is enough for a local pilot to include the CLI path, but it is not evidence for
+large routine PDF batch defaults and it does not enable an MCP PDF tool.
 
 \section{Why this is better than assistant-only memory}
 
@@ -350,6 +425,61 @@ That export is intentionally bounded. It should come from reviewed records, not
 from everything that happened to be ingested. The package therefore helps with
 speed \emph{and} discipline.
 
+\section{Example 4: Let an assistant inspect local research context}
+
+After installing the MCP extra, a researcher can expose a demo or chosen local
+workspace to an MCP-capable assistant client:
+
+\begin{lstlisting}[language=bash]
+python -m pip install ".[mcp]"
+ra --root /tmp/ra-mcp-demo demo setup
+ra-mcp --root /tmp/ra-mcp-demo
+\end{lstlisting}
+
+Representative read-only tools include:
+\begin{itemize}[nosep]
+  \item `ra\_workspace\_status';
+  \item `ra\_find\_paper';
+  \item `ra\_get\_paper\_summary';
+  \item `ra\_source\_show';
+  \item `ra\_review\_list';
+  \item `ra\_privacy\_status'.
+\end{itemize}
+
+This is useful for asking an assistant to work with inspected local context
+instead of starting from memory or pasted snippets.
+
+The boundary is as important as the convenience. The MCP client cannot approve a
+review, download a PDF, run live arXiv query discovery, restore a backup, or
+delete local files. If the user wants grant-bound batch source intake or PDF
+inbox download, they run the explicit CLI planning and grant flow themselves.
+
+\section{Example 5: Bounded arXiv batches without per-file prompting}
+
+The batch grant model is useful when the researcher already has a list of public
+arXiv IDs or a pinned query-discovery candidate file. Instead of approving every
+file interactively, the user approves one bounded plan:
+
+\begin{lstlisting}[language=bash]
+ra --root /tmp/ra-batch arxiv-batch plan \
+  --ids 2401.00001,2401.00002 \
+  --max-papers 2
+ra --root /tmp/ra-batch mcp grant arxiv-intake \
+  --plan-hash <plan_hash> \
+  --max-papers 2 \
+  --ids 2401.00001,2401.00002 \
+  --skip-duplicates
+ra --root /tmp/ra-batch arxiv-batch run \
+  --grant-id <grant_id> \
+  --plan-hash <plan_hash> \
+  --ids 2401.00001,2401.00002
+\end{lstlisting}
+
+The grant binds the ordered IDs, operation, destination, maximum count, and
+duplicate policy. This is the usability answer to high-volume arXiv intake: do
+not ask the user for permission file by file; ask for one explicit bounded grant
+whose identity can be recomputed and audited.
+
 \section{Nontrivial showcase: DSGE survey chapter from a NeuTra seed}
 
 A more persuasive use case is a DSGE survey chapter from a NeuTra seed. Suppose a
@@ -398,6 +528,9 @@ This release is:
   \item Git sharing by repository or snapshot rather than real-time
         collaboration;
   \item offline/provider-disabled by default;
+  \item local stdio MCP rather than hosted or shared MCP;
+  \item read-only through MCP, with batch writes kept in explicit CLI grant
+        flows;
   \item strongest on local auditability, provenance, and trusted-context export.
 \end{itemize}
 
@@ -408,6 +541,8 @@ This release does not aim to provide:
   \item a GUI-first rewrite;
   \item a database requirement;
   \item bulk scraping or broad web crawling;
+  \item MCP tools that mutate review state, execute PDF downloads, or run live
+        query discovery;
   \item silent auto-organization of a paper library;
   \item high-stakes claim verification without explicit evidence support.
 \end{itemize}
@@ -424,6 +559,10 @@ Colleagues should know the practical limits up front:
         explicitly recorded;
   \item real colleague onboarding, real macOS validation, and real minimal
         parser-tool validation remain manual release gates.
+  \item H4 has one-PDF live-smoke evidence, not broad routine PDF batch-scale
+        evidence;
+  \item H5 review-write through MCP remains gated on UX, audit, correction, and
+        exact confirmation design.
 \end{itemize}
 
 \chapter{Technical Credibility Without The Monograph}
@@ -466,6 +605,12 @@ The package becomes more useful when paired with existing assistant workflows.
 Its role is to preserve durable local research state --- reviewed paper records,
 source-derived evidence, discovery results, and trusted exports --- that an
 assistant or script can use later.
+
+The local MCP adapter is the cleanest current integration point for that role.
+It gives an assistant read-only access to inspected workspace context while
+keeping write operations explicit, local, and auditable. This is deliberately
+less ambitious than a platform integration, but it is much easier to trust for a
+first colleague release.
 
 \chapter{A Practical Adoption Path}
 
@@ -603,6 +748,23 @@ No. The current release is intentionally smaller and more honest than that. It i
 a local-first individual workflow with Git-based sharing, not a hosted
 multi-user system.
 
+\section{Does MCP make this a write-capable assistant platform?}
+
+No. MCP is used here as a local read-only bridge from the assistant client into a
+chosen workspace. The write-capable surfaces remain CLI-only or deferred:
+explicit-ID arXiv source intake uses expiring local grants, PDF inbox download
+uses a separate grant-bound CLI path, live query discovery writes only a pinned
+candidate file, and review mutation through MCP is not included in this release.
+
+\section{Can H3 and H4 make the local pilot release-ready?}
+
+Yes, for a local colleague/pilot scope, provided the release notes keep the
+boundaries explicit. H3 shows that a public live arXiv query can be bounded into
+a pinned candidate file and then used through grant-bound source intake. H4 shows
+that a tiny PDF inbox download can be grant-bound, byte-limited,
+checksum-recorded, duplicate-safe, and audited. They do not prove broad PDF batch
+scale, hosted MCP safety, or MCP review-write readiness.
+
 \section{Why is the bounded scope a strength rather than a weakness?}
 
 Because the package is most credible where it already changes daily work without
@@ -621,6 +783,9 @@ Possible later directions include:
 \begin{itemize}[nosep]
   \item stronger parser and source benchmarks on gold corpora;
   \item richer sanitized real-corpus scalability evidence;
+  \item broader PDF batch-scale evidence beyond the one-PDF H4 smoke;
+  \item H5 review-write MCP design with exact confirmation, stale-file blocking,
+        audit review, and correction or undo policy;
   \item optional governed provider workflows;
   \item more developed team conventions around artifact exchange.
 \end{itemize}
@@ -651,12 +816,40 @@ ra workspace rebuild-derived
 Dry-run is the default. Apply requires explicit confirmation. Accepted-audit
 conflicts remain human review events.
 
+\section{MCP validation status}
+
+The local MCP evidence currently supports a local colleague/pilot release, not a
+public platform release:
+\begin{itemize}[nosep]
+  \item H1 external setup is accepted: an external agent configured local stdio
+        MCP against demo data, reached a first successful tool call in under a
+        second, and observed no unsafe MCP tools or review-write tool.
+  \item H2 explicit-ID source intake is accepted: public arXiv ID batches of 25,
+        50, and 100 completed through grant-bound source intake with no command
+        failures and no approved review records.
+  \item H3 live query discovery is accepted: the public query
+        `transport maps HMC' produced ten bounded candidates in one arXiv API
+        page, and the pinned candidate file drove grant-bound source intake.
+  \item H4 PDF execution is accepted only as CLI-only readiness: deterministic
+        policy tests and one-PDF live smoke passed, duplicate rerun skipped
+        without overwrite, and MCP PDF execution remains absent.
+  \item H5 MCP review-write is not accepted: the CLI prototype exists, but MCP
+        mutation remains disabled until confirmation, UX, audit, and correction
+        preconditions pass.
+\end{itemize}
+
+The practical release interpretation is simple: after these updates, the package
+is credible for local colleague/pilot use where MCP is read-only and batch writes
+are CLI-grant-bound. It is not yet a broad department platform, public hosted
+service, or write-capable MCP research agent.
+
 \section{Release maturity remains pilot-scoped}
 
-Broad release still requires real fresh-reader onboarding, real macOS
-validation, real minimal parser-tool machine validation, release-owner tag
-approval, and release-owner publication approval. Until those are recorded, the
-release remains pilot-scoped.
+Broad release still requires real fresh-reader onboarding beyond the external MCP
+trial, real macOS validation, real minimal parser-tool machine validation,
+broader non-sensitive corpus evidence, release-owner tag approval, and
+release-owner publication approval. Until those are recorded, the release remains
+pilot-scoped.
 
 \backmatter
 \chapter{Closing Note}
