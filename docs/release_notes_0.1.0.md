@@ -11,7 +11,8 @@ The candidate should remain pilot-scoped until real colleague onboarding, macOS 
 Current external validation status for this candidate:
 - real fresh-reader onboarding: blocked/manual, not yet recorded;
 - real macOS clean-install smoke: blocked/manual, not yet recorded;
-- real minimal-parser-tool machine validation: blocked/manual, not yet recorded.
+- real minimal-parser-tool machine validation: blocked/manual, not yet recorded;
+- real colleague MCP setup trial: blocked/manual, not yet recorded.
 
 Do not treat local substitute records, synthetic fixtures, or maintainer-machine
 smoke tests as real external validation.
@@ -142,6 +143,24 @@ See `docs/workflows/git_sharing_walkthrough.md`.
 
 Default workflows are offline and provider-disabled. The demo, release-report, parser diagnostics, backup/restore checks, and synthetic performance smoke do not require sending papers or notes to external providers.
 
+## Local MCP
+
+Optional local MCP support is available through `research-assistant[mcp]` and
+the `ra-mcp` stdio entrypoint. It is local-only, not a hosted service, shared
+database, HTTP API, SSO/RBAC system, or live collaboration server.
+
+The first MCP surface is read-only by default. Grant-bound explicit-ID arXiv
+source intake can be run from the CLI after a bounded local grant is created,
+and its output remains review material.
+
+Current MCP limitations:
+- query-based live arXiv discovery is design-gated and not MCP-enabled;
+- PDF batch downloads are design-gated and not enabled;
+- review-write is a CLI-only confirmation prototype and is not exposed through
+  MCP;
+- mocked 25-paper batch scale tests validate local mechanics, not live arXiv
+  reliability.
+
 ## Backup And Restore
 
 Create a backup before relying on a workspace or changing install versions:
@@ -160,6 +179,8 @@ Restore defaults to dry-run. A real restore requires `--no-dry-run --confirm-res
 - A real colleague onboarding trial and macOS validation remain required before broad non-pilot rollout.
 - Minimal parser-tool validation on a real minimal machine remains required before broad non-pilot rollout.
 - Git-sharing merge/import performance has been measured through `synthetic_git_1000` and does not certify real personal libraries.
+- Local MCP real colleague setup and live arXiv 25/50/100 paper batch behavior
+  remain bounded manual validation items.
 - Tagging and artifact publication require explicit release-owner approval.
 
 See `docs/known_limitations.md` and `docs/support.md`.

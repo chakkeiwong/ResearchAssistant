@@ -67,6 +67,32 @@ The MCP adapter is local stdio and read-only by default. It should not expose
 ingest, download, review mutation, backup restore, delete, or arbitrary file
 tools.
 
+Grant-bound explicit-ID arXiv source intake uses the CLI:
+
+```bash
+ra --root /tmp/ra-demo arxiv-batch plan --ids 2401.00001 --max-papers 1
+ra --root /tmp/ra-demo mcp grant arxiv-intake --plan-hash <plan_hash> --max-papers 1 --ids 2401.00001 --skip-duplicates
+ra --root /tmp/ra-demo arxiv-batch run --grant-id <grant_id> --plan-hash <plan_hash> --ids 2401.00001
+```
+
+If a batch run is blocked, inspect the grant and audit records:
+
+```bash
+ra --root /tmp/ra-demo mcp grants show --grant-id <grant_id>
+ra --root /tmp/ra-demo mcp audit list --grant-id <grant_id>
+```
+
+Common causes are an expired grant, mismatched plan hash, IDs outside the grant,
+or requesting more papers than the grant allows.
+
+Query-based arXiv discovery and PDF batch downloads are design-gated and should
+not appear as MCP tools. Review-write is also not exposed through MCP; check the
+CLI-only prototype with:
+
+```bash
+ra --root /tmp/ra-demo review-write status
+```
+
 ## Restore Problems
 
 ```bash

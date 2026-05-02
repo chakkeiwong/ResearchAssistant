@@ -29,10 +29,19 @@ Exercise these tools:
 Expected result:
 
 - tools can inspect demo data;
-- no ungranted write, ingest, download, review mutation, backup restore, or
-  delete tools are offered;
+- no ungranted write, ingest, download, PDF batch, review mutation, backup
+  restore, or delete tools are offered;
 - privacy status remains provider-disabled;
 - generated/source/parser outputs are presented as review material.
+
+Confirm these tools are absent unless a later audited release explicitly adds
+them:
+
+- review mutation through MCP;
+- query-based live arXiv discovery through MCP;
+- PDF batch download through MCP;
+- backup restore through MCP;
+- delete/destructive file tools.
 
 ## Batch-Grant Trial
 
@@ -53,6 +62,26 @@ Expected result:
 - source records remain review material;
 - no paper is marked approved.
 
+If the live fetch is skipped because network access is unavailable or not
+approved, record it as skipped rather than failed. Deterministic mocked scale
+tests cover local plan/grant/run mechanics, but do not prove live arXiv
+reliability.
+
+## Review-Write CLI Prototype
+
+Review-write is intentionally not exposed through MCP. A reviewer may inspect
+the CLI-only prototype separately:
+
+```bash
+ra --root /tmp/ra-mcp-trial review-write status
+```
+
+Expected result:
+
+- `mcp_exposed` is `false`;
+- status is `prototype_cli_only`;
+- no MCP client offers a review mutation tool.
+
 ## Metadata To Record
 
 - platform;
@@ -64,6 +93,8 @@ Expected result:
 - whether read-only tools worked;
 - whether write tools were absent;
 - whether batch grant/run worked or was skipped;
+- whether review-write remained absent from MCP;
+- whether query discovery and PDF batch tools remained absent from MCP;
 - confusions or docs gaps.
 
 Do not record private titles, private paper paths, raw PDFs, extracted text, or

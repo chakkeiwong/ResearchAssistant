@@ -121,6 +121,28 @@ Query-based live arXiv discovery and PDF batch downloads remain future work.
 
 For a validation checklist, see `docs/mcp_trial_checklist.md`.
 
+## Deferred Write Modes
+
+Query-based arXiv discovery has a design gate in
+`docs/architecture/mcp_arxiv_query_discovery_design.md`. It is not live-enabled
+through MCP yet.
+
+PDF batch downloads have a separate design gate in
+`docs/architecture/mcp_pdf_batch_intake_design.md`. PDF batch execution remains
+disabled until byte limits, duplicate handling, cleanup, and tests are in
+place.
+
+Review-write is being prototyped through CLI confirmation commands, not MCP:
+
+```bash
+ra review-write propose-status --paper-id <id> --status approved
+ra review-write apply --confirmation-id <confirmation_id>
+```
+
+MCP review mutation remains disabled. The CLI prototype records old/new values,
+file hashes, expiration, and audit events, and blocks if the target file changed
+after proposal creation.
+
 ## Troubleshooting
 
 If `ra-mcp` reports that the MCP SDK is missing, install the optional extra:

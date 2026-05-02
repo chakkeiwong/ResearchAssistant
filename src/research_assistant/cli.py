@@ -12,6 +12,7 @@ from research_assistant.adapters.mcp_permissions import (
     mcp_permissions_status,
     read_mcp_grant,
 )
+from research_assistant.adapters.review_write import apply_review_write, propose_review_status, review_write_status
 from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
 from research_assistant.individual_release import (
@@ -419,6 +420,22 @@ def cmd_arxiv_batch(args: argparse.Namespace) -> int:
             root=root,
         ))
     raise SystemExit(f"unknown arxiv-batch action {args.arxiv_batch_action}")
+
+
+def cmd_review_write(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.review_write_action == "status":
+        return _print_json(review_write_status(root=root))
+    if args.review_write_action == "propose-status":
+        return _print_json(propose_review_status(
+            paper_id=args.paper_id,
+            status=args.status,
+            root=root,
+            expires_minutes=args.expires_minutes,
+        ))
+    if args.review_write_action == "apply":
+        return _print_json(apply_review_write(confirmation_id=args.confirmation_id, root=root))
+    raise SystemExit(f"unknown review-write action {args.review_write_action}")
 
 
 def cmd_repository_hygiene(args: argparse.Namespace) -> int:
@@ -1315,6 +1332,19 @@ def build_parser() -> argparse.ArgumentParser:
     review_mark.add_argument('--paper-id', required=True)
     review_mark.add_argument('--status', required=True)
     review_mark.set_defaults(func=cmd_review_mark)
+
+    review_write = sub.add_parser('review-write', help='Prototype explicit confirmation flow for review-state writes')
+    review_write_sub = review_write.add_subparsers(dest='review_write_action', required=True)
+    review_write_status_cmd = review_write_sub.add_parser('status')
+    review_write_status_cmd.set_defaults(func=cmd_review_write)
+    review_write_propose = review_write_sub.add_parser('propose-status')
+    review_write_propose.add_argument('--paper-id', required=True)
+    review_write_propose.add_argument('--status', required=True)
+    review_write_propose.add_argument('--expires-minutes', type=int, default=30)
+    review_write_propose.set_defaults(func=cmd_review_write)
+    review_write_apply = review_write_sub.add_parser('apply')
+    review_write_apply.add_argument('--confirmation-id', required=True)
+    review_write_apply.set_defaults(func=cmd_review_write)
 
     link = sub.add_parser('link-add')
     link.add_argument('--paper-id', required=True)

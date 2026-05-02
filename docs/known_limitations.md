@@ -19,3 +19,15 @@
   automatic approval.
 - MCP is optional; absence of the MCP extra does not block the base local CLI
   workflow.
+- MCP query-based arXiv discovery is not live-enabled. The design requires
+  bounded candidate counts, endpoint limits, deterministic candidate lists, and
+  grant binding to the exact candidate list before future enablement.
+- MCP PDF batch downloads are not enabled. PDF batch intake needs explicit byte
+  limits, duplicate/no-overwrite behavior, checksum capture, cleanup semantics,
+  and tests before execution.
+- Review-write is currently a CLI-only prototype. It records old/new values,
+  file hashes, expiration, and audit events, but MCP review mutation remains
+  disabled.
+- Deterministic mocked arXiv batch tests validate local plan/grant/run mechanics
+  at 25-paper scale; live arXiv 25/50/100 paper reliability remains a bounded
+  manual validation item.

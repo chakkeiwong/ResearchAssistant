@@ -31,6 +31,7 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'review-list' in captured.out
     assert 'review-show' in captured.out
     assert 'review-mark' in captured.out
+    assert 'review-write' in captured.out
     assert 'inbox-list' in captured.out
     assert 'inbox-show' in captured.out
     assert 'export-context' in captured.out
@@ -121,6 +122,89 @@ def test_cli_mcp_grant_rejects_unbounded_batch(tmp_path: Path, capsys) -> None:
     assert rc == 0
     assert payload['status'] == 'blocked'
     assert payload['issues'][0]['code'] == 'max_papers_exceeded'
+
+
+def test_cli_review_write_propose_apply_and_conflict(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_review_write'
+    summary_path = summaries / f'{paper_id}.json'
+    summary_path.write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Review Write Paper',
+        'authors': ['Ada Example'],
+        'year': 2026,
+        'abstract': '',
+        'main_contribution': 'Review write fixture',
+        'review_status': 'needs_review',
+        'requires_manual_review': True,
+        'review_summary': {'status': 'needs_review'},
+    }))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'approved'])
+    proposed = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert proposed['status'] == 'proposed'
+    confirmation_id = proposed['proposal']['confirmation_id']
+    assert proposed['proposal']['old_value'] == 'needs_review'
+    assert proposed['proposal']['new_value'] == 'approved'
+    assert proposed['proposal']['mcp_exposure'] == 'not_exposed'
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'apply', '--confirmation-id', confirmation_id])
+    applied = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert applied['status'] == 'applied'
+    updated = json.loads(summary_path.read_text())
+    assert updated['review_status'] == 'approved'
+    assert updated['requires_manual_review'] is False
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'rejected'])
+    proposed = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    confirmation_id = proposed['proposal']['confirmation_id']
+    changed = json.loads(summary_path.read_text())
+    changed['main_contribution'] = 'changed after proposal'
+    summary_path.write_text(json.dumps(changed))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'apply', '--confirmation-id', confirmation_id])
+    blocked = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert blocked['status'] == 'blocked'
+    assert any(issue['code'] == 'target_changed' for issue in blocked['issues'])
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'status'])
+    status = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert status['mcp_exposed'] is False
+
+
+def test_cli_review_write_creates_distinct_repeated_proposals(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_repeated_review_write'
+    (summaries / f'{paper_id}.json').write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Repeated Review Write Paper',
+        'authors': ['Ada Example'],
+        'year': 2026,
+        'abstract': '',
+        'main_contribution': 'Review write fixture',
+        'review_status': 'needs_review',
+        'requires_manual_review': True,
+        'review_summary': {'status': 'needs_review'},
+    }))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'approved'])
+    first = json.loads(capsys.readouterr().out)
+    rc2 = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'approved'])
+    second = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert rc2 == 0
+    assert first['proposal']['confirmation_id'] != second['proposal']['confirmation_id']
+    assert first['proposal']['confirmation_nonce'] != second['proposal']['confirmation_nonce']
+    assert Path(first['proposal_path']).exists()
+    assert Path(second['proposal_path']).exists()
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:
