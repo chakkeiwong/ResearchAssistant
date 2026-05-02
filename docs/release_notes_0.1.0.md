@@ -12,7 +12,8 @@ Current external validation status for this candidate:
 - real fresh-reader onboarding: blocked/manual, not yet recorded;
 - real macOS clean-install smoke: blocked/manual, not yet recorded;
 - real minimal-parser-tool machine validation: blocked/manual, not yet recorded;
-- real colleague MCP setup trial: blocked/manual, not yet recorded.
+- real colleague MCP setup trial: blocked/manual, not yet recorded. Use
+  `docs/mcp_colleague_trial_record_template.md` when this trial is performed.
 
 Do not treat local substitute records, synthetic fixtures, or maintainer-machine
 smoke tests as real external validation.
@@ -45,8 +46,10 @@ The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` a
 Current local rollout artifact from the final local 2026-04-29 validation pass:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- Size: `435243` bytes
-- SHA256: `d7c61cc8d4a79826a08754aee923be16065d3744bdcb316b797e74ffd71f03d6`
+- Size: `145857` bytes
+- SHA256: `f9f4ae52ce7c53a5acfe3332b567347d86dce55248c0a905821fea1e2e385a0c`
+- Rebuilt locally on 2026-05-02 after local MCP gap-closure work. The generated
+  files under `dist/` are not committed to Git.
 
 ## Supported Platforms
 
@@ -154,10 +157,12 @@ source intake can be run from the CLI after a bounded local grant is created,
 and its output remains review material.
 
 Current MCP limitations:
-- query-based live arXiv discovery is design-gated and not MCP-enabled;
-- PDF batch downloads are design-gated and not enabled;
-- review-write is a CLI-only confirmation prototype and is not exposed through
-  MCP;
+- offline pinned arXiv candidate-file planning is available, but live
+  query-based arXiv discovery is not MCP-enabled;
+- PDF batch policy checks are available, but PDF batch downloads are not
+  enabled;
+- review-write is a CLI-only confirmation prototype with proposal counts and
+  expired-proposal cleanup; it is not exposed through MCP;
 - mocked 25-paper batch scale tests validate local mechanics, not live arXiv
   reliability.
 

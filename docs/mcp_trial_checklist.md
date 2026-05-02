@@ -1,7 +1,8 @@
 # Local MCP Trial Checklist
 
 Use this checklist for a colleague-like local MCP trial. Record only
-non-private metadata.
+non-private metadata. Use `docs/mcp_colleague_trial_record_template.md` for the
+final trial note.
 
 ## Setup
 
@@ -99,3 +100,7 @@ Expected result:
 
 Do not record private titles, private paper paths, raw PDFs, extracted text, or
 credentials.
+
+Local surrogate runs are useful for debugging setup mechanics, but H1 should
+remain manual/external until a real colleague trial is recorded with the
+template.

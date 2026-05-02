@@ -43,6 +43,19 @@ def _file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _iter_proposals(root: Path | None = None) -> list[dict[str, Any]]:
+    paths = get_paths(root)
+    proposals = []
+    for path in sorted(_proposals_dir(paths.root).glob("*.json")):
+        try:
+            payload = json.loads(path.read_text())
+        except json.JSONDecodeError:
+            payload = {"status": "invalid_json", "confirmation_id": path.stem}
+        payload["_proposal_path"] = str(path)
+        proposals.append(payload)
+    return proposals
+
+
 def _append_audit(event_type: str, *, root: Path | None = None, detail: dict[str, Any]) -> dict[str, Any]:
     paths = get_paths(root)
     audit_dir = _audit_dir(paths.root)
@@ -169,6 +182,24 @@ def apply_review_write(*, confirmation_id: str, root: Path | None = None) -> dic
 
 def review_write_status(*, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
+    proposals = _iter_proposals(paths.root)
+    now = datetime.now(timezone.utc)
+    pending_count = 0
+    expired_count = 0
+    applied_count = 0
+    invalid_count = 0
+    for proposal in proposals:
+        if proposal.get("status") == "applied":
+            applied_count += 1
+            continue
+        if proposal.get("status") == "invalid_json":
+            invalid_count += 1
+            continue
+        expires_at = proposal.get("expires_at")
+        if isinstance(expires_at, str) and parse_iso(expires_at) <= now:
+            expired_count += 1
+        else:
+            pending_count += 1
     return {
         "schema_version": REVIEW_WRITE_SCHEMA_VERSION,
         "status": "prototype_cli_only",
@@ -177,9 +208,54 @@ def review_write_status(*, root: Path | None = None) -> dict[str, Any]:
         "audit_path": str(_audit_dir(paths.root)),
         "mcp_exposed": False,
         "supported_operations": ["mark_review_status"],
+        "proposal_counts": {
+            "total": len(proposals),
+            "pending": pending_count,
+            "expired": expired_count,
+            "applied": applied_count,
+            "invalid": invalid_count,
+        },
         "limitations": [
             "Review-write is a CLI-only prototype.",
             "MCP review-write tools remain disabled.",
             "Each apply verifies file hash and blocks on conflict.",
         ],
+    }
+
+
+def cleanup_expired_proposals(*, root: Path | None = None, apply: bool = False) -> dict[str, Any]:
+    paths = get_paths(root)
+    now = datetime.now(timezone.utc)
+    expired = []
+    skipped = []
+    for proposal in _iter_proposals(paths.root):
+        path = Path(proposal["_proposal_path"])
+        if proposal.get("status") == "applied":
+            skipped.append({"confirmation_id": proposal.get("confirmation_id", path.stem), "reason": "already_applied", "path": str(path)})
+            continue
+        expires_at = proposal.get("expires_at")
+        if not isinstance(expires_at, str):
+            skipped.append({"confirmation_id": proposal.get("confirmation_id", path.stem), "reason": "missing_expiry", "path": str(path)})
+            continue
+        if parse_iso(expires_at) <= now:
+            row = {"confirmation_id": proposal.get("confirmation_id", path.stem), "expires_at": expires_at, "path": str(path)}
+            expired.append(row)
+            if apply:
+                path.unlink()
+        else:
+            skipped.append({"confirmation_id": proposal.get("confirmation_id", path.stem), "reason": "not_expired", "path": str(path)})
+    _append_audit(
+        "expired_cleanup_applied" if apply else "expired_cleanup_dry_run",
+        root=paths.root,
+        detail={"expired_count": len(expired), "apply": apply},
+    )
+    return {
+        "schema_version": REVIEW_WRITE_SCHEMA_VERSION,
+        "status": "cleaned" if apply else "dry_run",
+        "dry_run": not apply,
+        "expired_count": len(expired),
+        "expired": expired,
+        "skipped": skipped,
+        "mcp_exposure": "not_exposed",
+        "note": "Only expired proposal records are removed when apply is true; paper summaries are not changed.",
     }

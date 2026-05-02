@@ -1,9 +1,11 @@
-Metadata-Version: 2.4
+Metadata-Version: 2.1
 Name: research-assistant
 Version: 0.1.0
 Summary: Local-first research development assistant for Claude Code
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
+Provides-Extra: mcp
+Requires-Dist: mcp[cli]; extra == "mcp"
 
 # Personal Research Assistant
 
@@ -21,6 +23,23 @@ The product focuses on:
 - querying and exporting trusted local paper context.
 
 This is intentionally local-first and file-based so it remains inspectable and easy to debug.
+
+## Local MCP adapter
+
+`research-assistant` can also run as a local stdio MCP server with the optional
+MCP extra:
+
+```bash
+python -m pip install ".[mcp]"
+ra --root /tmp/ra-demo demo setup
+ra-mcp --root /tmp/ra-demo
+```
+
+The first MCP surface is read-only by default. It does not expose ingest,
+download, review mutation, backup restore, destructive operations, or hosted
+server deployment.
+
+See [docs/mcp.md](docs/mcp.md).
 
 ## Product posture
 

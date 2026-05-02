@@ -12,7 +12,7 @@ from research_assistant.adapters.mcp_permissions import (
     mcp_permissions_status,
     read_mcp_grant,
 )
-from research_assistant.adapters.review_write import apply_review_write, propose_review_status, review_write_status
+from research_assistant.adapters.review_write import apply_review_write, cleanup_expired_proposals, propose_review_status, review_write_status
 from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
 from research_assistant.individual_release import (
@@ -125,7 +125,7 @@ from research_assistant.industrial.platform import (
     validate_industrial_artifacts,
 )
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
-from research_assistant.ingest.arxiv_batch import plan_arxiv_batch_intake, run_arxiv_batch_intake
+from research_assistant.ingest.arxiv_batch import load_arxiv_candidate_file, plan_arxiv_batch_intake, run_arxiv_batch_intake
 from research_assistant.ingest.pdf_extract import extract_pdf_text
 from research_assistant.ingest.normalize_text import normalize_extracted_text
 from research_assistant.ingest.metadata_resolve import resolve_metadata
@@ -408,15 +408,21 @@ def cmd_arxiv_batch(args: argparse.Namespace) -> int:
             query=args.query,
             arxiv_ids=_split_csv(args.ids),
             max_papers=args.max_papers,
+            candidate_file=Path(args.candidate_file) if args.candidate_file else None,
             destination=args.destination,
             operation=args.operation,
             root=root,
         ))
+    if args.arxiv_batch_action == "candidate-file":
+        if args.candidate_file_action == "inspect":
+            return _print_json(load_arxiv_candidate_file(Path(args.path)))
+        raise SystemExit(f"unknown arxiv-batch candidate-file action {args.candidate_file_action}")
     if args.arxiv_batch_action == "run":
         return _print_json(run_arxiv_batch_intake(
             grant_id=args.grant_id,
             plan_hash=args.plan_hash,
             arxiv_ids=_split_csv(args.ids),
+            candidate_file=Path(args.candidate_file) if args.candidate_file else None,
             root=root,
         ))
     raise SystemExit(f"unknown arxiv-batch action {args.arxiv_batch_action}")
@@ -435,6 +441,8 @@ def cmd_review_write(args: argparse.Namespace) -> int:
         ))
     if args.review_write_action == "apply":
         return _print_json(apply_review_write(confirmation_id=args.confirmation_id, root=root))
+    if args.review_write_action == "cleanup-expired":
+        return _print_json(cleanup_expired_proposals(root=root, apply=args.apply))
     raise SystemExit(f"unknown review-write action {args.review_write_action}")
 
 
@@ -1275,14 +1283,21 @@ def build_parser() -> argparse.ArgumentParser:
     arxiv_batch_plan = arxiv_batch_sub.add_parser('plan')
     arxiv_batch_plan.add_argument('--ids')
     arxiv_batch_plan.add_argument('--query')
+    arxiv_batch_plan.add_argument('--candidate-file')
     arxiv_batch_plan.add_argument('--max-papers', type=int, required=True)
     arxiv_batch_plan.add_argument('--destination', choices=['source', 'inbox'], default='source')
     arxiv_batch_plan.add_argument('--operation', choices=['source_fetch', 'pdf_inbox_download', 'metadata_only'], default='source_fetch')
     arxiv_batch_plan.set_defaults(func=cmd_arxiv_batch)
+    arxiv_batch_candidate = arxiv_batch_sub.add_parser('candidate-file')
+    arxiv_batch_candidate_sub = arxiv_batch_candidate.add_subparsers(dest='candidate_file_action', required=True)
+    arxiv_batch_candidate_inspect = arxiv_batch_candidate_sub.add_parser('inspect')
+    arxiv_batch_candidate_inspect.add_argument('--path', required=True)
+    arxiv_batch_candidate_inspect.set_defaults(func=cmd_arxiv_batch)
     arxiv_batch_run = arxiv_batch_sub.add_parser('run')
     arxiv_batch_run.add_argument('--grant-id', required=True)
     arxiv_batch_run.add_argument('--plan-hash', required=True)
-    arxiv_batch_run.add_argument('--ids', required=True)
+    arxiv_batch_run.add_argument('--ids')
+    arxiv_batch_run.add_argument('--candidate-file')
     arxiv_batch_run.set_defaults(func=cmd_arxiv_batch)
 
     release_artifacts = sub.add_parser('release-artifacts', help='Inspect release artifact manifests')
@@ -1345,6 +1360,9 @@ def build_parser() -> argparse.ArgumentParser:
     review_write_apply = review_write_sub.add_parser('apply')
     review_write_apply.add_argument('--confirmation-id', required=True)
     review_write_apply.set_defaults(func=cmd_review_write)
+    review_write_cleanup = review_write_sub.add_parser('cleanup-expired')
+    review_write_cleanup.add_argument('--apply', action='store_true')
+    review_write_cleanup.set_defaults(func=cmd_review_write)
 
     link = sub.add_parser('link-add')
     link.add_argument('--paper-id', required=True)

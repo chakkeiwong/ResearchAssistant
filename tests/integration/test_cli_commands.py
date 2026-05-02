@@ -176,6 +176,8 @@ def test_cli_review_write_propose_apply_and_conflict(tmp_path: Path, capsys) -> 
     status = json.loads(capsys.readouterr().out)
     assert rc == 0
     assert status['mcp_exposed'] is False
+    assert status['proposal_counts']['applied'] == 1
+    assert status['proposal_counts']['pending'] == 1
 
 
 def test_cli_review_write_creates_distinct_repeated_proposals(tmp_path: Path, capsys) -> None:
@@ -205,6 +207,72 @@ def test_cli_review_write_creates_distinct_repeated_proposals(tmp_path: Path, ca
     assert first['proposal']['confirmation_nonce'] != second['proposal']['confirmation_nonce']
     assert Path(first['proposal_path']).exists()
     assert Path(second['proposal_path']).exists()
+
+
+def test_cli_review_write_rejects_invalid_expiry(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_invalid_expiry'
+    (summaries / f'{paper_id}.json').write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Invalid Expiry Paper',
+        'authors': [],
+        'year': 2026,
+        'review_status': 'needs_review',
+    }))
+
+    rc = main([
+        '--root', str(tmp_path),
+        'review-write', 'propose-status',
+        '--paper-id', paper_id,
+        '--status', 'approved',
+        '--expires-minutes', '0',
+    ])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert payload['status'] == 'blocked'
+    assert payload['issues'][0]['code'] == 'invalid_expiry'
+
+
+def test_cli_review_write_cleanup_expired_is_dry_run_by_default(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_expired_cleanup'
+    (summaries / f'{paper_id}.json').write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Expired Cleanup Paper',
+        'authors': [],
+        'year': 2026,
+        'review_status': 'needs_review',
+    }))
+
+    rc = main([
+        '--root', str(tmp_path),
+        'review-write', 'propose-status',
+        '--paper-id', paper_id,
+        '--status', 'approved',
+        '--expires-minutes', '1',
+    ])
+    proposed = json.loads(capsys.readouterr().out)
+    proposal_path = Path(proposed['proposal_path'])
+    proposal = json.loads(proposal_path.read_text())
+    proposal['expires_at'] = '2000-01-01T00:00:00+00:00'
+    proposal_path.write_text(json.dumps(proposal))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'cleanup-expired'])
+    dry_run = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert dry_run['status'] == 'dry_run'
+    assert dry_run['expired_count'] == 1
+    assert proposal_path.exists()
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'cleanup-expired', '--apply'])
+    cleaned = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert cleaned['status'] == 'cleaned'
+    assert cleaned['expired_count'] == 1
+    assert not proposal_path.exists()
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:

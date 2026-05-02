@@ -22,12 +22,23 @@
 - MCP query-based arXiv discovery is not live-enabled. The design requires
   bounded candidate counts, endpoint limits, deterministic candidate lists, and
   grant binding to the exact candidate list before future enablement.
+- Offline arXiv candidate-file planning is available and binds candidate-file
+  checksum and exact ordered IDs into the plan hash, but it does not perform
+  live query discovery.
 - MCP PDF batch downloads are not enabled. PDF batch intake needs explicit byte
   limits, duplicate/no-overwrite behavior, checksum capture, cleanup semantics,
   and tests before execution.
+- PDF batch policy checks are executable for count, byte, destination, overwrite,
+  and domain constraints, but they do not download files and do not enable an
+  MCP PDF batch tool.
 - Review-write is currently a CLI-only prototype. It records old/new values,
   file hashes, expiration, and audit events, but MCP review mutation remains
   disabled.
+- Review-write expired proposal cleanup is CLI-only, dry-run by default, and
+  removes only expired proposal records when explicitly applied.
 - Deterministic mocked arXiv batch tests validate local plan/grant/run mechanics
   at 25-paper scale; live arXiv 25/50/100 paper reliability remains a bounded
   manual validation item.
+- Real colleague MCP setup should be recorded with
+  `docs/mcp_colleague_trial_record_template.md`; local surrogate runs do not
+  count as external usability evidence.

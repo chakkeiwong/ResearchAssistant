@@ -118,6 +118,16 @@ ra --root /tmp/ra-demo arxiv-batch run --grant-id <grant_id> --plan-hash <plan_h
 ```
 
 Query-based live arXiv discovery and PDF batch downloads remain future work.
+Pinned candidate-file planning is available for offline query-discovery
+fixtures:
+
+```bash
+ra arxiv-batch candidate-file inspect --path <candidate_file.json>
+ra arxiv-batch plan --candidate-file <candidate_file.json> --max-papers 25
+```
+
+This path does not query arXiv. It binds the candidate-file checksum and exact
+ordered arXiv IDs into the plan hash before any grant is created.
 
 For a validation checklist, see `docs/mcp_trial_checklist.md`.
 
@@ -130,18 +140,22 @@ through MCP yet.
 PDF batch downloads have a separate design gate in
 `docs/architecture/mcp_pdf_batch_intake_design.md`. PDF batch execution remains
 disabled until byte limits, duplicate handling, cleanup, and tests are in
-place.
+place. Executable policy checks are available in the codebase, but they do not
+download PDFs and are not exposed as an MCP write tool.
 
 Review-write is being prototyped through CLI confirmation commands, not MCP:
 
 ```bash
+ra review-write status
 ra review-write propose-status --paper-id <id> --status approved
 ra review-write apply --confirmation-id <confirmation_id>
+ra review-write cleanup-expired
 ```
 
 MCP review mutation remains disabled. The CLI prototype records old/new values,
 file hashes, expiration, and audit events, and blocks if the target file changed
-after proposal creation.
+after proposal creation. Expired proposal cleanup defaults to dry-run; real
+cleanup requires `--apply` and removes only expired proposal records.
 
 ## Troubleshooting
 

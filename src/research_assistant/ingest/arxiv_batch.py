@@ -23,6 +23,9 @@ from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
 from research_assistant.source.structured_source import source_record_path
 
 ARXIV_ID_PATTERN = re.compile(r"^\d{4}\.\d{4,5}(v\d+)?$|^[a-zA-Z-]+(\.[A-Z]{2})?/\d{7}(v\d+)?$")
+MAX_CANDIDATE_FILE_BYTES = 1_000_000
+MAX_CANDIDATE_FILE_IDS = 100
+ARXIV_CANDIDATE_SCHEMA_VERSION = "arxiv-query-candidates-v1"
 
 
 def normalize_arxiv_id(arxiv_id: str) -> str:
@@ -59,21 +62,103 @@ def _stable_plan_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 
+def candidate_file_checksum(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_arxiv_candidate_file(candidate_file: Path) -> dict[str, Any]:
+    path = candidate_file.expanduser()
+    if not path.exists():
+        return {"status": "blocked", "issues": [{"code": "candidate_file_missing", "path": str(path)}]}
+    if not path.is_file():
+        return {"status": "blocked", "issues": [{"code": "candidate_file_not_file", "path": str(path)}]}
+    size = path.stat().st_size
+    if size > MAX_CANDIDATE_FILE_BYTES:
+        return {"status": "blocked", "issues": [{"code": "candidate_file_too_large", "path": str(path), "size": size, "max_bytes": MAX_CANDIDATE_FILE_BYTES}]}
+    try:
+        payload = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        return {"status": "blocked", "issues": [{"code": "candidate_file_invalid_json", "path": str(path), "message": str(exc)}]}
+
+    issues: list[dict[str, Any]] = []
+    schema_version = payload.get("schema_version")
+    if schema_version != ARXIV_CANDIDATE_SCHEMA_VERSION:
+        issues.append({"code": "candidate_file_schema_mismatch", "expected": ARXIV_CANDIDATE_SCHEMA_VERSION, "actual": schema_version})
+    candidates = payload.get("candidates")
+    if not isinstance(candidates, list):
+        issues.append({"code": "candidate_file_candidates_not_list"})
+        candidates = []
+    if len(candidates) > MAX_CANDIDATE_FILE_IDS:
+        issues.append({"code": "candidate_file_too_many_candidates", "count": len(candidates), "max_candidates": MAX_CANDIDATE_FILE_IDS})
+
+    ordered_ids: list[str] = []
+    for index, candidate in enumerate(candidates):
+        if not isinstance(candidate, dict):
+            issues.append({"code": "candidate_not_object", "index": index})
+            continue
+        arxiv_id = candidate.get("arxiv_id")
+        if not isinstance(arxiv_id, str) or not arxiv_id.strip():
+            issues.append({"code": "candidate_missing_arxiv_id", "index": index})
+            continue
+        try:
+            ordered_ids.append(normalize_arxiv_id(arxiv_id))
+        except ValueError as exc:
+            issues.append({"code": "candidate_invalid_arxiv_id", "index": index, "message": str(exc)})
+    if len(set(ordered_ids)) != len(ordered_ids):
+        issues.append({"code": "candidate_duplicate_arxiv_id"})
+    if not ordered_ids:
+        issues.append({"code": "candidate_file_empty"})
+
+    metadata = {
+        "schema_version": schema_version,
+        "candidate_batch_id": payload.get("candidate_batch_id"),
+        "query": payload.get("query"),
+        "normalized_query": payload.get("normalized_query"),
+        "candidate_file": str(path),
+        "candidate_file_sha256": candidate_file_checksum(path),
+        "ordered_arxiv_ids": ordered_ids,
+        "candidate_count": len(ordered_ids),
+    }
+    return {
+        "status": "blocked" if issues else "ok",
+        "issues": issues,
+        "metadata": metadata,
+        "payload": payload,
+    }
+
+
 def plan_arxiv_batch_intake(
     *,
     query: str | None = None,
     arxiv_ids: list[str] | None = None,
     max_papers: int,
+    candidate_file: Path | None = None,
     destination: Literal["source", "inbox"] = "source",
     operation: Literal["source_fetch", "pdf_inbox_download", "metadata_only"] = "source_fetch",
     root: Path | None = None,
 ) -> dict[str, Any]:
     paths = get_paths(root)
     issues = []
+    candidate_file_metadata: dict[str, Any] | None = None
     try:
         ids = normalize_arxiv_ids(arxiv_ids)
     except ValueError as exc:
         return {"status": "blocked", "issues": [{"code": "invalid_arxiv_id", "message": str(exc)}]}
+    if candidate_file is not None:
+        candidate_result = load_arxiv_candidate_file(candidate_file)
+        if candidate_result["status"] != "ok":
+            return {
+                "status": "blocked",
+                "issues": candidate_result["issues"],
+                "writes_during_planning": False,
+                "requires_grant": True,
+            }
+        candidate_file_metadata = candidate_result["metadata"]
+        candidate_ids = candidate_file_metadata["ordered_arxiv_ids"]
+        if ids and ids != candidate_ids:
+            issues.append({"code": "candidate_file_ids_mismatch", "expected": candidate_ids, "actual": ids})
+        ids = candidate_ids
+        query = query or candidate_file_metadata.get("query")
     if not ids and not query:
         issues.append({"code": "missing_scope", "message": "provide explicit arXiv IDs or a query"})
     if query and not ids:
@@ -110,6 +195,7 @@ def plan_arxiv_batch_intake(
         "destination": destination,
         "destination_path": str(destination_path),
         "operation": operation,
+        "candidate_file": candidate_file_metadata,
         "allowed_domains": sorted(ALLOWED_ARXIV_DOMAINS),
         "duplicate_policy": "skip_existing",
         "overwrite_policy": "no_overwrite",
@@ -137,11 +223,30 @@ def run_arxiv_batch_intake(
     *,
     grant_id: str,
     plan_hash: str,
-    arxiv_ids: list[str],
+    arxiv_ids: list[str] | None = None,
+    candidate_file: Path | None = None,
     root: Path | None = None,
 ) -> dict[str, Any]:
     paths = get_paths(root)
-    ids = normalize_arxiv_ids(arxiv_ids)
+    try:
+        ids = normalize_arxiv_ids(arxiv_ids)
+    except ValueError as exc:
+        return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": [{"code": "invalid_arxiv_id", "message": str(exc)}]}
+    if candidate_file is not None:
+        candidate_result = load_arxiv_candidate_file(candidate_file)
+        if candidate_result["status"] != "ok":
+            return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": candidate_result["issues"]}
+        candidate_ids = candidate_result["metadata"]["ordered_arxiv_ids"]
+        if ids and ids != candidate_ids:
+            return {
+                "status": "blocked",
+                "grant_id": grant_id,
+                "plan_hash": plan_hash,
+                "issues": [{"code": "candidate_file_ids_mismatch", "expected": candidate_ids, "actual": ids}],
+            }
+        ids = candidate_ids
+    if not ids:
+        return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": [{"code": "missing_arxiv_ids"}]}
     grant = read_mcp_grant(grant_id, root=paths.root)
     validation = validate_arxiv_batch_grant(
         grant,
@@ -157,6 +262,7 @@ def run_arxiv_batch_intake(
 
     plan = plan_arxiv_batch_intake(
         arxiv_ids=ids,
+        candidate_file=candidate_file,
         max_papers=int(grant["max_papers"]),
         destination="source",
         operation="source_fetch",

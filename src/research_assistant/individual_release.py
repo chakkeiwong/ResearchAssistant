@@ -1214,6 +1214,52 @@ def corruption_hardening_status(*, root: Path | None = None) -> dict[str, Any]:
 
 
 def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
+    from research_assistant.ingest.pdf_batch_policy import pdf_batch_policy_status
+    from research_assistant.adapters.review_write import review_write_status
+
+    pdf_policy_status = pdf_batch_policy_status()
+    review_write_readiness = review_write_status(root=root)
+    gate_status = {
+        "colleague_mcp_trial": {
+            "status": "manual_external_required",
+            "evidence": "not_recorded",
+            "claim": "A real colleague MCP client setup trial is still required.",
+        },
+        "explicit_id_arxiv_source_batch": {
+            "status": "available_with_local_grant",
+            "deterministic_scale_evidence": "mocked_25_paper_passed",
+            "live_scale_evidence": "manual_bounded_validation_pending",
+            "review_policy": "review_material_only",
+        },
+        "query_discovery": {
+            "status": "offline_candidate_file_planning_available",
+            "offline_candidate_file_planning": True,
+            "live_query_enabled": False,
+            "claim": "Pinned candidate-file planning is available; live query discovery is disabled until bounded live validation is recorded.",
+        },
+        "pdf_batch_intake": {
+            "status": "policy_checks_available_execution_disabled",
+            "policy_checks_available": True,
+            "execution_enabled": False,
+            "policy": pdf_policy_status,
+            "claim": "PDF batch download execution is disabled.",
+        },
+        "review_write": {
+            "status": "cli_prototype_only",
+            "mcp_exposed": False,
+            "supported_operations": ["mark_review_status"],
+            "proposal_counts": review_write_readiness.get("proposal_counts", {}),
+            "claim": "Review mutation is not exposed through MCP.",
+        },
+        "packaging_after_mcp_gap_work": {
+            "status": "manual_rebuild_recommended",
+            "rebuild_commands": [
+                "timeout 300 scripts/run_packaging_smoke.sh",
+                "timeout 300 scripts/build_release_artifacts.sh",
+            ],
+            "generated_artifacts_committed": False,
+        },
+    }
     try:
         from research_assistant.adapters import mcp_server
         from research_assistant.adapters.mcp_permissions import mcp_permissions_status
@@ -1227,6 +1273,7 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
             "default_mode": "read_only",
             "hosted_service": False,
             "write_tools_enabled_by_default": False,
+            "gate_status": gate_status,
             "limitations": ["MCP is optional and not required for the base local CLI workflow."],
         }
     permission_status = mcp_permissions_status(root=root)
@@ -1242,6 +1289,7 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
         "write_tools_enabled_by_default": False,
         "mcp_tools": mcp_server.available_tool_names(),
         "permission_status": permission_status,
+        "gate_status": gate_status,
         "limitations": [
             "MCP is local stdio only for this milestone.",
             "ArXiv batch intake requires an explicit local grant before writes.",
