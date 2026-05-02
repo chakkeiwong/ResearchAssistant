@@ -1230,7 +1230,7 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
         "explicit_id_arxiv_source_batch": {
             "status": "available_with_local_grant",
             "deterministic_scale_evidence": "mocked_25_paper_passed",
-            "live_scale_evidence": "manual_bounded_validation_pending",
+            "live_scale_evidence": "accepted_25_50_100_public_id_runs_2026_05_03",
             "review_policy": "review_material_only",
             "live_protocol": "docs/validation/local_mcp_live_arxiv_scale_protocol.md",
             "evidence_index": "docs/validation/local_mcp_external_validation_records.md",

@@ -3,7 +3,7 @@
 Use this protocol only after the operator explicitly approves a live arXiv
 network run. Do not run these commands as part of deterministic tests.
 
-Current status: `manual_live_approval_required`.
+Current status: `accepted`.
 
 ## Purpose
 
@@ -144,6 +144,16 @@ text, or private local paths into docs.
 
 | Date | Count | Timeout | Attempted | Fetched | Skipped | Failed | Elapsed | Result | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| pending | 25 | 900s | | | | | | `manual_live_approval_required` | |
-| pending | 50 | 1800s | | | | | | `manual_live_approval_required` | |
-| pending | 100 | 3600s | | | | | | `manual_live_approval_required` | |
+| 2026-05-03 | 25 | 900s | 25 | 17 | 0 | 0 | 153.99s | `accepted` | Public IDs `2401.00001`-`2401.00025`; 7 source-structure failures and 1 unavailable source were recorded as review-material limitations. |
+| 2026-05-03 | 50 | 1800s | 50 | 40 | 0 | 0 | 167.70s | `accepted` | Public IDs `2401.00001`-`2401.00050`; 9 source-structure failures and 1 unavailable source were recorded as review-material limitations. |
+| 2026-05-03 | 100 | 3600s | 100 | 87 | 0 | 0 | 591.90s | `accepted` | Public IDs `2401.00001`-`2401.00100`; 12 source-structure failures and 1 unavailable source were recorded as review-material limitations. |
+
+Duplicate/no-overwrite follow-up:
+
+- The first duplicate rerun against the 25-paper live workspace was safely
+  blocked because duplicate diagnostics changed the recomputed plan hash.
+- The plan hash was fixed to exclude mutable duplicate diagnostics while still
+  binding ordered IDs, paper IDs, URLs, destination, policies, and
+  candidate-file metadata.
+- A patched-checkout rerun with a fresh grant skipped all 25 existing records,
+  fetched 0 records, recorded 0 failures, and completed in 0.09s.

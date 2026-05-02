@@ -17,7 +17,7 @@ in.
 | Hypothesis | Status | Evidence |
 | --- | --- | --- |
 | H1 real colleague MCP setup | `blocked_external` | No real colleague MCP trial recorded; user chose to record the external blocker and proceed. |
-| H2 live explicit-ID arXiv source scale | `manual_live_approval_required` | Mocked 25-paper mechanics passed; live 25/50/100 not recorded. |
+| H2 live explicit-ID arXiv source scale | `accepted` | Public explicit-ID live runs completed for 25/50/100 on 2026-05-03; duplicate rerun bug found and fixed. |
 | H3-live query discovery smoke | `manual_live_approval_required` | Offline candidate-file planning exists; live query disabled. |
 | H4 PDF execution readiness | `preconditions_required` | Policy checks exist; downloader disabled. |
 | H5 MCP review-write readiness | `preconditions_required` | CLI prototype exists; MCP mutation disabled. |
@@ -75,6 +75,57 @@ Fail criteria:
 
 Use `docs/validation/local_mcp_live_arxiv_scale_protocol.md` for commands and
 limits.
+
+Current classification: `accepted`.
+
+Approval:
+
+- approving person: user;
+- approval date: 2026-05-03 Asia/Hong_Kong;
+- approved scope: bounded live arXiv network commands for H2;
+- explicit sanitized arXiv ID source: public sequential IDs
+  `2401.00001` through `2401.00100`;
+- workspace roots: `/tmp/ra-live-arxiv-source-25-2026-05-03`,
+  `/tmp/ra-live-arxiv-source-50-2026-05-03`, and
+  `/tmp/ra-live-arxiv-source-100-2026-05-03`;
+- committed evidence: sanitized summaries only.
+
+Sanitized live results:
+
+| Count | Timeout | Attempted | Fetched | Skipped | Failed | Elapsed | Audit events | Status mix | Result |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 25 | 900s | 25 | 17 | 0 | 0 | 153.99s | 28 | 17 available, 7 failed structure extraction, 1 unavailable source | `accepted` |
+| 50 | 1800s | 50 | 40 | 0 | 0 | 167.70s | 53 | 40 available, 9 failed structure extraction, 1 unavailable source | `accepted` |
+| 100 | 3600s | 100 | 87 | 0 | 0 | 591.90s | 103 | 87 available, 12 failed structure extraction, 1 unavailable source | `accepted` |
+
+Plan/grant identifiers:
+
+- 25 live run: plan hash
+  `d7ace3c2ad50588be98aded126fc8fb71ffc6a032d16778a9e2d3ce33960c598`,
+  grant `mcp_grant_9afbf05b811c039a`;
+- 50 live run: plan hash
+  `75b53884465a18b20889f2fb1aac8f1fa44c3d81cb73fcb4e6e8e19d5c9b3cee`,
+  grant `mcp_grant_5709d0cb72cc1371`;
+- 100 live run: plan hash
+  `91706256a336d8f9c4ea04cf9289482df506638555cf8aa8970e9503ac64a42e`,
+  grant `mcp_grant_9e7440cbe714d6af`.
+
+Safety and interpretation:
+
+- all three live runs completed within the bounded timeouts;
+- manifests and audit logs were created in `/tmp` workspaces;
+- no raw source archives, full text, manifests, audit logs, or private paths
+  are committed;
+- no JSON record in the live workspaces had review status `approved`;
+- source-structure failures were recorded as review-material limitations, not
+  command failures;
+- rerunning an old live grant after source records existed exposed plan-hash
+  drift caused by mutable duplicate diagnostics;
+- the plan-hash drift was fixed so duplicate diagnostics remain visible but do
+  not change the grant-bound plan identity;
+- a patched-checkout duplicate rerun created fresh grant
+  `mcp_grant_6341ba16caf9d735` against the populated 25-paper workspace and
+  completed with 25 skipped duplicates, 0 fetched, and 0 failures in 0.09s.
 
 Required evidence:
 

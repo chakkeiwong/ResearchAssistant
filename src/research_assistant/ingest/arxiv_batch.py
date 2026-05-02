@@ -203,7 +203,21 @@ def plan_arxiv_batch_intake(
         "candidate_count": len(candidates),
         "candidates": candidates,
     }
-    plan_hash = _stable_plan_hash(plan_core)
+    hash_core = {
+        key: value
+        for key, value in plan_core.items()
+        if key not in {"candidates"}
+    }
+    hash_core["candidates"] = [
+        {
+            "arxiv_id": candidate["arxiv_id"],
+            "paper_id": candidate["paper_id"],
+            "source_url": candidate["source_url"],
+            "pdf_url": candidate["pdf_url"],
+        }
+        for candidate in candidates
+    ]
+    plan_hash = _stable_plan_hash(hash_core)
     return {
         **plan_core,
         "plan_hash": plan_hash,

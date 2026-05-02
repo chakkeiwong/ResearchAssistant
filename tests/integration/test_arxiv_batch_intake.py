@@ -288,6 +288,57 @@ def test_granted_arxiv_batch_run_skips_duplicates_by_default(tmp_path: Path, mon
     assert result["skipped_duplicates"][0]["status"] == "skipped_duplicate"
 
 
+def test_granted_arxiv_batch_rerun_skips_records_created_after_grant(tmp_path: Path, monkeypatch) -> None:
+    plan = plan_arxiv_batch_intake(arxiv_ids=["2401.00001"], max_papers=1, root=tmp_path)
+    grant = create_arxiv_batch_grant(
+        plan_hash=plan["plan_hash"],
+        max_papers=1,
+        root=tmp_path,
+        arxiv_ids=["2401.00001"],
+    )["grant"]
+
+    def fake_fetch(arxiv_id: str, *, root: Path | None = None, paper_id: str | None = None):
+        from research_assistant.source.structured_source import StructuredSourceRecord, source_record_path
+        from research_assistant.storage.file_store import FileStore
+        from research_assistant.config import get_paths
+
+        paths = get_paths(root)
+        record = StructuredSourceRecord(
+            paper_id=paper_id or "paper_arxiv_2401_00001",
+            source_type="arxiv_latex",
+            status="available",
+            primary_for_audit=True,
+            provenance={"arxiv_id": arxiv_id},
+        )
+        FileStore(paths.local_research).write_json(source_record_path(paths.papers_source, record.paper_id), record.to_dict())
+        return record
+
+    monkeypatch.setattr("research_assistant.ingest.arxiv_batch.fetch_arxiv_structured_source", fake_fetch)
+    first = run_arxiv_batch_intake(
+        grant_id=grant["grant_id"],
+        plan_hash=plan["plan_hash"],
+        arxiv_ids=["2401.00001"],
+        root=tmp_path,
+    )
+
+    def fail_fetch(*args, **kwargs):
+        raise AssertionError("rerun duplicate should skip before fetch")
+
+    monkeypatch.setattr("research_assistant.ingest.arxiv_batch.fetch_arxiv_structured_source", fail_fetch)
+    rerun = run_arxiv_batch_intake(
+        grant_id=grant["grant_id"],
+        plan_hash=plan["plan_hash"],
+        arxiv_ids=["2401.00001"],
+        root=tmp_path,
+    )
+
+    assert first["status"] == "completed"
+    assert first["fetched_count"] == 1
+    assert rerun["status"] == "completed"
+    assert rerun["fetched_count"] == 0
+    assert rerun["skipped_duplicates"][0]["status"] == "skipped_duplicate"
+
+
 def test_granted_arxiv_batch_run_handles_mocked_25_paper_scale(tmp_path: Path, monkeypatch) -> None:
     ids = [f"2401.{idx:05d}" for idx in range(1, 26)]
     plan = plan_arxiv_batch_intake(arxiv_ids=ids, max_papers=25, root=tmp_path)

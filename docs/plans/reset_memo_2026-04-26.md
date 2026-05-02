@@ -4092,6 +4092,112 @@ Initial gap interpretation:
 Next safe step:
 - Run Phase 0 baseline and independent plan audit.
 
+## Update - local MCP H2 live arXiv scale validation completed
+
+Objective:
+- Use the user's explicit approval on 2026-05-03 Asia/Hong_Kong to run bounded
+  live arXiv network commands for H2.
+
+Execution plan:
+- Use public sanitized arXiv IDs only.
+- Use `/tmp` workspaces only.
+- Run 25 first, then 50 only if 25 is comfortable, then 100 only if 50 is
+  comfortable.
+- Commit only sanitized summaries, not manifests, audit logs, raw source
+  archives, or extracted text.
+
+Live run results:
+- 25-paper run:
+  - workspace: `/tmp/ra-live-arxiv-source-25-2026-05-03`;
+  - IDs: `2401.00001` through `2401.00025`;
+  - plan hash:
+    `d7ace3c2ad50588be98aded126fc8fb71ffc6a032d16778a9e2d3ce33960c598`;
+  - grant: `mcp_grant_9afbf05b811c039a`;
+  - timeout: 900s;
+  - elapsed: 153.99s;
+  - attempted: 25;
+  - fetched/available: 17;
+  - skipped duplicates: 0;
+  - command failures: 0;
+  - status mix: 17 available, 7 failed source-structure extraction, 1
+    unavailable source;
+  - audit events: 28.
+- 50-paper run:
+  - workspace: `/tmp/ra-live-arxiv-source-50-2026-05-03`;
+  - IDs: `2401.00001` through `2401.00050`;
+  - plan hash:
+    `75b53884465a18b20889f2fb1aac8f1fa44c3d81cb73fcb4e6e8e19d5c9b3cee`;
+  - grant: `mcp_grant_5709d0cb72cc1371`;
+  - timeout: 1800s;
+  - elapsed: 167.70s;
+  - attempted: 50;
+  - fetched/available: 40;
+  - skipped duplicates: 0;
+  - command failures: 0;
+  - status mix: 40 available, 9 failed source-structure extraction, 1
+    unavailable source;
+  - audit events: 53.
+- 100-paper run:
+  - workspace: `/tmp/ra-live-arxiv-source-100-2026-05-03`;
+  - IDs: `2401.00001` through `2401.00100`;
+  - plan hash:
+    `91706256a336d8f9c4ea04cf9289482df506638555cf8aa8970e9503ac64a42e`;
+  - grant: `mcp_grant_9e7440cbe714d6af`;
+  - timeout: 3600s;
+  - elapsed: 591.90s;
+  - attempted: 100;
+  - fetched/available: 87;
+  - skipped duplicates: 0;
+  - command failures: 0;
+  - status mix: 87 available, 12 failed source-structure extraction, 1
+    unavailable source;
+  - audit events: 103.
+
+Audit as another developer:
+- All live runs completed within their bounded timeouts.
+- All generated source archives, manifests, and audit logs stayed under `/tmp`
+  workspaces and are not committed.
+- No review status was marked `approved`.
+- Source extraction failures were visible and bounded as review-material
+  limitations rather than hidden command failures.
+- Initial duplicate/no-overwrite rerun exposed a real plan-hash drift bug:
+  duplicate diagnostics changed the recomputed plan hash after records existed.
+- Fixed the plan hash to exclude mutable duplicate diagnostics while still
+  binding ordered IDs, paper IDs, URLs, destination, policies, and
+  candidate-file metadata.
+- Added a regression test covering rerun duplicates created after grant
+  creation.
+- Verified patched-checkout duplicate rerun with fresh grant
+  `mcp_grant_6341ba16caf9d735`: 25 attempted, 25 skipped duplicates, 0 fetched,
+  0 failures, 0.09s.
+
+Documentation and reporting updates:
+- Updated `docs/validation/local_mcp_external_validation_records.md` with H2
+  classification `accepted`.
+- Updated `docs/validation/local_mcp_live_arxiv_scale_protocol.md` with the
+  sanitized result table.
+- Updated `ra release-report` H2 live evidence from
+  `manual_bounded_validation_pending` to
+  `accepted_25_50_100_public_id_runs_2026_05_03`.
+
+Validation after code/docs updates:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `16 passed`.
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Interpretation:
+- H2 is accepted for public explicit-ID source intake at 25/50/100 with local
+  grants, bounded timeouts, useful manifests/audits, no automatic approval, and
+  duplicate/no-overwrite behavior fixed and verified.
+- H2 does not validate query discovery or PDF download execution; those remain
+  separate H3/H4 gates.
+
+Next safe step:
+- Commit the H2 evidence and duplicate-rerun fix.
+
 ## Update - local MCP H1 external agent handoff completed
 
 Objective:

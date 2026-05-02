@@ -179,7 +179,7 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert gates["colleague_mcp_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
     assert gates["colleague_mcp_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
     assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"
-    assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "manual_bounded_validation_pending"
+    assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "accepted_25_50_100_public_id_runs_2026_05_03"
     assert gates["explicit_id_arxiv_source_batch"]["live_protocol"] == "docs/validation/local_mcp_live_arxiv_scale_protocol.md"
     assert gates["query_discovery"]["live_query_enabled"] is False
     assert gates["query_discovery"]["live_protocol"] == "docs/validation/local_mcp_live_query_discovery_protocol.md"
