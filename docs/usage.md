@@ -4,6 +4,15 @@
 Git-based sharing. It is not a shared database, hosted service, SSO/RBAC system,
 real-time collaboration tool, or hosted UI.
 
+## Local MCP Adapter
+
+The next integration target is a local stdio MCP adapter. It remains an
+individual-machine adapter over the existing workspace, not a hosted service.
+The default MCP mode is read-only; write-capable arXiv batch intake requires a
+bounded local grant and audit trail.
+
+See `docs/architecture/local_mcp_adapter.md` and `docs/mcp.md`.
+
 ## Core Local Workflow
 
 ```bash

@@ -14,3 +14,8 @@
 - Shell scripts target Linux, macOS, and WSL-style POSIX environments.
 - macOS and colleague-machine onboarding remain pilot-release validation items until completed on real machines.
 - Native Windows is unvalidated; use WSL for Windows colleagues.
+- MCP support is local stdio and read-only by default. Write-capable arXiv
+  batch intake requires bounded grants and remains review material, not
+  automatic approval.
+- MCP is optional; absence of the MCP extra does not block the base local CLI
+  workflow.

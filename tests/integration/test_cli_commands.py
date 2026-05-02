@@ -56,14 +56,71 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'workspace' in captured.out
     assert 'backup' in captured.out
     assert 'privacy' in captured.out
+    assert 'mcp' in captured.out
     assert 'release-report' in captured.out
     assert 'bounded-workflow' in captured.out
     assert 'performance' in captured.out
     assert 'parser-tool-matrix' in captured.out
     assert 'parser-benchmark-smoke' in captured.out
+    assert 'arxiv-batch' in captured.out
     assert 'release-artifacts' in captured.out
     assert 'onboarding-report' in captured.out
     assert 'platform-status' in captured.out
+
+
+def test_cli_mcp_grant_and_audit_foundation(tmp_path: Path, capsys) -> None:
+    rc = main([
+        '--root', str(tmp_path),
+        'mcp', 'grant', 'arxiv-intake',
+        '--plan-hash', 'plan_fixture_hash',
+        '--operation', 'source_fetch',
+        '--destination', 'source',
+        '--max-papers', '2',
+        '--expires-hours', '2',
+        '--ids', '2401.00001,2401.00002',
+        '--skip-duplicates',
+    ])
+    payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload['status'] == 'created'
+    grant = payload['grant']
+    assert grant['mode'] == 'arxiv_batch_intake'
+    assert grant['plan_hash'] == 'plan_fixture_hash'
+    assert grant['destination'] == 'source'
+    assert grant['max_papers'] == 2
+    assert grant['arxiv_ids'] == ['2401.00001', '2401.00002']
+    assert grant['review_policy'] == 'review_material_only'
+    assert 'arxiv.org' in grant['allowed_domains']
+    assert (tmp_path / 'local_research' / 'governance' / 'mcp' / 'grants' / f"{grant['grant_id']}.json").exists()
+
+    rc = main(['--root', str(tmp_path), 'mcp', 'grants', 'list'])
+    grants = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert grants[0]['grant_id'] == grant['grant_id']
+
+    rc = main(['--root', str(tmp_path), 'mcp', 'grants', 'show', '--grant-id', grant['grant_id']])
+    shown = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown['grant_id'] == grant['grant_id']
+
+    rc = main(['--root', str(tmp_path), 'mcp', 'audit', 'list', '--grant-id', grant['grant_id']])
+    audit = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit[0]['event_type'] == 'grant_created'
+
+
+def test_cli_mcp_grant_rejects_unbounded_batch(tmp_path: Path, capsys) -> None:
+    rc = main([
+        '--root', str(tmp_path),
+        'mcp', 'grant', 'arxiv-intake',
+        '--plan-hash', 'plan_fixture_hash',
+        '--max-papers', '1',
+        '--ids', '2401.00001,2401.00002',
+    ])
+    payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload['status'] == 'blocked'
+    assert payload['issues'][0]['code'] == 'max_papers_exceeded'
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:

@@ -49,6 +49,24 @@ ra bounded-workflow diagnostic --workflow parser-run --timeout-seconds 300
 
 This writes a local diagnostic artifact under `local_research/jobs/` so a stuck workflow has a recoverable trace instead of a silent hang.
 
+## Local MCP Problems
+
+```bash
+ra-mcp --help
+ra --root /tmp/ra-demo doctor
+ra --root /tmp/ra-demo privacy status
+```
+
+If `ra-mcp` reports that the MCP SDK is missing, install the optional extra:
+
+```bash
+python -m pip install ".[mcp]"
+```
+
+The MCP adapter is local stdio and read-only by default. It should not expose
+ingest, download, review mutation, backup restore, delete, or arbitrary file
+tools.
+
 ## Restore Problems
 
 ```bash

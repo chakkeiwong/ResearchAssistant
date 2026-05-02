@@ -30,6 +30,8 @@ One serious local researcher first. The product is optimized for a single-user C
 - Remote enrichment degrades visibly instead of blocking local review.
 - Deterministic tests plus manual validation scripts.
 - No silent final moves for downloaded papers.
+- Local assistant integration may use a read-only-by-default MCP adapter without
+  changing the product into a hosted service.
 
 ## Non-goals
 - No opaque metadata auto-merges.
@@ -38,6 +40,8 @@ One serious local researcher first. The product is optimized for a single-user C
 - No high-stakes claim verification without explicit evidence support.
 - No GUI-first rewrite at this stage.
 - No database requirement for v0.1.
+- No hosted MCP/HTTP server, shared MCP deployment, or MCP write tools without
+  explicit local grant and audit behavior.
 
 ## v0.1 milestone
 Reviewable local library:

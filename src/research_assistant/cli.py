@@ -5,6 +5,13 @@ import json
 from pathlib import Path
 
 from research_assistant.adapters.workspace_exports import export_paper_context
+from research_assistant.adapters.mcp_permissions import (
+    create_arxiv_batch_grant,
+    list_mcp_audit_events,
+    list_mcp_grants,
+    mcp_permissions_status,
+    read_mcp_grant,
+)
 from research_assistant.analyze.literature_audit import approve_literature_audit, propose_literature_audit, show_literature_audit
 from research_assistant.config import get_paths
 from research_assistant.individual_release import (
@@ -117,6 +124,7 @@ from research_assistant.industrial.platform import (
     validate_industrial_artifacts,
 )
 from research_assistant.ingest.source_manifest import canonical_paper_id, store_raw_source
+from research_assistant.ingest.arxiv_batch import plan_arxiv_batch_intake, run_arxiv_batch_intake
 from research_assistant.ingest.pdf_extract import extract_pdf_text
 from research_assistant.ingest.normalize_text import normalize_extracted_text
 from research_assistant.ingest.metadata_resolve import resolve_metadata
@@ -353,6 +361,64 @@ def cmd_release_report(args: argparse.Namespace) -> int:
         root=Path(args.root) if args.root else None,
         output=Path(args.output) if args.output else None,
     ))
+
+
+def _split_csv(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def cmd_mcp(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.mcp_action == "status":
+        return _print_json(mcp_permissions_status(root=root))
+    if args.mcp_action == "grant":
+        if args.grant_action == "arxiv-intake":
+            return _print_json(create_arxiv_batch_grant(
+                plan_hash=args.plan_hash,
+                operation=args.operation,
+                destination=args.destination,
+                max_papers=args.max_papers,
+                expires_hours=args.expires_hours,
+                root=root,
+                query=args.query,
+                arxiv_ids=_split_csv(args.ids),
+                duplicate_policy="skip_existing" if args.skip_duplicates else "report_duplicates",
+            ))
+        raise SystemExit(f"unknown mcp grant action {args.grant_action}")
+    if args.mcp_action == "grants":
+        if args.grants_action == "list":
+            return _print_json(list_mcp_grants(root=root))
+        if args.grants_action == "show":
+            return _print_json(read_mcp_grant(args.grant_id, root=root))
+        raise SystemExit(f"unknown mcp grants action {args.grants_action}")
+    if args.mcp_action == "audit":
+        if args.audit_action == "list":
+            return _print_json(list_mcp_audit_events(root=root, grant_id=args.grant_id))
+        raise SystemExit(f"unknown mcp audit action {args.audit_action}")
+    raise SystemExit(f"unknown mcp action {args.mcp_action}")
+
+
+def cmd_arxiv_batch(args: argparse.Namespace) -> int:
+    root = Path(args.root) if args.root else None
+    if args.arxiv_batch_action == "plan":
+        return _print_json(plan_arxiv_batch_intake(
+            query=args.query,
+            arxiv_ids=_split_csv(args.ids),
+            max_papers=args.max_papers,
+            destination=args.destination,
+            operation=args.operation,
+            root=root,
+        ))
+    if args.arxiv_batch_action == "run":
+        return _print_json(run_arxiv_batch_intake(
+            grant_id=args.grant_id,
+            plan_hash=args.plan_hash,
+            arxiv_ids=_split_csv(args.ids),
+            root=root,
+        ))
+    raise SystemExit(f"unknown arxiv-batch action {args.arxiv_batch_action}")
 
 
 def cmd_repository_hygiene(args: argparse.Namespace) -> int:
@@ -1130,6 +1196,35 @@ def build_parser() -> argparse.ArgumentParser:
     release_report_cmd.add_argument('--output')
     release_report_cmd.set_defaults(func=cmd_release_report)
 
+    mcp_cmd = sub.add_parser('mcp', help='Inspect local MCP permissions and bounded grants')
+    mcp_sub = mcp_cmd.add_subparsers(dest='mcp_action', required=True)
+    mcp_status = mcp_sub.add_parser('status')
+    mcp_status.set_defaults(func=cmd_mcp)
+    mcp_grant = mcp_sub.add_parser('grant')
+    mcp_grant_sub = mcp_grant.add_subparsers(dest='grant_action', required=True)
+    mcp_grant_arxiv = mcp_grant_sub.add_parser('arxiv-intake')
+    mcp_grant_arxiv.add_argument('--plan-hash', required=True)
+    mcp_grant_arxiv.add_argument('--operation', choices=['source_fetch', 'pdf_inbox_download', 'metadata_only'], default='source_fetch')
+    mcp_grant_arxiv.add_argument('--destination', choices=['source', 'inbox'], default='source')
+    mcp_grant_arxiv.add_argument('--max-papers', type=int, required=True)
+    mcp_grant_arxiv.add_argument('--expires-hours', type=int, default=2)
+    mcp_grant_arxiv.add_argument('--query')
+    mcp_grant_arxiv.add_argument('--ids')
+    mcp_grant_arxiv.add_argument('--skip-duplicates', action='store_true')
+    mcp_grant_arxiv.set_defaults(func=cmd_mcp)
+    mcp_grants = mcp_sub.add_parser('grants')
+    mcp_grants_sub = mcp_grants.add_subparsers(dest='grants_action', required=True)
+    mcp_grants_list = mcp_grants_sub.add_parser('list')
+    mcp_grants_list.set_defaults(func=cmd_mcp)
+    mcp_grants_show = mcp_grants_sub.add_parser('show')
+    mcp_grants_show.add_argument('--grant-id', required=True)
+    mcp_grants_show.set_defaults(func=cmd_mcp)
+    mcp_audit = mcp_sub.add_parser('audit')
+    mcp_audit_sub = mcp_audit.add_subparsers(dest='audit_action', required=True)
+    mcp_audit_list = mcp_audit_sub.add_parser('list')
+    mcp_audit_list.add_argument('--grant-id')
+    mcp_audit_list.set_defaults(func=cmd_mcp)
+
     _register_repository_hygiene_commands(sub)
     _register_individual_git_release_commands(sub)
 
@@ -1157,6 +1252,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser_benchmark = sub.add_parser('parser-benchmark-smoke', help='Run fixture-only parser benchmark smoke')
     parser_benchmark.set_defaults(func=cmd_parser_benchmark_smoke)
+
+    arxiv_batch = sub.add_parser('arxiv-batch', help='Plan and run bounded arXiv batch intake')
+    arxiv_batch_sub = arxiv_batch.add_subparsers(dest='arxiv_batch_action', required=True)
+    arxiv_batch_plan = arxiv_batch_sub.add_parser('plan')
+    arxiv_batch_plan.add_argument('--ids')
+    arxiv_batch_plan.add_argument('--query')
+    arxiv_batch_plan.add_argument('--max-papers', type=int, required=True)
+    arxiv_batch_plan.add_argument('--destination', choices=['source', 'inbox'], default='source')
+    arxiv_batch_plan.add_argument('--operation', choices=['source_fetch', 'pdf_inbox_download', 'metadata_only'], default='source_fetch')
+    arxiv_batch_plan.set_defaults(func=cmd_arxiv_batch)
+    arxiv_batch_run = arxiv_batch_sub.add_parser('run')
+    arxiv_batch_run.add_argument('--grant-id', required=True)
+    arxiv_batch_run.add_argument('--plan-hash', required=True)
+    arxiv_batch_run.add_argument('--ids', required=True)
+    arxiv_batch_run.set_defaults(func=cmd_arxiv_batch)
 
     release_artifacts = sub.add_parser('release-artifacts', help='Inspect release artifact manifests')
     release_artifacts_sub = release_artifacts.add_subparsers(dest='release_artifacts_action', required=True)

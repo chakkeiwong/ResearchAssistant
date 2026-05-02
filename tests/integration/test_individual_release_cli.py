@@ -20,6 +20,8 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert pyproject["project"]["name"] == "research-assistant"
     assert pyproject["project"]["requires-python"] == ">=3.10"
     assert pyproject["project"]["scripts"]["ra"] == "research_assistant.cli:main"
+    assert pyproject["project"]["scripts"]["ra-mcp"] == "research_assistant.adapters.mcp_server:main"
+    assert "mcp" in pyproject["project"]["optional-dependencies"]
     assert Path("CHANGELOG.md").exists()
     assert Path("scripts/run_clean_install_smoke.sh").exists()
     assert os.access("scripts/run_clean_install_smoke.sh", os.X_OK)
@@ -167,6 +169,11 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert rc == 0
     assert report["status"] in {"ready_for_release_candidate_review", "warnings"}
     assert not report["blockers"]
+    assert report["mcp_readiness"]["optional"] is True
+    assert report["mcp_readiness"]["default_mode"] == "read_only"
+    assert report["mcp_readiness"]["hosted_service"] is False
+    assert "ra_review_mark" not in report["mcp_readiness"].get("mcp_tools", [])
+    assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
 
 
 def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> None:

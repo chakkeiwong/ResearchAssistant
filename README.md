@@ -15,6 +15,23 @@ The product focuses on:
 
 This is intentionally local-first and file-based so it remains inspectable and easy to debug.
 
+## Local MCP adapter
+
+`research-assistant` can also run as a local stdio MCP server with the optional
+MCP extra:
+
+```bash
+python -m pip install ".[mcp]"
+ra --root /tmp/ra-demo demo setup
+ra-mcp --root /tmp/ra-demo
+```
+
+The first MCP surface is read-only by default. It does not expose ingest,
+download, review mutation, backup restore, destructive operations, or hosted
+server deployment.
+
+See [docs/mcp.md](docs/mcp.md).
+
 ## Product posture
 
 This is a validation-first personal research tool, not an automatic paper-library manager. Uncertain records should surface review signals instead of being silently accepted.
