@@ -1,5 +1,8 @@
 # Quickstart
 
+Working from a source checkout? Use `scripts/ra-dev` as the no-install form of
+`ra`; it sets `PYTHONPATH=src` automatically.
+
 ## Try The Demo
 
 ```bash
@@ -7,6 +10,15 @@ ra --root /tmp/research-assistant-demo demo setup
 ra --root /tmp/research-assistant-demo demo run
 ra --root /tmp/research-assistant-demo release-report
 ra --root /tmp/research-assistant-demo backup create
+```
+
+Source-checkout equivalent:
+
+```bash
+scripts/ra-dev --root /tmp/research-assistant-demo demo setup
+scripts/ra-dev --root /tmp/research-assistant-demo demo run
+scripts/ra-dev --root /tmp/research-assistant-demo release-report
+scripts/ra-dev --root /tmp/research-assistant-demo backup create
 ```
 
 The demo creates a fixture paper, a derivation worksheet, experiment evidence, a traceability report, governance/model-policy records, readiness output, and a backup archive. It uses local deterministic data only.

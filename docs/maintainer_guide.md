@@ -67,17 +67,25 @@ Do not mark manual gates as passed unless they actually happened.
 
 ## Common Validation Commands
 
+From a source checkout, prefer `scripts/ra-dev` and `scripts/ra-agent` so
+maintainers and agents do not need to remember `PYTHONPATH=src`:
+
 ```bash
-PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_individual_release_cli.py -q
-PYTHONPATH=src timeout 180 python -m pytest tests/integration/test_industrial_platform_cli.py -q
-timeout 120 scripts/run_fast_tests.sh
+scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q
+scripts/ra-agent pytest tests/integration/test_industrial_platform_cli.py -q
+scripts/ra-agent fast-tests
 timeout 180 scripts/run_bounded_tests.sh
 timeout 300 scripts/build_release_artifacts.sh
 env WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh
 GATE_ROOT=/tmp/research-assistant-maintainer-gate timeout 300 scripts/run_individual_git_release_gate.sh
-git diff --check
-git status --short --ignored
+scripts/ra-agent diff-check
+scripts/ra-agent status
 ```
+
+The helpers remove source-checkout friction only. Live network commands,
+review-write apply, PDF download execution, restore, merge apply, and
+destructive operations still require explicit user approval, explicit CLI
+confirmation, or a bounded local grant.
 
 Use a clean local clone for final release-gate reproduction.
 

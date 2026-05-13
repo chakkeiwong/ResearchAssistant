@@ -14,3 +14,32 @@
 - Shell scripts target Linux, macOS, and WSL-style POSIX environments.
 - macOS and colleague-machine onboarding remain pilot-release validation items until completed on real machines.
 - Native Windows is unvalidated; use WSL for Windows colleagues.
+- Local installs may generate `*.egg-info/` metadata in the checkout. These
+  files are ignored and should not be committed.
+- MCP support is local stdio and read-only by default. Write-capable arXiv
+  batch intake requires bounded grants and remains review material, not
+  automatic approval.
+- MCP is optional; absence of the MCP extra does not block the base local CLI
+  workflow.
+- MCP query-based arXiv discovery is not live-enabled. Bounded CLI live
+  discovery can write a pinned candidate file, and planning binds the
+  candidate-file checksum and exact ordered IDs into the plan hash.
+- MCP PDF batch downloads are not enabled. Grant-bound CLI PDF inbox download is
+  available with byte limits, duplicate/no-overwrite behavior, checksum capture,
+  cleanup semantics, manifest/audit records, and one-PDF live-smoke evidence.
+- Review-write is currently a CLI-only prototype. It records old/new values,
+  file hashes, expiration, and audit events, but MCP review mutation remains
+  disabled.
+- Review-write expired proposal cleanup is CLI-only, dry-run by default, and
+  removes only expired proposal records when explicitly applied.
+- Deterministic mocked arXiv batch tests validate local plan/grant/run mechanics
+  at 25-paper scale; live arXiv 25/50/100 public explicit-ID source intake was
+  accepted on 2026-05-03. Bounded live query discovery and one-PDF live inbox
+  download were also accepted on 2026-05-03, but broader PDF batch scale remains
+  experimental.
+- H1 external MCP setup was accepted on 2026-05-03 from an external-agent stdio
+  client trial against demo data. Human colleague trials should still use
+  `docs/mcp_colleague_trial_record_template.md` when available.
+- Local MCP external/live evidence should be indexed in
+  `docs/validation/local_mcp_external_validation_records.md`; absence of a
+  record means the corresponding external/live claim remains unvalidated.

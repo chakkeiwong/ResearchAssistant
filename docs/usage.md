@@ -4,6 +4,44 @@
 Git-based sharing. It is not a shared database, hosted service, SSO/RBAC system,
 real-time collaboration tool, or hosted UI.
 
+## Local MCP Adapter
+
+The next integration target is a local stdio MCP adapter. It remains an
+individual-machine adapter over the existing workspace, not a hosted service.
+The default MCP mode is read-only; write-capable arXiv batch intake requires a
+bounded local grant and audit trail.
+
+See `docs/architecture/local_mcp_adapter.md` and `docs/mcp.md`.
+
+## Source Checkout Helpers
+
+When working from a source checkout, use the repo-local helpers instead of
+typing `PYTHONPATH=src python -m ...` repeatedly:
+
+```bash
+scripts/ra-dev version
+scripts/ra-dev --root /tmp/research-assistant-demo demo setup
+scripts/ra-dev --root /tmp/research-assistant-demo release-report
+scripts/ra-mcp-dev --root /tmp/research-assistant-demo
+```
+
+For agents or maintainers running common checks:
+
+```bash
+scripts/ra-agent release-report
+scripts/ra-agent release-report --root /tmp/research-assistant-demo
+scripts/ra-agent mcp-status
+scripts/ra-agent review-write-status
+scripts/ra-agent fast-tests
+scripts/ra-agent focused-tests
+scripts/ra-agent diff-check
+```
+
+These helpers only remove source-checkout friction. They do not turn live
+network actions, review mutation, PDF downloads, restore, merge apply, or
+destructive operations into silent actions. Those still require explicit user
+approval, explicit CLI confirmation, or a bounded local grant.
+
 ## Core Local Workflow
 
 ```bash
@@ -144,9 +182,11 @@ Private papers, extracted text, backup archives, credentials, `.codex`,
 ## Release Validation
 
 ```bash
+scripts/ra-agent fast-tests
+scripts/ra-agent focused-tests
 scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
-PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
+scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q
 scripts/build_release_artifacts.sh
 WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
 scripts/run_individual_git_release_gate.sh

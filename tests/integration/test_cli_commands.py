@@ -31,6 +31,7 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'review-list' in captured.out
     assert 'review-show' in captured.out
     assert 'review-mark' in captured.out
+    assert 'review-write' in captured.out
     assert 'inbox-list' in captured.out
     assert 'inbox-show' in captured.out
     assert 'export-context' in captured.out
@@ -56,14 +57,222 @@ def test_cli_help_includes_review_inbox_export_and_citation_commands(capsys) -> 
     assert 'workspace' in captured.out
     assert 'backup' in captured.out
     assert 'privacy' in captured.out
+    assert 'mcp' in captured.out
     assert 'release-report' in captured.out
     assert 'bounded-workflow' in captured.out
     assert 'performance' in captured.out
     assert 'parser-tool-matrix' in captured.out
     assert 'parser-benchmark-smoke' in captured.out
+    assert 'arxiv-batch' in captured.out
     assert 'release-artifacts' in captured.out
     assert 'onboarding-report' in captured.out
     assert 'platform-status' in captured.out
+
+
+def test_cli_mcp_grant_and_audit_foundation(tmp_path: Path, capsys) -> None:
+    rc = main([
+        '--root', str(tmp_path),
+        'mcp', 'grant', 'arxiv-intake',
+        '--plan-hash', 'plan_fixture_hash',
+        '--operation', 'source_fetch',
+        '--destination', 'source',
+        '--max-papers', '2',
+        '--expires-hours', '2',
+        '--ids', '2401.00001,2401.00002',
+        '--skip-duplicates',
+    ])
+    payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload['status'] == 'created'
+    grant = payload['grant']
+    assert grant['mode'] == 'arxiv_batch_intake'
+    assert grant['plan_hash'] == 'plan_fixture_hash'
+    assert grant['destination'] == 'source'
+    assert grant['max_papers'] == 2
+    assert grant['arxiv_ids'] == ['2401.00001', '2401.00002']
+    assert grant['review_policy'] == 'review_material_only'
+    assert 'arxiv.org' in grant['allowed_domains']
+    assert (tmp_path / 'local_research' / 'governance' / 'mcp' / 'grants' / f"{grant['grant_id']}.json").exists()
+
+    rc = main(['--root', str(tmp_path), 'mcp', 'grants', 'list'])
+    grants = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert grants[0]['grant_id'] == grant['grant_id']
+
+    rc = main(['--root', str(tmp_path), 'mcp', 'grants', 'show', '--grant-id', grant['grant_id']])
+    shown = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert shown['grant_id'] == grant['grant_id']
+
+    rc = main(['--root', str(tmp_path), 'mcp', 'audit', 'list', '--grant-id', grant['grant_id']])
+    audit = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert audit[0]['event_type'] == 'grant_created'
+
+
+def test_cli_mcp_grant_rejects_unbounded_batch(tmp_path: Path, capsys) -> None:
+    rc = main([
+        '--root', str(tmp_path),
+        'mcp', 'grant', 'arxiv-intake',
+        '--plan-hash', 'plan_fixture_hash',
+        '--max-papers', '1',
+        '--ids', '2401.00001,2401.00002',
+    ])
+    payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload['status'] == 'blocked'
+    assert payload['issues'][0]['code'] == 'max_papers_exceeded'
+
+
+def test_cli_review_write_propose_apply_and_conflict(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_review_write'
+    summary_path = summaries / f'{paper_id}.json'
+    summary_path.write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Review Write Paper',
+        'authors': ['Ada Example'],
+        'year': 2026,
+        'abstract': '',
+        'main_contribution': 'Review write fixture',
+        'review_status': 'needs_review',
+        'requires_manual_review': True,
+        'review_summary': {'status': 'needs_review'},
+    }))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'approved'])
+    proposed = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert proposed['status'] == 'proposed'
+    confirmation_id = proposed['proposal']['confirmation_id']
+    assert proposed['proposal']['old_value'] == 'needs_review'
+    assert proposed['proposal']['new_value'] == 'approved'
+    assert proposed['proposal']['mcp_exposure'] == 'not_exposed'
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'apply', '--confirmation-id', confirmation_id])
+    applied = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert applied['status'] == 'applied'
+    updated = json.loads(summary_path.read_text())
+    assert updated['review_status'] == 'approved'
+    assert updated['requires_manual_review'] is False
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'rejected'])
+    proposed = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    confirmation_id = proposed['proposal']['confirmation_id']
+    changed = json.loads(summary_path.read_text())
+    changed['main_contribution'] = 'changed after proposal'
+    summary_path.write_text(json.dumps(changed))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'apply', '--confirmation-id', confirmation_id])
+    blocked = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert blocked['status'] == 'blocked'
+    assert any(issue['code'] == 'target_changed' for issue in blocked['issues'])
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'status'])
+    status = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert status['mcp_exposed'] is False
+    assert status['proposal_counts']['applied'] == 1
+    assert status['proposal_counts']['pending'] == 1
+
+
+def test_cli_review_write_creates_distinct_repeated_proposals(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_repeated_review_write'
+    (summaries / f'{paper_id}.json').write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Repeated Review Write Paper',
+        'authors': ['Ada Example'],
+        'year': 2026,
+        'abstract': '',
+        'main_contribution': 'Review write fixture',
+        'review_status': 'needs_review',
+        'requires_manual_review': True,
+        'review_summary': {'status': 'needs_review'},
+    }))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'approved'])
+    first = json.loads(capsys.readouterr().out)
+    rc2 = main(['--root', str(tmp_path), 'review-write', 'propose-status', '--paper-id', paper_id, '--status', 'approved'])
+    second = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert rc2 == 0
+    assert first['proposal']['confirmation_id'] != second['proposal']['confirmation_id']
+    assert first['proposal']['confirmation_nonce'] != second['proposal']['confirmation_nonce']
+    assert Path(first['proposal_path']).exists()
+    assert Path(second['proposal_path']).exists()
+
+
+def test_cli_review_write_rejects_invalid_expiry(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_invalid_expiry'
+    (summaries / f'{paper_id}.json').write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Invalid Expiry Paper',
+        'authors': [],
+        'year': 2026,
+        'review_status': 'needs_review',
+    }))
+
+    rc = main([
+        '--root', str(tmp_path),
+        'review-write', 'propose-status',
+        '--paper-id', paper_id,
+        '--status', 'approved',
+        '--expires-minutes', '0',
+    ])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert payload['status'] == 'blocked'
+    assert payload['issues'][0]['code'] == 'invalid_expiry'
+
+
+def test_cli_review_write_cleanup_expired_is_dry_run_by_default(tmp_path: Path, capsys) -> None:
+    summaries = tmp_path / 'local_research' / 'summaries'
+    summaries.mkdir(parents=True)
+    paper_id = 'paper_expired_cleanup'
+    (summaries / f'{paper_id}.json').write_text(json.dumps({
+        'id': paper_id,
+        'title': 'Expired Cleanup Paper',
+        'authors': [],
+        'year': 2026,
+        'review_status': 'needs_review',
+    }))
+
+    rc = main([
+        '--root', str(tmp_path),
+        'review-write', 'propose-status',
+        '--paper-id', paper_id,
+        '--status', 'approved',
+        '--expires-minutes', '1',
+    ])
+    proposed = json.loads(capsys.readouterr().out)
+    proposal_path = Path(proposed['proposal_path'])
+    proposal = json.loads(proposal_path.read_text())
+    proposal['expires_at'] = '2000-01-01T00:00:00+00:00'
+    proposal_path.write_text(json.dumps(proposal))
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'cleanup-expired'])
+    dry_run = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert dry_run['status'] == 'dry_run'
+    assert dry_run['expired_count'] == 1
+    assert proposal_path.exists()
+
+    rc = main(['--root', str(tmp_path), 'review-write', 'cleanup-expired', '--apply'])
+    cleaned = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert cleaned['status'] == 'cleaned'
+    assert cleaned['expired_count'] == 1
+    assert not proposal_path.exists()
 
 
 def test_cli_find_reports_review_status(tmp_path: Path, capsys) -> None:

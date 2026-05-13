@@ -20,6 +20,8 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert pyproject["project"]["name"] == "research-assistant"
     assert pyproject["project"]["requires-python"] == ">=3.10"
     assert pyproject["project"]["scripts"]["ra"] == "research_assistant.cli:main"
+    assert pyproject["project"]["scripts"]["ra-mcp"] == "research_assistant.adapters.mcp_server:main"
+    assert "mcp" in pyproject["project"]["optional-dependencies"]
     assert Path("CHANGELOG.md").exists()
     assert Path("scripts/run_clean_install_smoke.sh").exists()
     assert os.access("scripts/run_clean_install_smoke.sh", os.X_OK)
@@ -36,6 +38,33 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert Path(".github/ISSUE_TEMPLATE/individual_release_bug.md").exists()
     assert Path("scripts/run_individual_git_release_gate.sh").exists()
     assert os.access("scripts/run_individual_git_release_gate.sh", os.X_OK)
+    for helper in ["scripts/ra-dev", "scripts/ra-mcp-dev", "scripts/ra-agent"]:
+        helper_path = Path(helper)
+        assert helper_path.exists()
+        assert os.access(helper_path, os.X_OK)
+
+
+def test_source_checkout_agent_helpers_are_documented_and_bounded() -> None:
+    ra_agent = Path("scripts/ra-agent").read_text()
+    assert "PYTHONPATH=\"${ROOT}/src" in ra_agent
+    assert "focused-tests" in ra_agent
+    assert "release-report" in ra_agent
+    assert "Live network, review mutation, PDF downloads, and destructive actions still" in ra_agent
+    assert "pdf-run" not in ra_agent
+    assert "download-paper" not in ra_agent
+    assert "--confirm-merge" not in ra_agent
+    assert "--confirm-restore" not in ra_agent
+
+    usage = Path("docs/usage.md").read_text()
+    readme = Path("README.md").read_text()
+    maintainer = Path("docs/maintainer_guide.md").read_text()
+    mcp_doc = Path("docs/mcp.md").read_text()
+    assert "scripts/ra-dev" in usage
+    assert "scripts/ra-agent focused-tests" in usage
+    assert "scripts/ra-dev" in readme
+    assert "scripts/ra-agent focused-tests" in readme
+    assert "scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q" in maintainer
+    assert "scripts/ra-mcp-dev --root /tmp/ra-demo" in mcp_doc
 
 
 def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, capsys) -> None:
@@ -167,6 +196,34 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert rc == 0
     assert report["status"] in {"ready_for_release_candidate_review", "warnings"}
     assert not report["blockers"]
+    assert report["mcp_readiness"]["optional"] is True
+    assert report["mcp_readiness"]["default_mode"] == "read_only"
+    assert report["mcp_readiness"]["hosted_service"] is False
+    assert "ra_review_mark" not in report["mcp_readiness"].get("mcp_tools", [])
+    assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
+    gates = report["mcp_readiness"]["gate_status"]
+    assert gates["colleague_mcp_trial"]["status"] == "accepted"
+    assert gates["colleague_mcp_trial"]["evidence"] == "external_agent_stdio_trial_passed_2026_05_03"
+    assert gates["colleague_mcp_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
+    assert gates["colleague_mcp_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
+    assert gates["colleague_mcp_trial"]["result_record"] == "docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md"
+    assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"
+    assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "accepted_25_50_100_public_id_runs_2026_05_03"
+    assert gates["explicit_id_arxiv_source_batch"]["live_protocol"] == "docs/validation/local_mcp_live_arxiv_scale_protocol.md"
+    assert gates["query_discovery"]["status"] == "bounded_cli_discovery_available_mcp_disabled"
+    assert gates["query_discovery"]["cli_live_query_enabled"] is True
+    assert gates["query_discovery"]["mcp_live_query_enabled"] is False
+    assert gates["query_discovery"]["live_validation_evidence"] == "accepted_bounded_10_candidate_arxiv_query_2026_05_03"
+    assert gates["query_discovery"]["live_protocol"] == "docs/validation/local_mcp_live_query_discovery_protocol.md"
+    assert gates["pdf_batch_intake"]["execution_enabled"] is True
+    assert gates["pdf_batch_intake"]["mcp_exposed"] is False
+    assert gates["pdf_batch_intake"]["live_smoke_evidence"] == "accepted_one_pdf_arxiv_inbox_download_2026_05_03"
+    assert gates["pdf_batch_intake"]["policy_checks_available"] is True
+    assert gates["pdf_batch_intake"]["policy"]["execution_enabled"] is True
+    assert gates["pdf_batch_intake"]["policy"]["mcp_exposed"] is False
+    assert gates["pdf_batch_intake"]["preconditions"] == "docs/validation/local_mcp_write_surface_preconditions.md"
+    assert gates["review_write"]["mcp_exposed"] is False
+    assert gates["review_write"]["preconditions"] == "docs/validation/local_mcp_write_surface_preconditions.md"
 
 
 def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> None:

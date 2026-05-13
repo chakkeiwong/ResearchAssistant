@@ -12,6 +12,11 @@ The platform may eventually need a web UI, API, shared storage, job workers, mon
 
 Start with local CLI/API contracts and dashboard exports. Add web/server deployment only after storage, identity/RBAC, operations policy, and job orchestration ADRs are accepted.
 
+Local stdio MCP is allowed as an adapter over the same local contracts because
+it does not expose a hosted service or shared network endpoint. HTTP MCP,
+shared MCP deployment, or server-side MCP operations remain deferred with the
+rest of web/server deployment.
+
 ## Alternatives Considered
 
 - CLI-only permanently.

@@ -3313,3 +3313,2543 @@ Final local state before closeout commit:
 
 Next safe step:
 - Use the pushed commit for real colleague onboarding, macOS clean-install smoke, and minimal-parser-tool validation. Only after those records and explicit release-owner approval exist should a tag or publication be created.
+
+
+## Update - local MCP addition execution started
+
+New objective:
+- Execute `docs/plans/local_mcp_addition_plan_2026-05-02.md` after the user
+  reported that the colleague rollout is complete and positively received.
+
+Requested execution loop:
+- update this reset memo;
+- audit the plan as another developer;
+- execute every phase one by one;
+- for each phase: plan, execute, test, audit, tidy, update reset memo;
+- continue without human intervention unless the next phase is no longer
+  justified;
+- commit modified files after the whole plan finishes;
+- update this memo again on completion.
+
+Initial repo baseline:
+- Branch: `main...origin/main`.
+- Working tree before MCP edits: no tracked changes; `.codex` exists as an
+  untracked local scratch file and must not be committed.
+- Recent HEAD: `9a20761 Strengthen final release proposal narrative`.
+
+Independent pre-execution audit result:
+- The plan is directionally correct: local stdio MCP is an adapter milestone,
+  not a hosted platform or shared database.
+- Scope boundary is sound: read-only by default, no HTTP server, no provider
+  calls by default, no destructive tools.
+- The plan needed additional implementation constraints before coding:
+  - keep the package importable without the optional MCP SDK installed;
+  - test MCP by calling registered tools/resources directly rather than by
+    starting a long-lived stdio process in deterministic tests;
+  - bind arXiv batch grants to a stable plan hash, explicit scope, root,
+    destination, limits, and duplicate policy;
+  - reject path/symlink escapes server-side;
+  - expose optional MCP readiness in `ra release-report` without turning MCP
+    into a hard release dependency;
+  - keep the first executable batch intake explicit-arXiv-ID based, with
+    query-based live discovery deferred until the grant model is proven.
+- The plan was updated with these audit findings before implementation.
+
+Next safe step:
+- Execute Phase 0 by adding local-MCP scope documentation, recording baseline
+  evidence, and validating that the next implementation phase remains justified.
+
+## Update - local MCP addition Phase 0 completed
+
+Phase 0 plan for the phase:
+- Lock the MCP scope as local stdio adapter work.
+- Record baseline evidence from current release/privacy/doctor surfaces.
+- Add architecture/product docs that prevent local MCP from being mistaken for
+  hosted platform work.
+
+Phase 0 execution result:
+- Added `docs/architecture/local_mcp_adapter.md`.
+- Updated `docs/usage.md`, `docs/product_spec.md`, and ADR 0006 to state:
+  - local stdio MCP is allowed as an adapter;
+  - read-only is the default;
+  - HTTP/shared/server MCP remains out of scope;
+  - write-capable arXiv intake requires bounded local grants and audit records.
+- Inspected `src/research_assistant/adapters/mcp_server.py`; it was still a
+  placeholder wrapper before implementation.
+
+Phase 0 baseline evidence:
+- `PYTHONPATH=src python -m research_assistant.cli release-report` completed
+  with status `warnings` and no blockers. Warnings were existing workspace
+  setup warnings for the repository root, not MCP blockers.
+- `PYTHONPATH=src python -m research_assistant.cli privacy status` returned
+  `status: ok`, `offline_mode: true`, `providers_enabled: false`, and
+  `live_llm_calls_enabled: false`.
+- `PYTHONPATH=src python -m research_assistant.cli doctor --matrix` completed
+  with existing workspace warnings and parser matrix available.
+
+Phase 0 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 0 audit as another developer:
+- Scope docs preserve individual local use and do not claim hosted MCP,
+  production API, shared database, or SSO/RBAC.
+- No code paths were added that can write, download, or mutate review state.
+- The architecture note makes batch intake a future bounded-grant capability,
+  not an implicit write permission.
+
+Phase 0 tidy result:
+- No generated files were intentionally created in the repo.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- Phase 0 closes the scope ambiguity. Phase 1 remains justified because MCP
+  still needs a shared structured tool contract layer before replacing the
+  placeholder adapter.
+
+## Update - local MCP addition Phase 1 completed
+
+Phase 1 plan for the phase:
+- Add a shared structured tool contract layer for local read-only operations.
+- Keep outputs JSON-serializable and avoid CLI stdout parsing.
+- Preserve review/generated/parser trust boundaries.
+
+Phase 1 execution result:
+- Added `src/research_assistant/adapters/local_tools.py`.
+- The contract layer now exposes read-only helpers for:
+  - workspace status;
+  - paper search;
+  - paper summary;
+  - paper code links;
+  - claim-support audit;
+  - review list/show;
+  - source show;
+  - parser tool matrix;
+  - privacy status;
+  - doctor status.
+- The helpers accept explicit roots or `RA_ROOT`, return structured payloads,
+  and do not expose write operations.
+- Added `tests/integration/test_mcp_adapter.py` with local contract tests over a
+  demo workspace.
+
+Phase 1 tests:
+- `timeout 180 python -m pytest tests/integration/test_mcp_adapter.py -q`:
+  `5 passed`.
+- `timeout 180 python -m pytest tests/integration/test_cli_commands.py::test_cli_help_includes_review_inbox_export_and_citation_commands tests/integration/test_mcp_adapter.py -q`:
+  `6 passed`.
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- The contract layer calls Python functions directly and does not parse CLI
+  text output.
+- No ingest, download, review mutation, backup restore, workspace apply,
+  arbitrary file read/write, or destructive operation is exposed.
+- The source/show helpers preserve generated/review-material language and
+  missing-source behavior.
+
+Phase 1 tidy result:
+- No generated files were intentionally created.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- Phase 1 gives MCP a safe backend surface. Phase 2 remains justified because
+  the placeholder MCP adapter can now be replaced with a local read-only stdio
+  server over these contracts.
+
+## Update - local MCP addition Phase 2 completed
+
+Phase 2 plan for the phase:
+- Replace the placeholder MCP adapter with a local stdio read-only server.
+- Keep MCP optional so base CLI installs do not require the SDK.
+- Register only safe read-only tools/resources and test direct SDK calls rather
+  than managing a long-running stdio process.
+
+Phase 2 execution result:
+- Updated `pyproject.toml`:
+  - added optional extra `mcp = ["mcp[cli]"]`;
+  - added script entry point `ra-mcp =
+    "research_assistant.adapters.mcp_server:main"`.
+- Replaced `src/research_assistant/adapters/mcp_server.py` with a FastMCP-based
+  local stdio server.
+- Registered read-only tools:
+  - `ra_workspace_status`;
+  - `ra_find_paper`;
+  - `ra_get_paper_summary`;
+  - `ra_paper_code_links`;
+  - `ra_claim_support_audit`;
+  - `ra_review_list`;
+  - `ra_review_show`;
+  - `ra_source_show`;
+  - `ra_parser_tool_matrix`;
+  - `ra_privacy_status`.
+- Registered read-only resources:
+  - `research-assistant://workspace/status`;
+  - `research-assistant://paper/{paper_id}`;
+  - `research-assistant://source/{paper_id}`.
+- Added tests that verify no review mutation, ingest, download, restore, or
+  destructive MCP tool names are present.
+- Added direct FastMCP tool/resource tests when the SDK is installed.
+
+Phase 2 tests:
+- `timeout 180 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_individual_release_cli.py::test_project_metadata_exposes_ra_entrypoint -q`:
+  `8 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  help text printed successfully.
+- `git diff --check`: passed.
+
+Phase 2 audit as another developer:
+- The server uses stdio only via `server.run(transport="stdio")`; no HTTP/SSE
+  listener is introduced.
+- The module remains importable with optional MCP behavior isolated behind
+  `mcp_available()` and `build_server()`.
+- Registered tools are read-only and annotated as non-destructive.
+- No write-capable tool is exposed through MCP.
+
+Phase 2 tidy result:
+- No long-running server session remains active.
+- No generated files were intentionally created.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- MCP Alpha 1 now has a working server surface. Phase 3 remains justified
+  because users need installation/client configuration docs and privacy
+  guidance before this can be handed to colleagues.
+
+## Update - local MCP addition Phase 3 completed
+
+Phase 3 plan for the phase:
+- Add colleague-facing MCP setup documentation.
+- Make client configuration, `RA_ROOT`, optional dependency behavior, read-only
+  tools, and privacy boundaries explicit.
+- Cross-link from README/usage/troubleshooting/limitations.
+
+Phase 3 execution result:
+- Added `docs/mcp.md`.
+- Updated `README.md` with local MCP install/start example and read-only
+  boundary.
+- Updated `docs/troubleshooting.md` with local MCP diagnostics.
+- Updated `docs/known_limitations.md` with optional local/read-only MCP
+  limitations.
+- `docs/usage.md` had already been linked during Phase 0.
+
+Phase 3 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- Docs describe local stdio MCP only and do not imply hosted deployment.
+- Docs warn that MCP can inspect local workspace content and paths through tool
+  responses.
+- Docs do not describe write-capable MCP tools as available yet.
+
+Phase 3 tidy result:
+- No generated files were intentionally created.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- MCP Alpha 1 documentation is in place. Phase 4 remains justified because
+  bounded batch arXiv intake needs a tested grant/audit foundation before any
+  write-capable MCP tool exists.
+
+## Update - local MCP addition Phase 4 completed
+
+Phase 4 plan for the phase:
+- Add local MCP permission/grant/audit models before any write-capable MCP
+  operation.
+- Add CLI-only grant creation and inspection.
+- Enforce root/path/domain/expiry/count/plan-hash checks in reusable helpers.
+
+Phase 4 execution result:
+- Added `src/research_assistant/adapters/mcp_permissions.py`.
+- Added local governance paths under `local_research/governance/mcp/` for:
+  - grants;
+  - audit JSONL events;
+  - future batch manifests.
+- Added grant helpers for `arxiv_batch_intake` with:
+  - `plan_hash`;
+  - operation;
+  - destination;
+  - max papers;
+  - expiry;
+  - allowed arXiv domains;
+  - duplicate/no-overwrite/review-material policies;
+  - explicit arXiv ID scope.
+- Added server-side validators for:
+  - workspace root;
+  - destination path under `local_research`;
+  - allowed domains;
+  - grant expiry;
+  - plan-hash mismatch;
+  - operation/destination/root mismatch;
+  - max-paper overflow.
+- Added CLI commands:
+  - `ra mcp status`;
+  - `ra mcp grant arxiv-intake ...`;
+  - `ra mcp grants list`;
+  - `ra mcp grants show --grant-id <id>`;
+  - `ra mcp audit list [--grant-id <id>]`.
+- Added focused tests in `tests/integration/test_mcp_permissions.py` and CLI
+  grant tests in `tests/integration/test_cli_commands.py`.
+
+Phase 4 tests:
+- `timeout 180 python -m pytest tests/integration/test_mcp_permissions.py tests/integration/test_cli_commands.py::test_cli_help_includes_review_inbox_export_and_citation_commands tests/integration/test_cli_commands.py::test_cli_mcp_grant_and_audit_foundation tests/integration/test_cli_commands.py::test_cli_mcp_grant_rejects_unbounded_batch -q`:
+  `7 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 4 audit as another developer:
+- Grants are created by CLI, not by MCP, preserving an explicit human action
+  before future writes.
+- The model is local and file-based; no server auth/RBAC claim was introduced.
+- Destructive and review-write modes remain disabled by status and are not
+  exposed through MCP.
+- Grant validation is more than prompt politeness: it checks concrete root,
+  destination, plan hash, expiry, count, IDs, and domains.
+
+Phase 4 tidy result:
+- Focused tests wrote grant/audit files only under pytest temp workspaces.
+- No generated files were intentionally created in the repository.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- The permission foundation is now concrete enough for planning batch arXiv
+  intake. Phase 5 remains justified, with the first implementation scoped to
+  explicit arXiv ID lists rather than live query discovery.
+
+## Update - local MCP addition Phase 5 completed
+
+Phase 5 plan for the phase:
+- Add arXiv batch planning without downloads or writes.
+- Scope first implementation to explicit arXiv IDs.
+- Produce stable plan hashes and duplicate/readiness metadata suitable for a
+  later grant-bound execution.
+
+Phase 5 execution result:
+- Added `src/research_assistant/ingest/arxiv_batch.py`.
+- Added `plan_arxiv_batch_intake(...)` with:
+  - arXiv ID normalization and validation;
+  - explicit-ID candidate planning;
+  - stable plan hash;
+  - duplicate detection from summaries/source records;
+  - allowed-domain/destination/duplicate/no-overwrite/review-material policies;
+  - query-only blocking with `query_search_not_implemented`;
+  - no writes during planning.
+- Added `ra arxiv-batch plan`.
+- Added read-only MCP planning tool `ra_plan_arxiv_batch_intake`.
+- Added tests in `tests/integration/test_arxiv_batch_intake.py`.
+- Adjusted planning duplicate detection to avoid creating `local_research/`
+  during plan-only reads.
+
+Phase 5 tests:
+- First focused run found an issue: planning created `local_research/` through
+  `FileStore` construction during duplicate detection.
+- Fixed by reading JSON directly from existing files in the read-only duplicate
+  scan.
+- `timeout 180 python -m pytest tests/integration/test_arxiv_batch_intake.py tests/integration/test_mcp_adapter.py tests/integration/test_cli_commands.py::test_cli_help_includes_review_inbox_export_and_citation_commands -q`:
+  `13 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 5 audit as another developer:
+- Planning performs no paper/source/inbox writes and query-based live search is
+  clearly deferred.
+- The plan hash is deterministic for equivalent explicit ID lists.
+- MCP planning is read-only and still requires a separate grant before
+  execution.
+- Duplicate detection is useful but conservative; it detects existing source
+  records and summary arXiv IDs without claiming semantic deduplication.
+
+Phase 5 tidy result:
+- Focused tests wrote only pytest temp fixtures.
+- No generated files were intentionally created in the repository.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- The plan-first half of batch intake is complete. Phase 6 remains justified
+  because grant-bound execution can now verify a concrete plan hash and explicit
+  arXiv ID scope.
+
+## Update - local MCP addition Phase 6 completed
+
+Phase 6 plan for the phase:
+- Implement grant-bound arXiv batch source execution.
+- Require grant ID, plan hash, explicit arXiv IDs, and matching source-fetch
+  scope.
+- Write manifest/audit records and never mark records approved.
+
+Phase 6 execution result:
+- Implemented `run_arxiv_batch_intake(...)` in
+  `src/research_assistant/ingest/arxiv_batch.py`.
+- Execution now:
+  - loads the local grant;
+  - validates expiry, root, operation, destination, plan hash, arXiv IDs,
+    max-paper limit, destination path, and allowed domains;
+  - recomputes the plan hash before work;
+  - skips duplicates by default;
+  - fetches arXiv structured source through existing source-first machinery;
+  - writes a batch manifest under `local_research/governance/mcp/batch_manifests/`;
+  - appends audit events for blocked/start/item/completion states;
+  - returns review-material-only status.
+- Added `ra arxiv-batch run --grant-id ... --plan-hash ... --ids ...`.
+- Added MCP tool `ra_run_arxiv_batch_intake`, which requires a matching local
+  grant.
+- Added tests for successful monkeypatched source fetch, plan-hash mismatch,
+  and duplicate skip.
+
+Phase 6 tests:
+- `timeout 180 python -m pytest tests/integration/test_arxiv_batch_intake.py tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `19 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 6 audit as another developer:
+- Write execution is now possible, but only with a local grant created outside
+  MCP and matching a concrete plan hash and explicit ID list.
+- The implemented execution path is source-fetch only; PDF downloads and
+  query-based discovery remain deferred.
+- Manifest and audit writes are confined to local governance paths.
+- No review mutation or mathematical approval is performed.
+- Network behavior remains mocked in tests; no deterministic test requires live
+  arXiv.
+
+Phase 6 tidy result:
+- Focused tests wrote source/grant/audit/manifest files only under pytest temp
+  workspaces.
+- No generated files were intentionally created in the repository.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- The initial batch-permission workflow is implemented at source-fetch scope.
+  Phase 7 remains justified because review-write should be explicitly deferred
+  and guarded by tests/design notes before users infer MCP can mutate review
+  decisions.
+
+## Update - local MCP addition Phase 7 completed
+
+Phase 7 plan for the phase:
+- Do not implement review mutation.
+- Add a future review-write design gate.
+- Strengthen tests that assert MCP does not expose review/audit mutation tools.
+
+Phase 7 execution result:
+- Added `docs/architecture/mcp_review_write_design.md`.
+- The design note specifies future `review_write` requirements:
+  - explicit mode separate from arXiv batch intake;
+  - concrete confirmation payload;
+  - old/new value and file-hash capture;
+  - audit event;
+  - conflict blocking;
+  - no bulk/silent/generated approval.
+- Strengthened MCP adapter tests to assert absent review/audit mutation,
+  ingest, download, and backup-restore tool names.
+
+Phase 7 tests:
+- `timeout 180 python -m pytest tests/integration/test_mcp_adapter.py -q`:
+  `7 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 7 audit as another developer:
+- Review mutation remains deferred.
+- The implemented MCP write capability is limited to grant-bound arXiv source
+  intake that creates review material only.
+- Future review-write requirements are now explicit enough to prevent accidental
+  addition of vague `confirm=true` write tools.
+
+Phase 7 tidy result:
+- No generated files were intentionally created.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- The trust boundary around review state is preserved. Phase 8 remains
+  justified because release-report/docs should surface MCP readiness and provide
+  an MCP trial path.
+
+## Update - local MCP addition Phase 8 completed
+
+Phase 8 plan for the phase:
+- Add MCP readiness to release/reporting surfaces without making MCP a hard base
+  release dependency.
+- Add a colleague-like MCP trial checklist.
+- Validate release report and focused MCP/batch behavior.
+
+Phase 8 execution result:
+- Added `mcp_readiness_status(...)` to `src/research_assistant/individual_release.py`.
+- `ra release-report` now includes `mcp_readiness` with:
+  - optional status;
+  - MCP SDK availability;
+  - entrypoint;
+  - stdio transport;
+  - read-only default mode;
+  - local permission status;
+  - read-only tool list;
+  - limitations.
+- Added `docs/mcp_trial_checklist.md`.
+- Updated `docs/mcp.md` with explicit-ID batch plan/grant/run commands and
+  trial-checklist link.
+- Added release-report assertions for MCP readiness.
+
+Phase 8 tests:
+- `timeout 180 python -m pytest tests/integration/test_individual_release_cli.py::test_missing_optional_parser_tools_do_not_block_core_workflows tests/integration/test_mcp_adapter.py tests/integration/test_arxiv_batch_intake.py -q`:
+  `16 passed`.
+- `PYTHONPATH=src python -m research_assistant.cli release-report`: completed
+  with existing repository-root workspace warnings and no blockers; MCP
+  readiness reported `status: available`, `transport: stdio`, and
+  `default_mode: read_only`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 8 audit as another developer:
+- MCP readiness is informational/optional and does not block the base local CLI
+  release if absent.
+- The trial checklist avoids private data and validates absence of write tools.
+- Release report now surfaces MCP posture for maintainers without claiming
+  hosted/shared/server readiness.
+
+Phase 8 tidy result:
+- `ra release-report` rewrote ignored `dist/release_artifacts_manifest.json`
+  because existing ignored release artifacts are present; this remains
+  generated/ignored and must not be committed.
+- No generated files were intentionally staged.
+- `.codex` remains untracked local scratch and must not be committed.
+
+Interpretation and next-phase justification:
+- All planned phases are implemented. Final validation and commit are now
+  justified, with remaining risks limited to optional dependency packaging,
+  live arXiv behavior outside deterministic tests, and future review-write
+  design validation.
+
+## Update - local MCP addition final validation completed
+
+Final validation plan:
+- Re-run focused MCP, permission, arXiv batch, individual release, and CLI
+  tests.
+- Re-run fast suite and diff hygiene.
+- Audit implementation against the plan before staging.
+
+Final validation results:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_individual_release_cli.py -q`:
+  `33 passed`.
+- `timeout 240 python -m pytest tests/integration/test_cli_commands.py::test_cli_help_includes_review_inbox_export_and_citation_commands tests/integration/test_cli_commands.py::test_cli_mcp_grant_and_audit_foundation tests/integration/test_cli_commands.py::test_cli_mcp_grant_rejects_unbounded_batch -q`:
+  `3 passed`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  printed `ra-mcp` help successfully.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 300 python -m pytest tests/integration/test_cli_commands.py -q`:
+  `22 passed`.
+- Final rerun after wording corrections:
+  `timeout 120 scripts/run_fast_tests.sh && git diff --check`: `14 passed`,
+  diff check passed.
+
+Final implementation audit as another developer:
+- Local MCP is stdio-only; no HTTP/server deployment was introduced.
+- Base CLI install remains independent of the optional MCP SDK.
+- MCP read-only tools expose local inspection/status/planning only.
+- The single write-capable MCP operation is grant-bound arXiv source intake:
+  it requires grant ID, plan hash, explicit IDs, matching root/scope, and
+  writes only source/manifest/audit review material.
+- Review mutation, downloads, backup restore, delete, arbitrary file access,
+  and destructive operations are not exposed as MCP tools.
+- Query-based arXiv search and PDF batch downloads are explicitly deferred.
+- Release report surfaces MCP readiness as optional and does not turn MCP into a
+  release blocker.
+
+Final tidy/status:
+- `.codex` remains untracked local scratch and must not be committed.
+- Ignored generated/local paths remain uncommitted: `.claude/`,
+  `.pytest_cache/`, `build/`, `dist/`, `local_research/`, bytecode caches,
+  TeX aux/log outputs, `hoffman.json`, and `out.txt`.
+- `docs/plans/local_mcp_addition_plan_2026-05-02.md` and this reset memo are
+  under ignored `docs/plans/`; force-stage them intentionally if committing.
+
+Completion interpretation:
+- The MCP addition plan is complete through the local MCP beta boundary:
+  read-only local MCP, grant/audit model, explicit-ID arXiv source batch
+  planning and execution, release visibility, docs, and tests.
+- Next recommended hypotheses to test:
+  - H1: a colleague can configure `ra-mcp` in their assistant and use read-only
+    tools against a demo workspace in under 15 minutes.
+  - H2: explicit-ID arXiv batch source intake with 25-100 papers remains stable,
+    skips duplicates correctly, and produces useful audit manifests.
+  - H3: query-based arXiv discovery can be added without weakening grant scope
+    or causing uncontrolled network fanout.
+  - H4: PDF inbox batch downloads need separate byte limits, overwrite rules,
+    and duplicate UX before being enabled.
+  - H5: review-write MCP can be added safely only after confirmation payloads
+    include old/new values, file hashes, conflict detection, and auditable
+    correction paths.
+
+
+## Update - local MCP follow-on validation and expansion started
+
+New objective:
+- Execute `docs/plans/local_mcp_next_validation_and_expansion_plan_2026-05-02.md`
+  after commit `28115cd Add local MCP adapter and batch grants`.
+
+Requested execution loop:
+- update this reset memo;
+- audit the plan as another developer;
+- execute every phase one by one;
+- for each phase: plan, execute, test, audit, tidy, update reset memo;
+- continue without human intervention unless the next phase is not justified;
+- commit modified files after the whole plan finishes;
+- update this memo upon completion.
+
+Initial repo baseline:
+- Branch: `main...origin/main [ahead 1]`.
+- Recent HEAD: `28115cd Add local MCP adapter and batch grants`.
+- Working tree before follow-on edits: `.codex` untracked local scratch only.
+
+Independent pre-execution audit result:
+- The plan preserves local-only MCP scope and does not require hosted services.
+- Corrections made before execution:
+  - Phase 1 now explicitly allows a local surrogate if no real colleague is
+    available, while recording H1 as external/manual rather than passed.
+  - Phase 2 now separates deterministic mocked scale evidence from live arXiv
+    scale evidence.
+  - Query discovery remains mocked/design-gated until bounded live approval.
+  - PDF batch intake remains design/policy-only until byte limits, cleanup,
+    duplicate behavior, and tests exist.
+  - Review-write may be CLI-prototyped but MCP review-write exposure remains out
+    of scope.
+
+Next safe step:
+- Execute Phase 0 baseline and safety re-audit.
+
+## Update - local MCP follow-on Phase 0 completed
+
+Phase 0 plan for the phase:
+- Recheck current repo state and local MCP safety posture after commit
+  `28115cd`.
+- Confirm release report, MCP status, `ra-mcp --help`, and focused MCP tests
+  remain healthy.
+
+Phase 0 execution result:
+- `git status --short --branch`: `main...origin/main [ahead 1]` with
+  `.codex` untracked local scratch.
+- `git log --oneline -5` confirmed HEAD `28115cd Add local MCP adapter and
+  batch grants`.
+- `PYTHONPATH=src python -m research_assistant.cli release-report`: completed
+  with existing repository-root workspace warnings and no blockers.
+- `PYTHONPATH=src python -m research_assistant.cli mcp status`: reported
+  `default_mode: read_only`, `destructive_tools_enabled: false`, and
+  `review_write_enabled: false`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  printed help successfully.
+
+Phase 0 tests:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py -q`:
+  `19 passed`.
+
+Phase 0 audit as another developer:
+- No HTTP/server deployment is present.
+- MCP remains optional and local stdio.
+- Release report surfaces MCP readiness without turning MCP into a release
+  blocker.
+- Exposed MCP write capability remains grant-bound arXiv source intake; no
+  review mutation, PDF batch download, backup restore, delete, or destructive
+  tool is exposed.
+
+Phase 0 tidy result:
+- `release-report` rewrote ignored `dist/release_artifacts_manifest.json`
+  because ignored release artifacts exist; it remains generated/ignored and
+  must not be committed.
+- No private/generated files staged.
+
+Interpretation and next-phase justification:
+- Current MCP baseline is safe and green. Phase 1 remains justified, but only a
+  local surrogate can be run in this autonomous session; H1 must remain
+  external/manual until a real colleague performs the trial.
+
+## Update - local MCP follow-on Phase 1 completed
+
+Phase 1 plan for the phase:
+- Run the colleague MCP setup checklist if a real colleague is available.
+- Because no external colleague can be created in this autonomous session, run a
+  local surrogate against a demo workspace and record H1 as still requiring
+  external validation.
+
+Phase 1 execution result:
+- Created a demo workspace under `/tmp/ra-mcp-trial-surrogate` with:
+  `PYTHONPATH=src python -m research_assistant.cli --root /tmp/ra-mcp-trial-surrogate demo setup`.
+- Checked MCP entrypoint help with:
+  `env PYTHONPATH=src RA_ROOT=/tmp/ra-mcp-trial-surrogate python -m research_assistant.adapters.mcp_server --help`.
+- Exercised MCP tools directly through the SDK against the demo workspace:
+  - `ra_workspace_status`;
+  - `ra_find_paper`;
+  - `ra_get_paper_summary`;
+  - `ra_source_show`;
+  - `ra_review_list`;
+  - `ra_claim_support_audit`;
+  - `ra_privacy_status`.
+- Surrogate result:
+  - required tools present: all seven;
+  - unsafe tools present: none from `ra_review_mark`, `ra_download_paper`,
+    `ra_backup_restore`, `ra_delete`;
+  - demo paper found: `demo_transport_paper`;
+  - source status: `available`;
+  - privacy status: `ok`;
+  - elapsed direct SDK exercise: `0.013` seconds.
+- One initial surrogate script failed because it assumed the SDK structured
+  return shape always included a `result` key; rerun with robust result decoding
+  passed. This was a script issue, not a product issue.
+
+Phase 1 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- This is not real colleague evidence and must not be represented as H1 passed.
+- The surrogate confirms local mechanics, tool availability, and unsafe-tool
+  absence against demo data.
+- No private data was used or recorded; outputs lived under `/tmp`.
+
+Phase 1 tidy result:
+- `/tmp/ra-mcp-trial-surrogate` is temporary validation output outside the repo.
+- No private/generated files staged.
+
+Interpretation and next-phase justification:
+- H1 remains `external_validation_required`.
+- Local MCP mechanics are healthy enough to continue to Phase 2 deterministic
+  explicit-ID batch scale validation.
+
+## Update - local MCP follow-on Phase 2 completed
+
+Phase 2 plan for the phase:
+- Validate explicit-ID arXiv source batch mechanics at useful scale without
+  requiring live network.
+- Add a deterministic mocked 25-paper scale test that verifies plan/grant/run,
+  manifest, audit events, and no approval behavior.
+
+Phase 2 execution result:
+- Added `test_granted_arxiv_batch_run_handles_mocked_25_paper_scale` to
+  `tests/integration/test_arxiv_batch_intake.py`.
+- The test uses 25 sanitized synthetic arXiv IDs (`2401.00001` through
+  `2401.00025`) and monkeypatches source fetch to write structured source
+  records locally.
+- Verified:
+  - plan status is grant-ready;
+  - grant binds 25 IDs and plan hash;
+  - run completes with `attempted_count: 25`;
+  - fetched count is 25;
+  - failures are empty;
+  - manifest records review-material-only policy;
+  - audit JSONL has start/item/completion coverage;
+  - mocked run finishes under 5 seconds.
+
+Phase 2 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `9 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 2 audit as another developer:
+- This supports H2 for deterministic local mechanics only, not live arXiv
+  reliability.
+- No live network was used.
+- Generated records were created only under pytest temp workspaces.
+- Batch records remain source review material and do not mark papers approved.
+
+Phase 2 tidy result:
+- No repository-local batch artifacts were created.
+- No private/generated files staged.
+
+Interpretation and next-phase justification:
+- H2 is narrowed: local plan/grant/run mechanics work at 25-paper mocked scale.
+  Live 25/50/100 arXiv source intake remains manual/bounded validation.
+- Phase 3 remains justified because query discovery can now be designed around
+  a known-safe explicit candidate-list and plan-hash model.
+
+## Update - local MCP follow-on Phase 3 completed
+
+Phase 3 plan for the phase:
+- Add a design gate for query-based arXiv discovery.
+- Do not enable live query discovery through MCP.
+- Specify candidate-list pinning and plan-hash binding before implementation.
+
+Phase 3 execution result:
+- Added `docs/architecture/mcp_arxiv_query_discovery_design.md`.
+- The design requires:
+  - bounded `max_candidates`;
+  - explicit endpoint domain `export.arxiv.org`;
+  - pagination cap;
+  - timeout;
+  - deterministic candidate ordering;
+  - candidate file inspection;
+  - plan hash including exact ordered candidate IDs;
+  - grant execution verifying candidate-list identity, not just query text.
+- The design keeps live query discovery out of MCP until mocked tests and a
+  bounded live smoke are approved and recorded.
+
+Phase 3 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `9 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- The design avoids uncontrolled network fanout by requiring max-candidate and
+  pagination limits.
+- It prevents query-text-only grants by requiring exact candidate-list/plan-hash
+  binding.
+- It does not introduce live query discovery, provider calls, or hosted MCP.
+
+Phase 3 tidy result:
+- Docs-only phase; no generated files created.
+- No private/generated files staged.
+
+Interpretation and next-phase justification:
+- H3 now has a concrete bounded design but remains unimplemented/live-disabled.
+- Phase 4 remains justified because PDF batch intake has distinct file-size,
+  duplicate, and cleanup risks that need a separate policy before coding.
+
+## Update - local MCP follow-on Phase 4 completed
+
+Phase 4 plan for the phase:
+- Add a PDF batch intake design/policy gate.
+- Do not enable PDF batch download execution.
+- Specify byte limits, destination, duplicate behavior, cleanup, and tests
+  required before enablement.
+
+Phase 4 execution result:
+- Added `docs/architecture/mcp_pdf_batch_intake_design.md`.
+- The policy requires:
+  - inbox-only destination;
+  - local expiring grant;
+  - max file count;
+  - max total bytes;
+  - per-file byte limit;
+  - allowed-domain review;
+  - no overwrite;
+  - duplicate checks;
+  - proposal metadata;
+  - checksum capture;
+  - temporary-file cleanup;
+  - manifest/audit events;
+  - monkeypatched deterministic tests before enablement.
+- Suggested initial limits:
+  - 25 files;
+  - 250 MB total;
+  - 25 MB per file;
+  - 30 seconds per file.
+
+Phase 4 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 4 audit as another developer:
+- PDF batch downloads remain disabled.
+- The design separates PDF inbox proposals from trusted raw corpus ingest.
+- The policy addresses file-size, cleanup, duplicate, no-overwrite, and audit
+  risks before any MCP exposure.
+
+Phase 4 tidy result:
+- Docs-only phase; no generated files created.
+- No private/generated files staged.
+
+Interpretation and next-phase justification:
+- H4 now has a concrete policy and remains disabled until tests/limits exist.
+- Phase 5 remains justified because review-write can be prototyped safely as a
+  CLI-only proposal/apply flow without exposing MCP review mutation.
+
+## Update - local MCP follow-on Phase 5 completed
+
+Phase 5 plan for the phase:
+- Prototype review-write as a CLI-only confirmation flow.
+- Do not expose review-write through MCP.
+- Require old/new values, file hash, expiration, audit events, and conflict
+  blocking.
+
+Phase 5 execution result:
+- Added `src/research_assistant/adapters/review_write.py`.
+- Added CLI commands:
+  - `ra review-write status`;
+  - `ra review-write propose-status --paper-id <id> --status <status>`;
+  - `ra review-write apply --confirmation-id <id>`.
+- Proposal records include:
+  - workspace root;
+  - paper ID;
+  - target path;
+  - old value;
+  - new value;
+  - old file SHA256;
+  - expiration;
+  - risks;
+  - `mcp_exposure: not_exposed`.
+- Apply verifies:
+  - confirmation exists;
+  - operation is supported;
+  - workspace root matches;
+  - proposal has not expired;
+  - target exists;
+  - target file hash still matches;
+  - requested status is valid.
+- Apply writes old/new values and file hashes to a local audit JSONL record.
+- Added integration coverage for propose/apply/conflict/status.
+
+Phase 5 tests:
+- `timeout 240 python -m pytest tests/integration/test_cli_commands.py::test_cli_help_includes_review_inbox_export_and_citation_commands tests/integration/test_cli_commands.py::test_cli_review_write_propose_apply_and_conflict -q`:
+  `2 passed`.
+- `timeout 240 python -m pytest tests/integration/test_cli_commands.py -q`:
+  `23 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 5 audit as another developer:
+- Review-write is CLI-only and reports `mcp_exposed: false`.
+- The flow blocks stale file-hash conflicts.
+- The prototype changes review status only after a concrete proposal/apply
+  sequence; there is no generic `confirm=true` shortcut.
+- MCP review mutation remains absent.
+
+Phase 5 tidy result:
+- Tests wrote proposal/audit files only under pytest temp workspaces.
+- No private/generated files staged.
+
+Interpretation and next-phase justification:
+- H5 is narrowed: CLI confirmation mechanics are feasible, but MCP exposure
+  should wait for further review, UX testing, and perhaps undo/correction
+  design.
+- Phase 6 remains justified to update docs and readiness notes to match the new
+  query/PDF/review-write gates and CLI prototype.
+
+## Update - local MCP follow-on Phase 6 started
+
+Phase 6 plan for the phase:
+- Update user-facing MCP and release-readiness docs so they match the current
+  implementation boundary.
+- Make clear that query-based arXiv discovery and PDF batch downloads are
+  design-gated and disabled.
+- Make clear that review-write is a CLI-only prototype with explicit
+  confirmation and is not exposed through MCP.
+- Avoid adding release-report fields unless they are deterministic and improve
+  readiness clarity without broadening the release surface.
+
+Phase 6 risk before execution:
+- Documentation could accidentally imply hosted/shared MCP readiness, live query
+  discovery, PDF batch download support, or MCP review mutation.
+- Release notes could overstate the local surrogate trial as real colleague
+  validation.
+
+Phase 6 next action:
+- Patch `docs/mcp_trial_checklist.md`, `docs/known_limitations.md`,
+  `docs/troubleshooting.md`, and `docs/release_notes_0.1.0.md` with conservative
+  local-only language.
+
+## Update - local MCP follow-on Phase 6 completed
+
+Phase 6 execution result:
+- `docs/mcp.md` now documents deferred query discovery, PDF batch intake, and
+  review-write MCP mutation as disabled/gated surfaces.
+- `docs/mcp_trial_checklist.md` now asks trial reviewers to confirm review
+  mutation, query discovery, PDF batch, restore, and destructive MCP tools are
+  absent.
+- `docs/mcp_trial_checklist.md` now records skipped live fetches separately from
+  failures and points to `ra review-write status` only as a CLI-only prototype
+  check.
+- `docs/known_limitations.md` now records:
+  - query-based arXiv discovery is not live-enabled;
+  - PDF batch downloads are not enabled;
+  - review-write is CLI-only and not exposed through MCP;
+  - mocked 25-paper batch scale does not prove live arXiv reliability.
+- `docs/troubleshooting.md` now documents how to inspect blocked batch grants and
+  audit records.
+- `docs/release_notes_0.1.0.md` now records real colleague MCP setup and live
+  arXiv scale as manual validation items, while documenting local-only optional
+  MCP support.
+
+Phase 6 tests:
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 6 audit as another developer:
+- Docs do not imply hosted/shared MCP readiness.
+- Docs preserve optional MCP and local stdio framing.
+- Query discovery and PDF batch are clearly design-gated and not enabled.
+- Review-write is described as CLI-only; MCP mutation remains disabled.
+- The docs do not claim a real colleague MCP setup trial or live arXiv scale
+  validation.
+- Final review-write audit found that rapid identical proposals could collide
+  because IDs used second-resolution timestamps. This was fixed by adding a
+  random confirmation nonce, writing proposal JSON atomically, and adding a
+  repeated-proposal regression test.
+
+Phase 6 tidy result:
+- No generated docs or private artifacts were created.
+- No release-report code changes were added because the existing deterministic
+  readiness surface is sufficient for this phase.
+
+Interpretation:
+- Documentation now matches the implemented conservative boundary.
+- All planned phases are complete enough for final validation, staging, and a
+  focused commit.
+
+## Update - local MCP follow-on final validation completed
+
+Final validation commands:
+- `timeout 240 python -m pytest tests/integration/test_cli_commands.py::test_cli_review_write_propose_apply_and_conflict tests/integration/test_cli_commands.py::test_cli_review_write_creates_distinct_repeated_proposals tests/integration/test_cli_commands.py::test_cli_help_includes_review_inbox_export_and_citation_commands -q`:
+  `3 passed`.
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `58 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  passed.
+- `python -m research_assistant.cli mcp status`: reported
+  `default_mode: read_only`, `destructive_tools_enabled: false`, and
+  `review_write_enabled: false`.
+- `python -m research_assistant.cli review-write status`: reported
+  `status: prototype_cli_only` and `mcp_exposed: false`.
+- `git diff --check`: passed.
+
+Final audit:
+- MCP exposed tools are still the local inspection tools plus
+  `ra_plan_arxiv_batch_intake` and grant-bound `ra_run_arxiv_batch_intake`; no
+  review mutation, PDF batch, restore, delete, or arbitrary file tool is exposed.
+- H1 remains external/manual because no real colleague performed the MCP setup
+  trial in this autonomous run.
+- H2 is narrowed to deterministic mocked local mechanics at 25-paper scale; live
+  arXiv 25/50/100 behavior remains a bounded manual validation item.
+- H3 has a design gate and remains live-disabled.
+- H4 has a design gate and remains execution-disabled.
+- H5 has a CLI-only confirmation prototype; MCP exposure remains deferred.
+- `.codex` remains untracked local scratch and must not be committed.
+
+## Update - local MCP remaining gap closure started
+
+New objective:
+- Execute `docs/plans/local_mcp_remaining_gap_closure_plan_2026-05-02.md` after
+  commit `7043acc Validate local MCP expansion gates`.
+
+Requested execution loop:
+- create an explicit plan under `docs/plans`;
+- update this reset memo;
+- audit the plan as another developer;
+- execute each phase one by one;
+- for each phase: plan, execute, test, audit, tidy, update reset memo;
+- continue without human intervention unless the next phase is not justified;
+- commit modified files after the whole plan finishes;
+- write a detailed summary with results, suggestions, and explicit hypotheses.
+
+Initial repo baseline:
+- Branch: `main...origin/main [ahead 2]`.
+- Recent HEAD: `7043acc Validate local MCP expansion gates`.
+- Working tree before this pass: `.codex` untracked local scratch only.
+
+Initial gap interpretation:
+- Real colleague MCP validation and live arXiv scale cannot be honestly
+  manufactured in an autonomous local pass.
+- This pass should close implementation/readiness gaps that can be tested
+  offline, while keeping external/live evidence explicitly manual.
+
+Next safe step:
+- Run Phase 0 baseline and independent plan audit.
+
+## Update - local MCP H1 external trial result accepted
+
+New input:
+- The user provided a sanitized H1 external MCP trial result from another
+  environment on 2026-05-03.
+- The trial runner was a Codex external agent using Linux WSL2, Python 3.11.14,
+  `research-assistant==0.1.0`, and Python MCP SDK `mcp==1.26.0`.
+- The trial used demo workspace `/tmp/ra-mcp-h1-trial` and no maintainer
+  assistance.
+
+Plan for this update:
+- Treat the returned H1 result as direct external evidence.
+- Record the sanitized result without private papers, raw PDFs, extracted text,
+  credentials, or private paths.
+- Update the validation index and release-report H1 gate status from
+  `blocked_external` to `accepted`.
+- Capture the two setup lessons: active Python environment fallback when venv
+  creation is unavailable, and sandboxed stdio clients may need an
+  outside-sandbox retry.
+- Tidy generated packaging metadata by removing tracked `egg-info` files from
+  version control while keeping `*.egg-info/` ignored.
+
+Execution result:
+- Added
+  `docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
+- Updated `docs/validation/local_mcp_external_validation_records.md`:
+  - H1 is now `accepted`;
+  - first successful MCP tool call took 0.305 seconds;
+  - required read-only tools passed;
+  - unsafe tools were absent;
+  - `review-write status` reported `mcp_exposed: false`;
+  - optional live batch-grant check was skipped, which is acceptable for H1.
+- Updated `mcp_readiness.gate_status.colleague_mcp_trial`:
+  - `status: accepted`;
+  - `evidence: external_agent_stdio_trial_passed_2026_05_03`;
+  - `result_record:
+    docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
+- Updated release-report assertions in
+  `tests/integration/test_individual_release_cli.py`.
+- Updated troubleshooting/checklist docs:
+  - `docs/mcp.md`;
+  - `docs/troubleshooting.md`;
+  - `docs/mcp_trial_checklist.md`;
+  - `docs/validation/local_mcp_h1_external_agent_instructions.md`.
+- Updated release notes and known limitations to reflect:
+  - H1 external setup accepted;
+  - H2 live explicit-ID source intake accepted;
+  - H3 query discovery, H4 PDF execution, and H5 MCP review-write still gated.
+- Removed tracked generated packaging metadata under
+  `src/research_assistant.egg-info/`; `*.egg-info/` is already ignored.
+
+Validation:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_individual_release_cli.py tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `25 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `PYTHONPATH=src timeout 300 scripts/run_packaging_smoke.sh`: passed; dry-run
+  install would install `research-assistant-0.1.0`.
+- `PYTHONPATH=src timeout 60 python -m research_assistant.cli release-report`:
+  completed with expected workspace warnings and showed H1
+  `colleague_mcp_trial.status: accepted`.
+- `git diff --check`: passed.
+
+Audit as another developer:
+- H1 acceptance is now backed by direct returned external evidence, not a local
+  surrogate.
+- The accepted H1 claim is intentionally narrow: demo-workspace local stdio MCP
+  setup, read-only tool usability, and unsafe-tool absence.
+- H1 does not validate H2 live arXiv execution, H3 live query discovery, H4 PDF
+  download execution, or H5 MCP review mutation.
+- Review-write remains absent from MCP.
+- The external result reported a sandbox-specific stdio issue, but the same
+  server/client succeeded outside the sandbox; this is a documentation
+  follow-up, not a server blocker.
+- Removing tracked `src/research_assistant.egg-info/` is appropriate because
+  install/build metadata is generated and already ignored by `.gitignore`.
+
+Tidy result:
+- `UNKNOWN.egg-info/`, `dist/`, `build/`, pycache, and local workspace outputs
+  remain ignored generated artifacts and are not staged.
+- No raw artifacts, source archives, audit logs, manifests, PDFs, credentials,
+  or private paths were introduced.
+
+Interpretation and next-phase justification:
+- H1 is accepted for local stdio MCP setup/read-only safety in a demo
+  workspace.
+- H2 is already accepted for grant-bound explicit-ID source intake at 25/50/100
+  public IDs.
+- H3-live remains `manual_live_approval_required`; it should only proceed after
+  explicit approval for a bounded non-private live query smoke.
+- H4 remains deferred behind PDF execution preconditions.
+- H5 remains deferred behind UX/audit/undo/confirmation design evidence before
+  any MCP mutation exposure.
+
+## Update - local MCP H3/H4 approved live validation started
+
+New input:
+- The user approved H3 and H4 testing on 2026-05-03 Asia/Hong_Kong.
+
+Plan for H3:
+- Implement a bounded CLI-only live arXiv query discovery path that writes only
+  a pinned candidate file.
+- Use public query `transport maps HMC`, max 10 candidates, one arXiv API page,
+  30s request timeout, and `/tmp` workspaces.
+- Inspect and plan from the saved candidate file.
+- Use the existing local grant path for source intake from the pinned file.
+- Keep live query discovery absent from MCP.
+
+Plan for H4:
+- Implement the smallest grant-bound CLI-only PDF inbox downloader needed to
+  satisfy the PDF execution preconditions.
+- Enforce inbox-only destination, allowed domains, redirect checks, count/byte
+  limits, no-overwrite duplicate behavior, checksum recording, temp cleanup,
+  manifest/audit records, and review-material-only output.
+- Run deterministic tests first.
+- Run a one-PDF live smoke in `/tmp`.
+- Keep PDF download execution absent from MCP.
+
+## Update - local MCP H3 live query discovery accepted
+
+H3 execution result:
+- Added CLI command:
+  - `ra arxiv-batch discover --query ... --max-candidates ... --timeout-seconds
+    ... --output-candidate-file ...`.
+- Discovery is bounded to `export.arxiv.org`, max 50 candidates hard cap, and a
+  candidate file only.
+- Live approved discovery command first failed in the sandbox with DNS
+  resolution failure, then succeeded with approved network escalation.
+- Live query:
+  - query: `transport maps HMC`;
+  - workspace: `/tmp/ra-live-query-smoke-2026-05-03`;
+  - max candidates: 10;
+  - pagination count: 1;
+  - elapsed discovery: 1.218s;
+  - candidate count: 10;
+  - candidate file checksum:
+    `352215ef794ba214e8c009d9a6db5c2d617f3644652cb626651039b5ecfa62a6`;
+  - ordered IDs:
+    `2006.03435v1`, `2007.11549v3`, `0907.5491v3`, `2312.04800v1`,
+    `2111.11612v1`, `2311.10663v4`, `2508.02659v1`, `2512.16839v1`,
+    `2402.04976v1`, `1409.0087v1`.
+- Candidate-file inspection returned `ok`.
+- Planning from the saved file returned `ready_for_grant`.
+- First source-intake run in the original workspace was sandboxed and produced
+  10 unavailable source records. This was recorded as a sandbox artifact and
+  was not used as H3 acceptance evidence.
+- Fresh source-intake workspace:
+  `/tmp/ra-live-query-source-2026-05-03`.
+- Fresh source-intake plan hash:
+  `5a2b675112fb6baa6b96b3d507e6e5377afe513e77fc7823fa2c70b38a10a286`.
+- Fresh source-intake grant:
+  `mcp_grant_1e0453af422696ed`.
+- Approved live source follow-up result:
+  - attempted: 10;
+  - available structured sources: 7;
+  - source-structure failures: 3;
+  - command failures: 0;
+  - audit events: 13;
+  - review policy: `review_material_only`.
+
+H3 tests:
+- Included in focused final validation below:
+  - `tests/integration/test_arxiv_batch_intake.py`;
+  - `tests/integration/test_individual_release_cli.py`;
+  - `tests/integration/test_mcp_adapter.py`.
+
+H3 audit as another developer:
+- The live query did not fetch source or PDF content before candidate-file
+  inspection and grant creation.
+- Candidate-file checksum and exact ordered IDs are bound into the plan hash.
+- The live query results were noisy, but bounded and inspectable.
+- Live query discovery remains absent from MCP.
+- No raw API response, source archive, manifest, audit log, local grant, or
+  private path is committed.
+
+H3 interpretation:
+- H3 is accepted for bounded CLI live query discovery that creates pinned
+  candidate files and can drive existing grant-bound source intake.
+- H3 does not justify MCP live query exposure.
+
+## Update - local MCP H4 PDF execution accepted as CLI-only
+
+H4 execution result:
+- Added grant-bound CLI PDF runner:
+  - `ra arxiv-batch pdf-run --grant-id ... --plan-hash ...
+    --candidate-file ...`.
+- Added `run_pdf_batch_download(...)`.
+- PDF execution requires operation `pdf_inbox_download`, destination `inbox`,
+  matching grant, matching plan hash, and matching candidate-file identity.
+- Added policy/enforcement for:
+  - inbox-only writes;
+  - allowed domains;
+  - redirect-domain block;
+  - max file count;
+  - per-file bytes;
+  - total bytes;
+  - no overwrite;
+  - duplicate skip;
+  - SHA256 and byte count capture;
+  - partial temp cleanup on stream-limit abort;
+  - manifest/audit records;
+  - review-material-only output.
+- PDF execution remains CLI-only and is not exposed through MCP.
+- First live H4 smoke correctly blocked before download because the PDF runner
+  recomputed plan identity without candidate-file metadata:
+  - first plan hash:
+    `cd5ba14263bcfb1d807ff8ca47a97a4f99fffd5f5cd90799d2b39a44c0b2f913`;
+  - first grant: `mcp_grant_f7f0d5879d3d092f`;
+  - result: `recomputed_plan_hash_mismatch`.
+- Fixed the bug by passing `candidate_file` into
+  `run_pdf_batch_download(...)` and binding candidate-file metadata during
+  plan-hash recomputation.
+- Patched live H4 smoke:
+  - workspace: `/tmp/ra-live-pdf-smoke2-2026-05-03`;
+  - candidate ID: `2006.03435v1`;
+  - candidate file checksum:
+    `b29f4eb4342e2543276d2b6c25a085d2816cd990d3cb9c24a1ee5c146e9f56ea`;
+  - plan hash:
+    `e311b7640a1690d0b468b851b7c46620d6f0cd94e7b4c0ae88f0fe6eca1331d9`;
+  - grant: `mcp_grant_13187f4136c4cd5c`;
+  - first patched run: attempted 1, downloaded 1, failures 0;
+  - PDF size: 2,454,305 bytes;
+  - PDF SHA256:
+    `c5a1d48f2ccd9016be5f7744442fe41b378eb8e20997edb574cc331cb75b6f3c`;
+  - duplicate rerun: attempted 1, downloaded 0, skipped duplicate 1,
+    failures 0;
+  - audit events after both runs: 7.
+
+H4 tests:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_pdf_batch_policy.py tests/integration/test_arxiv_batch_intake.py -q`:
+  `27 passed`.
+- Final focused validation below also covered MCP absence and release-report.
+
+H4 audit as another developer:
+- The first blocked live attempt found a real candidate-file grant-binding bug.
+- The fixed path now preserves candidate-file identity during PDF execution.
+- The live smoke wrote exactly one public arXiv PDF under `/tmp` inbox.
+- Duplicate rerun skipped without overwrite.
+- MCP tool inventory remains unchanged; no PDF download MCP tool was added.
+- Downloaded PDF, manifest, grant, and audit files remain local generated
+  artifacts and are not committed.
+- No review record was marked approved.
+
+H4 interpretation:
+- H4 is accepted for grant-bound CLI-only one-PDF inbox download.
+- H4 does not validate broad PDF batch scale, non-arXiv domains, or MCP PDF
+  execution.
+- Broader PDF batch sizes should remain experimental until separate scale
+  evidence exists.
+
+## Update - local MCP H3/H4 final validation completed
+
+Final validation commands:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `78 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `PYTHONPATH=src timeout 60 python -m research_assistant.cli release-report`:
+  completed with expected workspace warnings and showed:
+  - `query_discovery.status:
+    bounded_cli_discovery_available_mcp_disabled`;
+  - `query_discovery.cli_live_query_enabled: true`;
+  - `query_discovery.mcp_live_query_enabled: false`;
+  - `pdf_batch_intake.status:
+    grant_bound_cli_execution_available_mcp_disabled`;
+  - `pdf_batch_intake.execution_enabled: true`;
+  - `pdf_batch_intake.mcp_exposed: false`;
+  - no `ra_download_paper` or PDF batch MCP tool in `mcp_tools`.
+- `git diff --check`: passed.
+
+Final audit:
+- H1, H2, H3, and H4 now have accepted bounded evidence.
+- H3 and H4 are CLI-only; neither adds a new MCP write tool.
+- H5 remains deferred behind human UX/audit/undo/confirmation design before any
+  MCP review mutation.
+- Live/generated artifacts remain under `/tmp` or ignored paths.
+- No raw PDFs, arXiv source archives, extracted text, local manifests, audit
+  logs, grants, or private paths are staged for commit.
+
+Final interpretation and next hypotheses:
+- H3 next hypothesis: whether candidate quality is good enough for the intended
+  researcher workflow. Test with 3-5 representative non-private queries and
+  measure relevance/noise before considering MCP exposure.
+- H4 next hypothesis: whether PDF batch scale is comfortable at 5 and 10 files
+  with no overwrite, checksum, cleanup, and audit ergonomics. This should be
+  approved separately because it downloads more PDFs.
+- H5 next hypothesis: whether the CLI review-write proposal/apply flow is
+  understandable to a real user on demo data and whether the correction policy
+  is sufficient before designing MCP mutation.
+
+## Update - local MCP H2 live arXiv scale validation completed
+
+Objective:
+- Use the user's explicit approval on 2026-05-03 Asia/Hong_Kong to run bounded
+  live arXiv network commands for H2.
+
+Execution plan:
+- Use public sanitized arXiv IDs only.
+- Use `/tmp` workspaces only.
+- Run 25 first, then 50 only if 25 is comfortable, then 100 only if 50 is
+  comfortable.
+- Commit only sanitized summaries, not manifests, audit logs, raw source
+  archives, or extracted text.
+
+Live run results:
+- 25-paper run:
+  - workspace: `/tmp/ra-live-arxiv-source-25-2026-05-03`;
+  - IDs: `2401.00001` through `2401.00025`;
+  - plan hash:
+    `d7ace3c2ad50588be98aded126fc8fb71ffc6a032d16778a9e2d3ce33960c598`;
+  - grant: `mcp_grant_9afbf05b811c039a`;
+  - timeout: 900s;
+  - elapsed: 153.99s;
+  - attempted: 25;
+  - fetched/available: 17;
+  - skipped duplicates: 0;
+  - command failures: 0;
+  - status mix: 17 available, 7 failed source-structure extraction, 1
+    unavailable source;
+  - audit events: 28.
+- 50-paper run:
+  - workspace: `/tmp/ra-live-arxiv-source-50-2026-05-03`;
+  - IDs: `2401.00001` through `2401.00050`;
+  - plan hash:
+    `75b53884465a18b20889f2fb1aac8f1fa44c3d81cb73fcb4e6e8e19d5c9b3cee`;
+  - grant: `mcp_grant_5709d0cb72cc1371`;
+  - timeout: 1800s;
+  - elapsed: 167.70s;
+  - attempted: 50;
+  - fetched/available: 40;
+  - skipped duplicates: 0;
+  - command failures: 0;
+  - status mix: 40 available, 9 failed source-structure extraction, 1
+    unavailable source;
+  - audit events: 53.
+- 100-paper run:
+  - workspace: `/tmp/ra-live-arxiv-source-100-2026-05-03`;
+  - IDs: `2401.00001` through `2401.00100`;
+  - plan hash:
+    `91706256a336d8f9c4ea04cf9289482df506638555cf8aa8970e9503ac64a42e`;
+  - grant: `mcp_grant_9e7440cbe714d6af`;
+  - timeout: 3600s;
+  - elapsed: 591.90s;
+  - attempted: 100;
+  - fetched/available: 87;
+  - skipped duplicates: 0;
+  - command failures: 0;
+  - status mix: 87 available, 12 failed source-structure extraction, 1
+    unavailable source;
+  - audit events: 103.
+
+Audit as another developer:
+- All live runs completed within their bounded timeouts.
+- All generated source archives, manifests, and audit logs stayed under `/tmp`
+  workspaces and are not committed.
+- No review status was marked `approved`.
+- Source extraction failures were visible and bounded as review-material
+  limitations rather than hidden command failures.
+- Initial duplicate/no-overwrite rerun exposed a real plan-hash drift bug:
+  duplicate diagnostics changed the recomputed plan hash after records existed.
+- Fixed the plan hash to exclude mutable duplicate diagnostics while still
+  binding ordered IDs, paper IDs, URLs, destination, policies, and
+  candidate-file metadata.
+- Added a regression test covering rerun duplicates created after grant
+  creation.
+- Verified patched-checkout duplicate rerun with fresh grant
+  `mcp_grant_6341ba16caf9d735`: 25 attempted, 25 skipped duplicates, 0 fetched,
+  0 failures, 0.09s.
+
+Documentation and reporting updates:
+- Updated `docs/validation/local_mcp_external_validation_records.md` with H2
+  classification `accepted`.
+- Updated `docs/validation/local_mcp_live_arxiv_scale_protocol.md` with the
+  sanitized result table.
+- Updated `ra release-report` H2 live evidence from
+  `manual_bounded_validation_pending` to
+  `accepted_25_50_100_public_id_runs_2026_05_03`.
+
+Validation after code/docs updates:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `16 passed`.
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Interpretation:
+- H2 is accepted for public explicit-ID source intake at 25/50/100 with local
+  grants, bounded timeouts, useful manifests/audits, no automatic approval, and
+  duplicate/no-overwrite behavior fixed and verified.
+- H2 does not validate query discovery or PDF download execution; those remain
+  separate H3/H4 gates.
+
+Next safe step:
+- Commit the H2 evidence and duplicate-rerun fix.
+
+## Update - local MCP H1 external agent handoff completed
+
+Objective:
+- Answer the H1 handoff question by writing explicit instructions for another
+  agent in another environment and defining the exact sanitized result needed
+  to update the evidence record.
+
+Execution result:
+- Added `docs/validation/local_mcp_h1_external_agent_instructions.md`.
+- Linked it from `docs/mcp_trial_checklist.md`.
+- Linked it from the H1 section of
+  `docs/validation/local_mcp_external_validation_records.md`.
+
+What the handoff asks the external agent to do:
+- Install with MCP support.
+- Create a fresh demo workspace under `/tmp/ra-mcp-h1-trial`.
+- Configure a local stdio MCP client using `ra-mcp --root
+  /tmp/ra-mcp-h1-trial`.
+- Exercise required MCP tools against `demo_transport_paper`.
+- Confirm unsafe `research-assistant` MCP tools are absent.
+- Confirm `ra review-write status` reports `mcp_exposed: false`.
+- Return a sanitized Markdown result with environment, timing, tool inventory,
+  required tool-call outcomes, review-write boundary, optional batch-grant
+  boundary, problems/suggestions, and privacy confirmation.
+
+Audit as another developer:
+- The handoff uses demo data only and forbids private papers, PDFs, extracted
+  text, credentials, shell history, private paths, and workspace archives.
+- It distinguishes required H1 setup/read-only evidence from the optional
+  batch-grant boundary check.
+- It does not require live arXiv execution for H1.
+- It does not claim H1 is complete without the returned external result.
+- It lets the runner use an anonymous label unless they explicitly opt in to
+  being identified.
+
+Validation after writing the handoff:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `git diff --check`: passed.
+
+Interpretation:
+- H1 remains `blocked_external` until a real external result is returned.
+- Release-report H1 gate status is also `blocked_external`, matching the
+  validation record.
+- Once a result is returned, update
+  `docs/validation/local_mcp_external_validation_records.md` and optionally
+  fill `docs/mcp_colleague_trial_record_template.md`.
+
+Next safe step:
+- Send `docs/validation/local_mcp_h1_external_agent_instructions.md` to the
+  external agent or fresh environment.
+
+## Update - local MCP external/live validation Phase 0 completed
+
+Phase 0 plan for the phase:
+- Confirm the repo baseline remains green.
+- Audit the new external/live validation plan before execution.
+
+Phase 0 execution result:
+- `git status --short --branch`: `main...origin/main [ahead 3]`.
+- Recent HEAD: `1737050 Close local MCP readiness gaps`.
+- `python -m research_assistant.cli release-report` still reports:
+  - colleague MCP trial: `manual_external_required`;
+  - explicit-ID arXiv live scale: `manual_bounded_validation_pending`;
+  - live query discovery: disabled;
+  - PDF batch execution: disabled;
+  - review-write MCP exposure: false.
+
+Phase 0 tests:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `11 passed`.
+- `git diff --check`: passed.
+
+Phase 0 audit as another developer:
+- The plan uses existing validation templates and stays local-MCP scoped.
+- It does not claim a real colleague trial or live arXiv evidence.
+- It does not add hosted/shared MCP work.
+- It does not authorize live network execution during this autonomous pass.
+- Clarified that live command snippets in this plan/protocol docs are future
+  operator commands and are not executed without separate approval.
+
+Phase 0 tidy result:
+- No generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- Baseline is green and the plan is honest about external/live gates.
+- Phase 1 is justified to create a sanitized validation record pack for future
+  evidence.
+
+## Update - local MCP external/live validation Phase 1 completed
+
+Phase 1 plan for the phase:
+- Create a sanitized local MCP validation record index using existing templates.
+- Link it from MCP docs/checklist/limitations.
+- Keep all external/live evidence statuses conservative.
+
+Phase 1 execution result:
+- Added `docs/validation/local_mcp_external_validation_records.md`.
+- The record pack includes:
+  - H1 real colleague MCP setup evidence requirements;
+  - H2 live explicit-ID arXiv source scale record requirements;
+  - H3-live query-discovery smoke record requirements;
+  - H4 PDF execution precondition record;
+  - H5 MCP review-write precondition record.
+- Linked the record pack from:
+  - `docs/mcp_trial_checklist.md`;
+  - `docs/mcp.md`;
+  - `docs/known_limitations.md`.
+
+Phase 1 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- The record pack explicitly prohibits private papers, raw PDFs, extracted text,
+  workspace archives, grant/audit logs, credentials, tokens, shell history, and
+  private colleague identity.
+- H1/H2/H3 remain manual/external/live required.
+- H4/H5 remain precondition-gated.
+
+Phase 1 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- There is now one safe index for future local MCP external/live evidence.
+- Phase 2 remains justified to define the bounded live arXiv source scale
+  protocol without running live network.
+
+## Update - local MCP external/live validation Phase 2 completed
+
+Phase 2 plan for the phase:
+- Add an approval-gated live arXiv source scale protocol.
+- Define 25/50/100 paper bounds, commands, metrics, and stop conditions.
+- Do not run live network in this autonomous pass.
+
+Phase 2 execution result:
+- Added `docs/validation/local_mcp_live_arxiv_scale_protocol.md`.
+- The protocol defines:
+  - explicit approval gate;
+  - `/tmp` workspace convention;
+  - allowed domains;
+  - 25/50/100 escalation order;
+  - timeouts of 900/1800/3600 seconds;
+  - plan/grant/run/audit commands;
+  - metrics to record;
+  - pass/narrow/fail criteria;
+  - sanitized result table.
+- The validation record pack points to the live scale protocol.
+
+Phase 2 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `15 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 2 audit as another developer:
+- No live network was executed.
+- The protocol requires explicit approval before future live runs.
+- It prohibits committing source archives, manifests, audit logs, extracted text,
+  and private workspace content.
+- H2 remains `manual_live_approval_required`.
+
+Phase 2 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H2 now has a bounded operator protocol but no live evidence yet.
+- Phase 3 remains justified to define the live query-discovery smoke protocol
+  without enabling live query in code or MCP.
+
+## Update - local MCP external/live validation Phase 3 completed
+
+Phase 3 plan for the phase:
+- Add a live query discovery pre-enablement protocol.
+- Keep live query discovery disabled in code and MCP.
+- Tie any future live query to pinned candidate-file planning.
+
+Phase 3 execution result:
+- Added `docs/validation/local_mcp_live_query_discovery_protocol.md`.
+- The protocol defines:
+  - explicit approval gate;
+  - allowed endpoint `https://export.arxiv.org/api/query`;
+  - initial max candidates of 10 and hard pre-approval maximum of 50;
+  - pagination and timeout bounds;
+  - candidate-file schema requirements;
+  - safe plan/grant/run flow through a saved candidate file;
+  - metrics and pass/narrow/fail criteria.
+
+Phase 3 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `15 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- Live query discovery remains disabled.
+- The future command shape is documented as not implemented/enabled.
+- No network was run.
+- The only execution path described after discovery is the existing
+  grant-bound pinned candidate-file path.
+
+Phase 3 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H3-live now has a bounded approval protocol but no live evidence.
+- Phase 4 remains justified to define PDF execution and MCP review-write
+  preconditions without enabling either write surface.
+
+## Update - local MCP external/live validation Phase 4 completed
+
+Phase 4 plan for the phase:
+- Add a shared PDF execution and MCP review-write precondition checklist.
+- Link it from MCP and architecture docs.
+- Do not enable PDF execution or MCP review mutation.
+
+Phase 4 execution result:
+- Added `docs/validation/local_mcp_write_surface_preconditions.md`.
+- The document defines:
+  - shared write-surface rules;
+  - PDF batch execution implementation requirements;
+  - PDF tests and tiny-live-smoke requirements;
+  - MCP review-write implementation requirements;
+  - MCP review-write tests and human review requirements;
+  - stop conditions for both surfaces.
+- Linked the precondition document from:
+  - `docs/mcp.md`;
+  - `docs/architecture/mcp_pdf_batch_intake_design.md`;
+  - `docs/architecture/mcp_review_write_design.md`.
+
+Phase 4 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 4 audit as another developer:
+- No PDF downloader was added.
+- No MCP review mutation was exposed.
+- Preconditions explicitly forbid automatic approval and hosted/shared MCP drift.
+- H4/H5 remain precondition-gated.
+
+Phase 4 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H4/H5 now have concrete precondition checklists.
+- Phase 5 remains justified to point release-report gate entries to the new
+  validation/protocol docs while keeping statuses conservative.
+
+## Update - local MCP external/live validation Phase 5 completed
+
+Phase 5 plan for the phase:
+- Add validation/protocol doc path references to release-report MCP gates.
+- Add regression assertions.
+- Keep all statuses conservative.
+
+Phase 5 execution result:
+- Updated `mcp_readiness_status(...)` gate entries with:
+  - `docs/mcp_colleague_trial_record_template.md`;
+  - `docs/validation/local_mcp_external_validation_records.md`;
+  - `docs/validation/local_mcp_live_arxiv_scale_protocol.md`;
+  - `docs/validation/local_mcp_live_query_discovery_protocol.md`;
+  - `docs/validation/local_mcp_write_surface_preconditions.md`.
+- Added assertions to `tests/integration/test_individual_release_cli.py`.
+- `python -m research_assistant.cli release-report` now displays those protocol
+  paths under `mcp_readiness.gate_status`.
+
+Phase 5 tests:
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 5 audit as another developer:
+- Release-report now points to concrete evidence/protocol docs.
+- No manual/live evidence is marked passed.
+- Live query remains disabled, PDF execution disabled, and MCP review mutation
+  disabled.
+- `release-report` rewrote ignored generated artifact metadata; it remains
+  ignored and must not be committed.
+
+Phase 5 tidy result:
+- No generated/private artifacts staged.
+
+Interpretation and next-phase justification:
+- Manual gates are now discoverable from release-report.
+- Phase 6 final validation and commit are justified.
+
+## Update - local MCP external/live validation final validation completed
+
+Final validation commands:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `70 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  passed.
+- `python -m research_assistant.cli release-report`: completed with existing
+  workspace warnings and showed protocol paths for:
+  - external validation records;
+  - live arXiv source scale;
+  - live query discovery;
+  - PDF/review-write preconditions.
+- `git status --short --ignored`: only intended tracked/untracked docs/code
+  changes plus ignored generated/scratch artifacts.
+- `git diff --check`: passed.
+
+Final audit:
+- No real colleague trial was fabricated.
+- No live arXiv network was executed.
+- Live query discovery remains disabled.
+- PDF batch execution remains disabled.
+- MCP review mutation remains disabled.
+- Generated/scratch artifacts remain ignored and must not be committed.
+
+Final interpretation:
+- The remaining external/live gaps now have explicit record/protocol documents
+  and release-report references.
+- The actual evidence remains pending until a real colleague trial or explicitly
+  approved live run is completed.
+
+## Update - local MCP H1-H5 full hypothesis test plan started
+
+New objective:
+- Execute `docs/plans/local_mcp_h1_h5_full_hypothesis_test_plan_2026-05-02.md`
+  after commit `3dd4ab6 Document local MCP external validation gates`.
+
+Requested execution loop:
+- create a detailed plan under `docs/plans`;
+- update this reset memo;
+- audit the plan as another developer;
+- execute every phase using plan/execute/test/audit/tidy/reset-memo updates;
+- continue automatically if no major issue;
+- ask for direction when the next phase is not justified;
+- commit modified files;
+- summarize results and next hypotheses.
+
+Initial repo baseline:
+- Branch: `main...origin/main [ahead 4]`.
+- Recent HEAD: `3dd4ab6 Document local MCP external validation gates`.
+- Working tree before this pass: clean.
+
+Initial interpretation:
+- Full acceptance/rejection/narrowing of H1-H3 requires external/live evidence.
+- H4/H5 require explicit decisions before enabling higher-risk write surfaces.
+- This pass can proceed only as far as evidence and approvals allow; otherwise
+  it must record blockers rather than overclaim completion.
+
+Next safe step:
+- Run Phase 0 baseline and audit the full H1-H5 plan.
+
+## Update - local MCP H1-H5 full hypothesis Phase 0 completed
+
+Phase 0 plan for the phase:
+- Confirm the current local MCP implementation remains green.
+- Audit the full H1-H5 hypothesis plan before attempting external/live tests.
+
+Phase 0 execution result:
+- `git status --short --branch`: `main...origin/main [ahead 4]`.
+- Recent HEAD: `3dd4ab6 Document local MCP external validation gates`.
+- Added `docs/plans/local_mcp_h1_h5_full_hypothesis_test_plan_2026-05-02.md`.
+
+Phase 0 tests:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `70 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 0 audit as another developer:
+- The plan correctly states that H1 needs a real colleague/fresh reader.
+- The plan correctly states that H2/H3-live need explicit live network approval
+  and sanitized inputs.
+- The plan keeps PDF execution and MCP review-write behind safety gates.
+- The plan does not add hosted/shared MCP scope.
+- The evidence rule prevents marking accepted/rejected/narrowed without direct
+  evidence.
+
+Phase 0 tidy result:
+- No generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- The local baseline is green.
+- Phase 1 cannot be completed in this autonomous session without a real
+  colleague or fresh reader. Under the plan, H1 can only be classified as
+  `blocked_external` unless the user provides/arranges real colleague evidence.
+
+## Update - local MCP H1-H5 full hypothesis Phase 1 completed
+
+Phase 1 plan for the phase:
+- Attempt H1 real colleague MCP setup validation.
+- If no real colleague/fresh-reader evidence is available, classify H1 as
+  `blocked_external` rather than overclaiming.
+
+Phase 1 execution result:
+- The user chose to record H1 as blocked and proceed.
+- Updated `docs/validation/local_mcp_external_validation_records.md`:
+  - H1 current status is now `blocked_external`;
+  - reason is no real colleague/fresh-reader MCP client trial is available in
+    this autonomous run.
+- Updated `mcp_readiness.gate_status.colleague_mcp_trial.status` to
+  `blocked_external`.
+- Updated release-report assertions accordingly.
+
+Phase 1 tests:
+- Pending focused validation after this memo update.
+
+Phase 1 audit as another developer:
+- This is honest: local surrogate evidence is not counted as H1 completion.
+- No colleague identity or private metadata was recorded.
+- The classification is a blocker, not acceptance/rejection/narrowing.
+
+Interpretation and next-phase justification:
+- H1 is classified as `blocked_external`.
+- Phase 2 is justified only if explicit live network approval and sanitized
+  arXiv ID lists are available; otherwise H2 must be classified as
+  `blocked_live_approval`.
+
+## Update - local MCP remaining gap closure Phase 0 completed
+
+Phase 0 plan for the phase:
+- Confirm baseline MCP tests remain green.
+- Audit the new gap-closure plan before implementation.
+
+Phase 0 execution result:
+- `git status --short --branch`: `main...origin/main [ahead 2]` with `.codex`
+  untracked before this pass.
+- `git log --oneline -5`: HEAD `7043acc Validate local MCP expansion gates`.
+- `python -m research_assistant.cli mcp status`: reported
+  `default_mode: read_only`, `destructive_tools_enabled: false`, and
+  `review_write_enabled: false`.
+
+Phase 0 tests:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `11 passed`.
+- `git diff --check`: passed.
+
+Phase 0 audit as another developer:
+- The plan preserves local stdio MCP scope and does not add hosted/shared
+  platform work.
+- The plan explicitly separates local deterministic implementation/readiness
+  work from external colleague and live arXiv evidence.
+- One sequencing issue was corrected: Phase 1 release-report `gate_status` is a
+  living readiness surface that later phases may update after query/PDF/review
+  hardening lands.
+- Query work remains offline candidate-file planning; PDF work remains
+  policy-only; review-write remains CLI-only.
+
+Phase 0 tidy result:
+- No generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- Baseline is safe and green.
+- Phase 1 is justified to add explicit MCP gate visibility to `ra
+  release-report` without changing permissions.
+
+## Update - local MCP remaining gap closure Phase 1 completed
+
+Phase 1 plan for the phase:
+- Add deterministic MCP gate visibility to `ra release-report`.
+- Do not make optional MCP a blocker.
+- Do not mark external colleague or live arXiv validation as passed.
+
+Phase 1 execution result:
+- Extended `mcp_readiness_status(...)` with `gate_status`.
+- `gate_status` now reports:
+  - real colleague MCP trial as `manual_external_required`;
+  - explicit-ID arXiv source batch as `available_with_local_grant`;
+  - deterministic mocked 25-paper local evidence and pending live scale
+    evidence separately;
+  - query discovery as design-gated with live query disabled;
+  - PDF batch intake as design-gated with execution disabled;
+  - review-write as CLI-only with `mcp_exposed: false`;
+  - packaging after MCP gap work as manual rebuild recommended.
+- Added release-report assertions in
+  `tests/integration/test_individual_release_cli.py`.
+
+Phase 1 tests:
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `git diff --check`: passed.
+- `python -m research_assistant.cli release-report`: completed and displayed
+  the new `mcp_readiness.gate_status` fields.
+
+Phase 1 audit as another developer:
+- The report is explicit without implying hosted/shared MCP readiness.
+- Manual evidence items are still manual; no colleague trial or live arXiv
+  scale is claimed as passed.
+- Optional MCP absence remains non-blocking.
+- `release-report` rewrote ignored `dist/release_artifacts_manifest.json`; it
+  remains generated/ignored and must not be committed.
+
+Phase 1 tidy result:
+- No private files staged.
+- Generated release artifact metadata remains ignored.
+
+Interpretation and next-phase justification:
+- MCP gate visibility is now substantially clearer.
+- Phase 2 remains justified to create a safe non-private colleague trial record
+  template for future H1 evidence.
+
+## Update - local MCP remaining gap closure Phase 2 completed
+
+Phase 2 plan for the phase:
+- Add a real colleague MCP trial record template.
+- Link it from trial/release docs.
+- Keep H1 manual/external until a real colleague trial is recorded.
+
+Phase 2 execution result:
+- Added `docs/mcp_colleague_trial_record_template.md`.
+- Updated `docs/mcp_trial_checklist.md` to point to the template and clarify
+  that local surrogate runs do not count as H1 external usability evidence.
+- Updated `docs/known_limitations.md` and `docs/release_notes_0.1.0.md` to
+  reference the template for future real colleague MCP setup evidence.
+
+Phase 2 tests:
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 2 audit as another developer:
+- The template records only non-private metadata.
+- It explicitly prohibits private titles, raw PDFs, extracted text,
+  credentials, and colleague identity unless opt-in.
+- It does not claim H1 is passed.
+
+Phase 2 tidy result:
+- Docs-only phase; no generated artifacts created.
+- No files staged.
+
+Interpretation and next-phase justification:
+- H1 now has a safe future evidence format, but remains manual/external.
+- Phase 3 remains justified to move query discovery from design-only to
+  offline pinned-candidate planning without live network.
+
+## Update - local MCP remaining gap closure Phase 3 completed
+
+Phase 3 plan for the phase:
+- Add offline arXiv candidate-file validation and planning.
+- Do not enable live query discovery.
+- Bind exact ordered IDs and candidate-file checksum into the plan hash.
+
+Phase 3 execution result:
+- Added candidate-file helpers in `src/research_assistant/ingest/arxiv_batch.py`.
+- Added CLI support:
+  - `ra arxiv-batch candidate-file inspect --path <candidate_file>`;
+  - `ra arxiv-batch plan --candidate-file <candidate_file> --max-papers <n>`.
+- Added fixture:
+  `tests/fixtures/mcp/arxiv_candidates/query_transport_maps_hmc.json`.
+- Candidate-file planning:
+  - is read-only;
+  - rejects malformed, oversized, duplicate, empty, or missing-ID files;
+  - uses the file's ordered arXiv IDs;
+  - includes candidate-file metadata/checksum in the plan core;
+  - changes plan hash when candidate order/content changes.
+- Updated release-report `gate_status.query_discovery` to
+  `offline_candidate_file_planning_available` while keeping
+  `live_query_enabled: false`.
+- Updated `docs/mcp.md` and `docs/known_limitations.md`.
+
+Phase 3 tests:
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py -q`:
+  `14 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- No live network path was added.
+- Query-only live planning still blocks.
+- Candidate-file plan hashes are bound to exact ordered candidate identity.
+- Planning remains read-only and does not create local grants or downloads.
+
+Phase 3 tidy result:
+- Only a non-private JSON fixture was added.
+- No generated/private artifacts staged.
+
+Interpretation and next-phase justification:
+- H3 is narrowed from design-only to offline pinned-candidate planning.
+- Live query discovery remains disabled and still needs bounded live approval.
+- Phase 4 remains justified to add executable PDF policy checks without
+  enabling PDF download execution.
+
+## Update - local MCP remaining gap closure Phase 4 completed
+
+Phase 4 plan for the phase:
+- Add executable PDF batch policy checks.
+- Do not implement PDF download execution.
+- Surface policy availability in release-report.
+
+Phase 4 execution result:
+- Added `src/research_assistant/ingest/pdf_batch_policy.py`.
+- Policy checks validate:
+  - max file count;
+  - max total bytes;
+  - max per-file bytes;
+  - destination is `inbox`;
+  - overwrite policy is `no_overwrite`;
+  - PDF URL domains are `arxiv.org` or `export.arxiv.org`;
+  - missing URLs and invalid declared byte counts.
+- Added `tests/integration/test_pdf_batch_policy.py`.
+- Updated `mcp_readiness.gate_status.pdf_batch_intake` to report
+  `policy_checks_available: true` and `execution_enabled: false`.
+- Updated `docs/mcp.md` and `docs/known_limitations.md`.
+
+Phase 4 tests:
+- `timeout 240 python -m pytest tests/integration/test_pdf_batch_policy.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_individual_release_cli.py -q`:
+  `32 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `git diff --check`: passed.
+
+Phase 4 audit as another developer:
+- No downloader was added.
+- No MCP PDF batch execution tool was exposed.
+- Policy checks are deterministic and offline.
+- PDF batch output remains disabled until checksum, cleanup, manifest/audit,
+  duplicate, and live-smoke requirements are implemented and recorded.
+
+Phase 4 tidy result:
+- No generated artifacts created.
+- No private files staged.
+
+Interpretation and next-phase justification:
+- H4 is narrowed from design-only to executable policy checks with execution
+  disabled.
+- Phase 5 remains justified to improve CLI review-write readiness while keeping
+  MCP mutation disabled.
+
+## Update - local MCP remaining gap closure Phase 5 completed
+
+Phase 5 plan for the phase:
+- Improve review-write CLI readiness/status.
+- Add expired-proposal cleanup with dry-run default.
+- Keep MCP review mutation disabled.
+
+Phase 5 execution result:
+- Extended `review_write_status(...)` with proposal counts:
+  - total;
+  - pending;
+  - expired;
+  - applied;
+  - invalid.
+- Added `cleanup_expired_proposals(...)`.
+- Added CLI command:
+  - `ra review-write cleanup-expired`;
+  - `ra review-write cleanup-expired --apply`.
+- Cleanup defaults to dry-run and only removes expired proposal records when
+  `--apply` is present; it does not alter paper summaries or review state.
+- Updated release-report `gate_status.review_write` with proposal counts.
+- Updated `docs/mcp.md` and `docs/known_limitations.md`.
+
+Phase 5 tests:
+- `timeout 240 python -m pytest tests/integration/test_cli_commands.py -q`:
+  `26 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `git diff --check`: passed.
+
+Phase 5 audit as another developer:
+- Review-write remains CLI-only and reports `mcp_exposed: false`.
+- Cleanup is bounded to expired proposal JSON files and is dry-run by default.
+- No MCP review mutation tool was added.
+- Proposal status counts improve readiness visibility without broadening
+  permission.
+
+Phase 5 tidy result:
+- Tests created proposal/audit files only under pytest temp workspaces.
+- No generated/private artifacts staged.
+
+Interpretation and next-phase justification:
+- H5 is safer for later UX review but MCP exposure remains deferred.
+- Phase 6 remains justified to rebuild/check packaging outputs and fix scratch
+  hygiene without committing generated artifacts.
+
+## Update - local MCP remaining gap closure Phase 6 completed
+
+Phase 6 plan for the phase:
+- Add `.codex` scratch hygiene.
+- Run packaging smoke and rebuild release artifacts.
+- Keep generated artifacts uncommitted.
+- Update docs to reflect current MCP gap-closure state.
+
+Phase 6 execution result:
+- Added `.codex` and `.codex/` to `.gitignore`.
+- Ran packaging smoke successfully:
+  - metadata entrypoint test passed;
+  - `python -m pip install --dry-run --no-build-isolation .` would install
+    `research-assistant-0.1.0`.
+- Rebuilt local release artifact successfully:
+  - wheel: `research_assistant-0.1.0-py3-none-any.whl`;
+  - size: `145857` bytes;
+  - SHA256:
+    `f9f4ae52ce7c53a5acfe3332b567347d86dce55248c0a905821fea1e2e385a0c`.
+- `src/research_assistant.egg-info/` metadata was regenerated by packaging and
+  now reflects the MCP extra/entrypoint and new package modules.
+- `dist/` and `build/` remain ignored generated outputs.
+- Updated `docs/release_notes_0.1.0.md` with rebuilt local artifact metadata and
+  current MCP capability wording.
+- Final audit during this phase found that candidate-file planning needed a
+  matching run path. Added `candidate_file` support to
+  `run_arxiv_batch_intake(...)` and `ra arxiv-batch run --candidate-file ...`,
+  keeping execution grant-bound and offline-pinned.
+
+Phase 6 tests:
+- `timeout 300 scripts/run_packaging_smoke.sh`: passed.
+- `timeout 300 scripts/build_release_artifacts.sh`: passed.
+- `timeout 240 python -m pytest tests/integration/test_individual_release_cli.py -q`:
+  `14 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 240 python -m pytest tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `59 passed`.
+- `git status --short --ignored`: `.codex`, `dist/`, and `build/` are ignored;
+  generated artifacts are visible only as ignored files.
+- `git diff --check`: passed.
+
+Phase 6 audit as another developer:
+- Packaging completed without needing network escalation.
+- Generated release artifacts were not staged.
+- `.codex` is ignored in both file and directory forms.
+- The candidate-file run path remains grant-bound and does not enable live query
+  discovery.
+- No PDF download execution or MCP review mutation was exposed.
+
+Phase 6 tidy result:
+- Ignored generated artifacts remain in `dist/`, `build/`, pycache, and local
+  scratch locations.
+- No private paper data was introduced.
+
+Interpretation:
+- Packaging and scratch hygiene gaps are closed for this local pass.
+- All implementation phases are complete; final validation and commit are now
+  justified.
+
+## Update - local MCP remaining gap closure final validation completed
+
+Final validation commands:
+- `timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `70 passed`.
+- `timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `timeout 5 env PYTHONPATH=src python -m research_assistant.adapters.mcp_server --help`:
+  passed.
+- `python -m research_assistant.cli mcp status`: reported
+  `default_mode: read_only`, `destructive_tools_enabled: false`, and
+  `review_write_enabled: false`.
+- `python -m research_assistant.cli review-write status`: reported
+  `status: prototype_cli_only`, `mcp_exposed: false`, and zero proposal counts
+  in the repo root.
+- `python -m research_assistant.cli release-report`: showed:
+  - `colleague_mcp_trial.status: manual_external_required`;
+  - `explicit_id_arxiv_source_batch.status: available_with_local_grant`;
+  - `query_discovery.status: offline_candidate_file_planning_available`;
+  - `query_discovery.live_query_enabled: false`;
+  - `pdf_batch_intake.policy_checks_available: true`;
+  - `pdf_batch_intake.execution_enabled: false`;
+  - `review_write.mcp_exposed: false`.
+- `git diff --check`: passed.
+
+Final audit:
+- External H1 evidence remains not recorded.
+- Live arXiv 25/50/100 evidence remains pending/manual.
+- Live query discovery remains disabled.
+- PDF batch download execution remains disabled.
+- MCP review mutation remains disabled.
+- `dist/`, `build/`, `.codex`, `.claude`, local workspace artifacts, and
+  pycache files remain ignored/generated and must not be committed.
+- Tracked `src/research_assistant.egg-info/` metadata was regenerated by the
+  packaging build and reflects the current package surface, including MCP
+  entrypoint/extra and new modules.
+
+Final interpretation:
+- All locally closable gaps in the plan are closed or narrowed with deterministic
+  evidence.
+- The remaining gaps require either a real colleague or explicit bounded live
+  network validation.
+
+## Update - local MCP external/live validation plan started
+
+New objective:
+- Execute `docs/plans/local_mcp_external_live_validation_plan_2026-05-02.md`
+  after commit `1737050 Close local MCP readiness gaps`.
+
+Requested execution loop:
+- write a plan under `docs/plans`, using templates where possible;
+- update this reset memo;
+- audit the plan as another developer;
+- execute every justified phase using plan/execute/test/audit/tidy/reset-memo
+  updates;
+- continue automatically unless the next phase is not justified;
+- commit modified files;
+- summarize results and next hypotheses.
+
+Initial repo baseline:
+- Branch: `main...origin/main [ahead 3]`.
+- Recent HEAD: `1737050 Close local MCP readiness gaps`.
+- Working tree before this pass: clean.
+
+Initial interpretation:
+- The remaining gaps are primarily external/live evidence gates, not ordinary
+  local implementation gaps.
+- This pass should create sanitized evidence protocols and release-report
+  references, but must not claim real colleague or live arXiv validation unless
+  such evidence exists.
+
+Next safe step:
+- Run Phase 0 baseline and independent plan audit.
+
+## Update - H3/H4 release closure documentation started
+
+New objective:
+- Create a dedicated H3/H4 release-closure plan after commit
+  `7c1e2c4 Accept H3 H4 live MCP validation`.
+- Update `proposal/research_development_assistant_design.tex` so the
+  colleague-facing proposal describes the local MCP addition, H3/H4 evidence,
+  permission boundaries, and release scope in detail.
+
+Phase 0 plan for the phase:
+- Inspect current repo state and recent commits.
+- Read H3/H4 validation records and the proposal LaTeX.
+- Write a dedicated closeout plan under `docs/plans`.
+- Record the initial reset-memo checkpoint.
+
+Phase 0 execution result:
+- Baseline commit: `7c1e2c4 Accept H3 H4 live MCP validation`.
+- Working tree had no tracked modifications before this pass.
+- Existing ignored/generated artifacts were present, including `.claude/`,
+  `.codex`, `.pytest_cache/`, `UNKNOWN.egg-info/`, `build/`, `dist/`,
+  `local_research/`, pycache folders, and synthetic TeX aux/log files.
+- Added plan:
+  `docs/plans/local_mcp_h3_h4_release_closure_plan_2026-05-03.md`.
+
+Phase 0 audit as another developer:
+- H3 and H4 are already accepted in the validation records, so this pass should
+  not rerun live network commands unless new evidence is needed and separately
+  approved.
+- The safe next step is documentation/release-claim closure, not expansion of
+  MCP write tools.
+- The plan keeps live query discovery and PDF execution CLI-only and absent from
+  MCP.
+- H5 remains gated because MCP review-write still lacks final UX/audit/undo and
+  explicit confirmation approval.
+
+Interpretation and next-phase justification:
+- Phase 1 independent plan audit remains justified before editing the proposal,
+  because the proposal will become the release-facing explanation of the MCP
+  capability and must not overclaim beyond local colleague/pilot readiness.
+
+## Update - H3/H4 release closure Phase 1 completed
+
+Phase 1 plan for the phase:
+- Audit the closeout plan as another developer before editing the
+  release-facing LaTeX proposal.
+- Check permission story, clear confirmation behavior, privacy hygiene, MCP
+  exposure boundaries, release-scope boundaries, and evidence traceability.
+
+Phase 1 execution result:
+- Reviewed the closeout plan against the validation records and write-surface
+  preconditions.
+- Patched the plan to require the proposal to describe clear confirmation
+  mechanics:
+  - write execution uses a generated plan hash plus an expiring local grant ID;
+  - grants bind operation, destination, maximum count, ordered IDs, and
+    duplicate policy;
+  - execution recomputes the plan identity and blocks on mismatch;
+  - MCP review-write remains disabled until an exact old/new value plus
+    file-hash confirmation payload is approved.
+
+Phase 1 test:
+- `git diff --check`: passed.
+
+Phase 1 audit as another developer:
+- The plan now covers the main missing release-writing risk: vague
+  "grant-bound" wording could otherwise obscure the actual confirmation
+  behavior.
+- The plan continues to forbid hosted MCP, MCP live query execution, MCP PDF
+  execution, and MCP review mutation.
+- The plan does not claim broad/public/department readiness.
+
+Interpretation and next-phase justification:
+- The plan is sufficiently explicit for proposal editing.
+- Phase 2 is justified to update
+  `proposal/research_development_assistant_design.tex` with the local MCP
+  adapter, H1-H4 evidence, H5 boundary, and local colleague/pilot release scope.
+
+## Update - H3/H4 release closure Phase 2 completed
+
+Phase 2 plan for the phase:
+- Update `proposal/research_development_assistant_design.tex` with a detailed
+  local MCP section and release interpretation.
+- Include the permission story, clear grant/confirmation behavior, H3/H4
+  accepted evidence, H5 boundary, and pilot-scoped release claim.
+
+Phase 2 execution result:
+- Added executive-summary wording that the optional MCP adapter is local stdio
+  and read-only by default.
+- Updated current release scope, current capabilities, and trust-boundary
+  sections to include:
+  - read-only MCP workspace access;
+  - no hosted/shared/HTTP MCP;
+  - no MCP review mutation;
+  - no MCP live query discovery;
+  - no MCP PDF execution.
+- Added a new assistant-workflow section explaining:
+  - local MCP read-only tools;
+  - the separate CLI grant model for batch writes;
+  - plan-hash and expiring-grant confirmation behavior;
+  - H3 bounded live query discovery through a pinned candidate file;
+  - H4 CLI-only PDF inbox download with one-PDF live-smoke evidence.
+- Added concrete example workflows for:
+  - running `ra-mcp` against a demo workspace;
+  - approving one bounded arXiv batch grant instead of per-file prompts.
+- Updated scope, skeptical-questions, future-work, and appendix sections to make
+  the release interpretation explicit:
+  - H1-H4 support local colleague/pilot readiness;
+  - H4 does not prove broad PDF batch scale;
+  - H5 MCP review-write remains not accepted;
+  - broad/public/department release remains outside current evidence.
+
+Phase 2 tests:
+- `pdflatex -interaction=nonstopmode -halt-on-error -output-directory /tmp/ra-proposal-tex proposal/research_development_assistant_design.tex`:
+  passed and produced a 28-page PDF in `/tmp/ra-proposal-tex`.
+- The first compile reported one overfull line from a long inline MCP tool-name
+  list; the proposal was patched to use a short itemized list and recompiled.
+- The second compile passed with only non-blocking underfull page-fill warnings.
+
+Phase 2 audit as another developer:
+- The proposal now makes MCP valuable without presenting it as a hosted or
+  write-capable platform.
+- The H3 section is bounded to CLI query discovery and pinned candidate files.
+- The H4 section is bounded to CLI-only inbox download and one-PDF live-smoke
+  evidence.
+- The text says H5 MCP review-write is not accepted and remains gated.
+- No private titles, raw PDFs, extracted text, manifests, audit logs, local
+  grants, or workspace archives were introduced.
+
+Interpretation and next-phase justification:
+- The proposal now reflects the accepted H3/H4 evidence and current MCP
+  permission story accurately.
+- Phase 3 deterministic validation and artifact tidy remains justified before
+  final reset-memo update and commit.
+
+## Update - H3/H4 release closure Phase 3 completed
+
+Phase 3 plan for the phase:
+- Run deterministic release checks after the proposal update.
+- Re-run the LaTeX compile check into `/tmp`.
+- Review ignored/generated artifacts and keep them uncommitted.
+
+Phase 3 tests:
+- `PYTHONPATH=src timeout 240 python -m pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_arxiv_batch_intake.py tests/integration/test_pdf_batch_policy.py tests/integration/test_cli_commands.py tests/integration/test_individual_release_cli.py -q`:
+  `78 passed`.
+- `PYTHONPATH=src timeout 120 scripts/run_fast_tests.sh`: `14 passed`.
+- `PYTHONPATH=src timeout 60 python -m research_assistant.cli release-report`:
+  completed with expected repo-root workspace warnings and showed:
+  - `default_mode: read_only`;
+  - `query_discovery.status:
+    bounded_cli_discovery_available_mcp_disabled`;
+  - `query_discovery.cli_live_query_enabled: true`;
+  - `query_discovery.mcp_live_query_enabled: false`;
+  - `pdf_batch_intake.status:
+    grant_bound_cli_execution_available_mcp_disabled`;
+  - `pdf_batch_intake.execution_enabled: true`;
+  - `pdf_batch_intake.mcp_exposed: false`;
+  - `review_write.mcp_exposed: false`.
+- `pdflatex -interaction=nonstopmode -halt-on-error -output-directory /tmp/ra-proposal-tex proposal/research_development_assistant_design.tex`:
+  passed after the long inline tool-name list was changed to an itemized list.
+- `git diff --check`: passed.
+
+Phase 3 audit as another developer:
+- The deterministic tests cover the MCP adapter, permission surface,
+  arXiv-batch planning/run behavior, PDF policy/execution behavior,
+  CLI commands, and release-report gates.
+- Release-report continues to show MCP read-only status with H3/H4 CLI-only and
+  H5 MCP-disabled.
+- The LaTeX document compiles successfully.
+- Ignored/generated artifacts remain uncommitted.
+
+Phase 3 tidy result:
+- Reviewed `git status --short --ignored`.
+- Existing ignored artifacts remain ignored, including `.claude/`, `.codex`,
+  `.pytest_cache/`, `UNKNOWN.egg-info/`, `build/`, `dist/`, `local_research/`,
+  `hoffman.json`, `out.txt`, pycache folders, and synthetic TeX aux/log files.
+- The dedicated closeout plan is under ignored `docs/plans/` and must be
+  force-staged intentionally.
+- No generated/private artifacts are staged.
+
+Interpretation and next-phase justification:
+- The proposal update is validated and the release-report state matches the
+  intended permission story.
+- Phase 4 final reset-memo update, commit, and summary are justified.
+
+## Update - H3/H4 release closure Phase 4 completed
+
+Phase 4 plan for the phase:
+- Record final interpretation in this reset memo.
+- Commit only intended documentation changes:
+  - dedicated H3/H4 closeout plan;
+  - proposal LaTeX update;
+  - reset memo updates.
+- Summarize next hypotheses after the commit.
+
+Phase 4 execution result:
+- Prepared final documentation set:
+  - `docs/plans/local_mcp_h3_h4_release_closure_plan_2026-05-03.md`;
+  - `proposal/research_development_assistant_design.tex`;
+  - `docs/plans/reset_memo_2026-04-26.md`.
+- The dedicated plan is intentionally under ignored `docs/plans/` and must be
+  force-staged.
+- No code or test files were changed in this closeout pass.
+
+Phase 4 final audit as another developer:
+- The closeout does not rerun or invent live network evidence; it relies on the
+  already accepted H3/H4 validation records.
+- The proposal now states the MCP permission story clearly:
+  - local stdio only;
+  - read-only MCP default;
+  - no hosted/shared/HTTP MCP;
+  - no MCP live query discovery;
+  - no MCP PDF execution;
+  - no MCP review mutation.
+- The proposal describes clear confirmation behavior for batch writes:
+  - plan hash plus expiring local grant ID;
+  - operation, destination, maximum count, ordered IDs, and duplicate policy
+    bound into the grant;
+  - execution recomputes the plan identity and blocks on mismatch.
+- H3 is framed as accepted for bounded CLI live query discovery and pinned
+  candidate-file source follow-up, not MCP exposure.
+- H4 is framed as accepted for CLI-only one-PDF inbox download readiness, not
+  broad routine PDF batch scale.
+- H5 remains a future gated hypothesis.
+
+Final interpretation:
+- Closing H3 and H4 plus updating the proposal is sufficient to support a local
+  colleague/pilot release-readiness claim, assuming final release-owner approval
+  and release notes keep the exclusions explicit.
+- It is not sufficient for broad/public/department release readiness.
+- Next evidence should test candidate quality, PDF batch ergonomics at small
+  bounded sizes, and H5 review-write UX/correction policy before considering any
+  MCP write expansion.
+
+## Update - source-checkout agent ergonomics completed
+
+Objective:
+- Make common local CLI, MCP, and validation commands easy for agents and
+  maintainers without repeatedly typing `PYTHONPATH=src python -m ...`.
+- Preserve the safety boundary: helper commands should reduce source-checkout
+  friction, not bypass live-network, PDF-download, review-mutation, restore,
+  merge-apply, or destructive approvals.
+
+Execution result:
+- Added `scripts/ra-dev`:
+  - sets `PYTHONPATH` to the checkout `src/`;
+  - delegates to `python -m research_assistant.cli`.
+- Added `scripts/ra-mcp-dev`:
+  - sets `PYTHONPATH` to the checkout `src/`;
+  - delegates to `python -m research_assistant.adapters.mcp_server`.
+- Added `scripts/ra-agent` with safe/common presets:
+  - `cli`;
+  - `release-report`;
+  - `mcp-status`;
+  - `review-write-status`;
+  - `privacy-status`;
+  - `doctor-matrix`;
+  - `mcp-help`;
+  - `fast-tests`;
+  - `focused-tests`;
+  - `pytest`;
+  - `diff-check`;
+  - `status`.
+- Updated docs:
+  - `README.md`;
+  - `docs/usage.md`;
+  - `docs/release_checklist.md`;
+  - `docs/maintainer_guide.md`;
+  - `docs/mcp.md`;
+  - `docs/quickstart.md`.
+- Added regression coverage in
+  `tests/integration/test_individual_release_cli.py`.
+
+Validation:
+- `scripts/ra-dev version`: passed.
+- `scripts/ra-mcp-dev --help`: passed.
+- `scripts/ra-agent --help`: passed.
+- `scripts/ra-agent mcp-status`: passed and reported `default_mode:
+  read_only`, `destructive_tools_enabled: false`, and `review_write_enabled:
+  false`.
+- `scripts/ra-agent pytest tests/integration/test_individual_release_cli.py::test_source_checkout_agent_helpers_are_documented_and_bounded -q`:
+  `1 passed`.
+- `scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q`:
+  `15 passed`.
+- `scripts/ra-agent fast-tests`: `14 passed`.
+- `scripts/ra-agent diff-check`: passed.
+
+Audit as another developer:
+- The helpers are source-checkout shims over existing entry points and tests.
+- `scripts/ra-agent` does not provide presets for `pdf-run`, `download-paper`,
+  restore confirmation, merge confirmation, or review-write apply.
+- The docs explicitly state that live network work, review mutation, PDF
+  downloads, restore, merge apply, and destructive actions still require
+  approval, explicit CLI confirmation, or a bounded local grant.
+- Existing ignored/generated artifacts remain ignored and uncommitted.
+
+Interpretation:
+- Agents and maintainers can now use stable local commands instead of spelling
+  out `PYTHONPATH=src python -m ...`.
+- The next release-validation loop should prefer `scripts/ra-agent focused-tests`
+  and `scripts/ra-agent fast-tests` for source-checkout checks.

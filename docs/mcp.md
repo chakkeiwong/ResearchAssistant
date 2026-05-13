@@ -1,0 +1,245 @@
+# Local MCP Adapter
+
+`research-assistant` includes an optional local MCP adapter for assistant
+clients that support Model Context Protocol.
+
+This adapter is local stdio only. It is not a hosted service, shared database,
+HTTP API, SSO/RBAC system, or live collaboration server.
+
+## Install
+
+Base install:
+
+```bash
+python -m pip install .
+```
+
+Install with MCP support:
+
+```bash
+python -m pip install ".[mcp]"
+```
+
+The base `ra` CLI does not require the MCP extra.
+
+## Start The Server
+
+Use an explicit workspace root:
+
+```bash
+RA_ROOT=/tmp/ra-demo ra-mcp
+```
+
+or:
+
+```bash
+ra-mcp --root /tmp/ra-demo
+```
+
+To create demo data first:
+
+```bash
+ra --root /tmp/ra-demo demo setup
+RA_ROOT=/tmp/ra-demo ra-mcp
+```
+
+From a source checkout, the equivalent no-install helpers are:
+
+```bash
+scripts/ra-dev --root /tmp/ra-demo demo setup
+scripts/ra-mcp-dev --root /tmp/ra-demo
+```
+
+These helpers set `PYTHONPATH=src` for the current checkout and then delegate to
+the same Python entry points as `ra` and `ra-mcp`.
+
+## Client Configuration Shape
+
+Use a stdio command in your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "research-assistant": {
+      "command": "ra-mcp",
+      "args": ["--root", "/tmp/ra-demo"]
+    }
+  }
+}
+```
+
+If `ra-mcp` is not on `PATH`, use the full path from the Python environment
+where `research-assistant[mcp]` is installed.
+
+## Read-Only Tools
+
+First-stage MCP tools are read-only:
+
+- `ra_workspace_status`
+- `ra_find_paper`
+- `ra_get_paper_summary`
+- `ra_paper_code_links`
+- `ra_claim_support_audit`
+- `ra_review_list`
+- `ra_review_show`
+- `ra_source_show`
+- `ra_parser_tool_matrix`
+- `ra_privacy_status`
+
+These tools inspect local records. They do not ingest papers, fetch arXiv,
+download PDFs, mutate review status, restore backups, delete files, or call
+external LLM/provider services.
+
+## Resources
+
+The adapter also exposes read-only resources:
+
+- `research-assistant://workspace/status`
+- `research-assistant://paper/{paper_id}`
+- `research-assistant://source/{paper_id}`
+
+## Privacy Boundary
+
+The MCP server runs on the local machine and reads the configured local
+workspace. Tool responses may include local paper metadata, review notes,
+provenance, source-extraction records, and local paths to stored artifacts.
+
+Do not point `RA_ROOT` at a workspace you do not want the assistant client to
+inspect.
+
+## Batch ArXiv Intake
+
+Large arXiv intake is planned as a separate grant-bound workflow. The intended
+flow is:
+
+1. plan a bounded batch;
+2. approve a local expiring grant;
+3. run intake using that grant;
+4. inspect the manifest and audit log.
+
+Batch intake creates review material only. It must not mark records approved.
+
+Explicit-ID source intake is available first:
+
+```bash
+ra --root /tmp/ra-demo arxiv-batch plan --ids 2401.00001 --max-papers 1
+ra --root /tmp/ra-demo mcp grant arxiv-intake --plan-hash <plan_hash> --max-papers 1 --ids 2401.00001 --skip-duplicates
+ra --root /tmp/ra-demo arxiv-batch run --grant-id <grant_id> --plan-hash <plan_hash> --ids 2401.00001
+```
+
+Bounded live arXiv discovery is available as a CLI-only validation path that
+writes a pinned candidate file. It is not exposed through MCP:
+
+```bash
+ra arxiv-batch discover \
+  --query "transport maps HMC" \
+  --max-candidates 10 \
+  --timeout-seconds 30 \
+  --output-candidate-file /tmp/ra-live-query/candidates.json
+```
+
+Pinned candidate-file planning is available for query-discovery outputs and
+fixtures:
+
+```bash
+ra arxiv-batch candidate-file inspect --path <candidate_file.json>
+ra arxiv-batch plan --candidate-file <candidate_file.json> --max-papers 25
+```
+
+The planning path itself does not query arXiv. It binds the candidate-file
+checksum and exact ordered arXiv IDs into the plan hash before any grant is
+created.
+
+Grant-bound PDF inbox download is also CLI-only and remains absent from MCP:
+
+```bash
+ra --root /tmp/ra-demo arxiv-batch plan \
+  --candidate-file /tmp/ra-live-query/candidates.json \
+  --max-papers 1 \
+  --destination inbox \
+  --operation pdf_inbox_download
+ra --root /tmp/ra-demo mcp grant arxiv-intake \
+  --plan-hash <plan_hash> \
+  --operation pdf_inbox_download \
+  --destination inbox \
+  --max-papers 1 \
+  --ids <ordered-candidate-id> \
+  --skip-duplicates
+ra --root /tmp/ra-demo arxiv-batch pdf-run \
+  --grant-id <grant_id> \
+  --plan-hash <plan_hash> \
+  --candidate-file /tmp/ra-live-query/candidates.json
+```
+
+Downloaded PDFs remain inbox review material. They are not approved paper
+records.
+
+For a validation checklist, see `docs/mcp_trial_checklist.md`.
+For external/live validation records and pass/narrow/fail criteria, see
+`docs/validation/local_mcp_external_validation_records.md`.
+For PDF execution and MCP review-write preconditions, see
+`docs/validation/local_mcp_write_surface_preconditions.md`.
+
+## Deferred Write Modes
+
+Query-based arXiv discovery has a design gate in
+`docs/architecture/mcp_arxiv_query_discovery_design.md`. A bounded CLI
+candidate-file path is available, but it is not live-enabled through MCP.
+
+PDF batch downloads have a separate design gate in
+`docs/architecture/mcp_pdf_batch_intake_design.md`. Grant-bound CLI PDF inbox
+download is available with byte limits, duplicate handling, cleanup, manifests,
+audits, and one-PDF live smoke evidence. It is not exposed as an MCP write
+tool.
+
+Review-write is being prototyped through CLI confirmation commands, not MCP:
+
+```bash
+ra review-write status
+ra review-write propose-status --paper-id <id> --status approved
+ra review-write apply --confirmation-id <confirmation_id>
+ra review-write cleanup-expired
+```
+
+MCP review mutation remains disabled. The CLI prototype records old/new values,
+file hashes, expiration, and audit events, and blocks if the target file changed
+after proposal creation. Expired proposal cleanup defaults to dry-run; real
+cleanup requires `--apply` and removes only expired proposal records.
+
+## Troubleshooting
+
+If `ra-mcp` reports that the MCP SDK is missing, install the optional extra:
+
+```bash
+python -m pip install ".[mcp]"
+```
+
+A fresh virtual environment is preferred for external trials, but an existing
+active Python environment is acceptable when system venv creation is
+unavailable. Verify that the MCP server entrypoint resolves from the same
+environment:
+
+```bash
+command -v ra-mcp
+ra-mcp --help
+```
+
+Some MCP clients run stdio servers inside an additional sandbox. If stdio
+initialization times out there but `ra-mcp --help` works, retry with the same
+Python environment outside the client sandbox and record the behavior in the
+trial note.
+
+Check the local workspace:
+
+```bash
+ra --root /tmp/ra-demo doctor
+ra --root /tmp/ra-demo privacy status
+```
+
+Check the MCP entrypoint:
+
+```bash
+ra-mcp --help
+```
+
+Stop the server through the MCP client, or interrupt the foreground process.

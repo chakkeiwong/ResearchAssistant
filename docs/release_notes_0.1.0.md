@@ -11,7 +11,10 @@ The candidate should remain pilot-scoped until real colleague onboarding, macOS 
 Current external validation status for this candidate:
 - real fresh-reader onboarding: blocked/manual, not yet recorded;
 - real macOS clean-install smoke: blocked/manual, not yet recorded;
-- real minimal-parser-tool machine validation: blocked/manual, not yet recorded.
+- real minimal-parser-tool machine validation: blocked/manual, not yet recorded;
+- external MCP setup trial: accepted on 2026-05-03 using the sanitized
+  external-agent stdio result in
+  `docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
 
 Do not treat local substitute records, synthetic fixtures, or maintainer-machine
 smoke tests as real external validation.
@@ -44,8 +47,10 @@ The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` a
 Current local rollout artifact from the final local 2026-04-29 validation pass:
 
 - Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- Size: `435243` bytes
-- SHA256: `d7c61cc8d4a79826a08754aee923be16065d3744bdcb316b797e74ffd71f03d6`
+- Size: `145857` bytes
+- SHA256: `f9f4ae52ce7c53a5acfe3332b567347d86dce55248c0a905821fea1e2e385a0c`
+- Rebuilt locally on 2026-05-02 after local MCP gap-closure work. The generated
+  files under `dist/` are not committed to Git.
 
 ## Supported Platforms
 
@@ -142,6 +147,27 @@ See `docs/workflows/git_sharing_walkthrough.md`.
 
 Default workflows are offline and provider-disabled. The demo, release-report, parser diagnostics, backup/restore checks, and synthetic performance smoke do not require sending papers or notes to external providers.
 
+## Local MCP
+
+Optional local MCP support is available through `research-assistant[mcp]` and
+the `ra-mcp` stdio entrypoint. It is local-only, not a hosted service, shared
+database, HTTP API, SSO/RBAC system, or live collaboration server.
+
+The first MCP surface is read-only by default. Grant-bound explicit-ID arXiv
+source intake can be run from the CLI after a bounded local grant is created,
+and its output remains review material.
+
+Current MCP limitations:
+- offline pinned arXiv candidate-file planning is available, but live
+  query-based arXiv discovery is not MCP-enabled;
+- PDF batch policy checks are available, but PDF batch downloads are not
+  enabled;
+- review-write is a CLI-only confirmation prototype with proposal counts and
+  expired-proposal cleanup; it is not exposed through MCP;
+- live explicit-ID arXiv source intake passed bounded public-ID scale tests at
+  25, 50, and 100 attempted records on 2026-05-03; this validates H2 source
+  intake only, not query discovery or PDF downloads.
+
 ## Backup And Restore
 
 Create a backup before relying on a workspace or changing install versions:
@@ -160,6 +186,9 @@ Restore defaults to dry-run. A real restore requires `--no-dry-run --confirm-res
 - A real colleague onboarding trial and macOS validation remain required before broad non-pilot rollout.
 - Minimal parser-tool validation on a real minimal machine remains required before broad non-pilot rollout.
 - Git-sharing merge/import performance has been measured through `synthetic_git_1000` and does not certify real personal libraries.
+- Local MCP external setup and live explicit-ID arXiv 25/50/100 source intake
+  have bounded accepted evidence. Query discovery, PDF batch execution, and MCP
+  review-write remain gated.
 - Tagging and artifact publication require explicit release-owner approval.
 
 See `docs/known_limitations.md` and `docs/support.md`.

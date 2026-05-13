@@ -1213,6 +1213,106 @@ def corruption_hardening_status(*, root: Path | None = None) -> dict[str, Any]:
     }
 
 
+def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
+    from research_assistant.ingest.pdf_batch_policy import pdf_batch_policy_status
+    from research_assistant.adapters.review_write import review_write_status
+
+    pdf_policy_status = pdf_batch_policy_status()
+    review_write_readiness = review_write_status(root=root)
+    gate_status = {
+        "colleague_mcp_trial": {
+            "status": "accepted",
+            "evidence": "external_agent_stdio_trial_passed_2026_05_03",
+            "claim": "An external-agent local stdio MCP setup trial passed against demo data under the 15 minute target; unsafe tools and MCP review mutation were absent.",
+            "record_template": "docs/mcp_colleague_trial_record_template.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
+            "result_record": "docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md",
+        },
+        "explicit_id_arxiv_source_batch": {
+            "status": "available_with_local_grant",
+            "deterministic_scale_evidence": "mocked_25_paper_passed",
+            "live_scale_evidence": "accepted_25_50_100_public_id_runs_2026_05_03",
+            "review_policy": "review_material_only",
+            "live_protocol": "docs/validation/local_mcp_live_arxiv_scale_protocol.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
+        },
+        "query_discovery": {
+            "status": "bounded_cli_discovery_available_mcp_disabled",
+            "offline_candidate_file_planning": True,
+            "cli_live_query_enabled": True,
+            "mcp_live_query_enabled": False,
+            "live_validation_evidence": "accepted_bounded_10_candidate_arxiv_query_2026_05_03",
+            "claim": "Bounded CLI live arXiv query discovery can create pinned candidate files; live query discovery remains absent from MCP.",
+            "live_protocol": "docs/validation/local_mcp_live_query_discovery_protocol.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
+        },
+        "pdf_batch_intake": {
+            "status": "grant_bound_cli_execution_available_mcp_disabled",
+            "policy_checks_available": True,
+            "execution_enabled": True,
+            "mcp_exposed": False,
+            "live_smoke_evidence": "accepted_one_pdf_arxiv_inbox_download_2026_05_03",
+            "policy": pdf_policy_status,
+            "claim": "PDF batch download execution is available through a grant-bound CLI path and remains absent from MCP.",
+            "preconditions": "docs/validation/local_mcp_write_surface_preconditions.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
+        },
+        "review_write": {
+            "status": "cli_prototype_only",
+            "mcp_exposed": False,
+            "supported_operations": ["mark_review_status"],
+            "proposal_counts": review_write_readiness.get("proposal_counts", {}),
+            "claim": "Review mutation is not exposed through MCP.",
+            "preconditions": "docs/validation/local_mcp_write_surface_preconditions.md",
+            "evidence_index": "docs/validation/local_mcp_external_validation_records.md",
+        },
+        "packaging_after_mcp_gap_work": {
+            "status": "manual_rebuild_recommended",
+            "rebuild_commands": [
+                "timeout 300 scripts/run_packaging_smoke.sh",
+                "timeout 300 scripts/build_release_artifacts.sh",
+            ],
+            "generated_artifacts_committed": False,
+        },
+    }
+    try:
+        from research_assistant.adapters import mcp_server
+        from research_assistant.adapters.mcp_permissions import mcp_permissions_status
+    except Exception as exc:
+        return {
+            "status": "warnings",
+            "optional": True,
+            "mcp_sdk_available": False,
+            "adapter_importable": False,
+            "reason": str(exc),
+            "default_mode": "read_only",
+            "hosted_service": False,
+            "write_tools_enabled_by_default": False,
+            "gate_status": gate_status,
+            "limitations": ["MCP is optional and not required for the base local CLI workflow."],
+        }
+    permission_status = mcp_permissions_status(root=root)
+    return {
+        "status": "available" if mcp_server.mcp_available() else "not_installed",
+        "optional": True,
+        "mcp_sdk_available": mcp_server.mcp_available(),
+        "adapter_importable": True,
+        "entrypoint": "ra-mcp",
+        "transport": "stdio",
+        "default_mode": "read_only",
+        "hosted_service": False,
+        "write_tools_enabled_by_default": False,
+        "mcp_tools": mcp_server.available_tool_names(),
+        "permission_status": permission_status,
+        "gate_status": gate_status,
+        "limitations": [
+            "MCP is local stdio only for this milestone.",
+            "ArXiv batch intake requires an explicit local grant before writes.",
+            "Review mutation and destructive tools are not exposed.",
+        ],
+    }
+
+
 def release_report(*, root: Path | None = None, output: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     release_root = _release_material_root()
@@ -1225,6 +1325,7 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
     artifact_manifest = release_artifacts_manifest(release_root=release_root)
     onboarding = onboarding_report(release_root=release_root)
     corruption = corruption_hardening_status(root=paths.root)
+    mcp_readiness = mcp_readiness_status(root=paths.root)
     doc_rows = [{"path": path, "exists": (release_root / path).exists()} for path in RELEASE_DOCS]
     script_rows = [{"path": path, "exists": (release_root / path).exists(), "executable": os.access(release_root / path, os.X_OK)} for path in RELEASE_SCRIPTS]
     source_checkout_materials = (release_root / "pyproject.toml").exists() and (release_root / "docs").exists()
@@ -1282,6 +1383,7 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         "release_artifacts": artifact_manifest,
         "onboarding": onboarding,
         "corruption_hardening": corruption,
+        "mcp_readiness": mcp_readiness,
         "release_material_root": str(release_root),
         "release_material_mode": "source_checkout" if source_checkout_materials else "installed_package_or_workspace",
         "docs": doc_rows,
@@ -1292,6 +1394,7 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
             "Individual release uses local workspace files, not shared server storage.",
             "Live LLM/provider use is disabled by default.",
             "Generated artifacts remain review material and do not certify mathematical correctness.",
+            "MCP is optional, local stdio, and read-only by default.",
         ],
     }
     if output is not None:
