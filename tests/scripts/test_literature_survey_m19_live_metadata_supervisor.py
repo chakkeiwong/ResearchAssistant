@@ -281,6 +281,28 @@ def test_fake_supervisor_run_publishes_summary_last_without_network(
     assert set(path.name for path in (root / "public_metadata").iterdir()) == set(survey_build.PUBLIC_METADATA_PACKET_FILES)
 
 
+def test_parser_boundary_failure_cannot_publish_complete_ledger_or_summary(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def fail_build(**kwargs):
+        raise MissionStateError(
+            "m19_unexpected_parser_failure",
+            "M19 response parser failed outside the closed malformed-response classes",
+        )
+
+    monkeypatch.setattr(supervisor, "build_survey_evidence_packet", fail_build)
+    root = tmp_path / "parser_boundary_failure"
+
+    assert supervisor.run_supervised(root) == 1
+
+    ledger = json.loads((root / "request_ledger.json").read_text())
+    command_exit = json.loads((root / "logs/command_exit.json").read_text())
+    assert ledger["status"] == "invalid_ledger"
+    assert ledger["requests"] == []
+    assert command_exit["normalized_exit_classification"] == "worker_error"
+    assert not (root / "hardening_summary.json").exists()
+
+
 def test_invalid_ipc_retains_zero_row_invalid_ledger_and_no_summary(tmp_path: Path) -> None:
     root = tmp_path / "invalid"
     assert supervisor.run_supervised(root, worker_target=_invalid_frame_worker) == 1

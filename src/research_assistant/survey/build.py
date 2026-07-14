@@ -1761,6 +1761,11 @@ def _m19_request(
                 if provider == "openalex":
                     raise json.JSONDecodeError("OpenAlex response shape is invalid", "", 0) from exc
                 raise ET.ParseError("arXiv response shape is invalid") from exc
+            except Exception as exc:
+                raise MissionStateError(
+                    "m19_unexpected_parser_failure",
+                    "M19 response parser failed outside the closed malformed-response classes",
+                ) from exc
             outcome = _m19_outcome(
                 provider=provider, query_kind=query_kind,
                 normalized_seed_key=normalized_seed_key, topic_query=topic_query,

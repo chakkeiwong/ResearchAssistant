@@ -245,6 +245,28 @@ def test_malformed_responses_use_provider_compatible_codes(monkeypatch: pytest.M
     ]
 
 
+def test_unexpected_parser_failure_is_boundary_error_not_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _install_fake_opener(
+        monkeypatch,
+        lambda request: FakeResponse(_arxiv_body(), request.full_url),
+    )
+    monkeypatch.setattr(
+        survey_build,
+        "_parse_arxiv_metadata_records",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("private parser detail")),
+    )
+    outcomes = []
+
+    with pytest.raises(MissionStateError, match="parser failed outside") as exc_info:
+        _strict_collect(outcomes.append)
+
+    assert exc_info.value.code == "m19_unexpected_parser_failure"
+    assert "private parser detail" not in str(exc_info.value)
+    assert outcomes == []
+
+
 def test_final_url_drift_is_boundary_error_not_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
     _install_fake_opener(monkeypatch, lambda request: FakeResponse(_arxiv_body(), "https://example.com/wrong"))
     with pytest.raises(MissionStateError, match="response URL drifted"):
