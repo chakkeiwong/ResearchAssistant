@@ -1,7 +1,7 @@
 # Literature Survey North-Star Visible Gated Execution Runbook
 
 Date: `2026-07-13`
-Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
+Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
 
 ## Role Contract
 
@@ -39,14 +39,15 @@ successful setup or M17 pass is not mission completion.
 | --- | --- | --- | --- | --- |
 | M17 | Idea And Topic Bootstrap | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_result_2026-07-13.md` | `PASSED_LOCAL_ENGINEERING_GIT_INTEGRATION_PENDING` |
 | M18 | Reproducible Git Integration | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_result_2026-07-14.md` | `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` |
-| M19 | Bounded Live Metadata Validation | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md` | `REFRESHED_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE` |
-| M20 | Live Discovery And Citation Frontier | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
+| M19 | Bounded Live Metadata Validation | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md` | `PASSED_TERMINAL_REVIEW_AGREED_ONE_ATTEMPT_CONSUMED` |
+| M20 | Live Discovery And Citation Frontier | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_result_2026-07-13.md` | `M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE` |
 | M21 | Live Source Status And Anchor Intake | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M22 | Human-Attested Review And Real Missions | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M23 | North-Star Acceptance And Operational Closeout | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 
-Future result paths in this table are declarations, not evidence, and must be
-absent until their milestone writes them.
+M17-M19 result paths in this table now contain actual evidence. M20-M23 result
+paths are declarations, not evidence, and must remain absent until their
+milestone writes them.
 
 ## Program Evidence Contract
 
@@ -354,11 +355,13 @@ Stop and update the handoff when continuing requires:
 
 ## Current Launch Gate
 
-M18 passed its candidate, isolated clone, offline wheel, origin, regression,
-artifact-closure, and terminal review gates. M19 is the sole active planning
-lane. Its exact next safe action is the dedicated transport/supervisor-
-hardening child subplan and skeptical audit. `DO_NOT_EXECUTE_LIVE` remains in
-force; M20-M23 remain non-executable until refreshed from their predecessor.
+M19 passed its bounded engineering result and terminal review. The exact live
+root is immutable, all `14` replay checks pass, and the one-attempt budget is
+consumed. M20A is the sole active no-network local lane under its reviewed
+allowlist. M20B live discovery/frontier use remains `DO_NOT_EXECUTE` pending
+official-contract evidence, local implementation/gates, an identified commit,
+material code/packet review, and fresh exact human approval. M21-M23 remain
+non-executable until refreshed from their predecessor.
 
 ## Final Visible Handoff
 

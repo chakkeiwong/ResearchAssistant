@@ -1,7 +1,7 @@
 # Literature Survey North-Star Gap-Closure Master Program
 
 Date: `2026-07-13`
-Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
+Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
 
 ## North-Star Mission
 
@@ -65,6 +65,21 @@ overlap and zero failures, errors, or skips; the M17 persistent matrix passes
 `13/13`. This evidence is local and fixture-backed. It is not live,
 human-authenticated, scientific, or product-readiness evidence.
 
+M19 now passes the bounded live metadata engineering question at execution
+commit `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`. Its one approved attempt
+issued exactly four frozen metadata requests, produced a complete
+boundary-valid request ledger, and passed all `14` offline replay checks. The
+attempt budget is consumed; OpenAlex's literal seed query returned zero; and
+the resulting `10`-record V2 bundle remains metadata-only with
+`ready_for_prose=false`. Terminal review and the refreshed M20 material plan
+review converged at fresh Codex fallback round 4 after Claude export was
+policy-rejected before invocation.
+
+This closes G2 only. It is not provider-quality, citation-recall, source,
+scientific, product, or north-star evidence. M20A is the active no-network
+local lane. M20B provider use requires a future reviewed exact packet and fresh
+approval; M19 authority cannot be reused.
+
 ## Visible Execution Artifact Index
 
 The M17-M23 program uses visible execution in the current conversation. Codex
@@ -73,13 +88,13 @@ only. No detached runner is authorized.
 
 | Role | Exact artifact | Current setup state |
 | --- | --- | --- |
-| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | M18 passed; M19 planning only |
-| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Setup pass and review trail recorded |
-| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M18 passed; M19 live forbidden |
+| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | M19 passed; M20A local ready; M20B forbidden |
+| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | M19 attempt/replay/review recorded |
+| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M19 passed; M20 provider use forbidden |
 | M17 subplan | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | Passed local engineering |
 | M18 subplan | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | Passed local Git/install reproducibility |
-| M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `REFRESHED_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE` |
-| M20 subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
+| M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | Passed; terminal review agreed; one attempt consumed |
+| M20 subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | M20A local ready; M20B `DO_NOT_EXECUTE` |
 | M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M22 subplan | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
@@ -87,8 +102,9 @@ only. No detached runner is authorized.
 | Setup blocker history | `docs/plans/literature_survey_north_star_program_setup_review_nonconvergence_blocker_2026-07-13.md` | Resolved by user-authorized extra governance repair and `AGREE` |
 | Extra governance verdict | `docs/reviews/literature_survey_north_star_program_setup_governance_extra_authorized_review_verdict_2026-07-13.md` | `VERDICT: AGREE` |
 
-Declared milestone result paths are indexed in the visible runbook. They are
-future outputs and must remain absent until the corresponding milestone runs.
+Declared milestone result paths are indexed in the visible runbook. M17-M19
+results now exist; M20-M23 result paths remain future outputs and must remain
+absent until the corresponding milestone runs.
 At each M17-M22 handoff, the next subplan must be refreshed from actual
 predecessor artifacts and reviewed before execution. M23 instead closes through
 its terminal completion/blocker handoff. These initial M18-M23 shells do not
@@ -101,7 +117,7 @@ acceptance environments.
 | --- | --- | --- | --- | --- |
 | G0 Idea/topic bootstrap | Topic-only missions preserve empty original seeds, stable identity, confirmed bootstrap, exact five-way outcomes, and unchanged explicit-seed V2 behavior | Stable topic/idea input mode, confirmed bootstrap discovery, exact selected/empty/ambiguous authority, and unchanged explicit-seed behavior | Closed locally; live quality remains G2/G3 | M17 |
 | G1 Reproducible Git integration | Candidate `654e6e1...` contains the exact reviewed cumulative payload and passes isolated clone, offline wheel, origin, topic/seed, and local regression gates | A path-complete identified commit installs and reproduces all local-alpha runtime/test dependencies from an isolated clean checkout | Closed in observed environment; bare-machine/cross-platform remains M23 acceptance scope | M18 |
-| G2 Bounded live metadata | OpenAlex/arXiv code and a detailed Phase 11 plan exist; three plan reviews returned `REVISE`; no live M16 call ran | Converged hardening and parent plan, fresh exact approval, then one boundary-valid metadata-only attempt with a closed request ledger | Missing | M19 |
+| G2 Bounded live metadata | One exact four-request attempt at `f06ceb7` is boundary-valid, ledger-complete, replay-valid `14/14`, and terminally reviewed; budget consumed | Converged hardening and parent plan, fresh exact approval, then one boundary-valid metadata-only attempt with a closed request ledger | Closed for bounded engineering only; no provider-quality claim | M19 |
 | G3 Real citation discovery | M16 validates fixture metadata and recorded-relation projections; no production backward/forward frontier run is M16 authority | Reviewed production adapters with dated provider provenance, complete attempt dispositions, ambiguity handling, and bounded live evidence | Missing | M20 |
 | G4 Real source/status and anchors | `MissionSourceCapability` is a closed injectable fixture interface; existing general fetch commands are not yet the reviewed mission transport | Approved production source/status and capped source/PDF/full-text adapters, mission-local hashed records, quarantine, and checked anchor candidates | Missing | M21 |
 | G5 Genuine human review | Schemas carry reviewer fields and human-shaped authority; M16 decisions are fixtures and explicitly unauthenticated | Genuine human identity/attestation, correction and audit policy, exact decisions for claims, safety, omissions, and workflow blockers | Missing | M22 |

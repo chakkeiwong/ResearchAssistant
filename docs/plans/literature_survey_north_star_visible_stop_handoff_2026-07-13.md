@@ -1,76 +1,77 @@
 # Literature Survey North-Star Visible Stop And Handoff Record
 
 Date: `2026-07-14`
-Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
+Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
 
 ## Current Position
 
-M18 is complete as `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY`. Candidate
-`654e6e1a1213bc03b7693ff1a8aea945a5bf08ac` passed the isolated local
-engineering contract and terminal review. M19 is the sole active planning
-milestone. No live M19 action is authorized.
+M19 is complete as
+`PASSED_BOUNDED_ENGINEERING_QUESTION_TERMINAL_REVIEW_AGREED_ONE_ATTEMPT_CONSUMED`.
+M20A is the sole active local no-network lane. M20B provider execution remains
+forbidden pending its later evidence, review, and exact approval.
 
-## M18 Authority
+## M19 Authority And Evidence
 
-- Candidate parent: `1b36af06efc7e1c2c086934cd8800691ae8a6da7`.
-- Candidate paths: `1,725` (`1,684` payload + `40` controls + stage record).
-- Payload digest:
-  `0d225f29575778e606f096fda058cb0386dcd967a82284f5aa37a4c5638bd318`.
-- Wheel digest:
-  `891e1e152d4d53fec3287b8209514b47383d9d2d85a02671b9e4358b343dcee2`.
+- Execution commit:
+  `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`.
+- Code-authority parent:
+  `bb4300c6bce20145a7c41620b0dffb703072e755`.
+- Approved packet SHA-256:
+  `588d7c0aa353ba506cd69efdae787b153647b9d9fdcf7b309f364dba64f66436`.
 - Result:
-  `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_result_2026-07-14.md`.
-- Close record:
-  `docs/plans/literature_survey_north_star_m18_local_close_record_2026-07-14.md`.
-- Terminal verdict:
-  `docs/reviews/literature_survey_m18_terminal_review_verdict_round3_2026-07-14.md`,
-  fresh Codex read-only `AGREE` after two focused evidence repairs.
+  `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md`.
+- Immutable live root:
+  `docs/validation/literature_survey_m19_live_metadata_2026-07-14/`.
+- Separate result root:
+  `docs/validation/literature_survey_m19_live_metadata_result_2026-07-14/`.
+- Durable replay SHA-256:
+  `71f6766d5804c0392f2af0f3b1e897a3e8b3081d44037c64deb6bfe92ade9059`.
+- Terminal/M20 plan verdict:
+  `docs/reviews/literature_survey_m19_terminal_and_m20_plan_review_verdict_round4_2026-07-14.md`,
+  fresh Codex read-only fallback `AGREE` after three repairs. Claude export was
+  policy-rejected before invocation and was not retried.
 
-The earlier `c378d271...` digest in pre-review planning notes is superseded by
-the committed reviewed payload digest above.
+## M19 Result Boundary
 
-## Validation
+Exactly four approved metadata requests completed with a boundary-valid,
+complete request ledger. Record counts were `1/10/0/10`; bytes `146,508`;
+redirects, retries, and boundary-invalid rows zero. All `14` offline replay
+checks pass. The worker exited zero with empty captured streams. The one M19
+attempt is consumed and must not be rerun.
 
-Authoritative attempt 1 passed payload replay, offline wheel installation,
-all `49` import origins, all `89` source/wheel member pairs, focused/cumulative
-M16-M17, persistent matrix, script, unit, CLI, arXiv compatibility,
-SurveyBench, Phase 10 portability, candidate/static, trace, and protected-path
-gates. All authoritative JUnit files have zero failures, errors, or skips.
+The V2 result has `10` records but remains metadata-only and
+`ready_for_prose=false`. OpenAlex's literal arXiv seed query returned zero.
+No provider reliability/quality, citation recall, source support, scientific
+correctness, product readiness, literature completeness, or north-star
+completion is established.
 
-Six protected dirty paths remain byte-identical and excluded. The worktree's
-`src/research_assistant/cli.py` remains intentionally dirty relative to the
-candidate because the candidate contains the reviewed four-line decoupling
-while user bytes were preserved.
+## M20A Handoff
 
-## M19 Boundary
+The reviewed M20 plan is
+`docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md`
+with status `MATERIAL_PLAN_REVIEW_AGREED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`.
 
-The refreshed M19 parent is
-`docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md`
-with status `REFRESHED_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`.
-
-Before any live request, M19 still requires:
-
-1. a dedicated transport/supervisor-hardening child subplan;
-2. skeptical audit and exact local no-network catching tests;
-3. identified hardening code/test authority and exact route/cap manifest;
-4. fresh read-only agreement on plan/code/approval packet; and
-5. fresh user authorization for exactly one frozen live attempt.
+M20A may perform only its exact no-network product/test/evidence allowlist. It
+must first inventory already-local official OpenAlex/arXiv route documentation;
+if the necessary contract is absent, it must request bounded documentation-
+fetch authority rather than guess semantics. Its reviewed design requires
+capped hash-bound accepted-body retention for future parser replay, separate
+identity/backward/forward automata, complete target disposition accounting,
+and an identified installed successor before any live packet can be approved.
 
 ## Exact Next Safe Action
 
-Create the dedicated M19 transport/supervisor-hardening child subplan and run
-its skeptical audit. Do not yet write transport code or call OpenAlex, arXiv,
-DNS, proxies, source/PDF/full-text endpoints, or any other network service.
+Begin M20A offline precheck and local provider-contract inventory. Do not call
+OpenAlex, arXiv, DNS, a proxy, or a documentation URL. Do not access source,
+PDF, full text, credentials, private/paid services, GPU, push, or release.
 
-## Boundaries And Nonclaims
+## Stop And Authority Boundaries
 
-No push, release, destructive/history-rewriting action, live provider/source
-access, credential, paid compute, privacy change, genuine human decision, or
-scientific/product direction change is authorized. M18 does not establish
-bare-machine/cross-platform dependency closure, live quality, source support,
-scientific correctness, genuine human review, product/release readiness,
-literature completeness, or north-star completion.
+M20A stops only the documentation-dependent slice if checked official route
+semantics are not already local. M20B requires a separately reviewed exact
+five-request packet and fresh human approval. M19 approval does not carry
+forward. M21-M23 remain non-executable until their predecessor handoffs pass.
 
-The actual docs/evidence closeout commit hash cannot be self-recorded in its
-tracked contents. It is written after commit and replay only to
-`/tmp/ra_m18_closeout_record.json`.
+Protected dirty paths recorded in the M19 handoff remain untouched. No reset,
+restore, clean, stash, rebase, amend, wildcard stage, push, or destructive
+history action is authorized.

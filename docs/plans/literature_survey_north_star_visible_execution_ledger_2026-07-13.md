@@ -1,7 +1,7 @@
 # Literature Survey North-Star Visible Execution Ledger
 
 Date: `2026-07-13`
-Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
+Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
 
 ## Ledger Contract
 
@@ -483,3 +483,58 @@ Gate status: `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY_M19_PLANNING_ONLY`
 
 Next action: create and skeptically audit the dedicated M19 transport/
 supervisor-hardening child subplan. Do not execute a live request.
+
+### 2026-07-14 - M19 - LIVE_RESULT_AND_TERMINAL_REVIEW_PASSED
+
+Authority and attempt accounting:
+
+- User approval bound exactly one metadata-only attempt to packet SHA-256
+  `588d7c0aa353ba506cd69efdae787b153647b9d9fdcf7b309f364dba64f66436`
+  and commit `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`, with no retries or
+  reruns.
+- Strict preflight passed; the command launched once; the budget is consumed.
+- The approved packet remains unchanged at its approved digest. Consumed state
+  is recorded in the separate result manifest and attempt-budget artifact.
+
+Live and replay evidence:
+
+- Immutable live root:
+  `docs/validation/literature_survey_m19_live_metadata_2026-07-14/`.
+- Summary `passed`; boundary valid; ledger complete; exactly `4` requests;
+  exactly `4` available dispositions; record counts `1/10/0/10`; accepted
+  bytes `146,508`; redirects/retries/boundary-invalid rows `0`; wall time
+  `7.7435s`; worker exit `0`; captured streams empty; raw responses not saved.
+- Separate result root:
+  `docs/validation/literature_survey_m19_live_metadata_result_2026-07-14/`.
+- Durable replay SHA-256
+  `71f6766d5804c0392f2af0f3b1e897a3e8b3081d44037c64deb6bfe92ade9059`;
+  all `14` checks passed.
+- The V2 packet has `10` records but remains metadata-only and
+  `ready_for_prose=false`. OpenAlex seed lookup returned zero.
+
+Decision:
+
+- M19 passes only the bounded engineering question and closes G2 at that scope.
+- Provider quality/reliability, citation recall, source/claim support,
+  scientific correctness, product readiness, and north-star completion are not
+  concluded.
+- No M19 retry or rerun is authorized.
+
+Review and repair:
+
+- Claude review-gate export was policy-rejected before invocation and was not
+  retried or routed around.
+- A fresh Codex read-only fallback reviewed M19 result plus M20 handoff.
+- M19 had no material finding. M20 required three repair rounds: retain exact
+  accepted body bytes for parser replay; freeze outcome/cap/omission semantics;
+  separate direct identity, backward attempt, and forward attempt with origin
+  bindings and an exhaustive three-axis automaton.
+- Round 4 returned `VERDICT: AGREE`:
+  `docs/reviews/literature_survey_m19_terminal_and_m20_plan_review_verdict_round4_2026-07-14.md`.
+
+Gate status: `M19_PASSED_TERMINAL_REVIEW_AGREED_M20A_LOCAL_READY`
+
+Next action: execute M20A locally under the reviewed no-network allowlist,
+starting with local official-provider-contract inventory. M20B provider use,
+provider-documentation fetch, source/PDF/full-text, push, and release remain
+unauthorized.

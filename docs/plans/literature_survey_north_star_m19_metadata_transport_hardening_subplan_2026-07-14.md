@@ -1,11 +1,16 @@
 # M19 Metadata Transport And Supervisor Hardening Subplan
 
 Date: `2026-07-14`
-Status: `M19A_LOCAL_CLOSEOUT_CANDIDATE_TERMINAL_REVIEW_AGREED_DO_NOT_EXECUTE_LIVE`
+Status: `M19A_LOCAL_CLOSED_AT_F06CEB7_DO_NOT_EXECUTE_LIVE`
 Milestone: `M19_bounded_live_metadata_validation`
 Subphase: `M19A_transport_supervisor_hardening`
 
 Result: `docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_result_2026-07-14.md`
+
+Actual docs/evidence-only closeout: `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`,
+direct child of repair commit `bb4300c6bce20145a7c41620b0dffb703072e755`.
+External replay: `/tmp/ra_m19a_closeout_replay_f06ceb7.json`, SHA-256
+`42cd448444d411518719d465a3d23349e3c6cc59b1790f45079d542fdef851bd`.
 
 ## Terminal Repair Amendment
 

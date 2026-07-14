@@ -7,16 +7,16 @@
   "target_input_modes": ["idea_or_topic_without_initial_paper_seed", "paper_title", "doi", "arxiv_identifier", "other_supported_paper_identifier"],
   "updated_at": "2026-07-14",
   "authoritative_status": {
-    "status": "M18_LOCAL_GIT_INSTALL_REPRODUCIBILITY_COMPLETE_M19_PLANNING_ONLY",
-    "completed_milestone": "M18_reproducible_git_integration",
-    "completed_scope": "M16 Phases 0-10, M17 topic/bootstrap engineering, and M18 identified local Git/install reproducibility in the observed environment",
+    "status": "M19_BOUNDED_LIVE_METADATA_COMPLETE_M20A_LOCAL_READY_M20B_NOT_AUTHORIZED",
+    "completed_milestone": "M19_bounded_live_metadata_validation",
+    "completed_scope": "M16 Phases 0-10, M17 topic/bootstrap engineering, M18 identified local Git/install reproducibility, and one boundary-valid replay-valid M19 metadata attempt in the observed environment",
     "git_integration": "candidate_654e6e1_isolated_clone_and_wheel_passed",
-    "live_execution": "not_run",
+    "live_execution": "M19_one_exact_four_request_metadata_attempt_completed_attempt_budget_consumed",
     "north_star_mission": "in_progress",
-    "authority": "docs/plans/literature_survey_north_star_m18_local_close_record_2026-07-14.md"
+    "authority": "docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md"
   },
   "active_milestones": [
-    "M19_bounded_live_metadata_validation"
+    "M20_live_discovery_and_citation_frontier"
   ],
   "north_star_sequence": [
     "M17_idea_topic_bootstrap",
@@ -34,7 +34,6 @@
     "always_separate_boundaries": "Credentials, private or paid sources, hidden data, unbounded crawling, writes outside the mission, genuine human review decisions, product defaults, and release remain separate explicit decisions."
   },
   "remaining_gap_ids": [
-    "G2_bounded_live_metadata",
     "G3_live_citation_discovery",
     "G4_live_source_and_anchor_intake",
     "G5_human_attested_review",
@@ -50,6 +49,8 @@
     "active_planning_no_git_action_authorized": "Historical setup state: the milestone was a Git planning lane with no mutation authority.",
     "active_local_integration": "The milestone is the active trusted-local integration lane under the user's execute/resume request and current repository policy; push, release, destructive actions, and later external boundaries remain unauthorized.",
     "completed_local_git_install_reproducibility": "An identified commit passed the declared isolated clone, offline wheel, origin, payload, and local regression gates in the observed environment; no live or product-readiness claim follows.",
+    "completed_bounded_live_metadata_engineering": "One exactly approved metadata-only attempt passed the frozen boundary and replay contract; this does not establish provider quality, citation recall, source support, or product readiness.",
+    "active_local_hardening_no_live": "The milestone may perform its reviewed local no-network implementation and test allowlist; provider/documentation network use and live execution remain separately unauthorized.",
     "completed_local_engineering_git_integration_pending": "The milestone's local engineering and review gates passed; clean Git integration and later live/product evidence remain outside the claim.",
     "pending": "The milestone has not met its entry conditions or promotion criterion."
   },
@@ -997,7 +998,7 @@
     {
       "id": "M19_bounded_live_metadata_validation",
       "name": "Bounded Live Metadata Validation",
-      "status": "active_planning_local_only",
+      "status": "completed_bounded_live_metadata_engineering",
       "objective": "Converge the transport-hardening plan and run one explicitly approved, one-shot, metadata-only OpenAlex/arXiv integration smoke with closed HTTP, time, byte, retry, redirect, proxy, IPC, artifact, and write boundaries.",
       "entry_conditions": [
         "M18 clean-checkout authority exists.",
@@ -1046,7 +1047,7 @@
     {
       "id": "M20_live_discovery_and_citation_frontier",
       "name": "Live Discovery And Citation Frontier",
-      "status": "pending",
+      "status": "active_local_hardening_no_live",
       "objective": "Replace fixture-only discovery/frontier capabilities with reviewed production adapters for idea/topic bootstrap, title/identifier resolution, backward references, forward citations, adjacent clusters, and dated omission-risk outcomes under one mission confirmation.",
       "entry_conditions": [
         "M19 boundary-valid metadata transport exists.",

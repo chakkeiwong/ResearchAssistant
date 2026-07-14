@@ -1,7 +1,7 @@
 # M19 Bounded Live Metadata Validation Subplan
 
 Date: `2026-07-14`
-Status: `M19A_LOCAL_CLOSEOUT_CANDIDATE_PENDING_EXACT_LIVE_APPROVAL_DO_NOT_EXECUTE_LIVE`
+Status: `PASSED_TERMINAL_REVIEW_AGREED_ONE_ATTEMPT_CONSUMED`
 Milestone: `M19_bounded_live_metadata_validation`
 Closes: `G2_bounded_live_metadata`
 
@@ -13,9 +13,37 @@ from provider availability and result contents. The future attempt is
 one-shot. It is not source, PDF/full-text, citation-frontier, reliability,
 scientific, or product evidence.
 
-This refreshed parent is planning authority only. It authorizes local
-hardening design and tests after the child plan is written and reviewed. It
-does not authorize any live request.
+This parent initially supplied planning authority only. Its one exact live
+attempt has now run and the authority is consumed. Historical prospective
+language below is retained as the pre-run contract; this amendment and the
+declared result record the actual outcome.
+
+## Actual Live Attempt Amendment
+
+The user approved exactly one attempt bound to packet SHA-256
+`588d7c0aa353ba506cd69efdae787b153647b9d9fdcf7b309f364dba64f66436`
+and commit `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`, with no retry or
+rerun. Strict preflight passed and the command launched once.
+
+The result is boundary-valid and replay-valid: exactly four request rows are
+complete; all are `available`; record counts are `1/10/0/10`; accepted bytes
+total `146,508`; redirects, retries, and boundary-invalid rows are zero; wall
+time is `7.7435` seconds; worker exit is zero; and raw responses were not
+saved. The `10`-record V2 bundle is eligible but remains metadata-only with
+`ready_for_prose=false`. OpenAlex seed lookup returned zero and is carried as
+an M20 identity-resolution risk.
+
+Result:
+`docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md`.
+Separate evidence root:
+`docs/validation/literature_survey_m19_live_metadata_result_2026-07-14/`.
+Durable replay SHA-256:
+`71f6766d5804c0392f2af0f3b1e897a3e8b3081d44037c64deb6bfe92ade9059`.
+
+No M19 live budget remains. Terminal result review and M20 material plan review
+converged at round 4 with fresh Codex read-only fallback `AGREE` after Claude
+export was policy-rejected before invocation. M20 provider use remains
+separately unauthorized.
 
 ## M19A Actual Hardening Evidence
 
@@ -51,9 +79,10 @@ queries and request-binding hashes are in the route manifest named above.
 
 The original evidence root is rejected by terminal review; round 2 is a
 preserved import-harness failure. Only round 3 is current promotion evidence.
-The live command and closeout commit remain pending until terminal rereview
-agrees and the docs/evidence-only M19A closeout child exists. This parent
-remains non-executable meanwhile.
+M19A closed at `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`. The
+finalized approval packet passed focused review round 2 and remains pending
+fresh human approval. No live attempt has run, and this parent remains
+non-executable meanwhile.
 
 ## Entry Conditions Inherited From M18
 
@@ -224,10 +253,9 @@ continuation vetoes when boundary validity and artifact closure pass.
 
 ## Exact Next Safe Action
 
-Obtain terminal read-only rereview of the repaired M19A implementation and result. If it
-agrees, commit only the closeout docs/evidence as a direct child of `bb4300c`,
-freeze the compact live packet against that actual child, and request fresh
-user approval. Do not execute the live command before that exact approval.
+Advance program controls to M20A local-only implementation readiness under the
+reviewed allowlist. Do not rerun M19 or execute an M20 provider/documentation
+network request.
 
 ## End-Of-Phase Sequence
 

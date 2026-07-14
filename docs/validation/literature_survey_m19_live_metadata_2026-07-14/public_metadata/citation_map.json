@@ -1,0 +1,349 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "seed_metadata",
+      "evidence_class": "metadata_only_public",
+      "label": "seed metadata",
+      "members": [
+        "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126"
+      ]
+    },
+    {
+      "cluster_id": "adjacent_topic_metadata",
+      "evidence_class": "metadata_only_public",
+      "label": "adjacent topic metadata",
+      "members": [
+        "p_dq_0257f3eef89fe4ee737e74f724cacc776016e13184a476842b530cee7646c23d",
+        "p_dq_185aac7ef3674bc0642c46cb41bbfdd4f8a19237f5c10200c1ff56ee03aea96c",
+        "p_dq_e06f19f8b00113c10b3b2596a292b4a4d2bf038c479b1786a7efc26fce11a1ce",
+        "p_dq_2f31edf89d88cbe95c8f40935789daac6c43a59c32348aa4ae3bdd2a0dec507c",
+        "p_dq_3a314dc8717dbc6b2aea49fe70226459d868d009efe54bb343bff315d118f7bf",
+        "p_dq_7913028fdf4e2d672e24b0b13478ffab5959876d34e6efd377f49d7b47e60ba2",
+        "p_dq_20d74a613d2ca6b2af8121d4ded77fd2de3300fdd659b1380ccd691fb594592f",
+        "p_dq_a19e27fb306b04791b11551e293bc6b4600cee73a777d430b58644520cf7b767",
+        "p_dq_1126bfe209f492c76072e18616393daca210e0620c98992fb136590073be462e"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_0257f3eef89fe4ee737e74f724cacc776016e13184a476842b530cee7646c23d"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_1126bfe209f492c76072e18616393daca210e0620c98992fb136590073be462e"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_185aac7ef3674bc0642c46cb41bbfdd4f8a19237f5c10200c1ff56ee03aea96c"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_20d74a613d2ca6b2af8121d4ded77fd2de3300fdd659b1380ccd691fb594592f"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_2f31edf89d88cbe95c8f40935789daac6c43a59c32348aa4ae3bdd2a0dec507c"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_3a314dc8717dbc6b2aea49fe70226459d868d009efe54bb343bff315d118f7bf"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_7913028fdf4e2d672e24b0b13478ffab5959876d34e6efd377f49d7b47e60ba2"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_a19e27fb306b04791b11551e293bc6b4600cee73a777d430b58644520cf7b767"
+    },
+    {
+      "evidence_class": "metadata_only_public",
+      "provider": "openalex/arxiv",
+      "relation": "adjacent_topic_candidate_metadata",
+      "source": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "target": "p_dq_e06f19f8b00113c10b3b2596a292b4a4d2bf038c479b1786a7efc26fce11a1ce"
+    }
+  ],
+  "expansion_policy": {
+    "adjacent_query_count": 1,
+    "backward_depth": 1,
+    "download_or_source_intake_allowed": false,
+    "forward_depth": 1,
+    "max_downloads": 0,
+    "max_nodes": 10
+  },
+  "frontiers": [
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "seed",
+      "member_count": 1,
+      "members": [
+        "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126"
+      ],
+      "reason": "seed metadata resolved from approved public metadata provider",
+      "status": "present_metadata_only"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "backward",
+      "member_count": 0,
+      "members": [],
+      "reason": "backward reference frontier is blocked or empty because no source references were inspected and provider references were unavailable for the resolved seed",
+      "seed_resolution_status": "available",
+      "status": "blocked_or_empty"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "forward",
+      "member_count": 0,
+      "members": [],
+      "reason": "forward citation frontier is blocked or empty because the seed was not resolved to a provider citation id or provider returned no citing rows",
+      "seed_resolution_status": "available",
+      "status": "blocked_or_empty"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 9,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "adjacent",
+      "member_count": 9,
+      "members": [
+        "p_dq_0257f3eef89fe4ee737e74f724cacc776016e13184a476842b530cee7646c23d",
+        "p_dq_185aac7ef3674bc0642c46cb41bbfdd4f8a19237f5c10200c1ff56ee03aea96c",
+        "p_dq_e06f19f8b00113c10b3b2596a292b4a4d2bf038c479b1786a7efc26fce11a1ce",
+        "p_dq_2f31edf89d88cbe95c8f40935789daac6c43a59c32348aa4ae3bdd2a0dec507c",
+        "p_dq_3a314dc8717dbc6b2aea49fe70226459d868d009efe54bb343bff315d118f7bf",
+        "p_dq_7913028fdf4e2d672e24b0b13478ffab5959876d34e6efd377f49d7b47e60ba2",
+        "p_dq_20d74a613d2ca6b2af8121d4ded77fd2de3300fdd659b1380ccd691fb594592f",
+        "p_dq_a19e27fb306b04791b11551e293bc6b4600cee73a777d430b58644520cf7b767",
+        "p_dq_1126bfe209f492c76072e18616393daca210e0620c98992fb136590073be462e"
+      ],
+      "reason": "adjacent topic metadata rows are present",
+      "status": "present_metadata_only"
+    }
+  ],
+  "next_required_actions": [
+    "verify citation relations against provider documentation or source references",
+    "inspect seed references for true backward lineage",
+    "inspect citing papers before calling them major works in prose",
+    "treat blocked provider frontiers as omission risks, not as empty truth"
+  ],
+  "nodes": [
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "seed_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:2201.12220v3",
+      "layer": "seed",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "seed"
+      ],
+      "survey_relevance": "seed supplied by user and resolved through public metadata",
+      "title": "Neural Optimal Transport"
+    },
+    {
+      "citation_count": 174,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "doi:10.1038/s41592-023-01969-x",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_0257f3eef89fe4ee737e74f724cacc776016e13184a476842b530cee7646c23d",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Learning single-cell perturbation responses using neural optimal transport"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:2409.15080v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_185aac7ef3674bc0642c46cb41bbfdd4f8a19237f5c10200c1ff56ee03aea96c",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Integrating Optimal Transport and Structural Inference Models for GRN Inference from Single-cell Data"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:2010.04291v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_e06f19f8b00113c10b3b2596a292b4a4d2bf038c479b1786a7efc26fce11a1ce",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "A Brief on Optimal Transport"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:2111.04838v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_2f31edf89d88cbe95c8f40935789daac6c43a59c32348aa4ae3bdd2a0dec507c",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Efficient estimates of optimal transport via low-dimensional embeddings"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:2212.13912v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_3a314dc8717dbc6b2aea49fe70226459d868d009efe54bb343bff315d118f7bf",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Fully Probabilistic Design for Optimal Transport"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:1912.02160v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_7913028fdf4e2d672e24b0b13478ffab5959876d34e6efd377f49d7b47e60ba2",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Informative GANs via Structured Regularization of Optimal Transport"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:1003.3081v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_20d74a613d2ca6b2af8121d4ded77fd2de3300fdd659b1380ccd691fb594592f",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Optimal hierarchical modular topologies for producing limited sustained activation of neural networks"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:1704.00855v1",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_a19e27fb306b04791b11551e293bc6b4600cee73a777d430b58644520cf7b767",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Population games and Discrete optimal transport"
+    },
+    {
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "adjacent_topic_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:1906.00030v4",
+      "layer": "adjacent",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_1126bfe209f492c76072e18616393daca210e0620c98992fb136590073be462e",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "public metadata topic search candidate",
+      "title": "Pseudo-Riemannian geometry embeds information geometry in optimal transport"
+    }
+  ],
+  "schema_version": "ra-survey-citation-map-v1",
+  "seed_papers": [
+    "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126"
+  ],
+  "status": "metadata_only_public_partial",
+  "survey_packet_paths": {
+    "candidate_ledger": "candidate_ledger.json",
+    "claim_support": "claim_support.json",
+    "metadata_provenance": "metadata_provenance.json",
+    "omission_risk": "omission_risk.json",
+    "paper_classifications": "paper_classifications.json",
+    "source_support": "source_support.json"
+  },
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

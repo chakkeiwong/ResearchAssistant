@@ -1,7 +1,7 @@
 # M19A Metadata Transport And Supervisor Hardening Result
 
 Date: `2026-07-14`
-Status: `M19A_LOCAL_CLOSEOUT_CANDIDATE_REPAIRED_GATES_AND_TERMINAL_REREVIEW_PASSED_DO_NOT_EXECUTE_LIVE`
+Status: `M19A_LOCAL_CLOSED_AT_F06CEB7_REPAIRED_GATES_AND_TERMINAL_REREVIEW_PASSED_DO_NOT_EXECUTE_LIVE`
 Milestone: `M19_bounded_live_metadata_validation`
 Subphase: `M19A_transport_supervisor_hardening`
 
@@ -117,3 +117,7 @@ Terminal rereview round 2 returned `AGREE` with no material findings.
 The docs/evidence-only closeout commit cannot contain its own commit hash. Its
 actual hash will be recorded after commit in an external replay record and in
 the finalized, still-uncommitted exact live approval packet.
+
+The actual closeout is `f06ceb72cd1bb0628b01f206f9e82697e23cb0c7`,
+direct child of `bb4300c`. Its external closeout replay passed and hashes to
+`42cd448444d411518719d465a3d23349e3c6cc59b1790f45079d542fdef851bd`.
