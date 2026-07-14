@@ -1,7 +1,7 @@
 # M19 Metadata Transport And Supervisor Hardening Subplan
 
 Date: `2026-07-14`
-Status: `LOCAL_IMPLEMENTATION_CHECKS_PASSED_PENDING_IDENTIFIED_COMMIT_AND_FINAL_EVIDENCE_DO_NOT_EXECUTE_LIVE`
+Status: `FINAL_HARNESS_REPAIR_ROUND_5_AGREED_PENDING_ATTEMPT_03_DO_NOT_EXECUTE_LIVE`
 Milestone: `M19_bounded_live_metadata_validation`
 Subphase: `M19A_transport_supervisor_hardening`
 
@@ -108,9 +108,11 @@ Implementation may edit only:
 - focused M19 review files under `docs/reviews/`; and
 - versioned root `docs/validation/literature_survey_m19_transport_hardening_2026-07-14/`
   under the one canonical grammar defined in **Supervisor Contract**: the five
-  named JUnit files, their five named logs, the five matching
+  named JUnit files, their five named logs, four matching in-root
   `pytest_tmp/<gate>/**` trees, the exact fake-run tree, and the seven named
-  validation manifests/results. No other child is allowed.
+  validation manifests/results. The full CLI gate alone uses the exact absent
+  external basetemp named below because it tests repository-relative path
+  sanitization. No other child is allowed.
 
 Do not edit `src/research_assistant/cli.py`, orchestration, source intake,
 frontier/source modules, M18 evidence, protected dirty paths, unrelated tests,
@@ -558,16 +560,25 @@ the supervisor never cleans and retries.
 The validation root is exactly
 `docs/validation/literature_survey_m19_transport_hardening_2026-07-14/`. Its
 only paths are the five exact JUnit files `junit/<gate>.xml`, five logs
-`logs/<gate>.log`, and five basetemp trees `pytest_tmp/<gate>/**`, where gate is
-one of `transport`, `supervisor`, `affected_phase7`, `cumulative_m16_m17`, or
-`full_cli`; exact fake-run root `fake_run/` as defined above; and root files
+`logs/<gate>.log`, and four basetemp trees `pytest_tmp/<gate>/**`, where the
+in-root basetemp gate is one of `transport`, `supervisor`, `affected_phase7`,
+or `cumulative_m16_m17`; exact fake-run root `fake_run/` as defined above; and root files
 `run_manifest.json`, `code_test_manifest.json`, `static_audit.json`,
 `decision_table.json`, `inference_status.json`, `post_run_red_team.json`, and
-`result_hashes.json`. No generic `logs/*.log`, other basetemp, cache, bytecode,
-or unlisted path is allowed. The overall final validation root is absent once
+`result_hashes.json`. No generic `logs/*.log`, other in-root basetemp, cache,
+bytecode, or unlisted path is allowed. The full CLI gate's only basetemp is the
+exact absent external path `/tmp/ra_m19_full_cli_basetemp_attempt03/`; it is
+disposable harness state, is not copied into or hashed as final evidence, and
+is retained after the run for audit. This exception is required because
+`test_cli_surveybench_run_success_and_output_file` asserts that output outside
+the repository is redacted; putting its `tmp_path` under `docs/validation`
+changes the tested semantic and is a wrong-baseline harness defect.
+
+The overall final validation root is absent once
 before the ordered five-gate sequence; it is then append-only under the exact
 grammar. Before each gate, that gate's one JUnit target, one log target, and
-`pytest_tmp/<gate>/` subtree must individually be absent, while earlier gate
+its named basetemp (in-root for the first four, exact external path for
+`full_cli`) must individually be absent, while earlier gate
 artifacts remain immutable. A failed local repair may use a distinct
 disposable `/tmp/ra_m19_transport_repair_<round>/` root, which is not evidence
 and must not be copied into the final validation root. Every pytest command
