@@ -1,0 +1,103 @@
+{
+  "generation_id": "g00000001-50f28f7454f9a86e",
+  "mission_contract": {
+    "created_at": "2026-07-14T09:57:38+00:00",
+    "discovery_budget": {
+      "allowed_domains": [
+        "api.openalex.org",
+        "arxiv.org",
+        "export.arxiv.org"
+      ],
+      "max_bytes_per_source": 52428800,
+      "max_metadata_records": 25,
+      "max_source_records": 5,
+      "providers": [
+        "arxiv",
+        "openalex"
+      ],
+      "write_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission"
+    },
+    "generation": 1,
+    "lineage": {
+      "artifacts": [],
+      "generation_id": "g00000001-50f28f7454f9a86e",
+      "mission_contract_sha256": "55fa2a4aaa96427deb305e623a72ce228bf099004e762ef9f414c09ca364794b",
+      "parent_generation_id": null,
+      "transaction_nonce": "9ffb5c8bfca183723d20174d3d9e37fb"
+    },
+    "migration": null,
+    "mission_fingerprint": "6b6ef2f895fbc30d40590719f972bd88979b9cc6f13214d782456f631f4d12cc",
+    "mission_id": "f93fc46a-33c6-4381-93bc-c221a33d7ad2",
+    "normalized_seeds": [
+      {
+        "display": "arxiv:2201.12220v3",
+        "key": "arxiv:2201.12220v3"
+      }
+    ],
+    "normalized_topic": {
+      "display": "Neural Optimal Transport",
+      "key": "neural optimal transport"
+    },
+    "public_discovery_confirmation": {
+      "confirmation_source": "cli",
+      "confirmed": true,
+      "confirmed_at": "2026-07-14T09:57:38+00:00"
+    },
+    "schema_version": "ra-survey-public-source-mission-contract-v2",
+    "updated_at": "2026-07-14T09:57:38+00:00"
+  },
+  "mission_fingerprint": "6b6ef2f895fbc30d40590719f972bd88979b9cc6f13214d782456f631f4d12cc",
+  "mission_id": "f93fc46a-33c6-4381-93bc-c221a33d7ad2",
+  "next_action": {
+    "action_id": "source_intake",
+    "generation_id": "g00000001-50f28f7454f9a86e",
+    "mission_fingerprint": "6b6ef2f895fbc30d40590719f972bd88979b9cc6f13214d782456f631f4d12cc",
+    "mission_id": "f93fc46a-33c6-4381-93bc-c221a33d7ad2",
+    "mission_status": "ready_for_local_continuation",
+    "schema_version": "ra-survey-public-source-next-action-v1",
+    "source_intake_metadata_authority": {
+      "build_manifest_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission/public_metadata/build_manifest.json",
+      "build_manifest_sha256": "c5506f3b4fb89ed0323a1e9ba774bd2cfe23b81c2ee002c3a330982f3390899c",
+      "build_manifest_size_bytes": 3246,
+      "candidate_count": 2,
+      "candidate_ledger_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission/public_metadata/candidate_ledger.json",
+      "candidate_ledger_sha256": "c5a2693824ac77755824cb7d80fe9cc914992c64513512de9d1f679efc834cf9",
+      "candidate_ledger_size_bytes": 1393,
+      "candidate_set_sha256": "24c9a612e5eb55b8fd86c25b5fd818883ce08aa606e92d249e6bf9bf53c01bd7",
+      "metadata_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission/public_metadata",
+      "mission_fingerprint": "6b6ef2f895fbc30d40590719f972bd88979b9cc6f13214d782456f631f4d12cc",
+      "mission_id": "f93fc46a-33c6-4381-93bc-c221a33d7ad2",
+      "normalized_seed_keys": [
+        "arxiv:2201.12220v3"
+      ],
+      "normalized_topic_key": "neural optimal transport",
+      "schema_version": "ra-survey-source-intake-metadata-authority-v1"
+    },
+    "status": "ready_for_source_intake"
+  },
+  "output_dir": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission",
+  "schema_version": "ra-survey-public-source-mission-control-v2",
+  "seeds": [
+    "arxiv:2201.12220v3"
+  ],
+  "source_intake_metadata_authority": {
+    "build_manifest_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission/public_metadata/build_manifest.json",
+    "build_manifest_sha256": "c5506f3b4fb89ed0323a1e9ba774bd2cfe23b81c2ee002c3a330982f3390899c",
+    "build_manifest_size_bytes": 3246,
+    "candidate_count": 2,
+    "candidate_ledger_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission/public_metadata/candidate_ledger.json",
+    "candidate_ledger_sha256": "c5a2693824ac77755824cb7d80fe9cc914992c64513512de9d1f679efc834cf9",
+    "candidate_ledger_size_bytes": 1393,
+    "candidate_set_sha256": "24c9a612e5eb55b8fd86c25b5fd818883ce08aa606e92d249e6bf9bf53c01bd7",
+    "metadata_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_reordered_0/mission/public_metadata",
+    "mission_fingerprint": "6b6ef2f895fbc30d40590719f972bd88979b9cc6f13214d782456f631f4d12cc",
+    "mission_id": "f93fc46a-33c6-4381-93bc-c221a33d7ad2",
+    "normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "normalized_topic_key": "neural optimal transport",
+    "schema_version": "ra-survey-source-intake-metadata-authority-v1"
+  },
+  "status": "ready_for_local_continuation",
+  "topic": "Neural Optimal Transport"
+}

@@ -1,0 +1,110 @@
+{
+  "accepted_record_bytes": 0,
+  "candidates": [
+    {
+      "candidate_id": "p_meta_001",
+      "identifier": "arxiv:2201.12220v3",
+      "providers": [
+        "arxiv"
+      ],
+      "roles": [
+        "seed"
+      ]
+    }
+  ],
+  "claim_support_policy": "source availability is not technical claim support",
+  "counts": {
+    "available": 0,
+    "duplicate": 0,
+    "failed": 1,
+    "metadata_only": 0,
+    "not_attempted_cap": 0,
+    "quarantined": 0,
+    "unavailable": 0,
+    "unsupported_identifier": 0
+  },
+  "creation_generation_id": "g00000001-6757102706bdbfb8",
+  "discovery_budget": {
+    "allowed_domains": [
+      "api.openalex.org",
+      "arxiv.org",
+      "export.arxiv.org"
+    ],
+    "max_bytes_per_source": 52428800,
+    "max_metadata_records": 25,
+    "max_source_records": 5,
+    "providers": [
+      "arxiv",
+      "openalex"
+    ],
+    "write_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_invalid_available_capabil9/mission"
+  },
+  "metadata_authority": {
+    "build_manifest_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_invalid_available_capabil9/mission/public_metadata/build_manifest.json",
+    "build_manifest_sha256": "24e7c41812ea449351d9cdccc938364fc7aa284a7720b6f1f7b034be4cfb8f25",
+    "build_manifest_size_bytes": 3246,
+    "candidate_count": 1,
+    "candidate_ledger_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_invalid_available_capabil9/mission/public_metadata/candidate_ledger.json",
+    "candidate_ledger_sha256": "3c45d45a9c643bfe358a172e07de9413e09217e4ebcf471712cc0375af3457be",
+    "candidate_ledger_size_bytes": 934,
+    "candidate_set_sha256": "3acaad2bc4a63ce6f2e9bf84a40db5d45efb35f0af1d3953f46d348e17cb4034",
+    "metadata_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_invalid_available_capabil9/mission/public_metadata",
+    "mission_fingerprint": "63dd0ff5242990983595a14682755a6882a5a50a1800b5d0e2cdee1c4307b611",
+    "mission_id": "7989474b-3f29-4cc0-a59b-3959f09a7cc8",
+    "normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "normalized_topic_key": "neural optimal transport",
+    "schema_version": "ra-survey-source-intake-metadata-authority-v1"
+  },
+  "metadata_authority_sha256": "df51c11db009495db6987ea880729939931a5759dd03f0f09cd0754ed7534578",
+  "mission_contract_sha256": "bdb8da2836b40c727ad42ba9ad9b409e24ebed0b90a3ee1b8527cc1675fab566",
+  "mission_control_sha256": "572521c8ddd3dc10f1c37653c6bc3e074e76f6f5bb0aa90a7f539bdbfe22b50d",
+  "mission_fingerprint": "63dd0ff5242990983595a14682755a6882a5a50a1800b5d0e2cdee1c4307b611",
+  "mission_id": "7989474b-3f29-4cc0-a59b-3959f09a7cc8",
+  "next_action_sha256": "f9a7b5e7e17d177974792eb7e3ef2f31661e5df52bf953d6d2951c7d80568496",
+  "next_required_actions": [
+    "validate available records and extract anchors",
+    "review source safety before technical claims"
+  ],
+  "normalized_seed_keys": [
+    "arxiv:2201.12220v3"
+  ],
+  "normalized_topic": {
+    "display": "Neural Optimal Transport",
+    "key": "neural optimal transport"
+  },
+  "outcomes": [
+    {
+      "candidate_id": "p_meta_001",
+      "candidate_index": 0,
+      "cap_kind": null,
+      "code": "invalid_capability_result",
+      "final_url": null,
+      "identifier": "arxiv:2201.12220v3",
+      "outcome_status": "failed",
+      "paper_id": "paper_arxiv_2201_12220v3_2965c3197c3e",
+      "provider": null,
+      "source_record_path": null,
+      "source_record_sha256": null,
+      "source_record_size_bytes": null
+    }
+  ],
+  "privacy_policy": "normalized structured fixture records only; no raw provider payload is persisted",
+  "public_discovery_confirmation": {
+    "confirmation_source": "cli",
+    "confirmed": true,
+    "confirmed_at": "2026-07-14T09:57:37+00:00"
+  },
+  "schema_version": "ra-survey-mission-source-intake-outcomes-v2",
+  "status": "completed_with_outcomes",
+  "what_is_not_concluded": [
+    "live provider reliability",
+    "source or parser correctness beyond fixtures",
+    "retraction or version safety",
+    "technical claim support or truth",
+    "literature or survey completeness",
+    "scientific correctness",
+    "final prose, product, or release readiness"
+  ]
+}

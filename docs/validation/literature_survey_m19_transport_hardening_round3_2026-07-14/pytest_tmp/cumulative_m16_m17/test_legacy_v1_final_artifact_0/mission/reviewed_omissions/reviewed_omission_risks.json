@@ -1,0 +1,64 @@
+{
+  "accepted_omission_count": 1,
+  "accepted_queue_item_ids": [
+    "omission_risk-466da84de728846da5074ce4"
+  ],
+  "artifact_set_id": "s-2c258a8564f4573fd966a9ed68b4167b65a7200fe91329f2ce0479872cff487e",
+  "closed_omission_count": 1,
+  "coverage_errors": [],
+  "created_at": "2026-07-14T09:54:38Z",
+  "decision_coverage_complete": true,
+  "decision_type": "omission_risk",
+  "decisions_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_legacy_v1_final_artifact_0/decisions/omissions.json",
+  "decisions_sha256": "516fb5484190397591d11e0d2e0319e61295da76ba547f3a788d91055ae5d7dc",
+  "literature_completeness_allowed": false,
+  "mission_anchor_generation_id": "g00000001-546b9b479028a418",
+  "mission_fingerprint": "9127ae95128dada8983e1a9a781977c42c6f99657dfb79968b35f7aef26f8566",
+  "mission_id": "44444444-4444-4444-8444-444444444444",
+  "omission_risks": [
+    {
+      "decision": "acceptable_omission",
+      "decision_sha256": "b662aedfb53fe4e7dac650b51f555c756b05298803303a7744411f71d3ff6291",
+      "literature_completeness_allowed": false,
+      "machine_disposition": null,
+      "next_action": "",
+      "queue_item_id": "omission_risk-466da84de728846da5074ce4",
+      "ready_for_prose": false,
+      "reason": "Closed only for this bounded fixture scope.",
+      "regeneration_required": false,
+      "reviewed_at": "2026-07-11T00:00:00Z",
+      "reviewer": "fixture-reviewer",
+      "risk_id": "risk-1",
+      "risk_source_id": null,
+      "risk_source_type": null,
+      "scope_basis": "The fixture explicitly records this current-scope boundary.",
+      "severity": "medium",
+      "source_artifact_sha256": null,
+      "status": "reviewed_closed_for_current_scope"
+    }
+  ],
+  "open_omission_count": 0,
+  "queue_semantic_sha256": "fffdc620e05226f07618effcb7bc265f0559add0c12853500bd0df4e84296b4d",
+  "ready_for_prose": false,
+  "ready_for_reviewed_packet": false,
+  "rejected_omission_count": 0,
+  "rejected_omission_risks": [],
+  "required_queue_item_ids": [
+    "omission_risk-466da84de728846da5074ce4"
+  ],
+  "review_queue_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_legacy_v1_final_artifact_0/mission/.artifact_state/sets/s-2c258a8564f4573fd966a9ed68b4167b65a7200fe91329f2ce0479872cff487e/review_queue.json",
+  "review_queue_sha256": "5db4d574492d1f2f1d241bc33e5933b25ffe27b406e894a342b3fa69629f789f",
+  "schema_version": "ra-survey-reviewed-omission-risks-v2",
+  "status": "reviewed_omissions_complete",
+  "supplied_queue_item_ids": [
+    "omission_risk-466da84de728846da5074ce4"
+  ],
+  "what_is_not_concluded": [
+    "literature completeness",
+    "final prose readiness",
+    "live web coverage",
+    "product readiness",
+    "real-agent reliability",
+    "scientific correctness"
+  ]
+}

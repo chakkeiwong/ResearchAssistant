@@ -1,0 +1,93 @@
+{
+  "action_id": "import_reviewed_claims",
+  "approval_required": true,
+  "blockers": [],
+  "created_at": "2026-07-14T08:42:47+00:00",
+  "forbidden_actions": [
+    "do not run live/API/source/PDF/download/credential actions implicitly",
+    "do not run public discovery before public_discovery_confirmation.confirmed is true",
+    "do not treat reviewed sidecar discovery as final prose readiness",
+    "do not hide reviewed-evidence blockers",
+    "do not use credentials, private databases, paid model workers, hidden evaluator material, unbounded crawling, or outputs outside the mission directory without separate explicit approval"
+  ],
+  "gate_id": "claim_safety_omission_review",
+  "generation_id": "g00000008-7b3cacd83b807dd3",
+  "mission_fingerprint": "3228580b703d3f111d71d5f81b5d43ea7cb21b289a7ff02f6469369c6602c740",
+  "mission_id": "9f9188f9-0ae7-4d9d-b44e-4cef826dac19",
+  "mission_status": "blocked_at_gate",
+  "public_discovery_confirmation": {
+    "confirmation_source": "cli",
+    "confirmed": true,
+    "confirmed_at": "2026-07-14T08:42:46+00:00",
+    "forbidden_actions": [
+      "credentials",
+      "private_databases",
+      "paid_model_worker_trials",
+      "hidden_evaluator_material",
+      "unbounded_crawling",
+      "writes_outside_mission_output",
+      "technical_claim_support_from_metadata_or_source_availability",
+      "final_prose_readiness_from_discovery_alone"
+    ],
+    "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+    "schema_version": "ra-survey-public-discovery-confirmation-v1",
+    "scope": {
+      "allowed_actions": [
+        "local_cache_lookup",
+        "bounded_public_web_api_metadata",
+        "public_archive_search",
+        "public_source_status_lookup",
+        "capped_public_source_pdf_full_text_retrieval"
+      ],
+      "allowed_domains": [
+        "api.openalex.org",
+        "export.arxiv.org",
+        "arxiv.org"
+      ],
+      "caps": {
+        "max_metadata_records": 25,
+        "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_hostile_no_force_and_cras1/mission"
+      },
+      "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_hostile_no_force_and_cras1/mission",
+      "providers": [
+        "openalex",
+        "arxiv"
+      ],
+      "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+    },
+    "status": "confirmed",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "readiness_classification": null,
+  "ready_for_prose": false,
+  "required_artifacts": [
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_hostile_no_force_and_cras1/mission/reviewed_claims/reviewed_claims.json"
+  ],
+  "safe_next_commands": [
+    "review claim_candidates, then run: ra survey import-claim-review --review-queue /home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_hostile_no_force_and_cras1/mission/.artifact_state/sets/s-b8d91394593e7b3a3594b2165bb8d699d4057eed61df33dbfe5a585623afac65/review_queue.json --decisions <reviewed_claim_decisions.json> --out /home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_hostile_no_force_and_cras1/mission/reviewed_claims"
+  ],
+  "schema_version": "ra-survey-public-source-next-action-v1",
+  "status": "terminal_blocked_human_review",
+  "summary": "explicit_review_input_is_required",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

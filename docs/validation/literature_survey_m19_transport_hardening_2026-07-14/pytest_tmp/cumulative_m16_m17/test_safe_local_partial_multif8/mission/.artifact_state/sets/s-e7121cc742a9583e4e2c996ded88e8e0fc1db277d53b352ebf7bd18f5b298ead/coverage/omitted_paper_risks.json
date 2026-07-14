@@ -1,0 +1,82 @@
+{
+  "artifact_set_id": "s-e7121cc742a9583e4e2c996ded88e8e0fc1db277d53b352ebf7bd18f5b298ead",
+  "metadata_only_papers": [],
+  "mission_anchor_generation_id": "g00000004-6d2b5480f2c05d15",
+  "mission_fingerprint": "74095b425ae92aca16cc78e3dd603c16323cdda85a38b1c847712d3c42527440",
+  "mission_id": "8de0c2b8-ffb0-46b3-8118-45d01be9fee1",
+  "review_policy": {
+    "closed_omissions_require_reviewed_rationale": true,
+    "omission_visibility_is_not_literature_completeness": true
+  },
+  "risk_count": 7,
+  "risks": [
+    {
+      "expected_action": "run backward snowballing and classify relevant references",
+      "literature_completeness_allowed": false,
+      "risk": "Required predecessor/foundational papers are unknown until seed references are inspected.",
+      "risk_id": "backward_lineage_not_yet_built",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "expected_action": "run forward snowballing or record metadata blocker",
+      "literature_completeness_allowed": false,
+      "risk": "Major citing works and recent follow-ups are unknown until approved metadata or replay citations are inspected.",
+      "risk_id": "forward_frontier_not_yet_built",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "expected_action": "query adjacent candidates and record inclusion/exclusion reasons",
+      "literature_completeness_allowed": false,
+      "risk": "Adjacent method clusters are unknown until topic expansion is run.",
+      "risk_id": "adjacent_clusters_not_yet_built",
+      "severity": "medium",
+      "status": "open"
+    },
+    {
+      "expected_action": "map proposed technical claims to anchor ids and review before prose drafting",
+      "literature_completeness_allowed": false,
+      "risk": "Phase 6 has source anchors but no reviewed claim-support rows.",
+      "risk_id": "no_reviewed_supported_claims",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "expected_action": "run retraction, withdrawal, erratum, and version checks before using papers as support",
+      "literature_completeness_allowed": false,
+      "risk": "Phase 5 quarantine ledger records retraction/version safety as not checked.",
+      "risk_id": "retraction_version_status_not_checked",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "expected_action": "expand backward snowballing or record explicit boundary approval/blocker",
+      "literature_completeness_allowed": false,
+      "risk": "backward snowball frontier is absent from the citation map",
+      "risk_id": "backward_snowball_frontier_blocked_or_empty",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "expected_action": "expand forward snowballing or record explicit boundary approval/blocker",
+      "literature_completeness_allowed": false,
+      "risk": "forward snowball frontier is absent from the citation map",
+      "risk_id": "forward_snowball_frontier_blocked_or_empty",
+      "severity": "high",
+      "status": "open"
+    }
+  ],
+  "schema_version": "ra-survey-omitted-paper-risks-v1",
+  "status": "omission_risks_visible",
+  "topic": "Neural Optimal Transport",
+  "what_is_not_concluded": [
+    "literature completeness",
+    "technical claim support",
+    "source safety",
+    "live web coverage",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

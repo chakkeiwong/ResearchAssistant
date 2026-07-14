@@ -1,0 +1,87 @@
+{
+  "accepted_claim_count": 1,
+  "artifact_set_id": "s-d007d614c628d956d70fd2f89baedaaa3ee913b3fc9177868e0c69d3a4fa9453",
+  "claims": [
+    {
+      "anchor_ids": [
+        "section:sec:method"
+      ],
+      "claim_id": "fixture-reviewed-claim",
+      "claim_support_allowed": true,
+      "claim_text": "The exact fixture source contains the recorded Method section.",
+      "claim_type": "paper_technical",
+      "decision_sha256": "1c28e80d1aa05187bb7402a8e2be7b527f418285dcf3cf77fb9cdd830cbf1dda",
+      "dependency_graph_sha256": "01266b9d6bea6742244b4bcb4daeba73d3a1d280934870112274ea819bd342f7",
+      "dependency_manifests": [
+        {
+          "direct_source_paper_ids": [
+            "paper_openalex_w100_fc9a224b790d"
+          ],
+          "evidence_kind": "primary_technical_support",
+          "local_artifact": null,
+          "local_artifact_sha256": null,
+          "manifest_id": "dm-01c54f0315d82294dfb195f4945eea06ae2172346fdccfe20af5022898ea3360",
+          "referenced_manifest_ids": [],
+          "schema_version": "ra-survey-claim-dependency-manifest-v1"
+        }
+      ],
+      "evidence_note": "Synthetic fixture review for engineering state-transition tests only.",
+      "fixture_only": true,
+      "omission_review_required": true,
+      "paper_ids": [
+        "paper_openalex_w100_fc9a224b790d"
+      ],
+      "queue_item_id": "claim_candidate-66cc76eed7e63f5f0f725c5f",
+      "ready_for_prose": false,
+      "review_status": "human_reviewed_passed",
+      "reviewed_at": "2026-07-12T02:02:00Z",
+      "reviewer": "synthetic-fixture-reviewer",
+      "root_dependency_manifest_id": "dm-01c54f0315d82294dfb195f4945eea06ae2172346fdccfe20af5022898ea3360",
+      "source_dependencies": [
+        {
+          "canonical_identifier": "openalex:w100",
+          "dependency_role": "primary_technical_source",
+          "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+          "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+        }
+      ],
+      "source_safety_required": true,
+      "support_class": "primary_technical_support"
+    }
+  ],
+  "coverage_errors": [],
+  "created_at": "2026-07-14T08:48:50Z",
+  "decision_coverage_complete": true,
+  "decision_set_id": "cd-98669d88ab0f0900c47140dfe9cab553668230625f67c7e0471a83448e72ae52",
+  "decisions_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_unavailable_source_outcom0/mission/reviewed_claims/decision_sets/cd-98669d88ab0f0900c47140dfe9cab553668230625f67c7e0471a83448e72ae52/reviewed_claim_decisions.json",
+  "decisions_sha256": "8f00eb6f67bdd936978c88372c44e788dd4541de01cb66e314100917c627beba",
+  "decisions_size_bytes": 2562,
+  "mission_anchor_generation_id": "g00000007-1d7d2ad4a6f41fa9",
+  "mission_fingerprint": "e27dd3d684301faa01746f0f33b5830b9c2d3eb542880d13832452ef67817156",
+  "mission_id": "5d527779-a1eb-440e-8643-aaba5c1544a1",
+  "queue_semantic_sha256": "3cd58863cbb274c00c0633fef6219423517b19bd944e05f9edd5f01a3779feca",
+  "ready_for_prose": false,
+  "ready_for_reviewed_packet": false,
+  "rejected_claim_count": 0,
+  "rejected_claims": [],
+  "required_item_ids": [
+    "claim_candidate-66cc76eed7e63f5f0f725c5f"
+  ],
+  "review_queue_sha256": "09738f8836a4109f57ca717cd31f3518a2f2e23745e0992f9fcc0f36dd85496a",
+  "schema_version": "ra-survey-reviewed-claims-v3",
+  "status": "reviewed_claims_complete",
+  "supplied_item_ids": [
+    "claim_candidate-66cc76eed7e63f5f0f725c5f"
+  ],
+  "what_is_not_concluded": [
+    "source safety",
+    "literature completeness",
+    "final prose readiness",
+    "live web coverage",
+    "product readiness",
+    "real-agent reliability",
+    "scientific correctness"
+  ]
+}

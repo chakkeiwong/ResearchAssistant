@@ -1,0 +1,26 @@
+{
+  "approval_required_for": [
+    "live source/PDF/full-text download",
+    "private or credentialed database use",
+    "technical claim support"
+  ],
+  "blocked_reasons": [
+    "citation expansion has not run",
+    "source/download status has not been collected",
+    "claim-support anchors are absent"
+  ],
+  "forbidden_jumps": [
+    "do not draft final prose from metadata-only or blocked packets",
+    "do not fetch source/PDF/full text without an explicit approved intake plan",
+    "do not treat metadata, citation counts, or source availability as technical claim support"
+  ],
+  "mode": "offline-skeleton",
+  "ready_for_prose": false,
+  "ready_for_writer": false,
+  "safe_next_commands": [
+    "ra survey build --mode public-metadata --topic <topic> --seed <seed> --out <metadata-dir>",
+    "ra survey build --mode offline-replay --topic <topic> --seed <seed> --replay-task <task.json> --replay-responses-dir <responses-dir> --out <packet-dir>"
+  ],
+  "schema_version": "ra-survey-workflow-state-v1",
+  "state": "skeleton_created"
+}

@@ -1,7 +1,7 @@
 # M19 Bounded Live Metadata Validation Subplan
 
 Date: `2026-07-14`
-Status: `REFRESHED_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
+Status: `M19A_LOCAL_CLOSEOUT_CANDIDATE_PENDING_EXACT_LIVE_APPROVAL_DO_NOT_EXECUTE_LIVE`
 Milestone: `M19_bounded_live_metadata_validation`
 Closes: `G2_bounded_live_metadata`
 
@@ -16,6 +16,44 @@ scientific, or product evidence.
 This refreshed parent is planning authority only. It authorizes local
 hardening design and tests after the child plan is written and reviewed. It
 does not authorize any live request.
+
+## M19A Actual Hardening Evidence
+
+Terminal review rejected the initial M19A candidate because an unexpected
+parser/programmer failure could collapse into provider unavailability. Repair
+commit `bb4300c` closes that defect, and fresh isolated-wheel validation
+passes. The live M19 attempt has not run.
+
+| Item | Actual value |
+| --- | --- |
+| Product implementation commit | `23e218b563e2e554c02c1ac063fea1f73034edf4` |
+| Reviewed harness commit | `945332f891e40cc02d53806bc3ca4b2157cc51e0` |
+| Parser-boundary repair | `bb4300c6bce20145a7c41620b0dffb703072e755` |
+| Lineage | `e7f1499 -> 23e218b -> 945332f -> bb4300c` |
+| Environment | WSL2 x86_64, Python `3.11.14`, conda `tf-gpu`, CPU-only `CUDA_VISIBLE_DEVICES=-1` |
+| Fresh local gates | `26 + 30 + 58 + 846 + 125` passed; zero failures/errors |
+| Isolated installed wheel | SHA-256 `6605ddeb46b15c2e0f29b23466743cf2c48db6a72eb2434019b2add22d135888` |
+| Superseding validation root | `docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/` |
+| Fake route manifest | SHA-256 `a02c39520bcec6fa01bc4a9ceda53b0a83243e282e76551f0f9c53297734ebe6` |
+| Fake request ledger | Four closed deterministic no-network rows; SHA-256 `fee0ed267d3ba79295075b92c6a902cfdcf3e0daa48f12e30fc12cad6e9ee3f9` |
+| M19A result | `docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_result_2026-07-14.md` |
+| Live status | `DO_NOT_EXECUTE_LIVE`; exact live root absent |
+
+The frozen future route is four HTTPS `GET` requests in order: arXiv seed,
+arXiv topic, OpenAlex seed, OpenAlex topic. It uses seed
+`arxiv:2201.12220v3`, topic
+`Neural Optimal Transport for generative modeling and inference`, provider
+order `arxiv,openalex`, `max_records=10`, per-route caps `5/10/5/10`,
+`2,000,000` accepted bytes/request, `8,000,000` accepted bytes total,
+`30` seconds/request, `187` seconds whole attempt, zero redirects, zero
+retries, explicit no-proxy transport, and no credentials. The exact decoded
+queries and request-binding hashes are in the route manifest named above.
+
+The original evidence root is rejected by terminal review; round 2 is a
+preserved import-harness failure. Only round 3 is current promotion evidence.
+The live command and closeout commit remain pending until terminal rereview
+agrees and the docs/evidence-only M19A closeout child exists. This parent
+remains non-executable meanwhile.
 
 ## Entry Conditions Inherited From M18
 
@@ -186,10 +224,10 @@ continuation vetoes when boundary validity and artifact closure pass.
 
 ## Exact Next Safe Action
 
-After M18 terminal review and closeout replay, create the dedicated M19
-transport/supervisor-hardening child subplan and run its skeptical audit. Do not
-write transport code or execute a live command until that plan identifies the
-exact edit/test surfaces and passes material review.
+Obtain terminal read-only rereview of the repaired M19A implementation and result. If it
+agrees, commit only the closeout docs/evidence as a direct child of `bb4300c`,
+freeze the compact live packet against that actual child, and request fresh
+user approval. Do not execute the live command before that exact approval.
 
 ## End-Of-Phase Sequence
 

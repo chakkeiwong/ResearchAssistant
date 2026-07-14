@@ -1,0 +1,143 @@
+{
+  "allowed_item_statuses": [
+    "review_required",
+    "blocked_pending_evidence"
+  ],
+  "artifact_set_id": "s-2c258a8564f4573fd966a9ed68b4167b65a7200fe91329f2ce0479872cff487e",
+  "coverage_exact_digests": {
+    "backward_snowball.json": {
+      "sha256": "cc9fd3f6bed5b72f5a9e18d65adfeb75bb5aae575d1b0ee5d6d2cd27d4e2b13e",
+      "size_bytes": 640
+    },
+    "citation_venue_metadata.json": {
+      "sha256": "f1294baa80458e3562a45121f13e58dd7bf43b3072986699db8c7dc145e61793",
+      "size_bytes": 546
+    },
+    "coverage_manifest.json": {
+      "sha256": "cd4be525e3711738daf69a220c5010839986fe593483546af02dba1f719601ca",
+      "size_bytes": 2338
+    },
+    "forward_snowball.json": {
+      "sha256": "5ea6b3362894b5405b925d4fedbd0f6a66046ab8c45cd7b42318c9808bd49940",
+      "size_bytes": 639
+    },
+    "omitted_paper_risks.json": {
+      "sha256": "a1f830803fbe25fcdca1ab1d69d383c313e681de96f2bea50665bb77ba0974e4",
+      "size_bytes": 728
+    },
+    "paper_classifications.json": {
+      "sha256": "4c738006d508e99d76517e00d018d57811d7c7131927640052636c5d0c4add55",
+      "size_bytes": 447
+    }
+  },
+  "coverage_lineage_sha256": "f2700008f012a3392ab7c696679dbf3f87b32c5a43a03d50d18ff6725e87fa81",
+  "coverage_semantic_digests": {
+    "backward_snowball.json": "cf5373b24fd1e233a5d5e676f979788072cb1092c57014de7bb76e2fa7b6c959",
+    "citation_venue_metadata.json": "7ad0cda4196d188ddd2fc6d674fa0e71316d9a79ada9a671f6d86eda1b4542a9",
+    "forward_snowball.json": "57bb9d610c57efd526aae64b585896595bf2783f780d92bc918346fd008a157a",
+    "omitted_paper_risks.json": "271591b50dd6833cdf6a9d31a03cca5ba64d953c082f385d6338fd2da2d67405",
+    "paper_classifications.json": "39a4beeefb9202891211e59c9fcb6f5be630a567166471acd4669f0da7c53d60"
+  },
+  "forbidden_promotions": [
+    "review does not create prose readiness"
+  ],
+  "items": [
+    {
+      "anchor_ids": [
+        "section:sec-method"
+      ],
+      "claim_support_allowed": false,
+      "item_id": "claim_candidate-49105dea7a2809f1fdf93da1",
+      "paper_ids": [
+        "paper-1"
+      ],
+      "priority": "high",
+      "queue_type": "claim_candidate",
+      "semantic_item_sha256": "49105dea7a2809f1fdf93da1e2773ed1b038605f1e89e506c996f1b184a02918",
+      "source_id": "claim-1",
+      "status": "review_required"
+    },
+    {
+      "item_id": "omission_risk-466da84de728846da5074ce4",
+      "literature_completeness_allowed": false,
+      "priority": "medium",
+      "queue_type": "omission_risk",
+      "risk_id": "risk-1",
+      "semantic_item_sha256": "466da84de728846da5074ce4b023eb60b382b8c3643b2d2dc8d9b8efd05a8dca",
+      "severity": "medium",
+      "source_id": "risk-1",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "arxiv_id": "0000.00004v1",
+      "claim_support_allowed": false,
+      "item_id": "source_safety-1c755f71ba4b9a152c90d621",
+      "paper_id": "paper-1",
+      "priority": "high",
+      "queue_type": "source_safety",
+      "safety_checked_clear": false,
+      "semantic_item_sha256": "1c755f71ba4b9a152c90d62100e7e4cb7e9a84380112ad41621d6ab8904e53ae",
+      "source_id": "paper-1",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "item_id": "workflow_blocker-8638e5956449ace0932d94ad",
+      "priority": "high",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "no reviewed supported technical claim rows are present",
+      "required_evidence_queue_item_ids": [
+        "claim_candidate-49105dea7a2809f1fdf93da1"
+      ],
+      "required_evidence_queue_type": "claim_candidate",
+      "resolution_class": "claim_review",
+      "semantic_item_sha256": "8638e5956449ace0932d94addde90a9930dc7c623465598ccbb6e48788d6e48a",
+      "source_id": "cded3c617db1ecac42c78f02bbfe185676d8df0bdd3ecb9ca04f9b244e00f896",
+      "status": "blocked_pending_evidence"
+    }
+  ],
+  "mission_anchor_generation_id": "g00000001-546b9b479028a418",
+  "mission_fingerprint": "9127ae95128dada8983e1a9a781977c42c6f99657dfb79968b35f7aef26f8566",
+  "mission_id": "44444444-4444-4444-8444-444444444444",
+  "packet_input_digests": {
+    "build_manifest": {
+      "relative_path": "build_manifest.json",
+      "sha256": "1b83bce187d38c99a13bd57ee52924dfb81bdf22420dd658d592b24cb60eacba",
+      "size_bytes": 1497
+    },
+    "claim_support": {
+      "relative_path": "claim_support.json",
+      "sha256": "5233b08da954323690ad7a2ad1d3e1c652e16d338a20ddaeefc889ecda5223a2",
+      "size_bytes": 286
+    },
+    "source_safety_status": {
+      "relative_path": "source_safety_status.json",
+      "sha256": "331a2b1766b12bb0442a9f0e90f7b47857d83e5ad1de01e1d3a92661e42953b8",
+      "size_bytes": 202
+    }
+  },
+  "queue_counts": {
+    "by_priority": {
+      "high": 3,
+      "medium": 1
+    },
+    "by_status": {
+      "blocked_pending_evidence": 3,
+      "review_required": 1
+    },
+    "by_type": {
+      "claim_candidate": 1,
+      "omission_risk": 1,
+      "source_safety": 1,
+      "workflow_blocker": 1
+    },
+    "total": 4
+  },
+  "queue_semantic_sha256": "fffdc620e05226f07618effcb7bc265f0559add0c12853500bd0df4e84296b4d",
+  "schema_version": "ra-survey-public-source-review-queue-v2",
+  "status": "review_required",
+  "topic": "Phase 4 replay fixture",
+  "what_is_not_concluded": [
+    "scientific correctness"
+  ]
+}

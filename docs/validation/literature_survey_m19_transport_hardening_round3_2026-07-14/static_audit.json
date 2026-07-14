@@ -1,0 +1,60 @@
+{
+  "schema_version": "ra-literature-survey-m19a-static-audit-v2",
+  "status": "passed",
+  "validated_commit": "bb4300c6bce20145a7c41620b0dffb703072e755",
+  "terminal_round1_finding": {
+    "classification": "material_product_boundary_defect",
+    "repair": "unexpected parser failures now raise sanitized MissionStateError",
+    "transport_regression_added": true,
+    "worker_regression_added": true,
+    "focused_repair_gate": "56 passed"
+  },
+  "network_boundary": {
+    "live_network_executed": false,
+    "live_output_root_absent": true,
+    "catching_tests_monkeypatch_real_socket_creation": true,
+    "no_proxy_opener_and_redirect_rejection_covered": true,
+    "live_supervisor_entry_point_invoked": false
+  },
+  "write_and_inventory_boundary": {
+    "top_level_before_manifests": ["fake_run", "junit", "logs", "pytest_tmp"],
+    "pytest_tmp_top_level": ["affected_phase7", "cumulative_m16_m17", "supervisor", "transport"],
+    "in_root_full_cli_basetemp_absent": true,
+    "fake_run_unknown_file_or_directory_count": 0,
+    "fake_run_nonregular_artifact_count": 0,
+    "pytest_scratch_policy": "opaque retained test output including intentional negative fixtures"
+  },
+  "fake_run_replay": {
+    "status": "passed",
+    "boundary_valid": true,
+    "hardening_commit": "bb4300c6bce20145a7c41620b0dffb703072e755",
+    "request_ledger_status": "complete",
+    "request_count": 4,
+    "fixture_network_behavior": "deterministic_no_network_unavailable",
+    "record_count": 0,
+    "root_inventory_artifact_count": 18,
+    "summary_hash_bindings_replayed": true,
+    "route_manifest_sha256": "a02c39520bcec6fa01bc4a9ceda53b0a83243e282e76551f0f9c53297734ebe6",
+    "request_ledger_sha256": "fee0ed267d3ba79295075b92c6a902cfdcf3e0daa48f12e30fc12cad6e9ee3f9",
+    "root_inventory_sha256": "9d87914970659886174b65646055041c866f6aef0201a089d96da64b80bbdb24",
+    "hardening_summary_sha256": "8a9888797bb72a432aaee6dee30b29ab81bd87437b059e894cba8c4486056e07"
+  },
+  "protected_worktree": {
+    "status": "preserved",
+    "paths": {
+      ".gitignore": "29344e75c13a1a6d4e9b1bb653d106156cafb02ee61b1c99701c9a32f5ec9074",
+      "docs/benchmark_plan.md": "2395402f907a6d163979e37fa62d6975109c5e9ccfcb7322962b3a0a2e00a033",
+      "src/research_assistant/cli.py": "f29025639bf48b56dcf90979f2a9d24b63876deda4c23600d497c67fa054137c",
+      "src/research_assistant/ingest/arxiv_batch.py": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be",
+      "src/research_assistant/source/arxiv_source.py": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8",
+      "tests/integration/test_arxiv_batch_intake.py": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80",
+      "tests/unit/test_arxiv_source.py": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"
+    }
+  },
+  "package_origin": {
+    "isolated_wheel_import_passed": true,
+    "package_root": "/tmp/ra_m19_isolated_bb4300c/venv/lib/python3.11/site-packages/research_assistant",
+    "wheel_sha256": "6605ddeb46b15c2e0f29b23466743cf2c48db6a72eb2434019b2add22d135888"
+  },
+  "forbidden_actions": {"gpu_used": false, "push_performed": false, "release_performed": false, "protected_path_mutated_by_m19a": false}
+}

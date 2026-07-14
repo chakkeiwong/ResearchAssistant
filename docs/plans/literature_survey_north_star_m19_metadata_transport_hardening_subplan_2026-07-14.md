@@ -1,9 +1,51 @@
 # M19 Metadata Transport And Supervisor Hardening Subplan
 
 Date: `2026-07-14`
-Status: `FINAL_HARNESS_REPAIR_ROUND_5_AGREED_PENDING_ATTEMPT_03_DO_NOT_EXECUTE_LIVE`
+Status: `M19A_LOCAL_CLOSEOUT_CANDIDATE_TERMINAL_REVIEW_AGREED_DO_NOT_EXECUTE_LIVE`
 Milestone: `M19_bounded_live_metadata_validation`
 Subphase: `M19A_transport_supervisor_hardening`
+
+Result: `docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_result_2026-07-14.md`
+
+## Terminal Repair Amendment
+
+Terminal review round 1 found that the broad fallback at the response/parser
+boundary could project an unexpected parser/programmer exception as ordinary
+provider `unavailable`. The local catching test reproduced the defect. Repair
+commit `bb4300c` narrows that boundary: known malformed JSON/XML remains a
+closed provider outcome, while any other parser exception becomes sanitized
+`MissionStateError` and the worker produces a boundary-error envelope. Two new
+regressions require no unavailable row, an invalid ledger, and no passing
+summary. The focused repair gate passed `56` tests.
+
+The original append-only root
+`docs/validation/literature_survey_m19_transport_hardening_2026-07-14/` is
+preserved as terminal-review-rejected round-1 evidence. It is not promotion
+evidence after the defect was found and is not edited in place.
+
+One fresh local evidence round is authorized at
+`docs/validation/literature_survey_m19_transport_hardening_round2_2026-07-14/`
+with the same exact grammar, checks, no-network boundary, and nonclaims. The
+only path substitution is that root name and external full-CLI basetemp
+`/tmp/ra_m19_full_cli_basetemp_round2/`. The target, routes, queries, caps,
+provider order, hardware class, and live prohibition are unchanged. This is a
+localized implementation repair under the existing campaign budget, not live
+or scientific authority.
+
+Round 2 failed during collection because the current shell has no installed
+`research_assistant.survey` package when `PYTHONPATH` is correctly removed.
+Both focused gates therefore recorded import errors before executing tests.
+This is a harness/environment failure, not product evidence. The append-only
+round-2 root is preserved and rejected.
+
+One replacement evidence round is authorized at
+`docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/`
+with external full-CLI basetemp
+`/tmp/ra_m19_full_cli_basetemp_round3/`. All tests must execute from a fresh
+isolated clone of `bb4300c` using its offline-built and installed wheel, with
+`PYTHONPATH` unset. This directly answers committed-tree and package-origin
+questions and keeps the same gate grammar, routes, caps, boundaries, and
+nonclaims.
 
 ## Phase Objective
 

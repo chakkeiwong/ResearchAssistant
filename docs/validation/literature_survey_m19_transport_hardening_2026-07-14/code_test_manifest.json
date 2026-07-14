@@ -1,0 +1,66 @@
+{
+  "schema_version": "ra-literature-survey-m19a-code-test-manifest-v1",
+  "status": "passed",
+  "validated_commit": "945332f891e40cc02d53806bc3ca4b2157cc51e0",
+  "files": {
+    "src/research_assistant/survey/build.py": "e433b8088acfbc3b6c40de0c89447dd65b2c4e0ee63731a27cd467b7d45c1a79",
+    "scripts/literature_survey_m19_live_metadata_supervisor.py": "df3b16e3ce822c9b21b68bb5328929ddf5e7ed593826c5eba1f9ec56389fe641",
+    "tests/unit/test_literature_survey_m19_transport.py": "f829d41bef789ee140f8646b4fb4b0710ab005d8245d6cdeb6a753862cd9dcf9",
+    "tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py": "0be8a0703ffd714123434d4cb2bf8ca056268a7a53808b8d4c6a8fc3e8d0a2d2"
+  },
+  "committed_bytes_match_worktree": true,
+  "gates": {
+    "transport": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 0.123,
+      "junit_sha256": "389d99580b48263370b16ad77c857689d9c7317644beb1dbb32f935c790c4266",
+      "log_sha256": "c15b71be04f4376528c0ffb06a7288697e528de596c4cc548b1bdce763d39bd5"
+    },
+    "supervisor": {
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 4.288,
+      "junit_sha256": "8c7043ef2341502a7694ca4740f67fb07dab3fc5108e3407efbbe41a27dd6c61",
+      "log_sha256": "cf5c3fdea40eb0bdc9b3ead39c2b701fbc7e8a8a93b81bd33efa766d0172f305"
+    },
+    "affected_phase7": {
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 3.477,
+      "junit_sha256": "29bcfd86019f45475499a096d8061c5b562eb25a45e56764f9c52131ef9c376e",
+      "log_sha256": "bcbc59aee0694ad22d131060485755c72d1ea3cc19473e766a21d3a375ef8cc6"
+    },
+    "cumulative_m16_m17": {
+      "tests": 846,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 577.743,
+      "junit_sha256": "c085a39ff0c207e9f3ec36da98cb4751ae1dd8948323cecc4b54457122f910f6",
+      "log_sha256": "4b790301d7c318a4ecf7dcf804dadb9d38cff333c456af3d2131f969d3ef4969"
+    },
+    "full_cli": {
+      "tests": 125,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 766.562,
+      "junit_sha256": "2ce434ec32d21b08c3e7b121f4a4c7948c93959417e8748d794fc52fd86d3250",
+      "log_sha256": "5c8bc4a35e81639f9048fc7719914b24e45f14be7c25e3ab640492d1ea034540",
+      "external_basetemp": "/tmp/ra_m19_full_cli_basetemp_attempt03"
+    }
+  },
+  "isolated_clone_focused_gate": {
+    "tests": 54,
+    "failures": 0,
+    "runtime_seconds": 4.38,
+    "wheel_sha256": "13515518229e9542ef581924c3205f3fa0bee60501bddf3be41012a25718d315"
+  }
+}

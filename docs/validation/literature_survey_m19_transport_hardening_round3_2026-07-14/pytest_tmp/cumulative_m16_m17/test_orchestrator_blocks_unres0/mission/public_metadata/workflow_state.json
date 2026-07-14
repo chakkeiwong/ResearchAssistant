@@ -1,0 +1,25 @@
+{
+  "approval_required_for": [
+    "source_fetch, PDF download, or full-text download",
+    "private or credentialed database use",
+    "using metadata, identity, or relevance rows as technical claim support"
+  ],
+  "blocked_reasons": [
+    "one or more mission seeds are ambiguous, unresolved, invalid, or in identity conflict",
+    "source intake is forbidden while the global seed-resolution gate is blocked"
+  ],
+  "forbidden_jumps": [
+    "do not draft final prose from metadata-only or blocked packets",
+    "do not fetch source/PDF/full text without an explicit approved intake plan",
+    "do not treat metadata, citation counts, or source availability as technical claim support"
+  ],
+  "mode": "public-metadata",
+  "ready_for_prose": false,
+  "ready_for_writer": false,
+  "safe_next_commands": [
+    "inspect the exact blocked seed rows and candidate choices in identity_resolution.json",
+    "do not run source intake until every mission seed resolves without conflict"
+  ],
+  "schema_version": "ra-survey-workflow-state-v1",
+  "state": "blocked_seed_resolution"
+}

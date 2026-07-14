@@ -1,0 +1,49 @@
+{
+  "metadata_only_papers": [],
+  "not_concluded": [
+    "final survey prose quality",
+    "literature completeness",
+    "scientific correctness",
+    "technical claim support",
+    "retraction/version safety",
+    "product readiness"
+  ],
+  "provider_statuses": [],
+  "risks": [
+    {
+      "expected_action": "run backward snowballing and classify relevant references",
+      "risk": "Required predecessor/foundational papers are unknown until seed references are inspected.",
+      "risk_id": "backward_lineage_not_yet_built",
+      "severity": "high"
+    },
+    {
+      "expected_action": "run forward snowballing or record metadata blocker",
+      "risk": "Major citing works and recent follow-ups are unknown until approved metadata or replay citations are inspected.",
+      "risk_id": "forward_frontier_not_yet_built",
+      "severity": "high"
+    },
+    {
+      "expected_action": "query adjacent candidates and record inclusion/exclusion reasons",
+      "risk": "Adjacent method clusters are unknown until topic expansion is run.",
+      "risk_id": "adjacent_clusters_not_yet_built",
+      "severity": "medium"
+    },
+    {
+      "next_action": "map proposed technical claims to anchor ids and review before prose drafting",
+      "reason": "Phase 6 has source anchors but no reviewed claim-support rows.",
+      "risk_id": "no_reviewed_supported_claims",
+      "severity": "high",
+      "status": "blocked"
+    },
+    {
+      "next_action": "run retraction, withdrawal, erratum, and version checks before using papers as support",
+      "reason": "Phase 5 quarantine ledger records retraction/version safety as not checked.",
+      "risk_id": "retraction_version_status_not_checked",
+      "severity": "high",
+      "status": "blocked"
+    }
+  ],
+  "schema_version": "ra-survey-public-source-omission-risk-v1",
+  "status": "omission_and_safety_risks_visible",
+  "topic": "Neural Optimal Transport"
+}

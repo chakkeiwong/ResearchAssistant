@@ -1,0 +1,134 @@
+{
+  "accepted_record_bytes": 968,
+  "candidates": [
+    {
+      "candidate_id": "p_meta_001",
+      "identifier": "arxiv:2201.12220v3",
+      "providers": [
+        "arxiv"
+      ],
+      "roles": [
+        "seed"
+      ]
+    },
+    {
+      "candidate_id": "p_meta_002",
+      "identifier": "arxiv:2201.12220v3",
+      "providers": [
+        "arxiv"
+      ],
+      "roles": [
+        "adjacent_method"
+      ]
+    }
+  ],
+  "claim_support_policy": "source availability is not technical claim support",
+  "counts": {
+    "available": 1,
+    "duplicate": 1,
+    "failed": 0,
+    "metadata_only": 0,
+    "not_attempted_cap": 0,
+    "quarantined": 0,
+    "unavailable": 0,
+    "unsupported_identifier": 0
+  },
+  "creation_generation_id": "g00000001-ffe2ee3eea54c7ff",
+  "discovery_budget": {
+    "allowed_domains": [
+      "api.openalex.org",
+      "arxiv.org",
+      "export.arxiv.org"
+    ],
+    "max_bytes_per_source": 52428800,
+    "max_metadata_records": 25,
+    "max_source_records": 5,
+    "providers": [
+      "arxiv",
+      "openalex"
+    ],
+    "write_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_duplicate_0/mission"
+  },
+  "metadata_authority": {
+    "build_manifest_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_duplicate_0/mission/public_metadata/build_manifest.json",
+    "build_manifest_sha256": "03105fe7b603a969768a718db08fd23023d5900782b2273febdc0d8ba329d989",
+    "build_manifest_size_bytes": 3246,
+    "candidate_count": 2,
+    "candidate_ledger_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_duplicate_0/mission/public_metadata/candidate_ledger.json",
+    "candidate_ledger_sha256": "d8806e1cd04b6c812313c479f2b437c2cbcd717caa236227b2eb12ee077cf343",
+    "candidate_ledger_size_bytes": 1389,
+    "candidate_set_sha256": "ef2f7c5f759f9c7dc943770ec61b4e53290b914f7eb5ad9a76a605e7300d9062",
+    "metadata_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_duplicate_0/mission/public_metadata",
+    "mission_fingerprint": "83429a93989192b05c733454c90d71e1258c46c80992ee13207d04d629bc42b0",
+    "mission_id": "5810f19e-1df9-4993-9d25-37047b3c5b2b",
+    "normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "normalized_topic_key": "neural optimal transport",
+    "schema_version": "ra-survey-source-intake-metadata-authority-v1"
+  },
+  "metadata_authority_sha256": "56f0504890467899fa4404c7c090248ba3ad46531530cbae016520821ae1eb5a",
+  "mission_contract_sha256": "1faec6bb61bb636626a5087f538c5f4b688348cbce0908795258d88a0fdaab56",
+  "mission_control_sha256": "df734589897becf4aee521f4b31cf4fb953f42067d1dcd5968da8a7b510c2e6c",
+  "mission_fingerprint": "83429a93989192b05c733454c90d71e1258c46c80992ee13207d04d629bc42b0",
+  "mission_id": "5810f19e-1df9-4993-9d25-37047b3c5b2b",
+  "next_action_sha256": "ac68818fee807a25c250a2fbf1cdab52f62665aa035f5943d6969829f9ee5f9a",
+  "next_required_actions": [
+    "validate available records and extract anchors",
+    "review source safety before technical claims"
+  ],
+  "normalized_seed_keys": [
+    "arxiv:2201.12220v3"
+  ],
+  "normalized_topic": {
+    "display": "Neural Optimal Transport",
+    "key": "neural optimal transport"
+  },
+  "outcomes": [
+    {
+      "candidate_id": "p_meta_001",
+      "candidate_index": 0,
+      "cap_kind": null,
+      "code": "available",
+      "final_url": "https://arxiv.org/abs/2201.12220",
+      "identifier": "arxiv:2201.12220v3",
+      "outcome_status": "available",
+      "paper_id": "paper_arxiv_2201_12220v3_2965c3197c3e",
+      "provider": "arxiv",
+      "source_record_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_duplicate_0/mission/local_research/papers/source/records/paper_arxiv_2201_12220v3_2965c3197c3e.json",
+      "source_record_sha256": "ae4bab7c7fcfadffe34f5b1215c5aca0414883946a99183bd932f89dcbcfaa5d",
+      "source_record_size_bytes": 968
+    },
+    {
+      "candidate_id": "p_meta_002",
+      "candidate_index": 1,
+      "cap_kind": null,
+      "code": "duplicate_identical",
+      "final_url": "https://arxiv.org/abs/9999.99999",
+      "identifier": "arxiv:2201.12220v3",
+      "outcome_status": "duplicate",
+      "paper_id": "paper_arxiv_2201_12220v3_2965c3197c3e",
+      "provider": "arxiv",
+      "source_record_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_replay_rejects_duplicate_0/mission/local_research/papers/source/records/paper_arxiv_2201_12220v3_2965c3197c3e.json",
+      "source_record_sha256": "ae4bab7c7fcfadffe34f5b1215c5aca0414883946a99183bd932f89dcbcfaa5d",
+      "source_record_size_bytes": 968
+    }
+  ],
+  "privacy_policy": "normalized structured fixture records only; no raw provider payload is persisted",
+  "public_discovery_confirmation": {
+    "confirmation_source": "cli",
+    "confirmed": true,
+    "confirmed_at": "2026-07-14T09:57:40+00:00"
+  },
+  "schema_version": "ra-survey-mission-source-intake-outcomes-v2",
+  "status": "completed_with_outcomes",
+  "what_is_not_concluded": [
+    "live provider reliability",
+    "source or parser correctness beyond fixtures",
+    "retraction or version safety",
+    "technical claim support or truth",
+    "literature or survey completeness",
+    "scientific correctness",
+    "final prose, product, or release readiness"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "action_id": "confirm_public_discovery",
+  "approval_required": true,
+  "blockers": [
+    "confirm_public_discovery"
+  ],
+  "created_at": "2026-07-14T10:02:44+00:00",
+  "forbidden_actions": [
+    "do not treat the topic as a paper seed",
+    "do not retry an indeterminate bootstrap call on ordinary resume",
+    "do not run provider, source, PDF, full-text, model-worker, or network actions in M17",
+    "do not expose prepared bootstrap evidence as effective seed authority"
+  ],
+  "gate_id": "topic_bootstrap",
+  "generation_id": "g00000001-a286c8f431e4271b",
+  "mission_fingerprint": "b34ed9801d843dc5414025bc46951e50047f21b18817dd4f06ffc97b77da8916",
+  "mission_id": "665431de-0b3a-4cc1-ba9e-298b6f1125bf",
+  "mission_status": "blocked_at_gate",
+  "public_discovery_confirmation": {
+    "confirmation_source": null,
+    "confirmed": false,
+    "confirmed_at": null,
+    "forbidden_actions": [
+      "credentials",
+      "private_databases",
+      "paid_model_worker_trials",
+      "hidden_evaluator_material",
+      "unbounded_crawling",
+      "writes_outside_mission_output",
+      "technical_claim_support_from_metadata_or_source_availability",
+      "final_prose_readiness_from_discovery_alone"
+    ],
+    "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+    "schema_version": "ra-survey-public-discovery-confirmation-v1",
+    "scope": {
+      "allowed_actions": [
+        "local_cache_lookup",
+        "bounded_public_web_api_metadata",
+        "public_archive_search",
+        "public_source_status_lookup",
+        "capped_public_source_pdf_full_text_retrieval"
+      ],
+      "allowed_domains": [
+        "api.openalex.org",
+        "export.arxiv.org",
+        "arxiv.org"
+      ],
+      "caps": {
+        "max_metadata_records": 25,
+        "write_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_cli_omitted_seed_unconfir0/cli-topic"
+      },
+      "output_dir": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_cli_omitted_seed_unconfir0/cli-topic",
+      "providers": [
+        "openalex",
+        "arxiv"
+      ],
+      "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+    },
+    "status": "confirmation_required",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "required_artifacts": [
+    "public_discovery_confirmation"
+  ],
+  "safe_next_commands": [
+    "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+  ],
+  "schema_version": "ra-survey-public-source-next-action-v1",
+  "status": "confirmation_required",
+  "summary": "Record the one mission-bound public-discovery confirmation before topic bootstrap.",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "artifact_set_id": "s-661ede5b7fccff84e632a16ae0ebe9a36b26cfa71cce537212745c8d1d192c92",
+  "metadata_only_papers": [
+    "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+  ],
+  "mission_anchor_generation_id": "g00000007-2c1fc01b10fc685e",
+  "mission_fingerprint": "8be2d829d7e03088cb121bbe19bbcb86444c70e040e5488040db8e829daf74ee",
+  "mission_id": "a053004d-55a3-4c82-a6b4-d1a8bf510c09",
+  "observation_authority_sha256": "0c51e09a295934f151ae8bece2c8a0b56c83421dbcc01a6dca7fe1d1feaf1ec9",
+  "review_policy": {
+    "complete_selected_decisions_required": true,
+    "omission_visibility_is_not_literature_completeness": true,
+    "reviewed_closure_is_current_scope_only": true
+  },
+  "risk_count": 7,
+  "risk_reconciliation": {
+    "complete_output_risk_ids": [
+      "or-02d30bf9707393ddcfece2de93e35fa5a29e462c1345581a44c60182fea8000b",
+      "or-2e4368fa0d36c506da5d9d8419cb18ebd78bc0b315ac49c967c7cd9e66bfe84f",
+      "or-3e8fb79926e0f7605b338efbb4d58398a681fe0ff61360c9a46bdfe10579482e",
+      "or-c7a8b30af664bc74b282ec140ba3e1fa4cf78b933318a40292584d74c4f5e969",
+      "or-c995985b933cf11b0fc67be13ac228baf6470984583fe7ecb101fe032b27b848",
+      "or-cd91e8ef785b24c454aecd2925d8902d2e0b80154388729a7fc11e7304219ed2",
+      "or-f5d4d944d10dbc1ac68143141d2ca43e138d15cd14e511a9a22fde08ef4c3062"
+    ],
+    "frontier_risk_ids": [
+      "or-3e8fb79926e0f7605b338efbb4d58398a681fe0ff61360c9a46bdfe10579482e",
+      "or-c995985b933cf11b0fc67be13ac228baf6470984583fe7ecb101fe032b27b848"
+    ],
+    "implicit_supersession_allowed": false,
+    "inherited_input_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+    "inherited_mappings": [
+      {
+        "inherited_risk_id": "source_text_not_inspected",
+        "inherited_row_index": 0,
+        "inherited_row_sha256": "465d3cb95738215bf20a65413b785ec7a8bbfcce4107f9f551455775864577ab",
+        "preserved_risk_id": "or-c7a8b30af664bc74b282ec140ba3e1fa4cf78b933318a40292584d74c4f5e969"
+      },
+      {
+        "inherited_risk_id": "public_metadata_frontier_partial",
+        "inherited_row_index": 1,
+        "inherited_row_sha256": "a72433bb34153bee30579b2788033f321eaa12e908b28a957c8463c54e72d4c0",
+        "preserved_risk_id": "or-02d30bf9707393ddcfece2de93e35fa5a29e462c1345581a44c60182fea8000b"
+      },
+      {
+        "inherited_risk_id": "metadata_relations_unverified",
+        "inherited_row_index": 2,
+        "inherited_row_sha256": "a57a4fb9eee63fa019fe4dc0ba8c13e565b2c2b6c125f4bc64f57be1d3bc8e04",
+        "preserved_risk_id": "or-cd91e8ef785b24c454aecd2925d8902d2e0b80154388729a7fc11e7304219ed2"
+      },
+      {
+        "inherited_risk_id": "forward_citation_frontier_blocked_or_empty",
+        "inherited_row_index": 3,
+        "inherited_row_sha256": "53310ed6e08a9f26e97a3c68e3a55de2dd53e7b7a5433e54832d76ee8883ba15",
+        "preserved_risk_id": "or-f5d4d944d10dbc1ac68143141d2ca43e138d15cd14e511a9a22fde08ef4c3062"
+      },
+      {
+        "inherited_risk_id": "backward_lineage_frontier_blocked_or_empty",
+        "inherited_row_index": 4,
+        "inherited_row_sha256": "9c812b1eeb627d7af445511de7e6458555b2ac6e7c88d32a067f89a7483258ff",
+        "preserved_risk_id": "or-2e4368fa0d36c506da5d9d8419cb18ebd78bc0b315ac49c967c7cd9e66bfe84f"
+      }
+    ],
+    "preserved_inherited_risk_ids": [
+      "or-02d30bf9707393ddcfece2de93e35fa5a29e462c1345581a44c60182fea8000b",
+      "or-2e4368fa0d36c506da5d9d8419cb18ebd78bc0b315ac49c967c7cd9e66bfe84f",
+      "or-c7a8b30af664bc74b282ec140ba3e1fa4cf78b933318a40292584d74c4f5e969",
+      "or-cd91e8ef785b24c454aecd2925d8902d2e0b80154388729a7fc11e7304219ed2",
+      "or-f5d4d944d10dbc1ac68143141d2ca43e138d15cd14e511a9a22fde08ef4c3062"
+    ],
+    "schema_version": "ra-survey-risk-reconciliation-v1"
+  },
+  "risks": [
+    {
+      "candidate_observation_id": null,
+      "claim_support_allowed": false,
+      "frontier_attempt_id": null,
+      "inherited_risk_id": "public_metadata_frontier_partial",
+      "inherited_row_index": 1,
+      "inherited_row_sha256": "a72433bb34153bee30579b2788033f321eaa12e908b28a957c8463c54e72d4c0",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "repeat with documented provider budgets and source checks before survey prose",
+      "reason": "OpenAlex/arXiv metadata queries are bounded by max_records and do not prove citation-map completeness.",
+      "risk_id": "or-02d30bf9707393ddcfece2de93e35fa5a29e462c1345581a44c60182fea8000b",
+      "risk_source_id": "public_metadata_frontier_partial",
+      "risk_source_type": "inherited_metadata_risk",
+      "severity": "high",
+      "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+      "status": "open"
+    },
+    {
+      "candidate_observation_id": null,
+      "claim_support_allowed": false,
+      "frontier_attempt_id": null,
+      "inherited_risk_id": "backward_lineage_frontier_blocked_or_empty",
+      "inherited_row_index": 4,
+      "inherited_row_sha256": "9c812b1eeb627d7af445511de7e6458555b2ac6e7c88d32a067f89a7483258ff",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "inspect source references or provider reference metadata before prose drafting",
+      "reason": "No backward-reference metadata rows are present for the seed in the bounded packet.",
+      "risk_id": "or-2e4368fa0d36c506da5d9d8419cb18ebd78bc0b315ac49c967c7cd9e66bfe84f",
+      "risk_source_id": "backward_lineage_frontier_blocked_or_empty",
+      "risk_source_type": "inherited_metadata_risk",
+      "severity": "high",
+      "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+      "status": "open"
+    },
+    {
+      "claim_support_allowed": false,
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "inspect or explicitly close the recorded backward frontier scope",
+      "reason": "no exact recorded relation exists for the required projection tuple",
+      "risk_id": "or-3e8fb79926e0f7605b338efbb4d58398a681fe0ff61360c9a46bdfe10579482e",
+      "risk_source_id": "fa-057e527581b2a0a7d4d8be267bf56d5dc6cf480bdabd8e27e896cff8dac0dedd",
+      "risk_source_type": "frontier_attempt",
+      "severity": "high",
+      "source_artifact_sha256": "8a08255edf5eebca189953adf5060c1a6705b1eddcd89f57f8e4660837585fc5",
+      "status": "open"
+    },
+    {
+      "candidate_observation_id": null,
+      "claim_support_allowed": false,
+      "frontier_attempt_id": null,
+      "inherited_risk_id": "source_text_not_inspected",
+      "inherited_row_index": 0,
+      "inherited_row_sha256": "465d3cb95738215bf20a65413b785ec7a8bbfcce4107f9f551455775864577ab",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "run source-aware audit after explicit source/download approval",
+      "reason": "No source text, equations, algorithms, experiments, related-work sections, or appendices were inspected.",
+      "risk_id": "or-c7a8b30af664bc74b282ec140ba3e1fa4cf78b933318a40292584d74c4f5e969",
+      "risk_source_id": "source_text_not_inspected",
+      "risk_source_type": "inherited_metadata_risk",
+      "severity": "high",
+      "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+      "status": "open"
+    },
+    {
+      "claim_support_allowed": false,
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "inspect or explicitly close the recorded forward frontier scope",
+      "reason": "no exact recorded relation exists for the required projection tuple",
+      "risk_id": "or-c995985b933cf11b0fc67be13ac228baf6470984583fe7ecb101fe032b27b848",
+      "risk_source_id": "fa-1d5544ad82eba9ddd6e2b1bc9ef2dda0b26e6cbb8ebce5d68cf9609dabe6313a",
+      "risk_source_type": "frontier_attempt",
+      "severity": "high",
+      "source_artifact_sha256": "8a08255edf5eebca189953adf5060c1a6705b1eddcd89f57f8e4660837585fc5",
+      "status": "open"
+    },
+    {
+      "candidate_observation_id": null,
+      "claim_support_allowed": false,
+      "frontier_attempt_id": null,
+      "inherited_risk_id": "metadata_relations_unverified",
+      "inherited_row_index": 2,
+      "inherited_row_sha256": "a57a4fb9eee63fa019fe4dc0ba8c13e565b2c2b6c125f4bc64f57be1d3bc8e04",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "verify relations against primary sources or provider-specific citation records",
+      "reason": "Backward, forward, and adjacent relations are provider metadata signals only.",
+      "risk_id": "or-cd91e8ef785b24c454aecd2925d8902d2e0b80154388729a7fc11e7304219ed2",
+      "risk_source_id": "metadata_relations_unverified",
+      "risk_source_type": "inherited_metadata_risk",
+      "severity": "medium",
+      "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+      "status": "open"
+    },
+    {
+      "candidate_observation_id": null,
+      "claim_support_allowed": false,
+      "frontier_attempt_id": null,
+      "inherited_risk_id": "forward_citation_frontier_blocked_or_empty",
+      "inherited_row_index": 3,
+      "inherited_row_sha256": "53310ed6e08a9f26e97a3c68e3a55de2dd53e7b7a5433e54832d76ee8883ba15",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "next_action": "resolve seed metadata to a provider citation id or record provider-blocked frontier before prose drafting",
+      "reason": "No forward-citation metadata rows are present for the seed in the bounded packet.",
+      "risk_id": "or-f5d4d944d10dbc1ac68143141d2ca43e138d15cd14e511a9a22fde08ef4c3062",
+      "risk_source_id": "forward_citation_frontier_blocked_or_empty",
+      "risk_source_type": "inherited_metadata_risk",
+      "severity": "high",
+      "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+      "status": "open"
+    }
+  ],
+  "schema_version": "ra-survey-omitted-paper-risks-v2",
+  "status": "omission_risks_visible",
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "what_is_not_concluded": [
+    "claim support",
+    "human review authenticity",
+    "literature completeness",
+    "live provider coverage",
+    "omission correctness",
+    "product readiness",
+    "scientific correctness",
+    "source safety"
+  ]
+}

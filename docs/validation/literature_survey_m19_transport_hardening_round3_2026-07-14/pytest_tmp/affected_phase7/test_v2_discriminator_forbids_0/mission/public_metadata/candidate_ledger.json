@@ -1,0 +1,85 @@
+{
+  "candidate_count": 1,
+  "duplicates": [],
+  "excluded": [],
+  "identity_resolution_path": "identity_resolution.json",
+  "included": [
+    {
+      "authors": [
+        "Alice Example"
+      ],
+      "citation_count": null,
+      "citation_count_policy": "coverage_signal_only",
+      "identifier": "arxiv:2201.12220v3",
+      "metadata_only": true,
+      "paper_key": "p_dq_a995b9386b6a30198112e8e5301ab9a6ac88e00cd937721eb3de3db554edb126",
+      "providers": [
+        "arxiv"
+      ],
+      "reason": "seed_authority",
+      "roles": [
+        "seed"
+      ],
+      "title": "Neural Optimal Transport",
+      "year": 2022
+    }
+  ],
+  "max_records": 25,
+  "next_required_actions": [
+    "inspect primary sources before supporting technical claims",
+    "run source/download status collection only after a separate approval",
+    "verify typed backward, forward, and adjacent metadata layers before prose drafting",
+    "inspect sources before converting metadata relations into survey claims"
+  ],
+  "provider_statuses": [
+    {
+      "normalized_seed_key": "arxiv:2201.12220v3",
+      "provider": "arxiv",
+      "query_cap": 5,
+      "query_kind": "seed_resolution",
+      "raw_response_saved": false,
+      "record_count": 1,
+      "status": "available",
+      "topic_query": false
+    },
+    {
+      "normalized_seed_key": null,
+      "provider": "arxiv",
+      "query_cap": 12,
+      "query_kind": "topic_search",
+      "raw_response_saved": false,
+      "record_count": 0,
+      "status": "available",
+      "topic_query": true
+    },
+    {
+      "normalized_seed_key": "arxiv:2201.12220v3",
+      "provider": "openalex",
+      "query_cap": 5,
+      "query_kind": "seed_resolution",
+      "raw_response_saved": false,
+      "record_count": 0,
+      "status": "available",
+      "topic_query": false
+    },
+    {
+      "normalized_seed_key": null,
+      "provider": "openalex",
+      "query_cap": 12,
+      "query_kind": "topic_search",
+      "raw_response_saved": false,
+      "record_count": 0,
+      "status": "available",
+      "topic_query": true
+    }
+  ],
+  "raw_response_policy": {
+    "privacy_scan": "not_applicable_raw_responses_not_saved",
+    "raw_responses_saved": false,
+    "reason": "fixture-only Phase 7 mission test"
+  },
+  "relevance_ranking_path": "relevance_ranking.json",
+  "schema_version": "ra-survey-candidate-ledger-v1",
+  "status": "metadata_only_public_v2",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

@@ -1,0 +1,228 @@
+{
+  "accounted_source_count": 1,
+  "accounted_sources": [
+    {
+      "accounting_result": "accounted_checked_clear",
+      "canonical_identifier": "openalex:w100",
+      "claim_dependencies": [
+        {
+          "canonical_identifier": "openalex:w100",
+          "claim_decision_sha256": "1c28e80d1aa05187bb7402a8e2be7b527f418285dcf3cf77fb9cdd830cbf1dda",
+          "claim_id": "fixture-reviewed-claim",
+          "claim_queue_item_id": "claim_candidate-66cc76eed7e63f5f0f725c5f",
+          "dependency_role": "primary_technical_source",
+          "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+          "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+        }
+      ],
+      "claim_support_allowed": true,
+      "queue_item_id": "source_safety-2d7a77e5241f0ec7ae0b776a",
+      "source_decision": "checked_clear",
+      "source_decision_sha256": "939eabd6aa7e471d237aebbff1fcddb109361ebfc114ee9dc55196e5a3c6f8f5",
+      "source_observation_id": "so-77eab7f95b0122fee9013dd0138a593c3054b0f4c68f292e8a0d2ee53318b220",
+      "source_observation_outcome": "checked_clear_for_recorded_checks",
+      "source_observation_sha256": "77eab7f95b0122fee9013dd0138a593c3054b0f4c68f292e8a0d2ee53318b220",
+      "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+      "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "source_reviewer_authority": "human_reviewed_status",
+      "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+    }
+  ],
+  "artifact_set_id": "s-7631d678258da88f809c0593933cf331c36db696c56c0eb3ff054490810c5f6d",
+  "claim_decision_set_id": "cd-e02ebce8fc4b551650f1ee1b724d48dec4ff4231a6253678ada170ba70bfd485",
+  "claim_decision_set_manifest_sha256": "a82c6412e86a2478f0bf3e63074005db3245bebd8d12752f6771472b16e84711",
+  "missing_dependencies": [],
+  "missing_dependency_count": 0,
+  "mission_anchor_generation_id": "g00000007-c6011038b1ff5c36",
+  "mission_fingerprint": "961a998fc343fbc16964d3de6c23f8b826aeb572a2aa2860bb28dda5aadacaca",
+  "mission_id": "6acce579-57ed-45df-b193-b49b1150cf94",
+  "omission_decision_set_id": "od-968687da59a5c9d2816f71de9fb4a29ce5fd798ede715ce5b67504520b109998",
+  "omission_decision_set_manifest_sha256": "857b3b435ada837304b3be0445f65b793b1e01c87048a9eda40623de0760af0d",
+  "open_quarantine_risk_count": 2,
+  "open_quarantine_risks": [
+    {
+      "blocker_code": "open_quarantine_risk",
+      "candidate_observation": {
+        "cap_state": "within_cap",
+        "carrier_query_provenance": [
+          {
+            "normalized_seed_key": "openalex:w100",
+            "provider": "openalex",
+            "query_kind": "seed_resolution",
+            "topic_query": false
+          }
+        ],
+        "claim_support_allowed": false,
+        "classification_signals": {
+          "citation_count": null,
+          "matched_count": 0,
+          "matched_tokens": [],
+          "recorded_roles": [],
+          "relevance_disposition": null,
+          "signals_are_navigation_only": true
+        },
+        "depth": 1,
+        "direction": "backward",
+        "frontier_attempt_id": "fa-30ce70abb2c5d872a7bbbed12ec06e969e3b11a1462e1c03fbbe467bb5b1a3dd",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "quarantine",
+        "matched_query_provenance": null,
+        "mechanism_kind": "recorded_reference_projection",
+        "observation_id": "fo-598be84969e0ae6d1701265e90ce1901d59495f44e0bdbcdeae171e2e1842f35",
+        "observation_status": "source_blocked",
+        "observed_at": "2026-07-12T00:00:00+00:00",
+        "origin_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+        "provider": "openalex",
+        "query_kind": null,
+        "reason": "source_blocked:quarantine",
+        "relation": "backward_reference_metadata",
+        "source_artifact_role": "identity_resolution.json",
+        "source_artifact_sha256": "d89761030d63d0a8ba62f1b71a52483380feb54f85794a3171e127750b303f94",
+        "target_conflict_id": null,
+        "target_id": "openalex:w300",
+        "target_paper_id": null,
+        "traversal_order": 1
+      },
+      "claim_support_allowed": false,
+      "closure_authorized": false,
+      "literature_completeness_allowed": false,
+      "machine_disposition": "quarantine",
+      "omission_decision": "blocked_pending_source",
+      "omission_decision_sha256": "f380d49b9f6e6b633fffc85e3a649edc2c0676fcd00df50ba3ee516d89b6696f",
+      "omission_status": "open",
+      "queue_item_id": "omission_risk-d29725cecde32e2be5a40522",
+      "risk_id": "or-14bd59ecf04aed4432b92fcafc743b90432d3cb1918308cb4008cdbd01016106",
+      "risk_source_id": "fo-598be84969e0ae6d1701265e90ce1901d59495f44e0bdbcdeae171e2e1842f35",
+      "risk_source_type": "candidate_observation",
+      "source_artifact_sha256": "d89761030d63d0a8ba62f1b71a52483380feb54f85794a3171e127750b303f94",
+      "source_identity_match_count": 0,
+      "source_identity_matches": []
+    },
+    {
+      "blocker_code": "open_quarantine_risk",
+      "candidate_observation": {
+        "cap_state": "within_cap",
+        "carrier_query_provenance": [
+          {
+            "normalized_seed_key": "openalex:w100",
+            "provider": "openalex",
+            "query_kind": "seed_resolution",
+            "topic_query": false
+          }
+        ],
+        "claim_support_allowed": false,
+        "classification_signals": {
+          "citation_count": null,
+          "matched_count": 0,
+          "matched_tokens": [],
+          "recorded_roles": [],
+          "relevance_disposition": null,
+          "signals_are_navigation_only": true
+        },
+        "depth": 1,
+        "direction": "backward",
+        "frontier_attempt_id": "fa-30ce70abb2c5d872a7bbbed12ec06e969e3b11a1462e1c03fbbe467bb5b1a3dd",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "quarantine",
+        "matched_query_provenance": null,
+        "mechanism_kind": "recorded_reference_projection",
+        "observation_id": "fo-ae5bbc26d2141e487a05e7bdd5001e04641ed7814565be3fc5af0b9a9523fa2b",
+        "observation_status": "source_blocked",
+        "observed_at": "2026-07-12T00:00:00+00:00",
+        "origin_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+        "provider": "openalex",
+        "query_kind": null,
+        "reason": "source_blocked:quarantine",
+        "relation": "backward_reference_metadata",
+        "source_artifact_role": "identity_resolution.json",
+        "source_artifact_sha256": "d89761030d63d0a8ba62f1b71a52483380feb54f85794a3171e127750b303f94",
+        "target_conflict_id": null,
+        "target_id": "openalex:w999",
+        "target_paper_id": null,
+        "traversal_order": 2
+      },
+      "claim_support_allowed": false,
+      "closure_authorized": false,
+      "literature_completeness_allowed": false,
+      "machine_disposition": "quarantine",
+      "omission_decision": "blocked_pending_source",
+      "omission_decision_sha256": "491b54f9093feed3d43a7677cb16bd94368739976745cc73c87cf6bfd7aece01",
+      "omission_status": "open",
+      "queue_item_id": "omission_risk-f9ca9948f427431f85883fb7",
+      "risk_id": "or-077704be4103e87568f025caf692237cf7b7dbe7a87358555bc096670e2d5426",
+      "risk_source_id": "fo-ae5bbc26d2141e487a05e7bdd5001e04641ed7814565be3fc5af0b9a9523fa2b",
+      "risk_source_type": "candidate_observation",
+      "source_artifact_sha256": "d89761030d63d0a8ba62f1b71a52483380feb54f85794a3171e127750b303f94",
+      "source_identity_match_count": 0,
+      "source_identity_matches": []
+    }
+  ],
+  "queue_semantic_sha256": "fcae009a19dbf2b1b619a1b8b46390e929e6cebafa046ae362024cd9a79f27c3",
+  "ready_for_prose": false,
+  "ready_for_reviewed_packet": false,
+  "review_queue_sha256": "837392ba4c94e5cf9bf759616792405617d440d333e14a0cf87ef2044c4b2954",
+  "schema_version": "ra-survey-reviewed-source-accounting-v1",
+  "selected_source_count": 1,
+  "selected_sources": [
+    {
+      "canonical_identifier": "openalex:w100",
+      "claim_support_allowed": true,
+      "queue_item_id": "source_safety-2d7a77e5241f0ec7ae0b776a",
+      "source_decision": "checked_clear",
+      "source_decision_sha256": "939eabd6aa7e471d237aebbff1fcddb109361ebfc114ee9dc55196e5a3c6f8f5",
+      "source_observation_id": "so-77eab7f95b0122fee9013dd0138a593c3054b0f4c68f292e8a0d2ee53318b220",
+      "source_observation_outcome": "checked_clear_for_recorded_checks",
+      "source_observation_sha256": "77eab7f95b0122fee9013dd0138a593c3054b0f4c68f292e8a0d2ee53318b220",
+      "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+      "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "source_reviewer_authority": "human_reviewed_status",
+      "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+    }
+  ],
+  "source_decision_set_id": "sd-e67b3753558d8ab5b7e00217179876e2544d4679c95027df089f06d177877ebb",
+  "source_decision_set_manifest_sha256": "5f43aa3b6afd226b8f8374bd5df978c4603287c96ada63cf9857d4481916275a",
+  "source_observation_set_id": "ss-c02436b2382b2e1ea059e9abe7408761cf9f75766ad62b69bc15a3cc39f01448",
+  "source_observation_set_manifest_sha256": "1bdf35d314bdc86e6d3b716434b01f9366d836d13401c1c7ac9c644fe2f06fb2",
+  "status": "blocked_source_accounting",
+  "support_dependencies": [
+    {
+      "canonical_identifier": "openalex:w100",
+      "claim_dependencies": [
+        {
+          "canonical_identifier": "openalex:w100",
+          "claim_decision_sha256": "1c28e80d1aa05187bb7402a8e2be7b527f418285dcf3cf77fb9cdd830cbf1dda",
+          "claim_id": "fixture-reviewed-claim",
+          "claim_queue_item_id": "claim_candidate-66cc76eed7e63f5f0f725c5f",
+          "dependency_role": "primary_technical_source",
+          "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+          "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+        }
+      ],
+      "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+      "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+    }
+  ],
+  "support_dependency_count": 1,
+  "unsafe_dependency_count": 0,
+  "unused_included_source_count": 0,
+  "unused_included_sources": [],
+  "what_is_not_concluded": [
+    "human or model review quality",
+    "claim truth",
+    "source safety in fact",
+    "omission correctness",
+    "literature completeness",
+    "final prose readiness",
+    "product readiness",
+    "real-agent reliability",
+    "scientific correctness"
+  ]
+}

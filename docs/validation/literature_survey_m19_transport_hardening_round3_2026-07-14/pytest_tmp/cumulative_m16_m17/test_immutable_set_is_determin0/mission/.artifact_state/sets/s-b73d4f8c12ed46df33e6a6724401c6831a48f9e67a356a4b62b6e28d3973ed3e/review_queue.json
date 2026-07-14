@@ -1,0 +1,94 @@
+{
+  "allowed_item_statuses": [
+    "blocked_pending_evidence"
+  ],
+  "artifact_set_id": "s-b73d4f8c12ed46df33e6a6724401c6831a48f9e67a356a4b62b6e28d3973ed3e",
+  "coverage_exact_digests": {
+    "backward_snowball.json": {
+      "sha256": "219e39095263abd7447c66646cd9d334bbf90dcb4219d12c24b97a6775456fc5",
+      "size_bytes": 462
+    },
+    "citation_venue_metadata.json": {
+      "sha256": "b37aa031197ae3ad436371f5f786bf0f85f235546e954650c3b4b0418384c0d6",
+      "size_bytes": 468
+    },
+    "coverage_manifest.json": {
+      "sha256": "ce1625f13fa1a760efe7f9840ab6cf00aa8804347a0c842682b9e75555a21442",
+      "size_bytes": 2338
+    },
+    "forward_snowball.json": {
+      "sha256": "ea00bf612b922adecb8b1e886bfe4fa7d63790a37082be1b11456d3983b8f2f1",
+      "size_bytes": 461
+    },
+    "omitted_paper_risks.json": {
+      "sha256": "21289deb1139914ad70918144bad09939491f2b98b15960063ed4dbb9cb5901d",
+      "size_bytes": 464
+    },
+    "paper_classifications.json": {
+      "sha256": "9ce4791ec1e6b98e80b50b17b3f863cfeb397b756c8f7aafaa327ed98afb3e2c",
+      "size_bytes": 466
+    }
+  },
+  "coverage_lineage_sha256": "c84901ea185ca87679593e129bef3a3256c1cf6e3074656d78e765883809219e",
+  "coverage_semantic_digests": {
+    "backward_snowball.json": "9aad447490cc6d73922924b7b0fa56047ec8c805a2f5bdfe31947b24698109ff",
+    "citation_venue_metadata.json": "eccc6b24c2e6da6f2d1cea280643f6ce3afbd6e3cdbba53ae2f4d5508d2263c5",
+    "forward_snowball.json": "d1ff69fdb0916e4f187aab74f2f9d11e66050d3f87e264e568c40bf9919398aa",
+    "omitted_paper_risks.json": "8b26afae033302859c0a3f54746bbf0c49b6040a54bf1d48861d22d7c6b25b22",
+    "paper_classifications.json": "81ef7219c1b40ea263a666a216b2ab846c3dc9c6ff83a950702752515082c7ee"
+  },
+  "forbidden_promotions": [
+    "workflow blockers cannot be cleared by queue creation"
+  ],
+  "items": [
+    {
+      "action_required": "resolve the blocker",
+      "item_id": "workflow_blocker-2ad4ebddb41d937e3ea7bbdc",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "Inspect unresolved frontier",
+      "semantic_item_sha256": "2ad4ebddb41d937e3ea7bbdcaf0a64bf22c0d16d1dd8195e9194fb6f94f3deca",
+      "source_id": "60b8bbf126d268e21bb9ca344ea822306d7baede2ce2d12b53ab0ad34d42bc84",
+      "status": "blocked_pending_evidence"
+    }
+  ],
+  "mission_anchor_generation_id": "g00000001-8171c8ec136c7c0b",
+  "mission_fingerprint": "63b5b4978795a3ba5376dcc7b0b85cf5c5f8a53a05cb9017ef76eff47eb565af",
+  "mission_id": "11111111-1111-4111-8111-111111111111",
+  "packet_input_digests": {
+    "build_manifest": {
+      "relative_path": "build_manifest.json",
+      "sha256": "007c28c8373bdbd5cf6d4d30d4c8379a466b89c55ee0db7c30a591dda658e1ac",
+      "size_bytes": 70
+    },
+    "claim_support": {
+      "relative_path": "claim_support.json",
+      "sha256": "f032eaeeccede4094b442f6421c138aea8b2949c1b774c0b07d764a336f06207",
+      "size_bytes": 52
+    },
+    "source_safety_status": {
+      "relative_path": "source_safety_status.json",
+      "sha256": "fb7baa6b532a8cc6d7ec0f3f6aec33b60e133780f01c0a25430e407f65a47e67",
+      "size_bytes": 40
+    }
+  },
+  "queue_counts": {
+    "by_priority": {
+      "None": 1
+    },
+    "by_status": {
+      "blocked_pending_evidence": 1
+    },
+    "by_type": {
+      "workflow_blocker": 1
+    },
+    "total": 1
+  },
+  "queue_semantic_sha256": "00fd09ec29fdd5a28d82caabab5feedc3fea5272f6c6bad36bf7dee02906f950",
+  "schema_version": "ra-survey-public-source-review-queue-v2",
+  "status": "review_required",
+  "topic": "fixture topic",
+  "what_is_not_concluded": [
+    "literature completeness"
+  ]
+}

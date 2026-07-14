@@ -1,0 +1,87 @@
+{
+  "accepted_claim_count": 1,
+  "artifact_set_id": "s-0f53e971a955f008cd32e16589d11bedd37ddceb9912fd1d8e6c4bf9302d4078",
+  "claims": [
+    {
+      "anchor_ids": [
+        "section:sec:method"
+      ],
+      "claim_id": "fixture-reviewed-technical-claim",
+      "claim_support_allowed": true,
+      "claim_text": "The exact fixture source contains the recorded Method section.",
+      "claim_type": "paper_technical",
+      "decision_sha256": "73488c98dfcd02d6024024527da59ed53a2d4ea55372fc5fc601346e2a087333",
+      "dependency_graph_sha256": "01266b9d6bea6742244b4bcb4daeba73d3a1d280934870112274ea819bd342f7",
+      "dependency_manifests": [
+        {
+          "direct_source_paper_ids": [
+            "paper_openalex_w100_fc9a224b790d"
+          ],
+          "evidence_kind": "primary_technical_support",
+          "local_artifact": null,
+          "local_artifact_sha256": null,
+          "manifest_id": "dm-01c54f0315d82294dfb195f4945eea06ae2172346fdccfe20af5022898ea3360",
+          "referenced_manifest_ids": [],
+          "schema_version": "ra-survey-claim-dependency-manifest-v1"
+        }
+      ],
+      "evidence_note": "Synthetic fixture review for engineering state-transition tests only.",
+      "fixture_only": true,
+      "omission_review_required": true,
+      "paper_ids": [
+        "paper_openalex_w100_fc9a224b790d"
+      ],
+      "queue_item_id": "claim_candidate-66cc76eed7e63f5f0f725c5f",
+      "ready_for_prose": false,
+      "review_status": "human_reviewed_passed",
+      "reviewed_at": "2026-07-12T04:03:00Z",
+      "reviewer": "synthetic-fixture-reviewer",
+      "root_dependency_manifest_id": "dm-01c54f0315d82294dfb195f4945eea06ae2172346fdccfe20af5022898ea3360",
+      "source_dependencies": [
+        {
+          "canonical_identifier": "openalex:w100",
+          "dependency_role": "primary_technical_source",
+          "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+          "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+          "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+        }
+      ],
+      "source_safety_required": true,
+      "support_class": "primary_technical_support"
+    }
+  ],
+  "coverage_errors": [],
+  "created_at": "2026-07-12T04:04:00Z",
+  "decision_coverage_complete": true,
+  "decision_set_id": "cd-8b4b8d7b006d266661915af31e2bd34d75275719bb44b57de3b90f41fd2968bf",
+  "decisions_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_claim_decision_crash_r2/mission/reviewed_claims/decision_sets/cd-8b4b8d7b006d266661915af31e2bd34d75275719bb44b57de3b90f41fd2968bf/reviewed_claim_decisions.json",
+  "decisions_sha256": "7ff8fe2e5ac1afd41528e1a7b0b91d10bd756cd258f5c56edd88977b8af5d41d",
+  "decisions_size_bytes": 2572,
+  "mission_anchor_generation_id": "g00000007-e75a3d0866d71b68",
+  "mission_fingerprint": "6f88958d600cf719a9daa6bef510a0aa6d3bb4063364e16b80b1648ac473c60a",
+  "mission_id": "71d78061-27b0-4475-93e1-430308106cf9",
+  "queue_semantic_sha256": "8136f542eae45e21f430cc6561f118ce5c89d33fb4c5ccaa17fa4c260399d155",
+  "ready_for_prose": false,
+  "ready_for_reviewed_packet": false,
+  "rejected_claim_count": 0,
+  "rejected_claims": [],
+  "required_item_ids": [
+    "claim_candidate-66cc76eed7e63f5f0f725c5f"
+  ],
+  "review_queue_sha256": "d8bcc809da57e423c8d632ef6a75eaeb8f85190e5a7ffe78c92eb8162ff16bc9",
+  "schema_version": "ra-survey-reviewed-claims-v3",
+  "status": "reviewed_claims_complete",
+  "supplied_item_ids": [
+    "claim_candidate-66cc76eed7e63f5f0f725c5f"
+  ],
+  "what_is_not_concluded": [
+    "source safety",
+    "literature completeness",
+    "final prose readiness",
+    "live web coverage",
+    "product readiness",
+    "real-agent reliability",
+    "scientific correctness"
+  ]
+}

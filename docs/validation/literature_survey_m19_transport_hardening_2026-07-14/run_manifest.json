@@ -1,0 +1,84 @@
+{
+  "schema_version": "ra-literature-survey-m19a-run-manifest-v1",
+  "status": "local_hardening_validation_passed_pending_terminal_review",
+  "milestone": "M19A_transport_supervisor_hardening",
+  "plan": "docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_subplan_2026-07-14.md",
+  "result": "docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_result_2026-07-14.md",
+  "validation_root": "docs/validation/literature_survey_m19_transport_hardening_2026-07-14",
+  "commit_lineage": {
+    "m18_closeout": "e7f1499e135757c0460c040f3fa317e6bdd56dc9",
+    "m19_product_candidate": "23e218b563e2e554c02c1ac063fea1f73034edf4",
+    "validated_hardening_commit": "945332f891e40cc02d53806bc3ca4b2157cc51e0",
+    "validated_tree": "2f963ecc094b34d89c5a72399abfd0d06d6e0f12",
+    "single_parent_lineage_verified": true
+  },
+  "environment": {
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "python": "3.11.14",
+    "pytest": "9.0.2",
+    "build": "1.5.1",
+    "conda_environment": "tf-gpu",
+    "cuda_visible_devices": "-1",
+    "gpu_used": false,
+    "network_used": false,
+    "live_provider_or_source_action": false
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "root": "/tmp/ra_m19_transport_repair_final_gate_attempt01",
+      "status": "invalid_harness",
+      "classification": "unsupported_pytest_option_and_missing_pipeline_failure_propagation",
+      "evidence": "/tmp/ra_m19_transport_repair_final_gate_attempt01/logs/transport.log",
+      "evidence_sha256": "3b6f949436ed584e6561076e89071514fc9999e3d26e8d1fc92f26e29612de70",
+      "product_failure": false
+    },
+    {
+      "attempt": 2,
+      "root": "/tmp/ra_m19_transport_repair_final_gate_attempt02",
+      "status": "invalid_harness",
+      "classification": "in_repository_full_cli_basetemp_changed_path_redaction_semantics",
+      "result": "124_passed_1_failed",
+      "junit_sha256": "87d72379c76a9b5b7fbbd9f2856c701710765355d53e653c0fec514cea62f84d",
+      "log_sha256": "09d806a6af7e226f59e4f7149a20fb3c1d7f2693024bb89d66f131f5252d9b74",
+      "product_failure": false
+    },
+    {
+      "attempt": 3,
+      "status": "passed",
+      "classification": "authoritative_local_validation",
+      "full_cli_external_basetemp": "/tmp/ra_m19_full_cli_basetemp_attempt03",
+      "full_cli_external_basetemp_retained": true,
+      "full_cli_external_basetemp_authoritative_or_hashed": false
+    }
+  ],
+  "commands": {
+    "provenance": "Normalized invocations reconstructed after the editor crash from the reviewed plan, JUnit targets, logs, and basetemp artifacts; the exact shell wrapper text was not retained.",
+    "common_environment": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 PYTHONDONTWRITEBYTECODE=1",
+    "compile": "python -m py_compile src/research_assistant/survey/build.py scripts/literature_survey_m19_live_metadata_supervisor.py tests/unit/test_literature_survey_m19_transport.py tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py",
+    "transport": "python -m pytest -q tests/unit/test_literature_survey_m19_transport.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/transport --junitxml=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/junit/transport.xml",
+    "supervisor": "python -m pytest -q tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/supervisor --junitxml=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/junit/supervisor.xml",
+    "affected_phase7": "python -m pytest -q tests/unit/test_literature_survey_m16_phase7.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/affected_phase7 --junitxml=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/junit/affected_phase7.xml",
+    "cumulative_m16_m17": "python -m pytest -q tests/unit/test_literature_survey_m16.py tests/unit/test_literature_survey_m16_phase2.py tests/unit/test_literature_survey_m16_phase3.py tests/unit/test_literature_survey_m16_phase4.py tests/unit/test_literature_survey_m16_phase5.py tests/unit/test_literature_survey_m16_phase6.py tests/unit/test_literature_survey_m16_phase7.py tests/unit/test_literature_survey_m16_phase8.py tests/unit/test_literature_survey_m16_phase9.py tests/unit/test_literature_survey_m17.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17 --junitxml=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/junit/cumulative_m16_m17.xml",
+    "full_cli": "python -m pytest -q tests/integration/test_cli_commands.py -p no:cacheprovider --basetemp=/tmp/ra_m19_full_cli_basetemp_attempt03 --junitxml=docs/validation/literature_survey_m19_transport_hardening_2026-07-14/junit/full_cli.xml",
+    "isolated_replay": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 PYTHONDONTWRITEBYTECODE=1 /tmp/ra_m19_isolated_945332f/venv/bin/python -m pytest -q tests/unit/test_literature_survey_m19_transport.py tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py -p no:cacheprovider --basetemp=/tmp/ra_m19_isolated_945332f/pytest_tmp_closeout"
+  },
+  "isolated_clone": {
+    "root": "/tmp/ra_m19_isolated_945332f",
+    "offline_build_initial_attempt": "failed_harness_build_isolation_requested_setuptools_from_no_index",
+    "repair": "rerun_with_no_build_isolation",
+    "offline_wheel_build_and_install": "passed",
+    "wheel": "research_assistant-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "13515518229e9542ef581924c3205f3fa0bee60501bddf3be41012a25718d315",
+    "installed_import_origin": "/tmp/ra_m19_isolated_945332f/venv/lib/python3.11/site-packages/research_assistant",
+    "focused_tests": 54,
+    "focused_failures": 0,
+    "focused_runtime_seconds": 4.38
+  },
+  "data_version": "repository fixtures and deterministic fake-provider rows at commit 945332f891e40cc02d53806bc3ca4b2157cc51e0",
+  "random_seeds": "N/A: deterministic boundary engineering checks",
+  "credentials_used": false,
+  "push_performed": false,
+  "release_performed": false,
+  "live_execution_status": "DO_NOT_EXECUTE_LIVE"
+}
