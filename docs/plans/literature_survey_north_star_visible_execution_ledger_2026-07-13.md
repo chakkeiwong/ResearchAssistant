@@ -1,7 +1,7 @@
 # Literature Survey North-Star Visible Execution Ledger
 
 Date: `2026-07-13`
-Status: `M17_PASSED_M18_PLAN_REVIEW_PENDING`
+Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
 
 ## Ledger Contract
 
@@ -454,3 +454,32 @@ Gate status: `PASSED_LOCAL_ENGINEERING_GIT_INTEGRATION_PENDING`
   or release action has occurred.
 
 Gate status: `M18_EXECUTION_READY_PENDING_MATERIAL_PLAN_REVIEW`
+
+The pre-review payload digest `c378d271...` above is a superseded planning
+snapshot. The final reviewed/committed payload digest is `0d225f29575778e606f096fda058cb0386dcd967a82284f5aa37a4c5638bd318`.
+
+### 2026-07-14 - M18 - CANDIDATE_VALIDATION_AND_TERMINAL_REVIEW_PASSED
+
+- Material plan review converged at round 4 with fresh Codex read-only
+  `VERDICT: AGREE`; Claude export was policy-rejected before invocation and
+  was not retried.
+- Candidate `654e6e1a1213bc03b7693ff1a8aea945a5bf08ac` is the exact
+  single-parent child of `1b36af0...` and contains `1,725` reviewed paths.
+- Attempt 1 passed payload `1,684/1,684`, offline wheel build/install, `49/49`
+  import origins, `89/89` wheel/source members, `65` focused M17, `846`
+  cumulative M16+M17, `13/13` persistent cases, `12` scripts, `1,047` full
+  unit, `125` CLI, `18` arXiv compatibility, `22` SurveyBench, and `2` Phase
+  10 portability tests.
+- Six protected dirty paths remained byte-identical and excluded; the real
+  index returned empty. No live/provider/source/GPU/push/release action ran.
+- Terminal review round 1 found missing row-level import/wheel evidence and an
+  actual-command ledger. Round 2 accepted the inventories but found command
+  fidelity defects. The focused evidence repair corrected them without
+  changing/rerunning the candidate. Round 3 returned `VERDICT: AGREE`.
+- M19 was refreshed from actual candidate/environment/transport facts and is
+  planning-only with `DO_NOT_EXECUTE_LIVE`.
+
+Gate status: `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY_M19_PLANNING_ONLY`
+
+Next action: create and skeptically audit the dedicated M19 transport/
+supervisor-hardening child subplan. Do not execute a live request.

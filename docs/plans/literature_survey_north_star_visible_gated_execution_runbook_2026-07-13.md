@@ -1,7 +1,7 @@
 # Literature Survey North-Star Visible Gated Execution Runbook
 
 Date: `2026-07-13`
-Status: `M17_PASSED_M18_ACTIVE`
+Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
 
 ## Role Contract
 
@@ -38,8 +38,8 @@ successful setup or M17 pass is not mission completion.
 | Milestone | Name | Dedicated subplan | Required result artifact | Initial authority |
 | --- | --- | --- | --- | --- |
 | M17 | Idea And Topic Bootstrap | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_result_2026-07-13.md` | `PASSED_LOCAL_ENGINEERING_GIT_INTEGRATION_PENDING` |
-| M18 | Reproducible Git Integration | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_result_2026-07-13.md` | Active refresh and review under current policy |
-| M19 | Bounded Live Metadata Validation | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
+| M18 | Reproducible Git Integration | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_result_2026-07-14.md` | `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` |
+| M19 | Bounded Live Metadata Validation | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md` | `REFRESHED_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE` |
 | M20 | Live Discovery And Citation Frontier | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M21 | Live Source Status And Anchor Intake | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M22 | Human-Attested Review And Real Missions | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
@@ -354,10 +354,11 @@ Stop and update the handoff when continuing requires:
 
 ## Current Launch Gate
 
-M17 passed its local implementation, regression, artifact-closure, and
-independent review gates. M18 is active and may execute after its actual-M17
-subplan, exact path manifest, skeptical audit, and material plan review pass.
-M19-M23 remain non-executable until refreshed from their actual predecessor.
+M18 passed its candidate, isolated clone, offline wheel, origin, regression,
+artifact-closure, and terminal review gates. M19 is the sole active planning
+lane. Its exact next safe action is the dedicated transport/supervisor-
+hardening child subplan and skeptical audit. `DO_NOT_EXECUTE_LIVE` remains in
+force; M20-M23 remain non-executable until refreshed from their predecessor.
 
 ## Final Visible Handoff
 

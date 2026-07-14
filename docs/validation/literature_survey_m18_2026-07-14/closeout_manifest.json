@@ -1,0 +1,30 @@
+{
+  "schema_version": "ra-literature-survey-m18-closeout-manifest-v1",
+  "status": "pending_docs_evidence_only_commit",
+  "candidate_commit": "654e6e1a1213bc03b7693ff1a8aea945a5bf08ac",
+  "required_parent_relationship": "closeout commit must be an exact single-parent child of candidate_commit",
+  "allowed_path_classes": [
+    "docs/plans M18 result/close and north-star controls",
+    "docs/reviews M18 terminal bundle/verdicts",
+    "docs/validation/literature_survey_m18_2026-07-14 compact summaries and provenance inventories"
+  ],
+  "forbidden_path_classes": [
+    "src",
+    "tests",
+    "scripts",
+    "protected dirty paths",
+    "wheel binaries",
+    "raw trace logs",
+    "environments and caches"
+  ],
+  "required_post_commit_replay": [
+    "single-parent relation to candidate",
+    "candidate payload replay 1684/1684",
+    "offline candidate wheel build/install in a fresh closeout clone",
+    "all discovered research_assistant imports under the closeout replay venv",
+    "installed ra help exposes survey run-public-source-workflow",
+    "installed topic-only smoke exits zero at confirmation false without live action",
+    "six protected dirty worktree hashes remain unchanged"
+  ],
+  "self_hash_nonclaim": "This manifest cannot name the hash of the commit containing itself. The actual closeout hash and replay result are written only after commit to /tmp/ra_m18_closeout_record.json."
+}

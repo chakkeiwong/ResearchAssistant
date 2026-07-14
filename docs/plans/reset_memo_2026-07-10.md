@@ -279,3 +279,29 @@ hardening convergence plus fresh exact live-access approval.
   review. Claude is responsive but Opus/max first-token latency can exceed 90
   seconds; use tiny health probes, self-contained micro-contracts, and bounded
   synthesis verdicts rather than accepting silence or fallback agreement.
+
+## M18 Closeout Checkpoint - 2026-07-14
+
+This checkpoint supersedes the older M17/M18 next-step prose above.
+
+M18 passed local Git/install reproducibility at candidate
+`654e6e1a1213bc03b7693ff1a8aea945a5bf08ac`, parent `1b36af0...`.
+The exact candidate contains `1,725` paths; all `1,684` payload rows replayed
+with digest `0d225f29575778e606f096fda058cb0386dcd967a82284f5aa37a4c5638bd318`.
+Attempt 1 built and installed wheel `891e1...` offline and passed all local
+candidate gates. Terminal read-only review converged at round 3 after adding
+row-level import/wheel provenance and a faithful command/procedure ledger.
+
+`G0` and `G1` are now locally closed. Remaining north-star gaps are `G2-G7`:
+bounded live metadata, real citation discovery, real source/status and anchors,
+genuine human-attested review, representative real missions, and independent
+operator/operational closeout. The north-star mission is not accomplished.
+
+M19 is now the sole planning-only lane. Its refreshed parent remains
+`DO_NOT_EXECUTE_LIVE`. The next safe action is a dedicated transport/
+supervisor-hardening child subplan and skeptical audit. Live OpenAlex/arXiv
+access still requires converged hardening, exact frozen routes/caps/hashes,
+fresh material review, and fresh exact user approval.
+
+No push, live provider/source action, GPU, credential, release, or destructive
+Git action occurred in M18. Preserve the unrelated dirty/untracked worktree.

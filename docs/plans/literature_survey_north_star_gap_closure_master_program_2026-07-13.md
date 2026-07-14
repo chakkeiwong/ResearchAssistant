@@ -1,7 +1,7 @@
 # Literature Survey North-Star Gap-Closure Master Program
 
 Date: `2026-07-13`
-Status: `M17_PASSED_M18_ACTIVE`
+Status: `M18_PASSED_M19_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE`
 
 ## North-Star Mission
 
@@ -21,8 +21,9 @@ ra survey run-public-source-workflow \
 ```
 
 The first form is the idea/topic input mode implemented and locally validated
-in M17. The second preserves the explicit title/identifier input mode. Live
-bootstrap quality and clean-install reproducibility remain outside M17.
+in M17. The second preserves the explicit title/identifier input mode. M18 now
+establishes identified local Git/install reproducibility in the observed
+environment. Live bootstrap quality remains outside M17/M18.
 
 The workflow asks once for bounded public discovery, persists that decision,
 executes every permitted local and public discovery step, exposes genuine human
@@ -39,7 +40,11 @@ unbounded sources.
 
 ## Current Authority
 
-M17 passed as `PASSED_LOCAL_ENGINEERING_GIT_INTEGRATION_PENDING`, extending the
+M18 passed as `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` at candidate
+`654e6e1a1213bc03b7693ff1a8aea945a5bf08ac`. It integrates the M17-passed
+local alpha into an identified single-parent Git commit and reproduces it from
+an isolated clone and offline-installed wheel in the observed Python 3.11/WSL
+environment. M17 had extended the
 M16 local integrated alpha with honest topic-only identity, immutable bootstrap
 authority, five closed outcomes, and unchanged explicit-seed V2 behavior. The
 local integrated alpha has exact mission identity and lineage, one-confirmation orchestration, acyclic
@@ -54,11 +59,11 @@ Controlling artifacts:
 - `docs/reviews/literature_survey_m16_phase10_implementation_review_verdict_round5_2026-07-13.md`; and
 - `docs/plans/literature_survey_automation_milestones.json` v2.
 
-M17's final evidence includes `1,671` successor-manifest paths, all `1,137`
-canonical Phase 10 members, all `38` direct Phase 10 logical rows, and six
-JUnit records totaling `2,117` tests with zero failures, errors, or skips. This
-evidence is fixture-backed and tied to the current dirty worktree; it is not
-live, human-authenticated, clean-checkout, or product evidence.
+M18's candidate contains `1,725` exact paths and replays all `1,684` payload
+rows. Eight authoritative JUnit files contain `2,137` executed testcases with
+overlap and zero failures, errors, or skips; the M17 persistent matrix passes
+`13/13`. This evidence is local and fixture-backed. It is not live,
+human-authenticated, scientific, or product-readiness evidence.
 
 ## Visible Execution Artifact Index
 
@@ -68,12 +73,12 @@ only. No detached runner is authorized.
 
 | Role | Exact artifact | Current setup state |
 | --- | --- | --- |
-| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | M17 passed; M18 active |
+| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | M18 passed; M19 planning only |
 | Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Setup pass and review trail recorded |
-| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M17 passed; M18 active |
+| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M18 passed; M19 live forbidden |
 | M17 subplan | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | Passed local engineering |
-| M18 subplan | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | Refresh in progress from actual M17 authority |
-| M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
+| M18 subplan | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | Passed local Git/install reproducibility |
+| M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `REFRESHED_PLANNING_ONLY_DO_NOT_EXECUTE_LIVE` |
 | M20 subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M22 subplan | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
@@ -95,7 +100,7 @@ acceptance environments.
 | Gap | Current quantity/capability | Required north-star quantity/capability | Verdict | Closing milestone |
 | --- | --- | --- | --- | --- |
 | G0 Idea/topic bootstrap | Topic-only missions preserve empty original seeds, stable identity, confirmed bootstrap, exact five-way outcomes, and unchanged explicit-seed V2 behavior | Stable topic/idea input mode, confirmed bootstrap discovery, exact selected/empty/ambiguous authority, and unchanged explicit-seed behavior | Closed locally; live quality remains G2/G3 | M17 |
-| G1 Reproducible Git integration | M16 passes in a heavily dirty, partly untracked worktree; the current proposed integration manifest covers primarily Phase 10 artifacts | A path-complete identified commit installs and reproduces all local-alpha runtime/test dependencies from an isolated clean checkout | Missing | M18 |
+| G1 Reproducible Git integration | Candidate `654e6e1...` contains the exact reviewed cumulative payload and passes isolated clone, offline wheel, origin, topic/seed, and local regression gates | A path-complete identified commit installs and reproduces all local-alpha runtime/test dependencies from an isolated clean checkout | Closed in observed environment; bare-machine/cross-platform remains M23 acceptance scope | M18 |
 | G2 Bounded live metadata | OpenAlex/arXiv code and a detailed Phase 11 plan exist; three plan reviews returned `REVISE`; no live M16 call ran | Converged hardening and parent plan, fresh exact approval, then one boundary-valid metadata-only attempt with a closed request ledger | Missing | M19 |
 | G3 Real citation discovery | M16 validates fixture metadata and recorded-relation projections; no production backward/forward frontier run is M16 authority | Reviewed production adapters with dated provider provenance, complete attempt dispositions, ambiguity handling, and bounded live evidence | Missing | M20 |
 | G4 Real source/status and anchors | `MissionSourceCapability` is a closed injectable fixture interface; existing general fetch commands are not yet the reviewed mission transport | Approved production source/status and capped source/PDF/full-text adapters, mission-local hashed records, quarantine, and checked anchor candidates | Missing | M21 |

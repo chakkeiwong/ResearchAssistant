@@ -1,0 +1,74 @@
+{
+  "schema_version": "ra-literature-survey-m18-run-manifest-v1",
+  "status": "candidate_validation_passed",
+  "candidate_commit": "654e6e1a1213bc03b7693ff1a8aea945a5bf08ac",
+  "candidate_parent": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "candidate_tree": "074de2d38287af139d767c67680868bf8d055f03",
+  "candidate_subject": "Integrate literature survey local alpha",
+  "attempt": 1,
+  "attempt_root": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01",
+  "plan": "docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md",
+  "result": "docs/plans/literature_survey_north_star_m18_reproducible_git_integration_result_2026-07-14.md",
+  "git": {
+    "version": "2.34.1",
+    "candidate_parent_count": 1,
+    "candidate_changed_path_count": 1725,
+    "index_empty_after_candidate_commit": true,
+    "push_performed": false,
+    "history_rewrite_performed": false
+  },
+  "environment": {
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "python": "3.11.14",
+    "pytest": "9.0.2",
+    "build": "1.5.1",
+    "strace": "5.16",
+    "venv_system_site_packages": true,
+    "pip_no_index": true,
+    "pythonpath_unset": true,
+    "cuda_visible_devices": "-1",
+    "gpu_used": false,
+    "external_network_allowed_by_platform_for_test_suites": false
+  },
+  "payload": {
+    "artifact_count": 1684,
+    "control_count": 40,
+    "stage_record_count": 1,
+    "committed_path_count": 1725,
+    "payload_sha256": "0d225f29575778e606f096fda058cb0386dcd967a82284f5aa37a4c5638bd318",
+    "payload_manifest_file_sha256": "caaa7291729958755a11bddabe8470afa1d98d16c726fdacd3244511f68343e6",
+    "stage_record_sha256": "8db52bdf4d7f87d7cadedd711646b1661c7a189ce308f4f9a239c524d6294aa4",
+    "replay_match_count": 1684,
+    "replay_mismatch_count": 0
+  },
+  "wheel": {
+    "filename": "research_assistant-0.1.0-py3-none-any.whl",
+    "sha256": "891e1e152d4d53fec3287b8209514b47383d9d2d85a02671b9e4358b343dcee2",
+    "source_python_file_count": 89,
+    "installed_python_file_count": 89,
+    "archive_member_count": 94,
+    "discovered_import_count_including_package_root": 49,
+    "all_import_origins_under_attempt_venv": true,
+    "console_script_interpreter_under_attempt_venv": true
+  },
+  "provenance_inventories": {
+    "generator": "docs/validation/literature_survey_m18_2026-07-14/generate_inventory.py",
+    "import_origins": "docs/validation/literature_survey_m18_2026-07-14/import_origin_inventory.json",
+    "wheel_source_members": "docs/validation/literature_survey_m18_2026-07-14/wheel_source_inventory.json",
+    "actual_commands": "docs/validation/literature_survey_m18_2026-07-14/command_manifest.json",
+    "status": "added_after_terminal_review_round_1"
+  },
+  "timing": {
+    "candidate_committed_at": "2026-07-14T11:53:18+08:00",
+    "first_junit_completed_at": "2026-07-14T11:59:19+08:00",
+    "last_junit_completed_at": "2026-07-14T12:31:31+08:00",
+    "authoritative_wall_time_minutes_approximate": 39,
+    "budget_minutes": 120
+  },
+  "data_version": "repository fixtures and canonical M16/M17 evidence at candidate commit",
+  "random_seeds": "N/A: deterministic fixture and integration validation",
+  "live_provider_or_source_action": false,
+  "credentials_used": false,
+  "release_performed": false,
+  "closeout_commit_self_hash_nonclaim": "The future docs/evidence-only closeout commit cannot contain its own commit hash. Its actual hash is recorded only after commit in /tmp/ra_m18_closeout_record.json."
+}

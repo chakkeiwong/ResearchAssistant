@@ -1,0 +1,40 @@
+{
+  "schema_version": "ra-literature-survey-m18-gate-summary-v1",
+  "status": "passed",
+  "candidate_commit": "654e6e1a1213bc03b7693ff1a8aea945a5bf08ac",
+  "authoritative_junit": [
+    {"gate": "focused_m17", "tests": 65, "failures": 0, "errors": 0, "skipped": 0, "sha256": "532b5d0386fef7052dd384833b522b1dd40c23aaf64ba3ff22aa9453d64d2257"},
+    {"gate": "cumulative_m16_m17", "tests": 846, "failures": 0, "errors": 0, "skipped": 0, "sha256": "70b7eefef8badc70f8ec4a8b2c4d773b665a3e44f43fb32cdf0afd3a4f982f01"},
+    {"gate": "exact_scripts", "tests": 12, "failures": 0, "errors": 0, "skipped": 0, "sha256": "dc02b92c0a10437044e82629861350f473c3927984ac8c156974d8b9fce58678"},
+    {"gate": "full_unit", "tests": 1047, "failures": 0, "errors": 0, "skipped": 0, "sha256": "000f73d312dd91e20c7bdf662f13a7c2e78702bae1cf29d99b1ad87228a3b814"},
+    {"gate": "full_cli", "tests": 125, "failures": 0, "errors": 0, "skipped": 0, "sha256": "6e2161e70ee04f865dbdb94403f139ffcf19310ef7bf90d118c5418beb90867a"},
+    {"gate": "arxiv_batch_compatibility", "tests": 18, "failures": 0, "errors": 0, "skipped": 0, "sha256": "1dbc297fa05e48d9a02dc411f8332b0c563cd2a0b9970f9a3c93aee7ab83cb2b"},
+    {"gate": "surveybench_restricted_agent", "tests": 22, "failures": 0, "errors": 0, "skipped": 0, "sha256": "ffd3a5730d414d4eb09c16f49dc4db842ff46fd3e5254819572ff35667d0c9b9"},
+    {"gate": "phase10_path_rebase", "tests": 2, "failures": 0, "errors": 0, "skipped": 0, "sha256": "5245c00e65a7153e64757214503ff74f5dbe3740aa84f0926c8b00b27cfe9b81"}
+  ],
+  "executed_testcase_total_with_overlap": 2137,
+  "persistent_matrix": {
+    "cases": 13,
+    "passed": 13,
+    "failed": 0,
+    "sha256": "dd408f81df921caad9d7e10b46e55a8f847c6907f462d9099900cad38d7235e5"
+  },
+  "non_junit_gates": {
+    "candidate_audit": "passed_with_exact_17_frozen_whitespace_exceptions",
+    "payload_replay": "1684_of_1684_zero_mismatch",
+    "wheel_build_install": "passed_offline",
+    "package_origin": "49_of_49_under_attempt_venv",
+    "wheel_source_coverage": "89_of_89_zero_missing_zero_extra",
+    "installed_topic_cli": "exit_0_confirmation_false",
+    "installed_explicit_seed_cli": "exit_0_confirmation_false",
+    "protected_dirty_paths": "six_of_six_byte_identical_before_after"
+  },
+  "diagnostic_only": [
+    {
+      "artifact": "junit/phase10_path_rebase.xml",
+      "sha256": "ed3818418c23f7449a0151398d2c3ae9abdf974920ed38407c5d4053fc0da18b",
+      "reason": "mistaken selector collected zero tests; superseded by phase10_path_rebase_pass.xml"
+    }
+  ],
+  "interpretation": "Counts summarize deterministic engineering gates and overlap. They do not support statistical ranking, live behavior, scientific correctness, or product readiness."
+}

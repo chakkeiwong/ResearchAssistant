@@ -5,18 +5,18 @@
   "command_surface": "ra survey run-public-source-workflow --topic <topic> [--seed <paper>] --out <mission-dir>",
   "current_command_surface": "ra survey run-public-source-workflow --topic <topic> [--seed <paper>] --out <mission-dir>",
   "target_input_modes": ["idea_or_topic_without_initial_paper_seed", "paper_title", "doi", "arxiv_identifier", "other_supported_paper_identifier"],
-  "updated_at": "2026-07-13",
+  "updated_at": "2026-07-14",
   "authoritative_status": {
-    "status": "M17_LOCAL_ENGINEERING_COMPLETE_M18_ACTIVE",
-    "completed_milestone": "M17_idea_topic_bootstrap",
-    "completed_scope": "M16 Phases 0-10 plus M17 local fixture-backed topic/bootstrap engineering",
-    "git_integration": "active_local_integration_not_yet_reproduced",
+    "status": "M18_LOCAL_GIT_INSTALL_REPRODUCIBILITY_COMPLETE_M19_PLANNING_ONLY",
+    "completed_milestone": "M18_reproducible_git_integration",
+    "completed_scope": "M16 Phases 0-10, M17 topic/bootstrap engineering, and M18 identified local Git/install reproducibility in the observed environment",
+    "git_integration": "candidate_654e6e1_isolated_clone_and_wheel_passed",
     "live_execution": "not_run",
     "north_star_mission": "in_progress",
-    "authority": "docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_result_2026-07-13.md"
+    "authority": "docs/plans/literature_survey_north_star_m18_local_close_record_2026-07-14.md"
   },
   "active_milestones": [
-    "M18_reproducible_git_integration"
+    "M19_bounded_live_metadata_validation"
   ],
   "north_star_sequence": [
     "M17_idea_topic_bootstrap",
@@ -34,7 +34,6 @@
     "always_separate_boundaries": "Credentials, private or paid sources, hidden data, unbounded crawling, writes outside the mission, genuine human review decisions, product defaults, and release remain separate explicit decisions."
   },
   "remaining_gap_ids": [
-    "G1_reproducible_git_integration",
     "G2_bounded_live_metadata",
     "G3_live_citation_discovery",
     "G4_live_source_and_anchor_intake",
@@ -50,6 +49,7 @@
     "active_planning_local_only": "The milestone is the current local planning lane; it authorizes neither live action nor Git mutation.",
     "active_planning_no_git_action_authorized": "Historical setup state: the milestone was a Git planning lane with no mutation authority.",
     "active_local_integration": "The milestone is the active trusted-local integration lane under the user's execute/resume request and current repository policy; push, release, destructive actions, and later external boundaries remain unauthorized.",
+    "completed_local_git_install_reproducibility": "An identified commit passed the declared isolated clone, offline wheel, origin, payload, and local regression gates in the observed environment; no live or product-readiness claim follows.",
     "completed_local_engineering_git_integration_pending": "The milestone's local engineering and review gates passed; clean Git integration and later live/product evidence remain outside the claim.",
     "pending": "The milestone has not met its entry conditions or promotion criterion."
   },
@@ -946,7 +946,7 @@
     {
       "id": "M18_reproducible_git_integration",
       "name": "Reproducible Git Integration",
-      "status": "active_local_integration",
+      "status": "completed_local_git_install_reproducibility",
       "objective": "Define and execute a bounded integration of the cumulative M16+M17 product, schemas, tests, fixtures, documentation, historical evidence, and governing artifacts so an isolated clean checkout reproduces both idea/topic and explicit-paper workflow modes.",
       "entry_conditions": [
         "M17 idea/topic bootstrap and the inherited M16 explicit-seed matrix pass under the cumulative M17 successor manifest.",
@@ -997,7 +997,7 @@
     {
       "id": "M19_bounded_live_metadata_validation",
       "name": "Bounded Live Metadata Validation",
-      "status": "pending",
+      "status": "active_planning_local_only",
       "objective": "Converge the transport-hardening plan and run one explicitly approved, one-shot, metadata-only OpenAlex/arXiv integration smoke with closed HTTP, time, byte, retry, redirect, proxy, IPC, artifact, and write boundaries.",
       "entry_conditions": [
         "M18 clean-checkout authority exists.",
