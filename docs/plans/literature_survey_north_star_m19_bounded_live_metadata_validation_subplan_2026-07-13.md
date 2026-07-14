@@ -28,8 +28,9 @@ does not authorize any live request.
 | M18 stage record | `8db52bdf4d7f87d7cadedd711646b1661c7a189ce308f4f9a239c524d6294aa4` | `1,725` committed paths |
 | M18 wheel | `891e1e152d4d53fec3287b8209514b47383d9d2d85a02671b9e4358b343dcee2` | Offline build/install passed |
 | M18 environment | WSL2 x86_64, Python `3.11.14`, Git `2.34.1` | CPU-only, `CUDA_VISIBLE_DEVICES=-1` |
-| M18 terminal review | Pending at this refresh | Must agree before M18 close |
-| M18 closeout commit | Future docs/evidence-only direct child | Actual self hash must live only in `/tmp/ra_m18_closeout_record.json` |
+| M18 terminal review | `docs/reviews/literature_survey_m18_terminal_review_verdict_round3_2026-07-14.md` | Fresh Codex read-only `AGREE` |
+| M18 closeout commit | `e7f1499e135757c0460c040f3fa317e6bdd56dc9` | Exact docs/evidence-only direct child of candidate |
+| M18 closeout replay | `/tmp/ra_m18_closeout_record.json` | Passed; SHA-256 `4de376567d321f3b91956292b2db2bbf3936197b335d5af36be5703971ac0019` |
 
 The old M16 Phase 11 plan is historical and previously nonconverged. It is not
 executable authority. No later dirty worktree byte may silently replace the

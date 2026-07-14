@@ -4,12 +4,15 @@ import hashlib
 import json
 import os
 import re
+import socket
+import ssl
 import tempfile
 import time
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -51,6 +54,12 @@ PUBLIC_METADATA_ALLOWED_PROVIDERS = {"openalex", "arxiv"}
 PUBLIC_METADATA_DEFAULT_PROVIDERS = ["openalex", "arxiv"]
 PUBLIC_METADATA_MAX_RECORDS = 25
 PUBLIC_METADATA_TIMEOUT_SECONDS = 30
+PUBLIC_METADATA_RESPONSE_CAP_BYTES = 2_000_000
+PUBLIC_METADATA_USER_AGENT = "research-assistant-m19/0.1 (bounded-metadata-validation)"
+PUBLIC_METADATA_OPENALEX_SELECT = (
+    "id,display_name,authorships,publication_year,doi,cited_by_count,"
+    "referenced_works,ids,type,publication_date"
+)
 SURVEY_CLASSIFICATION_ALLOWED_LABELS = [
     "seed",
     "foundational",
@@ -119,6 +128,7 @@ def build_survey_evidence_packet(
     replay_responses_dir: Path | None = None,
     public_metadata_providers: list[str] | None = None,
     max_records: int = PUBLIC_METADATA_MAX_RECORDS,
+    _request_outcome_sink: Any | None = None,
 ) -> dict[str, Any]:
     """Create the first product-shaped packet for topic+seed survey automation.
 
@@ -197,6 +207,7 @@ def build_survey_evidence_packet(
             output_dir=output_dir,
             providers=public_metadata_providers,
             max_records=max_records,
+            request_outcome_sink=_request_outcome_sink,
         )
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -490,6 +501,7 @@ def _build_public_metadata_packet(
     output_dir: Path,
     providers: list[str] | None,
     max_records: int,
+    request_outcome_sink: Any | None = None,
 ) -> dict[str, Any]:
     normalized_seeds = normalize_seeds(seeds)
     seeds = [row["display"] for row in normalized_seeds]
@@ -569,12 +581,20 @@ def _build_public_metadata_packet(
 
     fetched_at = _utc_now_iso()
     try:
-        collection = _collect_public_metadata(
-            topic=topic,
-            seeds=seeds,
-            providers=provider_list,
-            max_records=max_records,
-            fetched_at=fetched_at,
+        collection_args = {
+            "topic": topic,
+            "seeds": seeds,
+            "providers": provider_list,
+            "max_records": max_records,
+            "fetched_at": fetched_at,
+        }
+        collection = (
+            _collect_public_metadata(**collection_args)
+            if request_outcome_sink is None
+            else _collect_public_metadata(
+                **collection_args,
+                _request_outcome_sink=request_outcome_sink,
+            )
         )
         quality = evaluate_discovery_quality(
             topic=topic,
@@ -591,6 +611,8 @@ def _build_public_metadata_packet(
             max_records=max_records,
         )
     except MissionStateError as exc:
+        if request_outcome_sink is not None:
+            raise
         return _blocked(
             exc.code,
             str(exc),
@@ -1120,6 +1142,113 @@ def _normalize_public_metadata_providers(providers: list[str] | None) -> list[st
     return sorted(normalized)
 
 
+def _m19_route_binding(row: dict[str, Any]) -> str:
+    return hashlib.sha256(canonical_json_bytes(row)).hexdigest()
+
+
+def _collect_public_metadata_m19(
+    *,
+    topic: str,
+    seeds: list[str],
+    providers: list[str],
+    max_records: int,
+    outcome_sink: Any,
+) -> dict[str, Any]:
+    if seeds != ["arxiv:2201.12220v3"] or providers != ["arxiv", "openalex"] or max_records != 10:
+        raise MissionStateError("m19_scope_mismatch", "M19 strict metadata scope is frozen to one seed, two providers, max_records=10")
+    routes = [
+        ("arxiv", "seed_resolution", "arxiv:2201.12220v3", False, 5),
+        ("arxiv", "topic_search", None, True, 10),
+        ("openalex", "seed_resolution", "arxiv:2201.12220v3", False, 5),
+        ("openalex", "topic_search", None, True, 10),
+    ]
+    records: list[dict[str, Any]] = []
+    statuses: list[dict[str, Any]] = []
+    for index, (provider, query_kind, seed_key, topic_query, cap) in enumerate(routes, start=1):
+        if provider == "arxiv":
+            if query_kind == "seed_resolution":
+                query = {
+                    "start": "0", "max_results": "5", "sortBy": "relevance",
+                    "sortOrder": "descending", "id_list": "2201.12220v3",
+                }
+            else:
+                query = {
+                    "start": "0", "max_results": "10", "sortBy": "relevance",
+                    "sortOrder": "descending", "search_query": f"all:{' '.join(topic.split())}",
+                }
+            path = "/api/query"
+            host = "export.arxiv.org"
+            accept = "application/atom+xml"
+            parser = lambda body, qk=query_kind: _parse_arxiv_metadata_records(body, query_kind=qk)
+        else:
+            query = {
+                "search": "arxiv:2201.12220v3" if query_kind == "seed_resolution" else topic,
+                "per-page": str(cap),
+                "select": PUBLIC_METADATA_OPENALEX_SELECT,
+            }
+            path = "/works"
+            host = "api.openalex.org"
+            accept = "application/json"
+            def parser(body: bytes, qk: str = query_kind) -> list[dict[str, Any]]:
+                payload = json.loads(body)
+                if not isinstance(payload, dict) or set(payload) - {"meta", "results", "group_by"} or not isinstance(payload.get("results"), list):
+                    raise json.JSONDecodeError("OpenAlex response shape is invalid", "", 0)
+                if any(not isinstance(row, dict) for row in payload["results"]):
+                    raise json.JSONDecodeError("OpenAlex result row is invalid", "", 0)
+                return [_normalize_openalex_metadata_record(row, query_kind=qk) for row in payload.get("results", [])]
+        query_text = urllib.parse.urlencode(sorted(query.items()))
+        route = {
+            "request_index": index,
+            "provider": provider,
+            "query_kind": query_kind,
+            "method": "GET",
+            "scheme": "https",
+            "hostname": host,
+            "port": 443,
+            "path": path,
+            "query": dict(sorted(query.items())),
+            "headers": {"Accept": accept, "User-Agent": PUBLIC_METADATA_USER_AGENT},
+        }
+        binding = _m19_route_binding(route)
+        result = _m19_request(
+            provider=provider, query_kind=query_kind, normalized_seed_key=seed_key,
+            topic_query=topic_query, request_index=index,
+            url=f"https://{host}{path}?{query_text}", path=path,
+            query_keys=list(query), request_binding_sha256=binding,
+            accept=accept, parser=parser, record_cap=cap, sink=outcome_sink,
+        )
+        rows = []
+        for source in result["records"][:cap]:
+            record = dict(source)
+            record["roles"] = list(dict.fromkeys([
+                *(record.get("roles") or []),
+                *(["adjacent_method"] if topic_query else []),
+            ]))
+            record["query_provenance"] = [{
+                "provider": provider, "query_kind": query_kind,
+                "normalized_seed_key": seed_key, "topic_query": topic_query,
+            }]
+            normalize_record(record)
+            rows.append(record)
+        records.extend(rows)
+        statuses.append({
+            "provider": provider, "query_kind": query_kind,
+            "normalized_seed_key": seed_key, "topic_query": topic_query,
+            "query_cap": cap, "status": result["status"]["status"],
+            "record_count": len(rows), "raw_response_saved": False,
+        })
+    return {
+        "status": "metadata_collected" if records else "metadata_empty_or_unavailable",
+        "fetched_at": _utc_now_iso(), "records": records,
+        "provider_statuses": statuses,
+        "raw_response_policy": {
+            "raw_responses_saved": False,
+            "privacy_scan": "not_applicable_raw_responses_not_saved",
+            "reason": "M19 closed transport does not persist provider responses.",
+        },
+    }
+
+
 def _collect_public_metadata(
     *,
     topic: str,
@@ -1127,7 +1256,15 @@ def _collect_public_metadata(
     providers: list[str],
     max_records: int,
     fetched_at: str,
+    _request_outcome_sink: Any | None = None,
 ) -> dict[str, Any]:
+    if _request_outcome_sink is not None:
+        collection = _collect_public_metadata_m19(
+            topic=topic, seeds=seeds, providers=providers, max_records=max_records,
+            outcome_sink=_request_outcome_sink,
+        )
+        collection["fetched_at"] = fetched_at
+        return collection
     if len(seeds) > max_records:
         raise MissionStateError(
             "seed_count_exceeds_metadata_cap",
@@ -1414,6 +1551,321 @@ def _year_delta(left: int | None, right: int | None) -> int | None:
     if left is None or right is None:
         return None
     return abs(int(left) - int(right))
+
+
+class _M19RedirectRejected(Exception):
+    def __init__(self, code: int, url: str) -> None:
+        super().__init__(code)
+        self.code = code
+        self.url = url
+
+
+class _M19NoRedirect(urllib.request.HTTPRedirectHandler):
+    def http_error_301(self, req: Any, fp: Any, code: int, msg: str, headers: Any) -> Any:
+        raise _M19RedirectRejected(code, req.full_url)
+
+    http_error_302 = http_error_301
+    http_error_303 = http_error_301
+    http_error_307 = http_error_301
+    http_error_308 = http_error_301
+
+
+def _m19_outcome(
+    *,
+    provider: str,
+    query_kind: str,
+    normalized_seed_key: str | None,
+    topic_query: bool,
+    request_index: int,
+    method: str,
+    scheme: str,
+    hostname: str,
+    path: str,
+    query_keys: list[str],
+    request_binding_sha256: str,
+    status: str,
+    error_class: str | None,
+    error_code: str | None,
+    final_url: str | None = None,
+    accepted_payload_bytes: int = 0,
+    diagnostic_overflow_bytes: int = 0,
+    normalized_record_count: int = 0,
+    observed_elapsed_seconds: float = 0.0,
+) -> dict[str, Any]:
+    final = urllib.parse.urlparse(final_url) if final_url else None
+    return {
+        "request_index": request_index,
+        "provider": provider,
+        "query_kind": query_kind,
+        "normalized_seed_key": normalized_seed_key,
+        "topic_query": topic_query,
+        "method": method,
+        "scheme": scheme,
+        "requested_hostname": hostname,
+        "requested_port": 443,
+        "requested_path": path,
+        "query_keys": sorted(query_keys),
+        "request_binding_sha256": request_binding_sha256,
+        "final_scheme": final.scheme if final else None,
+        "final_hostname": final.hostname if final else None,
+        "final_port": final.port or 443 if final else None,
+        "final_path": final.path if final else None,
+        "redirect_count": 0,
+        "retry_count": 0,
+        "configured_timeout_seconds": PUBLIC_METADATA_TIMEOUT_SECONDS,
+        "observed_elapsed_seconds": observed_elapsed_seconds,
+        "accepted_payload_bytes": accepted_payload_bytes,
+        "diagnostic_overflow_bytes": diagnostic_overflow_bytes,
+        "normalized_record_count": normalized_record_count,
+        "status": status,
+        "sanitized_error_class": error_class,
+        "sanitized_error_code": error_code,
+        "raw_response_saved": False,
+    }
+
+
+def _m19_request(
+    *,
+    provider: str,
+    query_kind: str,
+    normalized_seed_key: str | None,
+    topic_query: bool,
+    request_index: int,
+    url: str,
+    path: str,
+    query_keys: list[str],
+    request_binding_sha256: str,
+    accept: str,
+    parser: Any,
+    record_cap: int,
+    sink: Any,
+) -> dict[str, Any]:
+    started = time.perf_counter()
+    parsed = urllib.parse.urlparse(url)
+    host = "api.openalex.org" if provider == "openalex" else "export.arxiv.org"
+
+    def emit(value: dict[str, Any]) -> None:
+        try:
+            sink(value)
+        except Exception as exc:
+            raise MissionStateError("m19_outcome_sink_failed", "M19 request outcome sink failed") from exc
+
+    invalid_code = None
+    query_pairs = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    query = dict(query_pairs)
+    expected_query_keys = (
+        {"per-page", "search", "select"}
+        if provider == "openalex"
+        else {"max_results", "sortBy", "sortOrder", "start", "id_list" if query_kind == "seed_resolution" else "search_query"}
+    )
+    if parsed.username is not None or parsed.password is not None:
+        invalid_code = "userinfo_forbidden"
+    elif parsed.fragment:
+        invalid_code = "fragment_forbidden"
+    elif parsed.scheme != "https":
+        invalid_code = "invalid_scheme"
+    elif parsed.hostname != host:
+        invalid_code = "invalid_host"
+    elif parsed.port not in (None, 443):
+        invalid_code = "invalid_port"
+    elif parsed.path != path:
+        invalid_code = "invalid_path"
+    elif len(query_pairs) != len(query) or set(query) != expected_query_keys or sorted(query_keys) != sorted(expected_query_keys):
+        invalid_code = "invalid_query_keys"
+    else:
+        actual_route = {
+            "request_index": request_index,
+            "provider": provider,
+            "query_kind": query_kind,
+            "method": "GET",
+            "scheme": "https",
+            "hostname": host,
+            "port": 443,
+            "path": path,
+            "query": dict(sorted(query.items())),
+            "headers": {"Accept": accept, "User-Agent": PUBLIC_METADATA_USER_AGENT},
+        }
+        if _m19_route_binding(actual_route) != request_binding_sha256:
+            invalid_code = "request_binding_mismatch"
+    if invalid_code is not None:
+        emit(_m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme=parsed.scheme,
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="blocked_invalid_request",
+            error_class="request_validation", error_code=invalid_code,
+            observed_elapsed_seconds=time.perf_counter() - started,
+        ))
+        raise MissionStateError("m19_invalid_request", "M19 route contract rejected request")
+    outcome: dict[str, Any]
+    records: list[dict[str, Any]] = []
+
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _M19NoRedirect())
+    request = urllib.request.Request(
+        url,
+        headers={"Accept": accept, "User-Agent": PUBLIC_METADATA_USER_AGENT},
+        method="GET",
+    )
+    try:
+        with opener.open(request, timeout=PUBLIC_METADATA_TIMEOUT_SECONDS) as response:
+            final_url = response.geturl()
+            final = urllib.parse.urlparse(final_url)
+            if (
+                final.scheme != parsed.scheme
+                or final.hostname != parsed.hostname
+                or final.port not in (None, 443)
+                or final.path != parsed.path
+                or urllib.parse.parse_qsl(final.query, keep_blank_values=True)
+                != urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+            ):
+                raise MissionStateError("m19_final_url_mismatch", "M19 response URL drifted")
+            content_length = response.headers.get("Content-Length")
+            if content_length is not None:
+                try:
+                    if int(content_length) > PUBLIC_METADATA_RESPONSE_CAP_BYTES:
+                        outcome = _m19_outcome(
+                            provider=provider, query_kind=query_kind,
+                            normalized_seed_key=normalized_seed_key, topic_query=topic_query,
+                            request_index=request_index, method="GET", scheme="https",
+                            hostname=host, path=path, query_keys=query_keys,
+                            request_binding_sha256=request_binding_sha256,
+                            status="unavailable_oversized", error_class="payload",
+                            error_code="content_length_cap_exceeded",
+                            final_url=final_url,
+                            observed_elapsed_seconds=time.perf_counter() - started,
+                        )
+                        emit(outcome)
+                        return {"records": [], "status": {"status": "unavailable"}}
+                except ValueError:
+                    pass
+            body = response.read(PUBLIC_METADATA_RESPONSE_CAP_BYTES + 1)
+            if len(body) > PUBLIC_METADATA_RESPONSE_CAP_BYTES:
+                outcome = _m19_outcome(
+                    provider=provider, query_kind=query_kind,
+                    normalized_seed_key=normalized_seed_key, topic_query=topic_query,
+                    request_index=request_index, method="GET", scheme="https",
+                    hostname=host, path=path, query_keys=query_keys,
+                    request_binding_sha256=request_binding_sha256,
+                    status="unavailable_oversized", error_class="payload",
+                    error_code="stream_cap_exceeded", final_url=final_url,
+                    diagnostic_overflow_bytes=1,
+                    observed_elapsed_seconds=time.perf_counter() - started,
+                )
+                emit(outcome)
+                return {"records": [], "status": {"status": "unavailable"}}
+            try:
+                records = parser(body)[:record_cap]
+            except (json.JSONDecodeError, ET.ParseError):
+                raise
+            except (AttributeError, IndexError, KeyError, TypeError, ValueError) as exc:
+                if provider == "openalex":
+                    raise json.JSONDecodeError("OpenAlex response shape is invalid", "", 0) from exc
+                raise ET.ParseError("arXiv response shape is invalid") from exc
+            outcome = _m19_outcome(
+                provider=provider, query_kind=query_kind,
+                normalized_seed_key=normalized_seed_key, topic_query=topic_query,
+                request_index=request_index, method="GET", scheme="https",
+                hostname=host, path=path, query_keys=query_keys,
+                request_binding_sha256=request_binding_sha256, status="available",
+                error_class=None, error_code=None, final_url=final_url,
+                accepted_payload_bytes=len(body), normalized_record_count=len(records),
+                observed_elapsed_seconds=time.perf_counter() - started,
+            )
+    except _M19RedirectRejected as exc:
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_redirect_rejected",
+            error_class="redirect", error_code=f"http_{exc.code}",
+            final_url=exc.url,
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except urllib.error.HTTPError as exc:
+        code = exc.code if exc.code in {400, 401, 403, 404, 429, 500} else "other"
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_http_error",
+            error_class="http", error_code=f"http_{code}",
+            final_url=exc.geturl(),
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except (socket.timeout, TimeoutError):
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_timeout",
+            error_class="timeout", error_code="socket_timeout",
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except urllib.error.URLError as exc:
+        reason = exc.reason
+        if isinstance(reason, (socket.timeout, TimeoutError)):
+            status, error_class, error_code = "unavailable_timeout", "timeout", "socket_timeout"
+        elif isinstance(reason, socket.gaierror):
+            status, error_class, error_code = "unavailable_transport_error", "transport", "dns_failure"
+        elif isinstance(reason, ssl.SSLError):
+            status, error_class, error_code = "unavailable_transport_error", "transport", "tls_failure"
+        elif isinstance(reason, (ConnectionError, OSError)):
+            status, error_class, error_code = "unavailable_transport_error", "transport", "connection_failure"
+        else:
+            status, error_class, error_code = "unavailable_transport_error", "transport", "other_transport_failure"
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status=status,
+            error_class=error_class, error_code=error_code,
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except ssl.SSLError:
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_transport_error",
+            error_class="transport", error_code="tls_failure",
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except OSError as exc:
+        code = "dns_failure" if isinstance(exc, socket.gaierror) else "connection_failure"
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_transport_error",
+            error_class="transport", error_code=code,
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except (json.JSONDecodeError, ET.ParseError):
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_malformed_response",
+            error_class="parse", error_code="malformed_json" if provider == "openalex" else "malformed_xml",
+            final_url=final_url, accepted_payload_bytes=len(body),
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    except MissionStateError:
+        raise
+    except Exception:
+        outcome = _m19_outcome(
+            provider=provider, query_kind=query_kind, normalized_seed_key=normalized_seed_key,
+            topic_query=topic_query, request_index=request_index, method="GET", scheme="https",
+            hostname=host, path=path, query_keys=query_keys,
+            request_binding_sha256=request_binding_sha256, status="unavailable_transport_error",
+            error_class="transport", error_code="other_transport_failure",
+            observed_elapsed_seconds=time.perf_counter() - started,
+        )
+    emit(outcome)
+    return {
+        "records": records,
+        "status": {"status": "available" if outcome["status"] == "available" else "unavailable"},
+    }
 
 
 def _fetch_public_json(url: str, *, allowed_host: str) -> dict[str, Any]:
