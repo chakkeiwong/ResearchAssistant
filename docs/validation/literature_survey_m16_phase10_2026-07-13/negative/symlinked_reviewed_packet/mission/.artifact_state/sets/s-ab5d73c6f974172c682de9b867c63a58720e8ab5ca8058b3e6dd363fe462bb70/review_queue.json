@@ -1,0 +1,346 @@
+{
+  "allowed_item_statuses": [
+    "review_required",
+    "blocked_pending_evidence",
+    "blocked_pending_approval"
+  ],
+  "artifact_set_id": "s-ab5d73c6f974172c682de9b867c63a58720e8ab5ca8058b3e6dd363fe462bb70",
+  "coverage_exact_digests": {
+    "backward_snowball.json": {
+      "sha256": "5d928e305aef1fbb952c6ace1d7b9ee94b9ebe3e36117071a694f3e45b66b41b",
+      "size_bytes": 10134
+    },
+    "citation_venue_metadata.json": {
+      "sha256": "b95b0bdf1c7d1936bb02254afdb23e5763d1fd66d1d894a15c9bec7af3371910",
+      "size_bytes": 1453
+    },
+    "coverage_manifest.json": {
+      "sha256": "099dd74bce0eb742b89282b3c0de495852743500c75b5863a6bef102ea6934be",
+      "size_bytes": 2597
+    },
+    "forward_snowball.json": {
+      "sha256": "eb80393359429ce91ebfb809dcc8bfecc5a1b5403d06d87b9722a0b5b163882a",
+      "size_bytes": 10138
+    },
+    "omitted_paper_risks.json": {
+      "sha256": "49d9be55a7c2a4bcf3525b0c09704994b9f62b9e93198986ff5f9300205877b2",
+      "size_bytes": 10610
+    },
+    "paper_classifications.json": {
+      "sha256": "994283e9b42ca3bbea69645f609111574a76c766c5f10f0a34fbba15761bf195",
+      "size_bytes": 1999
+    }
+  },
+  "coverage_lineage_sha256": "9b37202686b7a30af610fbd618928becc798b11734159befbe24dc525341e0bb",
+  "coverage_semantic_digests": {
+    "backward_snowball.json": "d86d85a18feddefa1df4cccc196fa4709369e9576594e81ccb432548cef1959c",
+    "citation_venue_metadata.json": "74051c0288b4a19ab9d9cf49ef6bac366c0285749e62b2fe6b2615a9cb021357",
+    "forward_snowball.json": "ecd89d461b526143909ef66503104ab4ca827ec595d371438e6d0b4729a90b57",
+    "omitted_paper_risks.json": "c205c3c0cefd7ac84309d51b65e80be371dfc5dec39ac6f2fe2c3e141ab5322f",
+    "paper_classifications.json": "3d5f756e32717f2e287473d61e5ed79c4ccb680ff537841c73b39a9b35566862"
+  },
+  "forbidden_promotions": [
+    "claim candidates are not supported claims",
+    "source availability is not source-safety evidence",
+    "omission-risk visibility is not literature completeness",
+    "workflow blockers cannot be cleared by queue creation",
+    "review_queue creation cannot mark ready_for_prose true"
+  ],
+  "items": [
+    {
+      "action_required": "write a precise claim, inspect the source record, map exact anchor ids, and complete review before support",
+      "anchor_ids": [
+        "section:sec-method"
+      ],
+      "claim_support_allowed": false,
+      "input_status": "review_required",
+      "item_id": "claim_candidate-c65fb2545a6130636de12b84",
+      "non_promotion_reason": "source anchors and claim candidates are not supported technical claims",
+      "paper_ids": [
+        "paper_arxiv_2201_12220v3_2965c3197c3e"
+      ],
+      "priority": "high",
+      "queue_type": "claim_candidate",
+      "semantic_item_sha256": "c65fb2545a6130636de12b84212558c8ce56d419ccf1c29a05f88682d0a1310e",
+      "source_id": "candidate_claim_001",
+      "status": "review_required",
+      "support_class": "anchor_candidate_not_support",
+      "title_or_anchor": "Method"
+    },
+    {
+      "action_required": "verify relations against primary sources or provider-specific citation records",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-a56542687bf46730fd4c7949",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "medium",
+      "queue_type": "omission_risk",
+      "reason": "Backward, forward, and adjacent relations are provider metadata signals only.",
+      "risk_id": "or-23f154ac5128591504bd043d2d78153530ea60261f40f6fb406aa34ab1ed4569",
+      "risk_source_id": "metadata_relations_unverified",
+      "risk_source_type": "inherited_metadata_risk",
+      "semantic_item_sha256": "a56542687bf46730fd4c794980b7903163f5190c324f000d2bfaeec4706dc0c9",
+      "severity": "medium",
+      "source_artifact_sha256": "3540279a52f534629e682e509a7fdfc3a323258c6658114c5bd01a79b3d76b75",
+      "source_id": "or-23f154ac5128591504bd043d2d78153530ea60261f40f6fb406aa34ab1ed4569",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "resolve seed metadata to a provider citation id or record provider-blocked frontier before prose drafting",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-d3965076a407608c9e8f2c83",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "reason": "No forward-citation metadata rows are present for the seed in the bounded packet.",
+      "risk_id": "or-7d7d7448e42d69571b92d118414c9f12240f8884c0ffb79964198e04c9577469",
+      "risk_source_id": "forward_citation_frontier_blocked_or_empty",
+      "risk_source_type": "inherited_metadata_risk",
+      "semantic_item_sha256": "d3965076a407608c9e8f2c8300c226a39f5e9342f5af9f69a50f022044f29cd5",
+      "severity": "high",
+      "source_artifact_sha256": "3540279a52f534629e682e509a7fdfc3a323258c6658114c5bd01a79b3d76b75",
+      "source_id": "or-7d7d7448e42d69571b92d118414c9f12240f8884c0ffb79964198e04c9577469",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "repeat with documented provider budgets and source checks before survey prose",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-5bd0d472b365d076c40156bf",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "reason": "OpenAlex/arXiv metadata queries are bounded by max_records and do not prove citation-map completeness.",
+      "risk_id": "or-93797ab147e9520bce433d96c188732eaf24a7bf91997054bb4faebf3171a4d9",
+      "risk_source_id": "public_metadata_frontier_partial",
+      "risk_source_type": "inherited_metadata_risk",
+      "semantic_item_sha256": "5bd0d472b365d076c40156bffb71498fc3f2a0de57cc38889f4df39292f7bb84",
+      "severity": "high",
+      "source_artifact_sha256": "3540279a52f534629e682e509a7fdfc3a323258c6658114c5bd01a79b3d76b75",
+      "source_id": "or-93797ab147e9520bce433d96c188732eaf24a7bf91997054bb4faebf3171a4d9",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "inspect or explicitly close the recorded backward frontier scope",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-fb3b1fa10a1f6345ac3c989b",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "reason": "no exact recorded relation exists for the required projection tuple",
+      "risk_id": "or-b002fac026f7fdc49ec2af38b42cfe1a7bbc031698d940501870e4fe6389a106",
+      "risk_source_id": "fa-335d99bb527c1acaa5b828d75ba630c355e6a494faebce30f9805d6bd5a86f70",
+      "risk_source_type": "frontier_attempt",
+      "semantic_item_sha256": "fb3b1fa10a1f6345ac3c989b8d4203156fa3a39de84077b9a9adebce4cfb815b",
+      "severity": "high",
+      "source_artifact_sha256": "ea30a4724bbe1d8df78a21b222f2bb1215e5cfac5c9e0cdf1f1ee424413fe827",
+      "source_id": "or-b002fac026f7fdc49ec2af38b42cfe1a7bbc031698d940501870e4fe6389a106",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "run source-aware audit after explicit source/download approval",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-6ab5b1f68cbcbf328aa883df",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "reason": "No source text, equations, algorithms, experiments, related-work sections, or appendices were inspected.",
+      "risk_id": "or-b0623e93ab29047603417c4a4a7ead7844046e1688406ad8e431c46bee5ea339",
+      "risk_source_id": "source_text_not_inspected",
+      "risk_source_type": "inherited_metadata_risk",
+      "semantic_item_sha256": "6ab5b1f68cbcbf328aa883df9ad4ec67dc24e265b59c36debb1bc32d9df917ea",
+      "severity": "high",
+      "source_artifact_sha256": "3540279a52f534629e682e509a7fdfc3a323258c6658114c5bd01a79b3d76b75",
+      "source_id": "or-b0623e93ab29047603417c4a4a7ead7844046e1688406ad8e431c46bee5ea339",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "inspect source references or provider reference metadata before prose drafting",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-f5ef63f781b0268aa059e221",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "reason": "No backward-reference metadata rows are present for the seed in the bounded packet.",
+      "risk_id": "or-c121c6c8875e9ff56511fcb63012dd1fe16f1126f22a1184f1c2bcf41ff2e751",
+      "risk_source_id": "backward_lineage_frontier_blocked_or_empty",
+      "risk_source_type": "inherited_metadata_risk",
+      "semantic_item_sha256": "f5ef63f781b0268aa059e2210a592e5d8a7909f90c3bd1d2167955e52fd02060",
+      "severity": "high",
+      "source_artifact_sha256": "3540279a52f534629e682e509a7fdfc3a323258c6658114c5bd01a79b3d76b75",
+      "source_id": "or-c121c6c8875e9ff56511fcb63012dd1fe16f1126f22a1184f1c2bcf41ff2e751",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "inspect or explicitly close the recorded forward frontier scope",
+      "coverage_schema_version": "ra-survey-omitted-paper-risks-v2",
+      "item_id": "omission_risk-24d99ebed48d80cad5115998",
+      "literature_completeness_allowed": false,
+      "machine_disposition": "blocked_source_or_frontier",
+      "non_promotion_reason": "omission-risk visibility is not literature completeness",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "reason": "no exact recorded relation exists for the required projection tuple",
+      "risk_id": "or-e57b9d6aa2f5e8cd707f3f48834ec8097948954c16275f9c91b0a329167372cd",
+      "risk_source_id": "fa-9c959e328ca8563914a5459ce7da4781f2de55b48a9b3e1806b064fe669aa51c",
+      "risk_source_type": "frontier_attempt",
+      "semantic_item_sha256": "24d99ebed48d80cad5115998001990191251efbf95833e2ee8a1e658040f154c",
+      "severity": "high",
+      "source_artifact_sha256": "ea30a4724bbe1d8df78a21b222f2bb1215e5cfac5c9e0cdf1f1ee424413fe827",
+      "source_id": "or-e57b9d6aa2f5e8cd707f3f48834ec8097948954c16275f9c91b0a329167372cd",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "run approved retraction, withdrawal, erratum, and version checks",
+      "arxiv_id": "2201.12220v3",
+      "claim_support_allowed": false,
+      "evidence_contract": "only explicit public status checks or human-reviewed local records may set checked_clear",
+      "input_status": "not_checked_phase5",
+      "item_id": "source_safety-91ed68429592552483c8135a",
+      "non_promotion_reason": "source availability is not retraction, withdrawal, erratum, or version safety evidence",
+      "paper_id": "paper_arxiv_2201_12220v3_2965c3197c3e",
+      "priority": "high",
+      "queue_type": "source_safety",
+      "safety_checked_clear": false,
+      "semantic_item_sha256": "91ed68429592552483c8135a78dba735a9b258a9177e4e6c8c990154bf951d85",
+      "source_id": "paper_arxiv_2201_12220v3_2965c3197c3e",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "clear the underlying blocker with explicit reviewed evidence before prose readiness",
+      "item_id": "workflow_blocker-25da60ca98dfe9ec90ebadda",
+      "non_promotion_reason": "workflow blockers cannot be cleared by queue creation",
+      "priority": "high",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "technical claims are still blocked pending reviewed claim-anchor mapping",
+      "required_evidence_queue_item_ids": [
+        "claim_candidate-c65fb2545a6130636de12b84"
+      ],
+      "required_evidence_queue_type": "claim_candidate",
+      "resolution_class": "claim_review",
+      "semantic_item_sha256": "25da60ca98dfe9ec90ebadda5c96cf769327d98e324b4f1354b116c7ad1855db",
+      "source_id": "3b810ed27921acb7f480d522fab1f80e3fddcf7578efacf4cc3705dea21dd9ef",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "clear the underlying blocker with explicit reviewed evidence before prose readiness",
+      "item_id": "workflow_blocker-950091f0aff00f40b1ffd040",
+      "non_promotion_reason": "workflow blockers cannot be cleared by queue creation",
+      "priority": "high",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "omission and reviewer-risk rows require review before claiming completeness",
+      "required_evidence_queue_item_ids": [
+        "omission_risk-24d99ebed48d80cad5115998",
+        "omission_risk-5bd0d472b365d076c40156bf",
+        "omission_risk-6ab5b1f68cbcbf328aa883df",
+        "omission_risk-a56542687bf46730fd4c7949",
+        "omission_risk-d3965076a407608c9e8f2c83",
+        "omission_risk-f5ef63f781b0268aa059e221",
+        "omission_risk-fb3b1fa10a1f6345ac3c989b"
+      ],
+      "required_evidence_queue_type": "omission_risk",
+      "resolution_class": "omission_review",
+      "semantic_item_sha256": "950091f0aff00f40b1ffd0400e74729993cb71d3c8867f96b2ce6795c5c5f9ec",
+      "source_id": "4afb302ceeb497837d7c264374a6ca46a29ede8290c67f10333736e18e39f3aa",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "clear the underlying blocker with explicit reviewed evidence before prose readiness",
+      "item_id": "workflow_blocker-abb428de0fae0fee082762ba",
+      "non_promotion_reason": "workflow blockers cannot be cleared by queue creation",
+      "priority": "high",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "retraction/version safety is not checked clear for all sourced papers",
+      "required_evidence_queue_item_ids": [
+        "source_safety-91ed68429592552483c8135a"
+      ],
+      "required_evidence_queue_type": "source_safety",
+      "resolution_class": "source_safety_review",
+      "semantic_item_sha256": "abb428de0fae0fee082762ba4859df57f915e221da1ca2803d96cf82932d81d3",
+      "source_id": "af10da76f5a22d2fb75820a91af0314fc1c66918f4dcb9218b71a75a5b5dd9a9",
+      "status": "blocked_pending_evidence"
+    },
+    {
+      "action_required": "clear the underlying blocker with explicit reviewed evidence before prose readiness",
+      "item_id": "workflow_blocker-aca609740cb86c7dbe8d270e",
+      "non_promotion_reason": "workflow blockers cannot be cleared by queue creation",
+      "priority": "high",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "no reviewed supported technical claim rows are present",
+      "required_evidence_queue_item_ids": [
+        "claim_candidate-c65fb2545a6130636de12b84"
+      ],
+      "required_evidence_queue_type": "claim_candidate",
+      "resolution_class": "claim_review",
+      "semantic_item_sha256": "aca609740cb86c7dbe8d270e4ad81f297b7f73aa3b1ca0fc13f0f202a1d73f88",
+      "source_id": "cded3c617db1ecac42c78f02bbfe185676d8df0bdd3ecb9ca04f9b244e00f896",
+      "status": "blocked_pending_evidence"
+    }
+  ],
+  "mission_anchor_generation_id": "g00000007-f4b4328dd9de8cb9",
+  "mission_fingerprint": "5d5aa1b28a9911b029b6310ab77d40a3f417eb3fdd3ec926e3c9b08c19dc799a",
+  "mission_id": "cde6f6f6-3a51-489f-b503-29e1a9812918",
+  "packet_input_digests": {
+    "build_manifest": {
+      "relative_path": "build_manifest.json",
+      "sha256": "282b8a2baf8ebedb7d7ab8ee2fea3421b58502e9d7f05318a7cbaf95cd902475",
+      "size_bytes": 7903
+    },
+    "claim_support": {
+      "relative_path": "claim_support.json",
+      "sha256": "5712444f3964283bfa0f8c86d73be2c57977f02a1bed5e412fc5cc98f1a0a0dd",
+      "size_bytes": 2372
+    },
+    "source_safety_status": {
+      "relative_path": "source_safety_status.json",
+      "sha256": "515e18ebb67229a5d29210ec545dbeded19aa2250d21604c5e14c387b6b7e158",
+      "size_bytes": 1505
+    }
+  },
+  "queue_counts": {
+    "by_priority": {
+      "high": 12,
+      "medium": 1
+    },
+    "by_status": {
+      "blocked_pending_evidence": 12,
+      "review_required": 1
+    },
+    "by_type": {
+      "claim_candidate": 1,
+      "omission_risk": 7,
+      "source_safety": 1,
+      "workflow_blocker": 4
+    },
+    "total": 13
+  },
+  "queue_semantic_sha256": "1e1374724ef98b14147335cbd65dc06de16723b7b5553e52c33bb7cd52321146",
+  "schema_version": "ra-survey-public-source-review-queue-v2",
+  "status": "review_required",
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

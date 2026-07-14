@@ -1,0 +1,45 @@
+{
+  "candidate_count": 7,
+  "duplicates": [],
+  "excluded": [
+    {
+      "paper_key": "thmc_noise_001",
+      "reason": "application-domain transport false positive"
+    }
+  ],
+  "included": [
+    {
+      "paper_key": "thmc_seed_001",
+      "reason": "synthetic seed for transport-assisted HMC in DSGE posterior inference",
+      "source": "fixture_local_catalog"
+    },
+    {
+      "paper_key": "thmc_ref_001",
+      "reason": "backward HMC lineage",
+      "source": "fixture_reference_parser"
+    },
+    {
+      "paper_key": "thmc_ref_002",
+      "reason": "backward DSGE estimation lineage",
+      "source": "fixture_reference_parser"
+    },
+    {
+      "paper_key": "thmc_cite_001",
+      "reason": "visible forward citation from synthetic citation endpoint",
+      "source": "fixture_citation_index"
+    },
+    {
+      "paper_key": "thmc_adj_001",
+      "reason": "adjacent DSGE inference method cluster",
+      "source": "fixture_adjacent_search"
+    },
+    {
+      "paper_key": "thmc_proxy_001",
+      "reason": "mistakenly promoted benchmark proxy to included technical support",
+      "source": "fixture_benchmark_catalog"
+    }
+  ],
+  "query": "Transport-assisted HMC for DSGE posterior inference",
+  "schema_version": "ra-surveybench-candidate-ledger-v1",
+  "task_id": "transport_hmc_dsge_replay"
+}

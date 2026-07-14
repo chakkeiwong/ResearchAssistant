@@ -1,0 +1,55 @@
+{
+  "edges": [
+    {
+      "confidence": "fixture_ground_truth",
+      "edge_type": "cites",
+      "evidence": "seed bibliography",
+      "source": "seed_neural_ot",
+      "target": "classical_ot_foundation"
+    },
+    {
+      "confidence": "fixture_ground_truth",
+      "edge_type": "cites",
+      "evidence": "forward citation metadata",
+      "source": "major_citing_work",
+      "target": "seed_neural_ot"
+    },
+    {
+      "confidence": "requires_review",
+      "edge_type": "adjacent_method",
+      "evidence": "topic expansion",
+      "source": "seed_neural_ot",
+      "target": "normalizing_flows_review"
+    }
+  ],
+  "nodes": [
+    {
+      "paper_key": "seed_neural_ot",
+      "roles": [
+        "seed",
+        "direct_method"
+      ]
+    },
+    {
+      "paper_key": "classical_ot_foundation",
+      "roles": [
+        "foundational"
+      ]
+    },
+    {
+      "paper_key": "major_citing_work",
+      "roles": [
+        "major_citing_work",
+        "direct_method"
+      ]
+    },
+    {
+      "paper_key": "normalizing_flows_review",
+      "roles": [
+        "survey",
+        "adjacent_method"
+      ]
+    }
+  ],
+  "schema_version": "ra-surveybench-fixture-citation-graph-v1"
+}

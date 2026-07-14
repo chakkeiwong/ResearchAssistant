@@ -1,0 +1,65 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 8,
+  "captured_at": "2026-07-12T17:58:40+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "passed_phase9_plan_review_agreed",
+  "authorized_plan_sha256": "752e4b142a6d105784a5c470992327e14df836fa9d2866c342f092abcf790706",
+  "product_and_test_hashes": [
+    {"path": "src/research_assistant/survey/frontier_expansion.py", "sha256": "946f23dd0bec8988dc2e18c7b3eaaff47b5bd67593c3372f53b8678127fd4c52"},
+    {"path": "src/research_assistant/survey/coverage_ledgers.py", "sha256": "43c9a00c6bde99bbe0ed868532d1c6de58c1b232030255d67165c9bb70239e36"},
+    {"path": "src/research_assistant/survey/artifact_lineage.py", "sha256": "bae634e36e6c04f9ec41d09c1f08b127eec00aa1806668e4c20ac0231977a690"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "sha256": "da3d1dd1787f1f5f852229812e7128fefe028f3755f85014e72c875b8c8e51b2"},
+    {"path": "src/research_assistant/survey/omission_review.py", "sha256": "3822371fce4b381daf5724f67ce13fab71e5913b5c016fdd5a896aabb5bfe2ab"},
+    {"path": "src/research_assistant/survey/reviewed_merge.py", "sha256": "03f412696af3730ffa42d89203e9eeae869b964b5f74a74452d2051e3c3727cb"},
+    {"path": "src/research_assistant/survey/reviewed_packet.py", "sha256": "f954564b362e2df276536106f8c2bd8d1b4b807502490145aac79a077bca21a5"},
+    {"path": "tests/unit/test_literature_survey_m16_phase8.py", "sha256": "005dce15a1a0466fb3aacdd551d47e0023244a86fa6c73d94c16148edcf3ffc4"},
+    {"path": "tests/integration/test_cli_commands.py", "sha256": "bd6f56193d51c1fb36b299e9c53990726910a4f07ff12bac65d506b72279eecf"}
+  ],
+  "authorized_unchanged_hashes": [
+    {"path": "src/research_assistant/survey/review_decisions.py", "sha256": "987d872c5979fcbb69a89315cfad195e8dcf8839d6859a58b6ad7157ac5c9ea2"},
+    {"path": "src/research_assistant/survey/hostile_review.py", "sha256": "095a95308511fe86970033e57601623413d5310a4cec8c4ae38a42bed1257073"},
+    {"path": "tests/unit/test_literature_survey_m16_phase2.py", "sha256": "cd1a383a87aff8331e49c83faab08b58194f99ae62104d36e9d08ee8fa801438"},
+    {"path": "tests/unit/test_literature_survey_m16_phase3.py", "sha256": "e6ebe3a9cbb04e1183b20950c5844d57190ed72227a09e8257acebe3575baa92"},
+    {"path": "tests/unit/test_literature_survey_m16_phase4.py", "sha256": "98decb1cb1456df86ee4a21424ecfdf2a28457e28147b0409cbca59e67f2284a"},
+    {"path": "tests/unit/test_literature_survey_m16_phase5.py", "sha256": "100cc378503643dc9fa4852b1486905d11b55dc36cbb5df70e2d230c23af8d51"},
+    {"path": "tests/unit/test_literature_survey_m16_phase6.py", "sha256": "872c1a0cfa49bdc8da16949b37b4a82c6205ace81f0a99927033bcfdff1b30c9"},
+    {"path": "tests/unit/test_literature_survey_m16_phase7.py", "sha256": "4c12c3a63bbb1632fad7be81a23576cd1b5fdcaf36da86bfd803bd15b0426370"}
+  ],
+  "protected_hashes": [
+    {"path": "src/research_assistant/source/arxiv_source.py", "sha256": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8"},
+    {"path": "src/research_assistant/ingest/arxiv_batch.py", "sha256": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be"},
+    {"path": "tests/unit/test_arxiv_source.py", "sha256": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"},
+    {"path": "tests/integration/test_arxiv_batch_intake.py", "sha256": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80"},
+    {"path": "src/research_assistant/survey/build.py", "sha256": "a143bb46891f34f04c3a6bc485290ee0c9f8c18084f2f8257e4bb0c5158b0c2e"},
+    {"path": "src/research_assistant/survey/discovery_quality.py", "sha256": "e77da75af28a95a3534873636b783ede873452c639d71c351903bf087e202015"},
+    {"path": "src/research_assistant/survey/source_intake.py", "sha256": "fc7c1981e2e9373d5ed2e4f2859c644b544812a6cb1bc964acc4cd1964c421e1"},
+    {"path": "src/research_assistant/survey/supervisor.py", "sha256": "4a5eac36ebe0651958551d4109f4792df19ffe20f37ef17fa0bffb9de7afa7b7"},
+    {"path": "src/research_assistant/cli.py", "sha256": "26a1674768a930ca43aef61dc5ae477610f083ce029e2ec03c336150316f47b6"},
+    {"path": ".gitignore", "sha256": "29344e75c13a1a6d4e9b1bb653d106156cafb02ee61b1c99701c9a32f5ec9074"},
+    {"path": "docs/benchmark_plan.md", "sha256": "2395402f907a6d163979e37fa62d6975109c5e9ccfcb7322962b3a0a2e00a033"}
+  ],
+  "validation": {
+    "phase8_unit": "112 passed",
+    "phase2_through_phase8": "452 passed",
+    "combined_m16": "545 passed",
+    "full_unit": "749 passed",
+    "full_cli": "124 passed",
+    "exact_scripts": "6 passed",
+    "phase8_ux": "passed with zero issues",
+    "static_and_reconciliation": "passed at 1175 baseline + 266 declared additions = 1441 current paths; zero missing/unknown/duplicate status paths",
+    "implementation_review": "agreed after one focused repair round"
+  },
+  "implementation_review_verdict": {
+    "path": "docs/reviews/literature_survey_m16_phase8_implementation_review_verdict_2026-07-12.md",
+    "sha256": "988747603a5614f031f7c3127d751cf27d9ef2f76e3bfcfc32dbc98842eac175",
+    "verdict": "AGREE",
+    "reviewer": "fresh Codex read-only fallback after Claude export policy rejection"
+  },
+  "phase9_plan_review_verdict": {
+    "path": "docs/reviews/literature_survey_m16_phase9_plan_review_verdict_2026-07-12.md",
+    "verdict": "AGREE",
+    "reviewer": "fresh Codex read-only fallback after five contract rounds and focused reconciliation repair"
+  },
+  "unexpected_mismatches": []
+}

@@ -1,0 +1,26 @@
+{
+  "contexts": [
+    {
+      "context_id": "baseline_ladder_fixture",
+      "kind": "baseline_ladder",
+      "message": "Synthetic ladder distinguishes naive random-walk, tuned HMC, transport-HMC, and transport-HMC with diagnostics.",
+      "support_status": "context_only"
+    },
+    {
+      "context_id": "assumption_ledger_fixture",
+      "kind": "assumption_ledger",
+      "message": "Synthetic assumption ledger requires posterior geometry and transformation-Jacobian anchors before technical claims are marked supported.",
+      "support_status": "context_only"
+    },
+    {
+      "context_id": "benchmark_proxy_warning",
+      "kind": "benchmark_evidence_ledger",
+      "message": "Synthetic benchmark rows are explanatory only and cannot replace source anchors or downstream validity checks.",
+      "support_status": "not_claim_support"
+    }
+  ],
+  "endpoint": "evidence-context",
+  "request_id": "evidence-context-transport-hmc",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "task_id": "transport_hmc_dsge_replay"
+}

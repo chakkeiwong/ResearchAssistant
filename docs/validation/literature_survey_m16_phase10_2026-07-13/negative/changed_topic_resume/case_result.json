@@ -1,0 +1,149 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "6b88d64b33721992236a4e54eae212e6fd250a5092ab9bfc9c14cf4688ed50dc",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "9ac69d40554b64ce2c7540ec085f7197e930d213d85888f231ea9926694c3222",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "1b3b42aaf4f191cc89afd93659761617818c6809f47a51b32813bc922a7aca00",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "75b625c874fe6e8d374592e92860296cdade0583945869f30532f2dc7d5effff",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "96319d434bd97c48242661884b891a3da76e80d7454ac1386cefade5d83e8703",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "63ddb7af79e717f7d41c4aa55e164d361305f82ce5e4542ab1a84074c9e65634",
+      "size_bytes": 252
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "6b88d64b33721992236a4e54eae212e6fd250a5092ab9bfc9c14cf4688ed50dc",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "9ac69d40554b64ce2c7540ec085f7197e930d213d85888f231ea9926694c3222",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "1b3b42aaf4f191cc89afd93659761617818c6809f47a51b32813bc922a7aca00",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "75b625c874fe6e8d374592e92860296cdade0583945869f30532f2dc7d5effff",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "96319d434bd97c48242661884b891a3da76e80d7454ac1386cefade5d83e8703",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "63ddb7af79e717f7d41c4aa55e164d361305f82ce5e4542ab1a84074c9e65634",
+      "size_bytes": 252
+    }
+  },
+  "case_id": "changed_topic_resume",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "run-public-source-workflow",
+        "--topic",
+        "Changed topic",
+        "--seed",
+        "arxiv:2201.12220v3",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission",
+        "--metadata-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata",
+        "--source-status-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/source_intake",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/source_anchors",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_source_packet",
+        "--resume",
+        "--run-safe-local"
+      ],
+      "evidence": "cli.json",
+      "return_code": 1
+    }
+  ],
+  "current_unchanged": true,
+  "expected": {
+    "blocked_reason": "mission_identity_mismatch",
+    "return_code": 1
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": false,
+    "reviewed_packet": false
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [],
+    "changed_paths": [],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "observed": {
+    "blocked_reason": "mission_identity_mismatch",
+    "return_code": 1
+  },
+  "setup_status": "passed",
+  "status": "passed",
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

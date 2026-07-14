@@ -1,0 +1,27 @@
+{
+  "citations": [
+    {
+      "citing_paper_key": "p_cite_001",
+      "evidence": "fixture forward-citation metadata",
+      "relation": "cites_seed",
+      "target_paper_key": "p_seed_001"
+    }
+  ],
+  "endpoint": "citations",
+  "request_id": "citations-for-seed",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "source_statuses": [
+    {
+      "message": "Semantic Scholar response is simulated as rate-limited.",
+      "source": "fixture_semantic_scholar",
+      "status": "simulated_rate_limit"
+    },
+    {
+      "message": "Fallback citation fixture provides one visible citing work.",
+      "source": "fixture_openalex_fallback",
+      "status": "ok"
+    }
+  ],
+  "task_id": "neural_ot_seed_replay"
+}
+

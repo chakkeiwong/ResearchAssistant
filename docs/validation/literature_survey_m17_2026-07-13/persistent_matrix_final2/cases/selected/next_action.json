@@ -1,0 +1,90 @@
+{
+  "action_id": "topic_bootstrap_selected_local_continuation",
+  "approval_required": false,
+  "blockers": [],
+  "created_at": "2026-07-13T17:59:27+00:00",
+  "forbidden_actions": [
+    "do not treat the topic as a paper seed",
+    "do not retry an indeterminate bootstrap call on ordinary resume",
+    "do not run provider, source, PDF, full-text, model-worker, or network actions in M17",
+    "do not expose prepared bootstrap evidence as effective seed authority"
+  ],
+  "gate_id": "topic_bootstrap",
+  "generation_id": "g00000002-48e607322809bf72",
+  "mission_fingerprint": "7b72966a2f6b0d52a66e0f2642faf08902857fca98ae4aed2f51c0c6e14f012e",
+  "mission_id": "0f06805f-13b0-4f0a-be2e-a4d2833160fd",
+  "mission_status": "ready_for_local_continuation",
+  "public_discovery_confirmation": {
+    "confirmation_source": "cli",
+    "confirmed": true,
+    "confirmed_at": "2026-07-13T17:59:27+00:00",
+    "forbidden_actions": [
+      "credentials",
+      "private_databases",
+      "paid_model_worker_trials",
+      "hidden_evaluator_material",
+      "unbounded_crawling",
+      "writes_outside_mission_output",
+      "technical_claim_support_from_metadata_or_source_availability",
+      "final_prose_readiness_from_discovery_alone"
+    ],
+    "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+    "schema_version": "ra-survey-public-discovery-confirmation-v1",
+    "scope": {
+      "allowed_actions": [
+        "local_cache_lookup",
+        "bounded_public_web_api_metadata",
+        "public_archive_search",
+        "public_source_status_lookup",
+        "capped_public_source_pdf_full_text_retrieval"
+      ],
+      "allowed_domains": [
+        "api.openalex.org",
+        "export.arxiv.org",
+        "arxiv.org"
+      ],
+      "caps": {
+        "max_metadata_records": 25,
+        "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/selected"
+      },
+      "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/selected",
+      "providers": [
+        "openalex",
+        "arxiv"
+      ],
+      "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+    },
+    "status": "confirmed",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "required_artifacts": [
+    "validated effective-seed downstream continuation"
+  ],
+  "safe_next_commands": [
+    "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+  ],
+  "schema_version": "ra-survey-public-source-next-action-v1",
+  "status": "ready_for_local_continuation",
+  "summary": "A validated bootstrap set is selected; derived effective seeds are locally authoritative.",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

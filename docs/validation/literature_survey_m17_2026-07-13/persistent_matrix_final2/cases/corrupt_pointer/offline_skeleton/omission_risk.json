@@ -1,0 +1,43 @@
+{
+  "bootstrap_authority": {
+    "capability_name": "m17_deterministic_fixture",
+    "capability_version": "1",
+    "confirmed_generation_id": "g00000001-055bb7bebea4e63b",
+    "effective_normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "manifest_sha256": "0dcf8a49b060bdc54b1c001a0da51878767fc563e5f4fbe501548affebf1bb3c",
+    "request_id": "br-cc6d03181ffd67202848b08c1fd2aac9f42f2b6f5363bce5b0a61d1871eaf52d",
+    "request_sha256": "cc6d03181ffd67202848b08c1fd2aac9f42f2b6f5363bce5b0a61d1871eaf52d",
+    "schema_version": "ra-survey-topic-bootstrap-authority-v1",
+    "set_id": "bs-38be03d43742a0ab16dd8a0563d0aad5d812fcb9c5dbce777f9cc453e3d3014a"
+  },
+  "effective_seed_source": "selected_bootstrap_authority_not_original_mission_input",
+  "original_initial_seeds": [],
+  "risks": [
+    {
+      "expected_action": "run backward snowballing and classify relevant references",
+      "risk": "Required predecessor/foundational papers are unknown until seed references are inspected.",
+      "risk_id": "backward_lineage_not_yet_built",
+      "severity": "high"
+    },
+    {
+      "expected_action": "run forward snowballing or record metadata blocker",
+      "risk": "Major citing works and recent follow-ups are unknown until approved metadata or replay citations are inspected.",
+      "risk_id": "forward_frontier_not_yet_built",
+      "severity": "high"
+    },
+    {
+      "expected_action": "query adjacent candidates and record inclusion/exclusion reasons",
+      "risk": "Adjacent method clusters are unknown until topic expansion is run.",
+      "risk_id": "adjacent_clusters_not_yet_built",
+      "severity": "medium"
+    }
+  ],
+  "schema_version": "ra-survey-bootstrap-effective-omission-risk-v1",
+  "seed_papers": [
+    "arxiv:2201.12220v3"
+  ],
+  "status": "skeleton_pending_snowballing",
+  "topic": "Neural Optimal Transport"
+}

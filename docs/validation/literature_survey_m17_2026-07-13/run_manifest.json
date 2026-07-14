@@ -1,0 +1,99 @@
+{
+  "artifact_paths": [
+    "docs/validation/literature_survey_m17_2026-07-13/pre_edit_m16_snapshot",
+    "docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2",
+    "docs/validation/literature_survey_m17_2026-07-13/focused_final_schema_round2.xml",
+    "docs/validation/literature_survey_m17_2026-07-13/cumulative_m16_m17_unit_round1.xml",
+    "docs/validation/literature_survey_m17_2026-07-13/exact_scripts_final.xml",
+    "docs/validation/literature_survey_m17_2026-07-13/affected_non_cli_integration_final.xml",
+    "docs/validation/literature_survey_m17_2026-07-13/full_unit_retry_after_vscode_crash.xml",
+    "docs/validation/literature_survey_m17_2026-07-13/full_cli_retry_after_vscode_crash.xml",
+    "docs/validation/literature_survey_m17_2026-07-13/static_audit.json",
+    "docs/validation/literature_survey_m17_2026-07-13/decision_table.json",
+    "docs/validation/literature_survey_m17_2026-07-13/post_run_red_team.json",
+    "docs/validation/literature_survey_m17_2026-07-13/successor_manifest.json",
+    "docs/validation/literature_survey_m17_2026-07-13/successor_manifest_replay.json"
+  ],
+  "commands": [
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src pytest -q tests/unit/test_literature_survey_m17.py --junitxml=.../focused_final_schema_round2.xml",
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src pytest -q <M16 plus M17 unit set> --junitxml=.../cumulative_m16_m17_unit_round1.xml",
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=.:src pytest -q <exact survey script tests> --junitxml=.../exact_scripts_final.xml",
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src pytest -q <affected non-CLI integration tests> --junitxml=.../affected_non_cli_integration_final.xml",
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src pytest -q tests/unit --junitxml=.../full_unit_retry_after_vscode_crash.xml",
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src pytest -q tests/integration/test_cli_commands.py --junitxml=.../full_cli_retry_after_vscode_crash.xml",
+    "CUDA_VISIBLE_DEVICES=-1 python -m py_compile <changed Python paths>",
+    "CUDA_VISIBLE_DEVICES=-1 python docs/validation/literature_survey_m17_2026-07-13/generate_close_artifacts.py",
+    "git diff --check"
+  ],
+  "diagnostic_only_artifacts": [
+    "docs/validation/literature_survey_m17_2026-07-13/logs/full_unit_final.log",
+    "docs/validation/literature_survey_m17_2026-07-13/logs/full_cli_final.log",
+    "superseded focused JUnit and persistent-matrix attempt paths not selected by successor_manifest.json"
+  ],
+  "environment": {
+    "conda_environment": "tf-gpu",
+    "cpu_gpu_status": "CUDA_VISIBLE_DEVICES=-1; GPU devices intentionally hidden",
+    "network_source_model_status": "offline deterministic local work only",
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "pytest": "9.0.2",
+    "python": "3.11.14",
+    "pythonpath": "src or .:src as required by each existing gate"
+  },
+  "git_branch": "main",
+  "git_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "git_state": "heavily dirty baseline preserved; no stage, commit, push, clean, restore, reset, stash, or worktree mutation in M17",
+  "phase": "M17_idea_topic_bootstrap",
+  "plan": "docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md",
+  "random_seeds": "N/A; deterministic local fixtures and generated UUID identities tested through invariant predicates",
+  "review": {
+    "artifact_closure_fallback_reason": "second Claude export policy-rejected; not retried or routed around",
+    "artifact_closure_reviewer": "fresh Codex read-only fallback",
+    "artifact_closure_verdict": "AGREE",
+    "artifact_closure_verdict_path": "docs/reviews/literature_survey_m17_artifact_closure_repair_review_verdict_2026-07-14.md",
+    "fallback_used": false,
+    "model": "claude-opus",
+    "packet": "docs/reviews/literature_survey_m17_terminal_implementation_review_bundle_2026-07-14.md",
+    "packet_sha256": "27c32c2f86732b7e81e2c6f626f94dc7535055f1493a0ba0359811c826da6e43",
+    "verdict": "AGREE",
+    "verdict_path": "docs/reviews/literature_survey_m17_terminal_implementation_review_verdict_2026-07-14.md"
+  },
+  "result": "docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_result_2026-07-13.md",
+  "results": {
+    "affected_non_cli_integration": "20 passed",
+    "cumulative_m16_m17_unit": "846 passed",
+    "exact_survey_scripts": "11 passed",
+    "focused_m17": "65 passed including 38 named crash points",
+    "full_cli_retry_after_vscode_crash": "125 passed",
+    "full_unit_retry_after_vscode_crash": "1050 passed",
+    "junit_aggregate": "2117 passed; zero failures, errors, or skips",
+    "persistent_matrix": "13 of 13 passed",
+    "successor_manifest": "1671 rows including all 1137 canonical Phase 10 evidence members; zero replay mismatches"
+  },
+  "schema_version": "ra-literature-survey-m17-run-manifest-v1",
+  "status": "passed_local_engineering_git_integration_pending",
+  "successor_manifest_integrity": {
+    "artifact_count": 1671,
+    "generator_sha256": "1ccd5d0f4b3de5733125cc5ec63c2ffb5b348c379a3c884531a7ccd509755d50",
+    "manifest_file_sha256": "46fd3d4e444fc5fd43b9d10f05dce110980c75bd13b98b345ae459a5b4277571",
+    "manifest_payload_sha256": "163f9ca026e18903d219690ed88647c1bc26ae7f45cd0752aa05a9cb891d485f",
+    "phase10_direct_logical_rows_validated": 38,
+    "phase10_inventory_regular_files": 1136,
+    "phase10_inventory_symlinks": 1,
+    "replay_file_sha256": "774eebfd5325a97025fca4a41d0e0fcd0fa04b943771888b18397a94b45ee72e",
+    "replay_mismatch_count": 0
+  },
+  "wall_time_seconds": {
+    "affected_non_cli_integration": 0.260,
+    "cumulative_m16_m17_unit": 568.169,
+    "exact_survey_scripts": 97.663,
+    "focused_m17": 12.690,
+    "full_cli_retry_after_vscode_crash": 702.008,
+    "full_unit_retry_after_vscode_crash": 513.343
+  },
+  "what_is_not_concluded": [
+    "live bootstrap quality, relevance, importance, or completeness",
+    "source support, genuine human review, or scientific validity",
+    "clean-checkout reproducibility",
+    "product, release, or north-star completion"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "survey",
+    "hostile-review",
+    "--reviewed-final-packet",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_final_packet/reviewed_final_packet.json",
+    "--mission-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission",
+    "--review-queue",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/.artifact_state/sets/s-3d3dd92dd5efc09985a044ec38eaad0155612e3806e3dbff5ad70330f8aac85b/review_queue.json",
+    "--packet-dir",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/packet",
+    "--anchor-dir",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/anchors",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/hostile_review"
+  ],
+  "payload": {
+    "blocked_reason": "legacy_evidence_authority",
+    "next_required_actions": [
+      "selected coverage is not canonical V2 authority"
+    ],
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/hostile_review",
+    "ready_for_hostile_review": false,
+    "ready_for_prose": false,
+    "schema_version": "ra-survey-hostile-review-result-v2",
+    "status": "blocked",
+    "what_is_not_concluded": [
+      "human or model review quality",
+      "claim truth",
+      "derivation correctness",
+      "source safety in fact",
+      "omission correctness",
+      "literature completeness",
+      "live web coverage",
+      "final prose quality",
+      "product readiness",
+      "release readiness",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 1,
+  "stderr": "",
+  "stdout": "{\n  \"blocked_reason\": \"legacy_evidence_authority\",\n  \"next_required_actions\": [\n    \"selected coverage is not canonical V2 authority\"\n  ],\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/hostile_review\",\n  \"ready_for_hostile_review\": false,\n  \"ready_for_prose\": false,\n  \"schema_version\": \"ra-survey-hostile-review-result-v2\",\n  \"status\": \"blocked\",\n  \"what_is_not_concluded\": [\n    \"human or model review quality\",\n    \"claim truth\",\n    \"derivation correctness\",\n    \"source safety in fact\",\n    \"omission correctness\",\n    \"literature completeness\",\n    \"live web coverage\",\n    \"final prose quality\",\n    \"product readiness\",\n    \"release readiness\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

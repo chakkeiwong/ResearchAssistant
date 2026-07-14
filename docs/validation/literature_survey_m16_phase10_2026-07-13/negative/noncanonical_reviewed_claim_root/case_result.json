@@ -1,0 +1,174 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "35a1b2ed55a8281790cdfc18dbe5d807f17c3f8dbf9a8f63f8a0ecb133e8ce24",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "26485963ee45d1662ff3cbc01f6b3a1ed5b095b22fae64e3a3d840fd366e0c64",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "9fd0e5e0bbe0cb800ba397936e4b10a3f32854a6f80250419bb767127a0f3d29",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "2659df4dda05ef5a5c8bfb8469155991e9e7eb64d60e83cc29e570556fffac7e",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "c4e67430b11998d7574f04f085f08ae8370adfa6b29ade78188061b0c65d41cc",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "3889697e6e25a9a8d75aff291038a081064c666cf07513fe2a7a5ada73d0c43d",
+      "size_bytes": 252
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "35a1b2ed55a8281790cdfc18dbe5d807f17c3f8dbf9a8f63f8a0ecb133e8ce24",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "9e5122854b16eba4202e2f09771c29dd06c4d2733ee68ec27bc01a312c662be1",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "9fd0e5e0bbe0cb800ba397936e4b10a3f32854a6f80250419bb767127a0f3d29",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "2659df4dda05ef5a5c8bfb8469155991e9e7eb64d60e83cc29e570556fffac7e",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "c4e67430b11998d7574f04f085f08ae8370adfa6b29ade78188061b0c65d41cc",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "3889697e6e25a9a8d75aff291038a081064c666cf07513fe2a7a5ada73d0c43d",
+      "size_bytes": 252
+    }
+  },
+  "case_id": "noncanonical_reviewed_claim_root",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "run-public-source-workflow",
+        "--topic",
+        "Neural Optimal Transport for generative modeling and inference",
+        "--seed",
+        "arxiv:2201.12220v3",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission",
+        "--metadata-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/public_metadata",
+        "--source-status-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/source_intake",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/source_anchors",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/public_source_packet",
+        "--resume",
+        "--run-safe-local",
+        "--reviewed-claims-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/external_reviewed_claims"
+      ],
+      "evidence": "cli.json",
+      "return_code": 0
+    }
+  ],
+  "expected": {
+    "action": "terminal_blocked_invalid_artifact",
+    "reason": "noncanonical_safe_local_reviewed_claims_root",
+    "return_code": 0,
+    "status": "terminal_blocked_invalid_artifact"
+  },
+  "external_tree": {
+    "DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "9fd0e5e0bbe0cb800ba397936e4b10a3f32854a6f80250419bb767127a0f3d29",
+      "size_bytes": 242
+    }
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": false,
+    "reviewed_packet": false
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [
+      ".mission_state",
+      "mission_control.json",
+      "next_action.json"
+    ],
+    "changed_paths": [
+      ".mission_state/CURRENT",
+      ".mission_state/generations/g00000009-cc21d0e58511139b",
+      ".mission_state/generations/g00000009-cc21d0e58511139b/generation_manifest.json",
+      ".mission_state/generations/g00000009-cc21d0e58511139b/mission_control.json",
+      ".mission_state/generations/g00000009-cc21d0e58511139b/next_action.json",
+      ".mission_state/transactions/g00000009-cc21d0e58511139b.json",
+      "mission_control.json",
+      "next_action.json"
+    ],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "observed": {
+    "action": "terminal_blocked_invalid_artifact",
+    "reason": "noncanonical_safe_local_reviewed_claims_root",
+    "return_code": 0,
+    "status": "terminal_blocked_invalid_artifact"
+  },
+  "setup_status": "passed",
+  "status": "passed",
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

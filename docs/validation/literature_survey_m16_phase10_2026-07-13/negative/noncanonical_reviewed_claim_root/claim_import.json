@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "survey",
+    "import-claim-review",
+    "--review-queue",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/.artifact_state/sets/s-1c9c0d3cb80d109adff6bf1659f1a21f7be44e4cdf4580bf191e715d14a42fde/review_queue.json",
+    "--decisions",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/decisions/claims.json",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/reviewed_claims"
+  ],
+  "payload": {
+    "accepted_claim_count": 1,
+    "decision_coverage_complete": true,
+    "decision_set_id": "cd-0d5bc4ea8834c742110a6f5fd2b6da89c277c82a5e7bb6bb8172676eeb27d0a5",
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/reviewed_claims",
+    "ready_for_prose": false,
+    "ready_for_reviewed_packet": false,
+    "rejected_claim_count": 0,
+    "reviewed_claims_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/reviewed_claims/decision_sets/cd-0d5bc4ea8834c742110a6f5fd2b6da89c277c82a5e7bb6bb8172676eeb27d0a5/reviewed_claims.json",
+    "schema_version": "ra-survey-reviewed-claim-import-result-v2",
+    "status": "reviewed_claims_complete",
+    "what_is_not_concluded": [
+      "source safety",
+      "literature completeness",
+      "final prose readiness",
+      "live web coverage",
+      "product readiness",
+      "real-agent reliability",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 0,
+  "stderr": "",
+  "stdout": "{\n  \"accepted_claim_count\": 1,\n  \"decision_coverage_complete\": true,\n  \"decision_set_id\": \"cd-0d5bc4ea8834c742110a6f5fd2b6da89c277c82a5e7bb6bb8172676eeb27d0a5\",\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/reviewed_claims\",\n  \"ready_for_prose\": false,\n  \"ready_for_reviewed_packet\": false,\n  \"rejected_claim_count\": 0,\n  \"reviewed_claims_path\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/noncanonical_reviewed_claim_root/mission/reviewed_claims/decision_sets/cd-0d5bc4ea8834c742110a6f5fd2b6da89c277c82a5e7bb6bb8172676eeb27d0a5/reviewed_claims.json\",\n  \"schema_version\": \"ra-survey-reviewed-claim-import-result-v2\",\n  \"status\": \"reviewed_claims_complete\",\n  \"what_is_not_concluded\": [\n    \"source safety\",\n    \"literature completeness\",\n    \"final prose readiness\",\n    \"live web coverage\",\n    \"product readiness\",\n    \"real-agent reliability\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

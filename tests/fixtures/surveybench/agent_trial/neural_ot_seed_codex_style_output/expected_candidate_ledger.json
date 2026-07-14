@@ -1,0 +1,47 @@
+{
+  "candidate_count": 6,
+  "duplicates": [
+    {
+      "canonical_key": "seed_neural_ot",
+      "duplicate_keys": [
+        "seed_neural_ot_duplicate"
+      ],
+      "match_reason": "doi"
+    }
+  ],
+  "excluded": [
+    {
+      "paper_key": "transport_network_false_positive",
+      "reason": "topic false positive: public transport scheduling is unrelated to optimal transport maps"
+    }
+  ],
+  "included": [
+    {
+      "paper_key": "seed_neural_ot",
+      "reason": "seed direct method",
+      "source": "fixture_semantic_scholar",
+      "title": "Synthetic Neural Optimal Transport Maps"
+    },
+    {
+      "paper_key": "classical_ot_foundation",
+      "reason": "predecessor/foundational node",
+      "source": "fixture_openalex",
+      "title": "A Synthetic Dynamic Formulation of Optimal Transport"
+    },
+    {
+      "paper_key": "major_citing_work",
+      "reason": "major citing work in offline fixture",
+      "source": "fixture_semantic_scholar",
+      "title": "Synthetic Scalable Neural Transport for Inference"
+    },
+    {
+      "paper_key": "normalizing_flows_review",
+      "reason": "adjacent survey cluster",
+      "source": "fixture_openalex",
+      "title": "A Synthetic Review of Normalizing Flows"
+    }
+  ],
+  "query": "Neural Optimal Transport for generative modeling and inference",
+  "schema_version": "ra-surveybench-candidate-ledger-v1",
+  "task_id": "neural_ot_seed_synthetic"
+}

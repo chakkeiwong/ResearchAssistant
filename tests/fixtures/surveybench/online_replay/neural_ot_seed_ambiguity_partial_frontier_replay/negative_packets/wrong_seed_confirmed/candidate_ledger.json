@@ -1,0 +1,48 @@
+{
+  "candidate_count": 8,
+  "duplicates": [],
+  "excluded": [
+    {
+      "paper_key": "p_noise_001",
+      "reason": "application-domain branch outside the survey scope"
+    },
+    {
+      "paper_key": "p_noise_002",
+      "reason": "architecture-search false positive"
+    },
+    {
+      "paper_key": "p_quarantine_001",
+      "reason": "withdrawn or quarantined source cannot support survey claims"
+    }
+  ],
+  "included": [
+    {
+      "paper_key": "p_seed_variant_001",
+      "reason": "treated title/version variant as confirmed seed",
+      "source": "fixture_openalex"
+    },
+    {
+      "paper_key": "p_seed_001",
+      "reason": "included without resolving variant ambiguity",
+      "source": "fixture_arxiv"
+    },
+    {
+      "paper_key": "p_ref_001",
+      "reason": "backward lineage from seed references",
+      "source": "fixture_reference_parser"
+    },
+    {
+      "paper_key": "p_cite_001",
+      "reason": "visible forward citation from capped citation endpoint",
+      "source": "fixture_openalex_page_1"
+    },
+    {
+      "paper_key": "p_adj_001",
+      "reason": "adjacent density-modeling survey",
+      "source": "fixture_adjacent_search"
+    }
+  ],
+  "query": "Neural Optimal Transport for generative modeling and inference",
+  "schema_version": "ra-surveybench-candidate-ledger-v1",
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay"
+}

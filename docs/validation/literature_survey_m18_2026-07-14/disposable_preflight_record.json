@@ -1,0 +1,131 @@
+{
+  "authoritative_nonclaim": "This disposable preflight is diagnostic plan evidence only. It does not identify the real M18 candidate, prove the final control bytes, consume an authoritative attempt, or establish M18 completion.",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "candidate": {
+    "commit": "c2614804fac8e0325dcb90328405a1ffd9ff5077",
+    "committed_path_count": 1721,
+    "frozen_whitespace_exception_count": 17,
+    "parent": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+    "protected_baseline_to_candidate_delta": [],
+    "stage_record_sha256": "5f001b74fc3b256260d47d676526dbec189169677461f17c7f8ae12ad7b84d43"
+  },
+  "cli_smokes": {
+    "explicit_seed": {
+      "exit_code": 0,
+      "mission_control_sha256": "736e1d17f7bab95518523d397fb31a3baf3f5289895312aec0dd09de158e091d",
+      "mission_status": "blocked_at_gate",
+      "next_action": "public_metadata",
+      "next_action_sha256": "50257580ac431f32eaa6336331a90ffd37734aff237d7302e5ea2d91c119cda3",
+      "next_action_status": "public_discovery_confirmation_or_existing_artifact_required",
+      "public_discovery_confirmed": false,
+      "trace_sha256": "2b888ef0ae137a999f402fa60fca10224c6ce0908b5002f8dc2afa9d3a281076"
+    },
+    "topic_only": {
+      "exit_code": 0,
+      "mission_control_sha256": "5d2389607c78ddef64505aa1e00e99fcd9b35b2f7a028f2e24a31f3c9aa9f7fa",
+      "mission_status": "blocked_at_gate",
+      "next_action": "confirm_public_discovery",
+      "next_action_sha256": "0ffa08090006773d3b45910f3ddc9b035877c6be14b6130069f666f8af487f45",
+      "next_action_status": "confirmation_required",
+      "public_discovery_confirmed": false,
+      "trace_sha256": "51d2424c42ef805fd120e54887a581a73dd2d8d795a82e4192c259118057f8cd"
+    }
+  },
+  "fresh_clone": {
+    "payload_artifact_count": 1684,
+    "payload_mismatch_count": 0,
+    "payload_replay_exit_code": 0,
+    "payload_sha256": "0d225f29575778e606f096fda058cb0386dcd967a82284f5aa37a4c5638bd318",
+    "payload_trace_sha256": "186b45d0eced03714a692fa0bb18dde5dbb5ae6198d87f0d8d116d3beecc50f7",
+    "source": "separate clone of the disposable candidate commit"
+  },
+  "installed_wheel": {
+    "all_48_research_assistant_module_origins_under_disposable_venv": true,
+    "console_script_interpreter_under_disposable_venv": true,
+    "filename": "research_assistant-0.1.0-py3-none-any.whl",
+    "pip_no_index": true,
+    "sha256": "cf451adb51618708a21d07ac6c12e539f8a3875e15c164a4e056759fb74678ac",
+    "size_bytes": 442188
+  },
+  "payload_manifest_file_sha256": "a3ef9e8db0e8ce6142f4ce624b1043326b25fd73e7b0c1720003f83e5ee26112",
+  "repair_probe": {
+    "audit_candidate_repair_aware": {
+      "active_merge_state_exit_code": 1,
+      "active_merge_state_reason": "Git operation is active: ['MERGE_HEAD']",
+      "deeper_child_commit": "0f53d8516800aa46aae1750bbbc26a7c07def753",
+      "deeper_child_exit_code": 1,
+      "deeper_child_reason": "final candidate is not an initial candidate or its single repair child",
+      "positive_exit_code": 0,
+      "positive_final_committed_path_count": 1724,
+      "positive_frozen_whitespace_exception_count": 17,
+      "positive_repair_path_count": 1,
+      "positive_status": "repaired_candidate_commit_audit_passed",
+      "synthetic_initial_merge_commit": "fe622b488ddea850c5dce59b7cf09a41e6eac52f",
+      "synthetic_initial_merge_exit_code": 1,
+      "synthetic_initial_merge_reason": "commit does not have exactly one parent",
+      "synthetic_repair_merge_commit": "3d7ed6cdca8199aa9f3884231203ea00b1b3b2e4",
+      "synthetic_repair_merge_exit_code": 1,
+      "synthetic_repair_merge_reason": "commit does not have exactly one parent",
+      "tampered_record_commit": "e154b20eef0daa236ea3f163f31b3accda7e83d4",
+      "tampered_record_exit_code": 1,
+      "tampered_record_reason": "repair commit path set differs from its stage authority",
+      "undeclared_path_commit": "7c3619175c3fef0c883abd0c054da15c3be6474d",
+      "undeclared_path_exit_code": 1,
+      "undeclared_path_reason": "repair commit path set differs from its stage authority"
+    },
+    "child_commit": "ee0f5fb4465fb9cd646b2b5f4fb7577bbf0643d6",
+    "committed_paths": [
+      "docs/validation/literature_survey_m18_2026-07-14/repair_attempt02.json",
+      "docs/validation/literature_survey_m18_2026-07-14/repair_stage_record.json",
+      "docs/validation/literature_survey_m18_2026-07-14/synthetic_repair_probe.txt"
+    ],
+    "direct_parent": "c2614804fac8e0325dcb90328405a1ffd9ff5077",
+    "protected_path_rejection": {
+      "declared_path": ".gitignore",
+      "exit_code": 1,
+      "index_empty_after_rejection": true,
+      "manifest_sha256": "1533ac3fb7a835f3b5e102a7ec5d8a1d1dbf35a45cf1b254f850a9723c6ee0e9",
+      "reason": "repair row targets a reserved or protected path"
+    },
+    "repair_manifest_sha256": "49c46917fcf15993100e6999a3ec70f7b88fd270e02c659eeac78750c1f538e2",
+    "repair_stage_record_sha256": "a5342cdc540e245a28acbd28d6c349bbcd704c9155c2a44b1e67f70ebab5ab44",
+    "synthetic_row_sha256": "fd9850c48cfe34e20311d304d0f9fcabb558c39a70633f204084626eece43bfc",
+    "wrong_parent_rejection": {
+      "exit_code": 1,
+      "index_empty_after_rejection": true,
+      "manifest_sha256": "fe37dfb32c7436d8fb8831b08916a241bd2162a07be1d30593e900bf68bbd6a0",
+      "reason": "HEAD is not the declared failed attempt-1 candidate"
+    }
+  },
+  "schema_version": "ra-literature-survey-m18-disposable-preflight-v1",
+  "status": "DISPOSABLE_PREFLIGHT_PASSED_NOT_AUTHORITATIVE",
+  "targeted_trace_audit": {
+    "dirty_checkout_path_occurrences": 0,
+    "historical_absolute_symlink": "preserved and inspected with lstat/readlink; its target was not opened",
+    "socket_connect_sendto_occurrences": 0,
+    "trace_scope": [
+      "payload replay",
+      "installed topic-only CLI smoke",
+      "installed explicit-seed CLI smoke",
+      "frozen Phase 10 path-rebase tests"
+    ]
+  },
+  "test_evidence": {
+    "exact_script_suite": {
+      "junit_sha256": "08905d2a8fc7d672e26070f0964b99c26aa47ad2d541e37637056911bd5930e9",
+      "passed": 12,
+      "wall_seconds": 79.23
+    },
+    "phase10_path_rebase": {
+      "junit_sha256": "9009ca006299cb3ad5b7ba4d3a97293c8d87ae1b9a5b5d679e3fbb3885e3e5d9",
+      "passed": 2,
+      "trace_sha256": "62be999a69a8ed628dc74448dfd18218d31a31825177f9dd79c9186fea9a1599",
+      "wall_seconds": 3.68
+    }
+  },
+  "trace_limitations": {
+    "full_file_trace": "terminated before JUnit; diagnostic only; intentionally not hash-bound as pass evidence",
+    "full_network_only_trace": "terminated before JUnit; diagnostic only; intentionally not hash-bound as pass evidence",
+    "untraced_full_suite_network_claim": "The platform sandbox was network-restricted, but no universal claim about attempted socket syscalls is made for untraced suites."
+  }
+}

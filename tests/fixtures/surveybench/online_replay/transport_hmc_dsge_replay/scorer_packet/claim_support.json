@@ -1,0 +1,77 @@
+{
+  "claims": [
+    {
+      "anchors": [
+        {
+          "kind": "section",
+          "label": "sec:transport-hmc-method",
+          "paper_key": "thmc_seed_001"
+        }
+      ],
+      "claim": "The synthetic seed is the central transport-assisted HMC method node for this benchmark task.",
+      "claim_id": "claim_transport_hmc_seed_method_node",
+      "paper_keys": [
+        "thmc_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "fixture_source_support"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "equation",
+          "label": "eq:transport-map-jacobian",
+          "paper_key": "thmc_seed_001"
+        },
+        {
+          "kind": "algorithm",
+          "label": "alg:transport-hmc-transition",
+          "paper_key": "thmc_seed_001"
+        }
+      ],
+      "claim": "The fixture exposes transport-map and HMC-transition anchors for claim-support testing.",
+      "claim_id": "claim_transport_hmc_anchor_support",
+      "paper_keys": [
+        "thmc_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "fixture_source_support"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "citation_map_edge",
+          "label": "thmc_cite_001->thmc_seed_001",
+          "paper_key": "thmc_cite_001"
+        }
+      ],
+      "claim": "The replay citation surface marks thmc_cite_001 as citing the synthetic seed.",
+      "claim_id": "claim_transport_hmc_forward_citation",
+      "paper_keys": [
+        "thmc_cite_001",
+        "thmc_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "fixture_graph_support"
+    },
+    {
+      "anchors": [],
+      "claim": "The synthetic benchmark fixture proves transport-HMC is the correct default for DSGE inference.",
+      "claim_id": "claim_forbidden_transport_hmc_default",
+      "paper_keys": [],
+      "status": "forbidden",
+      "support_class": "unsupported"
+    }
+  ],
+  "schema_version": "ra-surveybench-claim-support-v1",
+  "task_id": "transport_hmc_dsge_replay",
+  "what_is_not_concluded": [
+    "live-web completeness",
+    "current citation counts",
+    "download reliability",
+    "scientific correctness",
+    "product readiness",
+    "survey completeness",
+    "domain generality"
+  ]
+}

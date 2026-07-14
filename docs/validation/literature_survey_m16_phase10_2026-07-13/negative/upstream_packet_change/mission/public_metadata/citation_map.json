@@ -1,0 +1,106 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "seed_metadata",
+      "evidence_class": "metadata_only_public",
+      "label": "seed metadata",
+      "members": [
+        "p_dq_4beee0cf7a68842c99e931be19aa7e78ac4fd46be5b8efedbcabd6bf94f8082a"
+      ]
+    }
+  ],
+  "edges": [],
+  "expansion_policy": {
+    "adjacent_query_count": 1,
+    "backward_depth": 1,
+    "download_or_source_intake_allowed": false,
+    "forward_depth": 1,
+    "max_downloads": 0,
+    "max_nodes": 25
+  },
+  "frontiers": [
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "seed",
+      "member_count": 1,
+      "members": [
+        "p_dq_4beee0cf7a68842c99e931be19aa7e78ac4fd46be5b8efedbcabd6bf94f8082a"
+      ],
+      "reason": "seed metadata resolved from approved public metadata provider",
+      "status": "present_metadata_only"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "backward",
+      "member_count": 0,
+      "members": [],
+      "reason": "backward reference frontier is blocked or empty because no source references were inspected and provider references were unavailable for the resolved seed",
+      "seed_resolution_status": "available",
+      "status": "blocked_or_empty"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "forward",
+      "member_count": 0,
+      "members": [],
+      "reason": "forward citation frontier is blocked or empty because the seed was not resolved to a provider citation id or provider returned no citing rows",
+      "seed_resolution_status": "available",
+      "status": "blocked_or_empty"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "adjacent",
+      "member_count": 0,
+      "members": [],
+      "reason": "adjacent topic metadata frontier is blocked or empty",
+      "status": "blocked_or_empty"
+    }
+  ],
+  "next_required_actions": [
+    "verify citation relations against provider documentation or source references",
+    "inspect seed references for true backward lineage",
+    "inspect citing papers before calling them major works in prose",
+    "treat blocked provider frontiers as omission risks, not as empty truth"
+  ],
+  "nodes": [
+    {
+      "citation_count": 42,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "seed_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "arxiv:2201.12220v3",
+      "layer": "seed",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_4beee0cf7a68842c99e931be19aa7e78ac4fd46be5b8efedbcabd6bf94f8082a",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "seed"
+      ],
+      "survey_relevance": "seed supplied by user and resolved through public metadata",
+      "title": "Neural Optimal Transport"
+    }
+  ],
+  "schema_version": "ra-survey-citation-map-v1",
+  "seed_papers": [
+    "p_dq_4beee0cf7a68842c99e931be19aa7e78ac4fd46be5b8efedbcabd6bf94f8082a"
+  ],
+  "status": "metadata_only_public_partial",
+  "survey_packet_paths": {
+    "candidate_ledger": "candidate_ledger.json",
+    "claim_support": "claim_support.json",
+    "metadata_provenance": "metadata_provenance.json",
+    "omission_risk": "omission_risk.json",
+    "paper_classifications": "paper_classifications.json",
+    "source_support": "source_support.json"
+  },
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

@@ -1,0 +1,43 @@
+{
+  "endpoint": "download-status",
+  "request_id": "download-status-transport-hmc",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "statuses": [
+    {
+      "download_status": "downloaded_fixture",
+      "paper_key": "thmc_seed_001",
+      "reason": null
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "thmc_ref_001",
+      "reason": "lineage metadata is visible but full source is not in this synthetic fixture"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "thmc_ref_002",
+      "reason": "lineage metadata is visible but full source is not in this synthetic fixture"
+    },
+    {
+      "download_status": "blocked_fixture",
+      "paper_key": "thmc_cite_001",
+      "reason": "forward citing work is metadata-only in this synthetic fixture"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "thmc_adj_001",
+      "reason": "adjacent method source is outside the source-anchor budget"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "thmc_proxy_001",
+      "reason": "proxy-only benchmark row is not source support"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "thmc_noise_001",
+      "reason": "false-positive topic hit"
+    }
+  ],
+  "task_id": "transport_hmc_dsge_replay"
+}

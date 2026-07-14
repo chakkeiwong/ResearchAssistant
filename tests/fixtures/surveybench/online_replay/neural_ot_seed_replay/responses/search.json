@@ -1,0 +1,107 @@
+{
+  "endpoint": "search",
+  "query": "Neural Optimal Transport for generative modeling and inference",
+  "request_id": "search-topic-neural-ot",
+  "result_count": 7,
+  "results": [
+    {
+      "arxiv_id": "2201.12220v3",
+      "authors": [
+        "Alexander Korotin",
+        "Daniil Selikhanovych",
+        "Evgeny Burnaev"
+      ],
+      "doi": "10.48550/arXiv.2201.12220",
+      "paper_key": "p_seed_001",
+      "source": "fixture_arxiv",
+      "title": "Neural Optimal Transport",
+      "year": 2022
+    },
+    {
+      "authors": [
+        "Jean-David Benamou",
+        "Yann Brenier"
+      ],
+      "doi": "10.1007/s002110050002",
+      "paper_key": "p_ref_001",
+      "source": "fixture_reference_search",
+      "title": "A Computational Fluid Mechanics Solution to the Monge-Kantorovich Mass Transfer Problem",
+      "year": 2000
+    },
+    {
+      "authors": [
+        "Synthetic Followup"
+      ],
+      "doi": "10.0000/replay.followup",
+      "paper_key": "p_cite_001",
+      "source": "fixture_citation_search",
+      "title": "Scalable Neural Transport Methods for Inference",
+      "year": 2023
+    },
+    {
+      "authors": [
+        "Ivan Kobyzev",
+        "Simon J. D. Prince",
+        "Marcus A. Brubaker"
+      ],
+      "doi": "10.1109/TPAMI.2020.2992934",
+      "paper_key": "p_adj_001",
+      "source": "fixture_adjacent_search",
+      "title": "Normalizing Flows: An Introduction and Review of Current Methods",
+      "year": 2020
+    },
+    {
+      "arxiv_id": "2201.12220",
+      "authors": [
+        "Alexander Korotin",
+        "Daniil Selikhanovych",
+        "Evgeny Burnaev"
+      ],
+      "doi": "10.48550/arXiv.2201.12220",
+      "paper_key": "p_dup_001",
+      "source": "fixture_openalex",
+      "title": "Neural OT",
+      "year": 2022
+    },
+    {
+      "authors": [
+        "Noisy Adjacent"
+      ],
+      "doi": "10.0000/replay.noisy.single.cell",
+      "paper_key": "p_noise_001",
+      "source": "fixture_openalex_noisy",
+      "title": "Learning Single-Cell Perturbation Responses using Neural Optimal Transport",
+      "year": 2021
+    },
+    {
+      "authors": [
+        "Noisy Search"
+      ],
+      "doi": "10.0000/replay.noisy.nas",
+      "paper_key": "p_noise_002",
+      "source": "fixture_openalex_noisy",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    }
+  ],
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "source_statuses": [
+    {
+      "message": "Seed metadata available from arXiv fixture.",
+      "source": "fixture_arxiv",
+      "status": "ok"
+    },
+    {
+      "message": "Semantic Scholar is simulated as rate-limited for this seed.",
+      "source": "fixture_semantic_scholar",
+      "status": "simulated_rate_limit"
+    },
+    {
+      "message": "OpenAlex search is available but includes noisy adjacent candidates.",
+      "source": "fixture_openalex",
+      "status": "ok"
+    }
+  ],
+  "task_id": "neural_ot_seed_replay"
+}
+

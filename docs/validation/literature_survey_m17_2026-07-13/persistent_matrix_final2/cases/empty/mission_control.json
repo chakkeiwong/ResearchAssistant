@@ -1,0 +1,252 @@
+{
+  "actions": [
+    {
+      "action": "topic_bootstrap",
+      "network_or_provider_called": false,
+      "outcome": "empty",
+      "source_pdf_full_text_attempted": false,
+      "status": "selected_complete"
+    }
+  ],
+  "artifact_state": null,
+  "bootstrap_attempt_state": "selected_complete",
+  "bootstrap_authority": null,
+  "bootstrap_outcome": "empty",
+  "coverage_artifacts": {},
+  "created_at": "2026-07-13T17:59:27+00:00",
+  "effective_seeds": [],
+  "final_artifacts": {},
+  "forbidden_actions": [
+    "do not treat the topic as a paper seed",
+    "do not retry an indeterminate bootstrap call on ordinary resume",
+    "do not run provider, source, PDF, full-text, model-worker, or network actions in M17",
+    "do not expose prepared bootstrap evidence as effective seed authority"
+  ],
+  "generation_id": "g00000002-22a72abf4346bc5f",
+  "initial_seeds": [],
+  "input_mode": "idea_or_topic_without_initial_paper_seed",
+  "local_supervisor": null,
+  "mission_contract": {
+    "created_at": "2026-07-13T17:59:27+00:00",
+    "discovery_budget": {
+      "allowed_domains": [
+        "api.openalex.org",
+        "arxiv.org",
+        "export.arxiv.org"
+      ],
+      "max_bytes_per_source": 52428800,
+      "max_metadata_records": 25,
+      "max_source_records": 5,
+      "providers": [
+        "arxiv",
+        "openalex"
+      ],
+      "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty"
+    },
+    "generation": 2,
+    "input_mode": "idea_or_topic_without_initial_paper_seed",
+    "lineage": {
+      "artifacts": [],
+      "generation_id": "g00000002-22a72abf4346bc5f",
+      "mission_contract_sha256": "c91df403775d5a6c8dec3f6a8414ff02dc2d5f57b5c27488ed38820c58af3587",
+      "parent_generation_id": "g00000001-608ab3b86e472f6b",
+      "transaction_nonce": "4204418c43a51763aea7dd09dbfee2f1"
+    },
+    "migration": null,
+    "mission_fingerprint": "b61051ae5a2e1c279be9762dfbe585a7a7267add9d6230a1b9f5e6f7cc69f84c",
+    "mission_id": "8548e987-0f91-4667-9dff-c51d671874bb",
+    "normalized_initial_seeds": [],
+    "normalized_topic": {
+      "display": "Neural Optimal Transport",
+      "key": "neural optimal transport"
+    },
+    "public_discovery_confirmation": {
+      "confirmation_source": "cli",
+      "confirmed": true,
+      "confirmed_at": "2026-07-13T17:59:27+00:00"
+    },
+    "schema_version": "ra-survey-public-source-mission-contract-v3",
+    "updated_at": "2026-07-13T17:59:27+00:00"
+  },
+  "mission_fingerprint": "b61051ae5a2e1c279be9762dfbe585a7a7267add9d6230a1b9f5e6f7cc69f84c",
+  "mission_id": "8548e987-0f91-4667-9dff-c51d671874bb",
+  "next_action": {
+    "action_id": "terminal_blocked_bootstrap_empty",
+    "approval_required": false,
+    "blockers": [
+      "terminal_blocked_bootstrap_empty"
+    ],
+    "created_at": "2026-07-13T17:59:27+00:00",
+    "forbidden_actions": [
+      "do not treat the topic as a paper seed",
+      "do not retry an indeterminate bootstrap call on ordinary resume",
+      "do not run provider, source, PDF, full-text, model-worker, or network actions in M17",
+      "do not expose prepared bootstrap evidence as effective seed authority"
+    ],
+    "gate_id": "topic_bootstrap",
+    "generation_id": "g00000002-22a72abf4346bc5f",
+    "mission_fingerprint": "b61051ae5a2e1c279be9762dfbe585a7a7267add9d6230a1b9f5e6f7cc69f84c",
+    "mission_id": "8548e987-0f91-4667-9dff-c51d671874bb",
+    "mission_status": "blocked_at_gate",
+    "public_discovery_confirmation": {
+      "confirmation_source": "cli",
+      "confirmed": true,
+      "confirmed_at": "2026-07-13T17:59:27+00:00",
+      "forbidden_actions": [
+        "credentials",
+        "private_databases",
+        "paid_model_worker_trials",
+        "hidden_evaluator_material",
+        "unbounded_crawling",
+        "writes_outside_mission_output",
+        "technical_claim_support_from_metadata_or_source_availability",
+        "final_prose_readiness_from_discovery_alone"
+      ],
+      "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+      "schema_version": "ra-survey-public-discovery-confirmation-v1",
+      "scope": {
+        "allowed_actions": [
+          "local_cache_lookup",
+          "bounded_public_web_api_metadata",
+          "public_archive_search",
+          "public_source_status_lookup",
+          "capped_public_source_pdf_full_text_retrieval"
+        ],
+        "allowed_domains": [
+          "api.openalex.org",
+          "export.arxiv.org",
+          "arxiv.org"
+        ],
+        "caps": {
+          "max_metadata_records": 25,
+          "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty"
+        },
+        "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty",
+        "providers": [
+          "openalex",
+          "arxiv"
+        ],
+        "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+      },
+      "status": "confirmed",
+      "what_is_not_concluded": [
+        "live web coverage",
+        "literature completeness",
+        "survey completeness",
+        "source/PDF/full-text download completion",
+        "retraction/version safety",
+        "technical claim support",
+        "final prose readiness",
+        "product readiness",
+        "scientific correctness"
+      ]
+    },
+    "required_artifacts": [
+      "future reviewed bootstrap repair for empty"
+    ],
+    "safe_next_commands": [
+      "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+    ],
+    "schema_version": "ra-survey-public-source-next-action-v1",
+    "status": "terminal_blocked_bootstrap_empty",
+    "summary": "Topic bootstrap closed honestly with outcome: empty.",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "next_action_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty/next_action.json",
+  "next_gate": {
+    "approval_required": false,
+    "gate_id": "topic_bootstrap",
+    "status": "terminal_blocked_bootstrap_empty"
+  },
+  "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty",
+  "phase_statuses": {},
+  "public_discovery_confirmation": {
+    "confirmation_source": "cli",
+    "confirmed": true,
+    "confirmed_at": "2026-07-13T17:59:27+00:00",
+    "forbidden_actions": [
+      "credentials",
+      "private_databases",
+      "paid_model_worker_trials",
+      "hidden_evaluator_material",
+      "unbounded_crawling",
+      "writes_outside_mission_output",
+      "technical_claim_support_from_metadata_or_source_availability",
+      "final_prose_readiness_from_discovery_alone"
+    ],
+    "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+    "schema_version": "ra-survey-public-discovery-confirmation-v1",
+    "scope": {
+      "allowed_actions": [
+        "local_cache_lookup",
+        "bounded_public_web_api_metadata",
+        "public_archive_search",
+        "public_source_status_lookup",
+        "capped_public_source_pdf_full_text_retrieval"
+      ],
+      "allowed_domains": [
+        "api.openalex.org",
+        "export.arxiv.org",
+        "arxiv.org"
+      ],
+      "caps": {
+        "max_metadata_records": 25,
+        "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty"
+      },
+      "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/empty",
+      "providers": [
+        "openalex",
+        "arxiv"
+      ],
+      "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+    },
+    "status": "confirmed",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "resume": false,
+  "review_queue_counts": null,
+  "review_queue_path": null,
+  "review_queue_reused": null,
+  "reviewed_artifacts": {},
+  "safe_next_commands": [
+    "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+  ],
+  "schema_version": "ra-survey-public-source-mission-control-v3",
+  "seeds": [],
+  "source_intake_metadata_authority": null,
+  "status": "blocked_at_gate",
+  "topic": "Neural Optimal Transport",
+  "updated_at": "2026-07-13T17:59:27+00:00",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ],
+  "workflow_state": null
+}

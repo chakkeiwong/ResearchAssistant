@@ -5,6 +5,32 @@ import json
 from pathlib import Path
 
 from research_assistant.adapters.workspace_exports import export_paper_context
+from research_assistant.benchmarks.local_manifest import validate_local_manifest
+from research_assistant.benchmarks.replay import (
+    build_replay_transcript,
+    replay_call,
+    score_replay_submission,
+    validate_replay_fixture_interface,
+)
+from research_assistant.benchmarks.restricted_trial import (
+    build_launch_approval_packet,
+    build_launch_enforcement_preflight,
+    build_restricted_launcher_dry_run,
+    build_subject_binding_preflight,
+    create_restricted_workspace,
+    validate_launch_approval_packet,
+)
+from research_assistant.benchmarks.surveybench import score_survey_task
+from research_assistant.benchmarks.surveybench_helpers import (
+    scan_subject_helper_payload,
+    surveybench_cluster_hints,
+    surveybench_launch_record_template,
+    surveybench_next_action,
+    surveybench_packet_compose,
+    surveybench_packet_template,
+    surveybench_ready_for_prose,
+)
+from research_assistant.benchmarks.survey_quality import score_survey_prose
 from research_assistant.adapters.mcp_permissions import (
     create_arxiv_batch_grant,
     list_mcp_audit_events,
@@ -152,6 +178,36 @@ from research_assistant.schemas.domain_templates import get_domain_template, lis
 from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
 from research_assistant.source.structured_source import source_record_path
 from research_assistant.source.evidence_context import evidence_context_for_citation, evidence_context_for_label
+from research_assistant.survey.anchors import build_source_anchor_packet
+from research_assistant.survey.artifact_lineage import assert_public_write_path_allowed
+from research_assistant.survey.build import build_survey_evidence_packet
+from research_assistant.survey.claim_review import import_reviewed_claims
+from research_assistant.survey.coverage_ledgers import compose_coverage_ledgers
+from research_assistant.survey.hostile_review import run_hostile_review_gate
+from research_assistant.survey.omission_review import import_reviewed_omissions
+from research_assistant.survey.orchestrate import run_public_source_workflow
+from research_assistant.survey.packet import compose_public_source_evidence_packet
+from research_assistant.survey.reviewed_merge import merge_reviewed_evidence
+from research_assistant.survey.reviewed_packet import compose_reviewed_final_packet
+from research_assistant.survey.source_safety_review import import_reviewed_source_safety
+from research_assistant.survey.workflow_blocker_review import import_reviewed_workflow_blockers
+from research_assistant.survey.mission_state import MissionStateError
+
+
+SURVEY_WRITE_OUTPUT_FIELDS = {
+    "build": ("out",),
+    "anchors": ("out",),
+    "packet": ("out",),
+    "coverage-ledgers": ("out",),
+    "compose-reviewed-final-packet": ("out",),
+    "hostile-review": ("out",),
+    "run-public-source-workflow": ("out",),
+    "import-claim-review": ("out",),
+    "import-source-safety-review": ("out",),
+    "import-omission-review": ("out",),
+    "import-workflow-blocker-review": ("out",),
+    "merge-reviewed-evidence": ("out",),
+}
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
@@ -277,6 +333,14 @@ def cmd_link_add(args: argparse.Namespace) -> int:
 def _print_json(payload: dict | list) -> int:
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
+
+
+def _display_cli_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(Path.cwd()))
+    except ValueError:
+        return f"redacted:{resolved.name}"
 
 
 def cmd_init(args: argparse.Namespace) -> int:
@@ -552,6 +616,505 @@ def cmd_parser_tool_matrix(args: argparse.Namespace) -> int:
 
 def cmd_parser_benchmark_smoke(args: argparse.Namespace) -> int:
     return _print_json(parser_benchmark_smoke(root=Path(args.root) if args.root else None))
+
+
+def cmd_survey(args: argparse.Namespace) -> int:
+    try:
+        _guard_survey_write_paths(args)
+    except MissionStateError as exc:
+        _print_json({
+            "schema_version": "ra-survey-protected-output-result-v1",
+            "status": "blocked",
+            "blocked_reason": exc.code,
+            "next_required_actions": [str(exc)],
+            "what_is_not_concluded": [
+                "literature completeness",
+                "technical claim support",
+                "final prose readiness",
+                "product readiness",
+                "scientific correctness",
+            ],
+        })
+        return 1
+    if args.survey_action == "build":
+        report = build_survey_evidence_packet(
+            topic=args.topic,
+            seeds=args.seed,
+            output_dir=Path(args.out),
+            mode=args.mode,
+            force=args.force,
+            replay_task=Path(args.replay_task) if getattr(args, "replay_task", None) else None,
+            replay_responses_dir=Path(args.replay_responses_dir) if getattr(args, "replay_responses_dir", None) else None,
+            public_metadata_providers=getattr(args, "public_metadata_provider", None),
+            max_records=getattr(args, "max_records", 25),
+        )
+        _print_json(report)
+        return 0 if report["status"] in {
+            "created_skeleton",
+            "partial",
+            "offline_replay_fixture_complete",
+            "metadata_only_packet",
+        } else 1
+    if args.survey_action == "anchors":
+        report = build_source_anchor_packet(
+            topic=args.topic,
+            paper_ids=args.paper_id,
+            output_dir=Path(args.out),
+            force=args.force,
+            max_anchors_per_paper=args.max_anchors_per_paper,
+            root=Path(args.root) if args.root else None,
+        )
+        _print_json(report)
+        return 0 if report["status"] in {"anchors_extracted", "source_gaps_or_no_anchors"} else 1
+    if args.survey_action == "packet":
+        report = compose_public_source_evidence_packet(
+            topic=args.topic,
+            output_dir=Path(args.out),
+            metadata_dir=Path(args.metadata_dir),
+            source_status_dir=Path(args.source_status_dir),
+            anchor_dir=Path(args.anchor_dir),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] == "packet_composed_with_blockers" else 1
+    if args.survey_action == "coverage-ledgers":
+        report = compose_coverage_ledgers(
+            topic=args.topic,
+            packet_dir=Path(args.packet_dir),
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] == "coverage_ledgers_composed" else 1
+    if args.survey_action == "compose-reviewed-final-packet":
+        report = compose_reviewed_final_packet(
+            mission_root=Path(args.mission_root),
+            review_queue_path=Path(args.review_queue),
+            packet_dir=Path(args.packet_dir),
+            anchor_dir=Path(args.anchor_dir),
+            local_evidence_root=Path(args.local_evidence_root) if args.local_evidence_root else None,
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] == "reviewed_final_packet_ready_for_hostile_review" else 1
+    if args.survey_action == "hostile-review":
+        report = run_hostile_review_gate(
+            reviewed_final_packet_path=Path(args.reviewed_final_packet),
+            mission_root=Path(args.mission_root),
+            review_queue_path=Path(args.review_queue),
+            packet_dir=Path(args.packet_dir),
+            anchor_dir=Path(args.anchor_dir),
+            local_evidence_root=Path(args.local_evidence_root) if args.local_evidence_root else None,
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] in {
+            "ready_for_reviewed_prose_within_recorded_scope",
+            "blocked_for_reviewed_prose",
+        } else 1
+    if args.survey_action == "run-public-source-workflow":
+        report = run_public_source_workflow(
+            topic=args.topic,
+            seeds=args.seed,
+            output_dir=Path(args.out),
+            run_safe_local=args.run_safe_local,
+            confirm_public_discovery=args.confirm_public_discovery,
+            resume=args.resume,
+            force=args.force,
+            metadata_dir=Path(args.metadata_dir) if args.metadata_dir else None,
+            source_status_dir=Path(args.source_status_dir) if args.source_status_dir else None,
+            anchor_dir=Path(args.anchor_dir) if args.anchor_dir else None,
+            packet_dir=Path(args.packet_dir) if args.packet_dir else None,
+            coverage_dir=Path(args.coverage_dir) if args.coverage_dir else None,
+            reviewed_claims_dir=Path(args.reviewed_claims_dir) if args.reviewed_claims_dir else None,
+            reviewed_source_safety_dir=Path(args.reviewed_source_safety_dir) if args.reviewed_source_safety_dir else None,
+            reviewed_omissions_dir=Path(args.reviewed_omissions_dir) if args.reviewed_omissions_dir else None,
+            reviewed_workflow_blockers_dir=Path(args.reviewed_workflow_blockers_dir) if args.reviewed_workflow_blockers_dir else None,
+            reviewed_evidence_dir=Path(args.reviewed_evidence_dir) if args.reviewed_evidence_dir else None,
+            local_evidence_root=Path(args.local_evidence_root) if args.local_evidence_root else None,
+        )
+        _print_json(report)
+        return 0 if report["status"] in {"blocked_at_gate", "ready_for_local_continuation"} else 1
+    if args.survey_action == "import-claim-review":
+        report = import_reviewed_claims(
+            review_queue_path=Path(args.review_queue),
+            decisions_path=Path(args.decisions),
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] == "reviewed_claims_complete" else 1
+    if args.survey_action == "import-source-safety-review":
+        report = import_reviewed_source_safety(
+            review_queue_path=Path(args.review_queue),
+            decisions_path=Path(args.decisions),
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] == "reviewed_source_safety_complete" else 1
+    if args.survey_action == "import-omission-review":
+        report = import_reviewed_omissions(
+            review_queue_path=Path(args.review_queue),
+            decisions_path=Path(args.decisions),
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] in {
+            "reviewed_omissions_complete",
+        } else 1
+    if args.survey_action == "import-workflow-blocker-review":
+        report = import_reviewed_workflow_blockers(
+            review_queue_path=Path(args.review_queue),
+            decisions_path=Path(args.decisions),
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] == "reviewed_workflow_blockers_complete" else 1
+    if args.survey_action == "merge-reviewed-evidence":
+        report = merge_reviewed_evidence(
+            review_queue_path=Path(args.review_queue),
+            reviewed_claims_path=Path(args.reviewed_claims),
+            reviewed_source_safety_path=Path(args.reviewed_source_safety),
+            reviewed_omissions_path=Path(args.reviewed_omissions),
+            reviewed_workflow_blockers_path=Path(args.reviewed_workflow_blockers),
+            output_dir=Path(args.out),
+            force=args.force,
+        )
+        _print_json(report)
+        return 0 if report["status"] in {
+            "reviewed_evidence_complete",
+            "reviewed_evidence_blocked",
+            "reviewed_evidence_blocked_unavailable_source_outcome",
+        } else 1
+    raise SystemExit(f"unknown survey action {args.survey_action}")
+
+
+def _guard_survey_write_paths(args: argparse.Namespace) -> None:
+    fields = SURVEY_WRITE_OUTPUT_FIELDS.get(args.survey_action)
+    if fields is None:
+        raise MissionStateError(
+            "unclassified_survey_writer",
+            f"survey action has no protected-output classification: {args.survey_action}",
+        )
+    for field in fields:
+        value = getattr(args, field, None)
+        if value:
+            assert_public_write_path_allowed(Path(value))
+    if args.survey_action == "run-public-source-workflow":
+        metadata_dir = getattr(args, "metadata_dir", None)
+        if metadata_dir:
+            assert_public_write_path_allowed(Path(metadata_dir))
+
+
+def cmd_surveybench(args: argparse.Namespace) -> int:
+    if args.surveybench_action == "run":
+        report = score_survey_task(
+            Path(args.task).resolve(),
+            Path(args.actual_dir).resolve() if args.actual_dir else None,
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-cli-result-v1",
+                "status": report["status"],
+                "task_id": report["task_id"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "vetoes": report["vetoes"],
+                "errors": report["errors"],
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" else 1
+    if args.surveybench_action == "local-manifest":
+        report = validate_local_manifest(Path(args.manifest).resolve())
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-local-manifest-cli-result-v1",
+                "status": report["status"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "issue_count": len(report["issues"]),
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" else 1
+    if args.surveybench_action == "replay-call":
+        result = replay_call(
+            Path(args.task).resolve(),
+            args.endpoint,
+            Path(args.session).resolve(),
+            request_id=args.request_id,
+        )
+        _print_json(result)
+        return 0 if result["status"] in {"ok", "simulated_rate_limit"} else 1
+    if args.surveybench_action == "replay-audit":
+        report = validate_replay_fixture_interface(Path(args.task).resolve())
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-online-replay-audit-cli-result-v1",
+                "status": report["status"],
+                "task_id": report["task_id"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "issue_count": report["issue_count"],
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" else 1
+    if args.surveybench_action == "replay-transcript":
+        report = build_replay_transcript(
+            Path(args.task).resolve(),
+            Path(args.session).resolve(),
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-online-replay-transcript-cli-result-v1",
+                "status": "passed",
+                "task_id": report["task_id"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "event_count": report["event_count"],
+                "summary": report["summary"],
+            }
+        _print_json(report)
+        return 0
+    if args.surveybench_action == "replay-score":
+        report = score_replay_submission(
+            Path(args.task).resolve(),
+            Path(args.actual_dir).resolve(),
+            Path(args.event_log).resolve(),
+            Path(args.gold_dir).resolve(),
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-online-replay-score-cli-result-v1",
+                "status": report["status"],
+                "task_id": report["task_id"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "vetoes": report["vetoes"],
+                "errors": report["errors"],
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" else 1
+    if args.surveybench_action == "score-prose":
+        report = score_survey_prose(
+            Path(args.task).resolve(),
+            Path(args.actual_dir).resolve(),
+            Path(args.event_log).resolve(),
+            Path(args.gold_dir).resolve(),
+            Path(args.prose).resolve(),
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-survey-prose-score-cli-result-v1",
+                "status": report["status"],
+                "task_id": report["task_id"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "hard_gate_vetoes": report["hard_gate_vetoes"],
+                "errors": report["errors"],
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" else 1
+    if args.surveybench_action == "restricted-workspace":
+        report = create_restricted_workspace(
+            Path(args.repo_root).resolve(),
+            Path(args.workspace).resolve(),
+            force=args.force,
+            profile=args.profile,
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-restricted-workspace-cli-result-v1",
+                "status": report["status"],
+                "profile_id": report["profile_id"],
+                "task_id": report["task_id"],
+                "workspace_root": report["workspace_root"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "copied_file_count": report["copied_file_count"],
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" else 1
+    if args.surveybench_action == "restricted-launcher-dry-run":
+        report = build_restricted_launcher_dry_run(
+            Path(args.workspace).resolve(),
+            profile=args.profile,
+            subject_agent=args.subject_agent,
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-restricted-launcher-dry-run-cli-result-v1",
+                "status": report["status"],
+                "dry_run": report["dry_run"],
+                "subject_invoked": report["subject_invoked"],
+                "profile_id": report["profile_id"],
+                "task_id": report["task_id"],
+                "workspace_root": report["workspace_root"],
+                "report_path": _display_cli_path(Path(args.output)),
+            }
+        _print_json(report)
+        return 0 if report["status"] == "prepared_not_launched" and report["subject_invoked"] is False else 1
+    if args.surveybench_action == "subject-binding-preflight":
+        report = build_subject_binding_preflight(
+            Path(args.workspace).resolve(),
+            profile=args.profile,
+            subject_agent=args.subject_agent,
+            model_id=args.model_id,
+            permission_mode=args.permission_mode,
+            subject_transport=args.subject_transport,
+            representative_endpoint=args.representative_endpoint,
+        )
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            report = {
+                "schema_version": "ra-surveybench-subject-binding-preflight-cli-result-v1",
+                "status": report["status"],
+                "subject_invoked": report["subject_invoked"],
+                "profile_id": report["profile_id"],
+                "task_id": report["task_id"],
+                "permission_mode": report["permission_mode"],
+                "settings_path": report["settings_path"],
+                "representative_probe_status": report["representative_probe"]["status"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "issue_count": len(report["issues"]),
+            }
+        _print_json(report)
+        return 0 if report["status"] == "passed" and report["subject_invoked"] is False else 1
+    if args.surveybench_action == "launch-approval-packet":
+        dry_run = json.loads(Path(args.launcher_dry_run).read_text())
+        wrapper_command = json.loads(args.wrapper_command_json) if args.wrapper_command_json else args.wrapper_command
+        if not wrapper_command:
+            raise SystemExit("launch-approval-packet requires --wrapper-command-json or --wrapper-command")
+        subject_binding_preflight = (
+            json.loads(Path(args.subject_binding_preflight).read_text())
+            if args.subject_binding_preflight
+            else None
+        )
+        packet = build_launch_approval_packet(
+            dry_run,
+            subject_agent=args.subject_agent,
+            model_id=args.model_id,
+            subject_transport=args.subject_transport or (subject_binding_preflight or {}).get("subject_transport", "claude-code"),
+            wrapper_command=wrapper_command,
+            budget_cap=json.loads(args.budget_cap_json),
+            transcript_path=Path(args.transcript_path).resolve(),
+            denied_tool_capture_path=Path(args.denied_tool_capture_path).resolve(),
+            cli_version=args.cli_version,
+            subject_binding_preflight=subject_binding_preflight,
+        )
+        preflight = validate_launch_approval_packet(packet)
+        report = {
+            "schema_version": "ra-surveybench-launch-approval-packet-cli-result-v1",
+            "status": preflight["status"],
+            "packet_status": packet["status"],
+            "subject_invoked": packet["subject_invoked"],
+            "human_approval_granted": preflight["human_approval_granted"],
+            "issue_count": len(preflight["issues"]),
+            "issues": preflight["issues"],
+        }
+        if args.output:
+            Path(args.output).write_text(json.dumps(packet, indent=2, sort_keys=True))
+            report["report_path"] = _display_cli_path(Path(args.output))
+        _print_json(report)
+        return 0 if preflight["status"] == "passed" and packet["subject_invoked"] is False else 1
+    if args.surveybench_action == "launch-enforcement-preflight":
+        report = build_launch_enforcement_preflight(Path(args.approval_packet).resolve())
+        if args.output:
+            Path(args.output).write_text(json.dumps(report, indent=2, sort_keys=True))
+            summary = {
+                "schema_version": "ra-surveybench-launch-enforcement-preflight-cli-result-v1",
+                "status": report["status"],
+                "subject_invoked": report["subject_invoked"],
+                "approval_packet_status": report["approval_packet_status"],
+                "human_approval_granted": report["human_approval_granted"],
+                "report_path": _display_cli_path(Path(args.output)),
+                "issue_count": len(report["issues"]),
+            }
+            _print_json(summary)
+            return 0 if report["status"] == "passed" and report["subject_invoked"] is False else 1
+        _print_json(report)
+        return 0 if report["status"] == "passed" and report["subject_invoked"] is False else 1
+    if args.surveybench_action == "next-action":
+        report = surveybench_next_action(
+            Path(args.task).resolve(),
+            Path(args.session).resolve() if args.session else None,
+            Path(args.actual_dir).resolve() if args.actual_dir else None,
+        )
+        scan = scan_subject_helper_payload(report)
+        if scan["status"] != "passed":
+            report["leak_scan"] = scan
+            _print_json(report)
+            return 1
+        _print_json(report)
+        return 0
+    if args.surveybench_action == "packet-template":
+        report = surveybench_packet_template(
+            Path(args.task).resolve(),
+            Path(args.output_dir).resolve() if args.output_dir else None,
+            write_files=args.write_files,
+        )
+        scan = scan_subject_helper_payload(report)
+        if scan["status"] != "passed":
+            report["leak_scan"] = scan
+            _print_json(report)
+            return 1
+        _print_json(report)
+        return 0
+    if args.surveybench_action == "packet-compose":
+        report = surveybench_packet_compose(
+            Path(args.task).resolve(),
+            Path(args.output_dir).resolve(),
+            session_dir=Path(args.session).resolve() if args.session else None,
+            responses_dir=Path(args.responses_dir).resolve() if args.responses_dir else None,
+            write_files=args.write_files,
+        )
+        scan = scan_subject_helper_payload(report)
+        if scan["status"] != "passed":
+            report["leak_scan"] = scan
+            _print_json(report)
+            return 1
+        _print_json(report)
+        return 0 if report["status"] == "ready" else 1
+    if args.surveybench_action == "cluster-hints":
+        report = surveybench_cluster_hints(
+            Path(args.task).resolve(),
+            Path(args.responses_dir).resolve() if args.responses_dir else None,
+        )
+        scan = scan_subject_helper_payload(report)
+        if scan["status"] != "passed":
+            report["leak_scan"] = scan
+            _print_json(report)
+            return 1
+        _print_json(report)
+        return 0 if report["status"] == "ready" else 1
+    if args.surveybench_action == "ready-for-prose":
+        report = surveybench_ready_for_prose(
+            Path(args.task).resolve(),
+            Path(args.actual_dir).resolve(),
+            Path(args.session).resolve() if args.session else None,
+        )
+        scan = scan_subject_helper_payload(report)
+        if scan["status"] != "passed":
+            report["leak_scan"] = scan
+            _print_json(report)
+            return 1
+        _print_json(report)
+        return 0 if report["status"] == "ready" else 1
+    if args.surveybench_action == "launch-record-template":
+        report = surveybench_launch_record_template(Path(args.task).resolve())
+        scan = scan_subject_helper_payload(report)
+        if scan["status"] != "passed":
+            report["leak_scan"] = scan
+            _print_json(report)
+            return 1
+        _print_json(report)
+        return 0
+    raise SystemExit(f"unknown surveybench action {args.surveybench_action}")
 
 
 def cmd_release_artifacts(args: argparse.Namespace) -> int:
@@ -1303,6 +1866,286 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser_benchmark = sub.add_parser('parser-benchmark-smoke', help='Run fixture-only parser benchmark smoke')
     parser_benchmark.set_defaults(func=cmd_parser_benchmark_smoke)
+
+    survey = sub.add_parser('survey', help='Build literature-survey evidence packets')
+    survey_sub = survey.add_subparsers(dest='survey_action', required=True)
+    survey_build = survey_sub.add_parser(
+        'build',
+        help='Build a topic+seed survey evidence packet; metadata mode never fetches source/PDF/full text',
+        description='Build a topic+seed survey evidence packet. Public metadata mode never fetches source/PDF/full text.',
+    )
+    survey_build.add_argument('--topic', required=True)
+    survey_build.add_argument('--seed', action='append', required=True, help='Seed paper identifier; repeat for multiple seeds')
+    survey_build.add_argument('--out', required=True, help='Output directory for the evidence packet')
+    survey_build.add_argument(
+        '--mode',
+        default='offline-skeleton',
+        choices=['offline-skeleton', 'offline-replay', 'public-metadata'],
+        help='offline-skeleton writes a planning packet; offline-replay uses fixture evidence; public-metadata uses bounded public metadata only',
+    )
+    survey_build.add_argument('--replay-task', help='Visible replay task JSON for offline-replay mode')
+    survey_build.add_argument('--replay-responses-dir', help='Visible replay responses directory for offline-replay mode')
+    survey_build.add_argument(
+        '--public-metadata-provider',
+        action='append',
+        choices=['openalex', 'arxiv'],
+        help='Public metadata provider for public-metadata mode; repeat to include both OpenAlex and arXiv',
+    )
+    survey_build.add_argument('--max-records', type=int, default=25, help='Maximum public metadata records; capped at 25')
+    survey_build.add_argument('--force', action='store_true')
+    survey_build.set_defaults(func=cmd_survey)
+    survey_anchors = survey_sub.add_parser('anchors', help='Extract checked source-anchor ledgers from local structured source records')
+    survey_anchors.add_argument('--paper-id', action='append', required=True, help='Local structured source paper id; repeat for multiple papers')
+    survey_anchors.add_argument('--out', required=True, help='Output directory for source-anchor ledgers')
+    survey_anchors.add_argument('--topic')
+    survey_anchors.add_argument('--max-anchors-per-paper', type=int, default=24)
+    survey_anchors.add_argument('--force', action='store_true')
+    survey_anchors.set_defaults(func=cmd_survey)
+    survey_packet = survey_sub.add_parser(
+        'packet',
+        help='Compose a public-source writer packet from prior-phase ledgers without upgrading blocked claims to prose readiness',
+        description='Compose a public-source writer packet from prior-phase ledgers without upgrading blocked claims to prose readiness.',
+    )
+    survey_packet.add_argument('--topic', required=True)
+    survey_packet.add_argument('--out', required=True, help='Output directory for the public-source evidence packet')
+    survey_packet.add_argument('--metadata-dir', required=True, help='Directory containing public metadata ledgers')
+    survey_packet.add_argument('--source-status-dir', required=True, help='Directory containing Phase 4 source intake status')
+    survey_packet.add_argument('--anchor-dir', required=True, help='Directory containing Phase 5 source-anchor ledgers')
+    survey_packet.add_argument('--force', action='store_true')
+    survey_packet.set_defaults(func=cmd_survey)
+    survey_coverage = survey_sub.add_parser(
+        'coverage-ledgers',
+        help='Compose local coverage and snowballing ledgers from existing packet artifacts without live expansion',
+        description='Compose backward_snowball.json, forward_snowball.json, citation_venue_metadata.json, paper_classifications.json, and omitted_paper_risks.json from existing local packet artifacts. This does not run live metadata/source expansion and does not claim literature completeness.',
+    )
+    survey_coverage.add_argument('--topic', required=True)
+    survey_coverage.add_argument('--packet-dir', required=True, help='Existing public-source packet directory; command runs without live expansion')
+    survey_coverage.add_argument('--out', required=True, help='Output directory for coverage and snowballing ledgers')
+    survey_coverage.add_argument('--force', action='store_true')
+    survey_coverage.set_defaults(func=cmd_survey)
+    survey_reviewed_packet = survey_sub.add_parser(
+        'compose-reviewed-final-packet',
+        help='Compose the current immutable reviewed packet for hostile review',
+        description='Replay the current selected queue, packet, coverage, four reviewed sidecars, merge, and exact claim evidence into one immutable packet. This does not establish prose readiness, literature completeness, or scientific correctness.',
+    )
+    survey_reviewed_packet.add_argument('--mission-root', required=True, help='Current mission root; external replay authority')
+    survey_reviewed_packet.add_argument('--review-queue', required=True, help='Current selected V2 review_queue.json')
+    survey_reviewed_packet.add_argument('--packet-dir', required=True, help='Original packet directory recorded by current mission control')
+    survey_reviewed_packet.add_argument('--anchor-dir', required=True, help='Anchor directory recorded by current mission control')
+    survey_reviewed_packet.add_argument('--local-evidence-root', help='Mission-local evidence root required only for reviewed project-derivation or implementation-evidence claims')
+    survey_reviewed_packet.add_argument('--out', required=True, help='Must be <mission-root>/reviewed_final_packet')
+    survey_reviewed_packet.add_argument('--force', action='store_true')
+    survey_reviewed_packet.set_defaults(func=cmd_survey)
+    survey_hostile = survey_sub.add_parser(
+        'hostile-review',
+        help='Gate reviewed-scope prose readiness from one replay-valid reviewed packet',
+        description='Replay the immutable reviewed final packet against current external mission authority and write one authoritative hostile result plus a digest-bound readiness view. This does not run live expansion or establish literature completeness, product readiness, or scientific correctness.',
+    )
+    survey_hostile.add_argument('--reviewed-final-packet', required=True, help='Fixed mission-local reviewed_final_packet.json; raw reviewed_evidence_status.json is not accepted')
+    survey_hostile.add_argument('--mission-root', required=True, help='Current mission root; external replay authority')
+    survey_hostile.add_argument('--review-queue', required=True, help='Current selected V2 review_queue.json')
+    survey_hostile.add_argument('--packet-dir', required=True, help='Original packet directory recorded by current mission control')
+    survey_hostile.add_argument('--anchor-dir', required=True, help='Anchor directory recorded by current mission control')
+    survey_hostile.add_argument('--local-evidence-root', help='Mission-local evidence root required only for reviewed project-derivation or implementation-evidence claims')
+    survey_hostile.add_argument('--out', required=True, help='Output directory for hostile_review_result.json and final_packet_readiness.json')
+    survey_hostile.add_argument('--force', action='store_true')
+    survey_hostile.set_defaults(func=cmd_survey)
+    survey_run = survey_sub.add_parser(
+        'run-public-source-workflow',
+        help='Supervise the public-source survey workflow with one public-discovery confirmation',
+        description='Supervise the public-source survey workflow from a topic alone or from topic+seed. Topic-only mode records a mission-bound bootstrap outcome without fabricating a paper seed. --confirm-public-discovery records the durable mission confirmation; it does not allow credentials, private databases, paid model workers, hidden evaluator material, unbounded crawling, claim support from metadata, or final prose readiness.',
+    )
+    survey_run.add_argument('--topic', required=True)
+    survey_run.add_argument('--seed', action='append', default=None, help='Optional seed paper identifier; repeat for multiple seeds. Omission selects topic-only bootstrap mode; an explicit empty value remains invalid.')
+    survey_run.add_argument('--out', required=True, help='Output directory for mission_control.json and local orchestration artifacts')
+    survey_run.add_argument(
+        '--run-safe-local',
+        action='store_true',
+        help=(
+            'Run the bounded typed local supervisor through every currently eligible deterministic stage; '
+            'stops before live/API/download, source transport, or human-review actions'
+        ),
+    )
+    survey_run.add_argument('--confirm-public-discovery', action='store_true', help='Record the single mission confirmation for bounded public discovery and run implemented bounded discovery steps such as public metadata')
+    survey_run.add_argument('--resume', action='store_true', help='Reuse existing local mission artifacts and discover reviewed sidecars without regenerating review_queue.json or running live/API/download actions')
+    survey_run.add_argument('--metadata-dir', help='Existing public metadata ledger directory, if already approved and available')
+    survey_run.add_argument('--source-status-dir', help='Existing Phase 4 source intake status directory, if already approved and available')
+    survey_run.add_argument('--anchor-dir', help='Existing Phase 5 source-anchor directory, if already available')
+    survey_run.add_argument('--packet-dir', help='Existing or intended public-source packet directory')
+    survey_run.add_argument('--coverage-dir', help='Existing coverage-ledger directory for local resume discovery')
+    survey_run.add_argument('--reviewed-claims-dir', help='Existing reviewed_claims.json sidecar directory for local resume discovery')
+    survey_run.add_argument('--reviewed-source-safety-dir', help='Existing reviewed_source_safety.json sidecar directory for local resume discovery')
+    survey_run.add_argument('--reviewed-omissions-dir', help='Existing reviewed_omission_risks.json sidecar directory for local resume discovery')
+    survey_run.add_argument('--reviewed-workflow-blockers-dir', help='Existing reviewed_workflow_blockers.json sidecar directory for local resume discovery')
+    survey_run.add_argument('--reviewed-evidence-dir', help='Existing reviewed_evidence_status.json merge directory for local resume discovery')
+    survey_run.add_argument('--local-evidence-root', help='Mission-local root used only to replay reviewed project-derivation or implementation-evidence claims')
+    survey_run.add_argument('--force', action='store_true')
+    survey_run.set_defaults(func=cmd_survey)
+    survey_claim_review = survey_sub.add_parser(
+        'import-claim-review',
+        help='Validate reviewed claim decisions from review_queue.json without marking prose or source safety ready',
+        description='Import reviewed claim decisions from a local review_queue.json sidecar. This validates reviewed anchor-mapped claim rows but does not run live lookup, clear source safety, resolve omissions, or mark final prose ready.',
+    )
+    survey_claim_review.add_argument('--review-queue', required=True, help='Path to review_queue.json from run-public-source-workflow')
+    survey_claim_review.add_argument('--decisions', required=True, help='JSON file containing reviewed claim decisions')
+    survey_claim_review.add_argument('--out', required=True, help='Output directory for reviewed_claims.json')
+    survey_claim_review.add_argument('--force', action='store_true')
+    survey_claim_review.set_defaults(func=cmd_survey)
+    survey_source_safety_review = survey_sub.add_parser(
+        'import-source-safety-review',
+        help='Validate reviewed source-safety decisions without marking final prose ready',
+        description='Import reviewed source-safety decisions from a local review_queue.json sidecar. This validates evidence-bearing source-safety rows but does not run live lookup, resolve omissions, merge claims, or mark final prose ready.',
+    )
+    survey_source_safety_review.add_argument('--review-queue', required=True, help='Path to review_queue.json from run-public-source-workflow')
+    survey_source_safety_review.add_argument('--decisions', required=True, help='JSON file containing reviewed source-safety decisions')
+    survey_source_safety_review.add_argument('--out', required=True, help='Output directory for reviewed_source_safety.json')
+    survey_source_safety_review.add_argument('--force', action='store_true')
+    survey_source_safety_review.set_defaults(func=cmd_survey)
+    survey_omission_review = survey_sub.add_parser(
+        'import-omission-review',
+        help='Validate reviewed omission-risk decisions without claiming literature completeness',
+        description='Import reviewed omission-risk decisions from a local review_queue.json sidecar. This validates rationale-bearing omission rows but does not run live lookup, merge claims, clear source safety, claim literature completeness, or mark final prose ready.',
+    )
+    survey_omission_review.add_argument('--review-queue', required=True, help='Path to review_queue.json from run-public-source-workflow')
+    survey_omission_review.add_argument('--decisions', required=True, help='JSON file containing reviewed omission-risk decisions')
+    survey_omission_review.add_argument('--out', required=True, help='Output directory for reviewed_omission_risks.json')
+    survey_omission_review.add_argument('--force', action='store_true')
+    survey_omission_review.set_defaults(func=cmd_survey)
+    survey_workflow_blocker_review = survey_sub.add_parser(
+        'import-workflow-blocker-review',
+        help='Validate exact workflow-blocker dispositions without clearing upstream or prose gates',
+        description='Import decisions for every current workflow_blocker queue item. Review-resolvable blockers require the exact embedded current evidence scope; upstream-only blockers must remain open. This does not run live lookup or mark final prose ready.',
+    )
+    survey_workflow_blocker_review.add_argument('--review-queue', required=True, help='Path to the selected review_queue.json')
+    survey_workflow_blocker_review.add_argument('--decisions', required=True, help='Bound V2 JSON decision envelope for workflow blockers')
+    survey_workflow_blocker_review.add_argument('--out', required=True, help='Output directory for reviewed_workflow_blockers.json')
+    survey_workflow_blocker_review.add_argument('--force', action='store_true')
+    survey_workflow_blocker_review.set_defaults(func=cmd_survey)
+    survey_merge_reviewed = survey_sub.add_parser(
+        'merge-reviewed-evidence',
+        help='Merge reviewed sidecars into exact readiness or blocker status',
+        description='Merge exact reviewed claim, source-safety, omission, and workflow-blocker sidecars with selected-queue provenance. This does not run live lookup, emit final prose readiness, or establish product/scientific readiness.',
+    )
+    survey_merge_reviewed.add_argument('--review-queue', required=True, help='Path to review_queue.json used by all sidecars')
+    survey_merge_reviewed.add_argument('--reviewed-claims', required=True, help='Path to reviewed_claims.json')
+    survey_merge_reviewed.add_argument('--reviewed-source-safety', required=True, help='Path to reviewed_source_safety.json')
+    survey_merge_reviewed.add_argument('--reviewed-omissions', required=True, help='Path to reviewed_omission_risks.json')
+    survey_merge_reviewed.add_argument('--reviewed-workflow-blockers', required=True, help='Path to reviewed_workflow_blockers.json')
+    survey_merge_reviewed.add_argument('--out', required=True, help='Output directory for reviewed_evidence_status.json')
+    survey_merge_reviewed.add_argument('--force', action='store_true')
+    survey_merge_reviewed.set_defaults(func=cmd_survey)
+
+    surveybench = sub.add_parser('surveybench', help='Run offline synthetic and online-replay SurveyBench fixtures')
+    surveybench_sub = surveybench.add_subparsers(dest='surveybench_action', required=True)
+    surveybench_run = surveybench_sub.add_parser('run', help='Run an offline SurveyBench task and emit JSON')
+    surveybench_run.add_argument('--task', required=True)
+    surveybench_run.add_argument('--actual-dir')
+    surveybench_run.add_argument('--output')
+    surveybench_run.set_defaults(func=cmd_surveybench)
+    surveybench_manifest = surveybench_sub.add_parser('local-manifest', help='Validate a redacted local SurveyBench manifest')
+    surveybench_manifest.add_argument('--manifest', required=True)
+    surveybench_manifest.add_argument('--output')
+    surveybench_manifest.set_defaults(func=cmd_surveybench)
+    surveybench_replay_call = surveybench_sub.add_parser('replay-call', help='Call an offline online-replay endpoint and append a budgeted event log')
+    surveybench_replay_call.add_argument('--task', required=True)
+    surveybench_replay_call.add_argument('--endpoint', required=True)
+    surveybench_replay_call.add_argument('--session', required=True)
+    surveybench_replay_call.add_argument('--request-id')
+    surveybench_replay_call.set_defaults(func=cmd_surveybench)
+    surveybench_replay_audit = surveybench_sub.add_parser('replay-audit', help='Audit an online-replay fixture for interface and leakage issues')
+    surveybench_replay_audit.add_argument('--task', required=True)
+    surveybench_replay_audit.add_argument('--output')
+    surveybench_replay_audit.set_defaults(func=cmd_surveybench)
+    surveybench_replay_transcript = surveybench_sub.add_parser('replay-transcript', help='Build an offline replay transcript from a trusted session event log')
+    surveybench_replay_transcript.add_argument('--task', required=True)
+    surveybench_replay_transcript.add_argument('--session', required=True)
+    surveybench_replay_transcript.add_argument('--output')
+    surveybench_replay_transcript.set_defaults(func=cmd_surveybench)
+    surveybench_replay_score = surveybench_sub.add_parser('replay-score', help='Score an online-replay submission packet against hidden fixture gold and an event log')
+    surveybench_replay_score.add_argument('--task', required=True)
+    surveybench_replay_score.add_argument('--actual-dir', required=True)
+    surveybench_replay_score.add_argument('--event-log', required=True)
+    surveybench_replay_score.add_argument('--gold-dir', required=True)
+    surveybench_replay_score.add_argument('--output')
+    surveybench_replay_score.set_defaults(func=cmd_surveybench)
+    surveybench_score_prose = surveybench_sub.add_parser('score-prose', help='Score survey prose annotations after replay evidence-packet hard gates')
+    surveybench_score_prose.add_argument('--task', required=True)
+    surveybench_score_prose.add_argument('--actual-dir', required=True)
+    surveybench_score_prose.add_argument('--event-log', required=True)
+    surveybench_score_prose.add_argument('--gold-dir', required=True)
+    surveybench_score_prose.add_argument('--prose', required=True)
+    surveybench_score_prose.add_argument('--output')
+    surveybench_score_prose.set_defaults(func=cmd_surveybench)
+    surveybench_restricted_workspace = surveybench_sub.add_parser('restricted-workspace', help='Create a restricted SurveyBench replay-call workspace')
+    surveybench_restricted_workspace.add_argument('--repo-root', default='.')
+    surveybench_restricted_workspace.add_argument('--workspace', required=True)
+    surveybench_restricted_workspace.add_argument('--profile', default='default')
+    surveybench_restricted_workspace.add_argument('--output')
+    surveybench_restricted_workspace.add_argument('--force', action='store_true')
+    surveybench_restricted_workspace.set_defaults(func=cmd_surveybench)
+    surveybench_restricted_launcher = surveybench_sub.add_parser('restricted-launcher-dry-run', help='Create a restricted SurveyBench launcher dry-run record without launching a subject')
+    surveybench_restricted_launcher.add_argument('--workspace', required=True)
+    surveybench_restricted_launcher.add_argument('--profile', default='default')
+    surveybench_restricted_launcher.add_argument('--subject-agent', default='<unlaunched-subject-agent>')
+    surveybench_restricted_launcher.add_argument('--output')
+    surveybench_restricted_launcher.set_defaults(func=cmd_surveybench)
+    surveybench_subject_binding = surveybench_sub.add_parser('subject-binding-preflight', help='Build a no-launch Claude subject permission binding preflight')
+    surveybench_subject_binding.add_argument('--workspace', required=True)
+    surveybench_subject_binding.add_argument('--profile', default='default')
+    surveybench_subject_binding.add_argument('--subject-agent', default='claude-code-sonnet-subject')
+    surveybench_subject_binding.add_argument('--model-id', default='claude-sonnet-4-6')
+    surveybench_subject_binding.add_argument('--permission-mode', default='dontAsk')
+    surveybench_subject_binding.add_argument('--subject-transport', default='claude-code')
+    surveybench_subject_binding.add_argument('--representative-endpoint', default='search')
+    surveybench_subject_binding.add_argument('--output')
+    surveybench_subject_binding.set_defaults(func=cmd_surveybench)
+    surveybench_launch_approval = surveybench_sub.add_parser('launch-approval-packet', help='Build and preflight a real-subject approval packet without launching')
+    surveybench_launch_approval.add_argument('--launcher-dry-run', required=True)
+    surveybench_launch_approval.add_argument('--subject-agent', required=True)
+    surveybench_launch_approval.add_argument('--model-id', required=True)
+    surveybench_launch_approval.add_argument('--subject-transport')
+    surveybench_launch_approval.add_argument('--wrapper-command', nargs='+')
+    surveybench_launch_approval.add_argument('--wrapper-command-json')
+    surveybench_launch_approval.add_argument('--subject-binding-preflight')
+    surveybench_launch_approval.add_argument('--budget-cap-json', required=True)
+    surveybench_launch_approval.add_argument('--transcript-path', required=True)
+    surveybench_launch_approval.add_argument('--denied-tool-capture-path', required=True)
+    surveybench_launch_approval.add_argument('--cli-version', required=True)
+    surveybench_launch_approval.add_argument('--output')
+    surveybench_launch_approval.set_defaults(func=cmd_surveybench)
+    surveybench_launch_enforcement = surveybench_sub.add_parser('launch-enforcement-preflight', help='Build launch enforcement/no-drift preflight without launching')
+    surveybench_launch_enforcement.add_argument('--approval-packet', required=True)
+    surveybench_launch_enforcement.add_argument('--output')
+    surveybench_launch_enforcement.set_defaults(func=cmd_surveybench)
+    surveybench_next_action = surveybench_sub.add_parser('next-action', help='Emit the next structured SurveyBench replay action from visible task/session/output state')
+    surveybench_next_action.add_argument('--task', required=True)
+    surveybench_next_action.add_argument('--session')
+    surveybench_next_action.add_argument('--actual-dir')
+    surveybench_next_action.set_defaults(func=cmd_surveybench)
+    surveybench_packet_template = surveybench_sub.add_parser('packet-template', help='Emit schema-only SurveyBench packet skeletons')
+    surveybench_packet_template.add_argument('--task', required=True)
+    surveybench_packet_template.add_argument('--output-dir')
+    surveybench_packet_template.add_argument('--write-files', action='store_true')
+    surveybench_packet_template.set_defaults(func=cmd_surveybench)
+    surveybench_packet_compose = surveybench_sub.add_parser('packet-compose', help='Compose a visible SurveyBench evidence packet from replay evidence')
+    surveybench_packet_compose.add_argument('--task', required=True)
+    surveybench_packet_compose.add_argument('--output-dir', required=True)
+    surveybench_packet_compose.add_argument('--session')
+    surveybench_packet_compose.add_argument('--responses-dir')
+    surveybench_packet_compose.add_argument('--write-files', action='store_true')
+    surveybench_packet_compose.set_defaults(func=cmd_surveybench)
+    surveybench_cluster_hints = surveybench_sub.add_parser('cluster-hints', help='Emit visible replay-derived SurveyBench cluster guidance')
+    surveybench_cluster_hints.add_argument('--task', required=True)
+    surveybench_cluster_hints.add_argument('--responses-dir')
+    surveybench_cluster_hints.set_defaults(func=cmd_surveybench)
+    surveybench_ready = surveybench_sub.add_parser('ready-for-prose', help='Check whether visible replay artifacts are ready for survey prose drafting')
+    surveybench_ready.add_argument('--task', required=True)
+    surveybench_ready.add_argument('--actual-dir', required=True)
+    surveybench_ready.add_argument('--session')
+    surveybench_ready.set_defaults(func=cmd_surveybench)
+    surveybench_launch_record = surveybench_sub.add_parser('launch-record-template', help='Emit a schema-only blinded rerun launch record template')
+    surveybench_launch_record.add_argument('--task', required=True)
+    surveybench_launch_record.set_defaults(func=cmd_surveybench)
 
     arxiv_batch = sub.add_parser('arxiv-batch', help='Plan and run bounded arXiv batch intake')
     arxiv_batch_sub = arxiv_batch.add_subparsers(dest='arxiv_batch_action', required=True)

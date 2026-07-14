@@ -1,0 +1,99 @@
+{
+  "accessed_at": "2026-07-13T05:47:06+00:00",
+  "download_or_source_intake": {
+    "allowed": false,
+    "attempted": false,
+    "credentials_used": false,
+    "pdf_downloads_attempted": false,
+    "source_downloads_attempted": false
+  },
+  "max_records": 25,
+  "provider_statuses": [
+    {
+      "normalized_seed_key": "arxiv:2201.12220v3",
+      "provider": "arxiv",
+      "query_cap": 5,
+      "query_kind": "seed_resolution",
+      "raw_response_saved": false,
+      "record_count": 1,
+      "status": "available",
+      "topic_query": false
+    },
+    {
+      "normalized_seed_key": null,
+      "provider": "arxiv",
+      "query_cap": 12,
+      "query_kind": "topic_search",
+      "raw_response_saved": false,
+      "record_count": 0,
+      "status": "available",
+      "topic_query": true
+    },
+    {
+      "normalized_seed_key": "arxiv:2201.12220v3",
+      "provider": "openalex",
+      "query_cap": 5,
+      "query_kind": "seed_resolution",
+      "raw_response_saved": false,
+      "record_count": 1,
+      "status": "available",
+      "topic_query": false
+    },
+    {
+      "normalized_seed_key": null,
+      "provider": "openalex",
+      "query_cap": 12,
+      "query_kind": "topic_search",
+      "raw_response_saved": false,
+      "record_count": 0,
+      "status": "available",
+      "topic_query": true
+    }
+  ],
+  "providers": [
+    "arxiv",
+    "openalex"
+  ],
+  "raw_response_policy": {
+    "privacy_scan": "not_applicable_raw_responses_not_saved",
+    "raw_responses_saved": false,
+    "reason": "Phase 10 deterministic fixture"
+  },
+  "record_count": 1,
+  "records": [
+    {
+      "identifier": "arxiv:2201.12220v3",
+      "metadata_layer": "seed",
+      "metadata_only": true,
+      "paper_key": "p_dq_4beee0cf7a68842c99e931be19aa7e78ac4fd46be5b8efedbcabd6bf94f8082a",
+      "provider_records": [
+        {
+          "citation_count": 42,
+          "provider": "openalex",
+          "publication_date": "2022-01-01",
+          "query_kind": "seed_resolution",
+          "source_id": "W123",
+          "work_type": "article"
+        },
+        {
+          "primary_category": "cs.LG",
+          "provider": "arxiv",
+          "published": "2022-01-01",
+          "query_kind": "seed_resolution",
+          "source_id": "2201.12220v3"
+        }
+      ],
+      "providers": [
+        "arxiv",
+        "openalex"
+      ],
+      "roles": [
+        "seed"
+      ],
+      "title": "Neural Optimal Transport"
+    }
+  ],
+  "schema_version": "ra-survey-metadata-provenance-v1",
+  "status": "metadata_collected",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

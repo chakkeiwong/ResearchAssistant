@@ -1,0 +1,31 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 2,
+  "captured_at": "2026-07-11T06:57:49+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "passed_after_fresh_read_only_review_round3",
+  "existing_files": [
+    {"path": "src/research_assistant/survey/orchestrate.py", "baseline_source": "phase1_result", "before_git_status": "??", "before_sha256": "f37e914df5cd6b210db08f03762c16739cca9659e91f286f6b8735a053d140c2", "after_git_status": "??", "after_sha256": "845d938d83c83340b0db6c0e1cd6342b896079291a76765c5c1a88561179ffe0"},
+    {"path": "src/research_assistant/survey/mission_state.py", "baseline_source": "phase1_result", "before_git_status": "??", "before_sha256": "4b8ef4cf779f0aacbd79b01f2e4023154e0ae7edb1fbfabaeb661533a86e34de", "after_git_status": "??", "after_sha256": "daa1e082646c1b1a06533a759c0669554fd032c2d592ee919653f456e4c5fa7b"},
+    {"path": "src/research_assistant/survey/coverage_ledgers.py", "baseline_source": "phase0_inventory", "before_git_status": "??", "before_sha256": "31fa73d543a2e92f3c44052fb9f41bdb7633f0d6d09697cc69c1c468bdbd8758", "after_git_status": "??", "after_sha256": "7a8bc2210e57f6f813c7c3aa12a27b5d433c43381656a7c0a7af57f038e35afe"},
+    {"path": "src/research_assistant/survey/claim_review.py", "baseline_source": "phase0_inventory", "before_git_status": "??", "before_sha256": "560c4833680d25b6c316eb1e56e382881bf534f8c470d338c60616a8eb9af3be", "after_git_status": "??", "after_sha256": "f6ac2614172661c22f21040b4cc04d0204f44d4f7c9b3e2c6cd18b73b3ab081e"},
+    {"path": "src/research_assistant/survey/source_safety_review.py", "baseline_source": "phase0_inventory", "before_git_status": "??", "before_sha256": "d6ca5be4894bea80807afa763d946bf841f59ab9ceef22f70939f0cd6c29206b", "after_git_status": "??", "after_sha256": "8913d640e8fb06476ddabec3f1ee5e83bf05bfa61c01a1028adf2b6d1bace685"},
+    {"path": "src/research_assistant/survey/omission_review.py", "baseline_source": "phase0_inventory", "before_git_status": "??", "before_sha256": "8f8c3c0ddfa1216e5bd6e5e2941792fd4cf35ef45301c2ea10387ff1d00e4751", "after_git_status": "??", "after_sha256": "97462d36e9e6af1198ee89fc3cf48456529cd9bdde3bf744c2f88a7992355e35"},
+    {"path": "src/research_assistant/survey/reviewed_merge.py", "baseline_source": "phase0_inventory", "before_git_status": "??", "before_sha256": "3eb2179caf587b81a1b9e6c1bd322adf25008517c8235c3acc0d0715365a8110", "after_git_status": "??", "after_sha256": "dec5e7ffab0f2b3793841657d9db1d85afb01deec4c81eb0a3716212c0fb6894"},
+    {"path": "src/research_assistant/survey/hostile_review.py", "baseline_source": "phase0_inventory", "before_git_status": "??", "before_sha256": "98294ff2b2c55cdabe3d31c291f0d3dbb83376c23a3232923ecd873c5c5c6fa9", "after_git_status": "??", "after_sha256": "a191b777fd5cfde0b34bbe8c988142bbe9d6d0e99a12477a2329773e83e154a5"},
+    {"path": "src/research_assistant/cli.py", "baseline_source": "phase0_inventory", "before_git_status": " M", "before_sha256": "3549f2c407dd676dd5fa63c8ce6da5d50290e05a6e6bf30aea1593c4e61d12ee", "after_git_status": " M", "after_sha256": "1925a911d9a6ba76f4e08a9fbbf82352860cc9c52d53a6bced67486b152f9e8f"},
+    {"path": "tests/integration/test_cli_commands.py", "baseline_source": "phase0_inventory", "before_git_status": " M", "before_sha256": "10f8cea80e2263ed726e18d5f5e84a51409441ee28f02111e49eeac7ae18e104", "after_git_status": " M", "after_sha256": "3cdf2c570078ff1f92eec1b7414411d13feb28bc77281c40f7358dd3abe27259"}
+  ],
+  "new_files": [
+    {"path": "src/research_assistant/survey/artifact_lineage.py", "before_sha256": null, "after_sha256": "684de79c51c9177a292c5842f4532f6514fa3598479ead69d284fdb57aca2e72"},
+    {"path": "tests/unit/test_literature_survey_m16_phase2.py", "before_sha256": null, "after_sha256": "0e93c5ea2656b38efb665d66a23fd3018fd2b34188e68601ad29f33db919c2dd"}
+  ],
+  "implementation_review": {
+    "round_2": "REVISE: direct consumers erased symlink evidence before selected-lineage validation",
+    "round_3": "AGREE: repaired snapshot and hashes verified before and after read-only inspection",
+    "bundle": "docs/reviews/literature_survey_m16_phase2_implementation_review_bundle_2026-07-11.md",
+    "bundle_sha256": "033c5f37d383bc455b5c04bf5faf51a41b5af13eac7f6901992b5783316caa5d"
+  },
+  "reconciliation": "docs/validation/literature_survey_m16_phase2_2026-07-10/nul_safe_reconciliation.json",
+  "unexpected_mismatches": []
+}

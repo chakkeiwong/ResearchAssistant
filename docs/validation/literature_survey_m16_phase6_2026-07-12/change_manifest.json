@@ -1,0 +1,36 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 6,
+  "captured_at": "2026-07-12T03:28:18+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "passed_after_repair3_four_primary_read_only_agreements",
+  "product_and_test_hashes": [
+    {"path": "src/research_assistant/survey/source_intake.py", "sha256": "414cf6acfdd09521b795366766e74ad0539b28a6171658cb8de71b190c834953"},
+    {"path": "src/research_assistant/survey/mission_state.py", "sha256": "5c731c88fe55969d7e4af12155681a72ca691dcb80d42e6d4ca4610c3591a00b"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "sha256": "b5e2d095d0ba8d389723a0e6cee791e63df54805f8a6fa8b11921922ea89ea36"},
+    {"path": "src/research_assistant/survey/supervisor.py", "sha256": "a07367c94197fb9a6bc114d1bac264ca586238cf76509d1300f942ca7b34eed2"},
+    {"path": "src/research_assistant/survey/packet.py", "sha256": "e30cccbd346050e68f1f3ab2ef73afd7e14ae43515f5703cf18cd31fbba33eaf"},
+    {"path": "tests/unit/test_literature_survey_m16_phase6.py", "sha256": "872c1a0cfa49bdc8da16949b37b4a82c6205ace81f0a99927033bcfdff1b30c9"},
+    {"path": "tests/unit/test_literature_survey_m16_phase5.py", "sha256": "100cc378503643dc9fa4852b1486905d11b55dc36cbb5df70e2d230c23af8d51"},
+    {"path": "tests/integration/test_cli_commands.py", "sha256": "7d35eb9906d2cb1c1149bfa15c29471980b1bf7b55a6a37601aa2cd03f438738"},
+    {"path": "scripts/literature_survey_phase8_ux_validation.py", "sha256": "52ffb9d24b12778af1e468de3ed1b0d9dc15b261a2a4e5bbe4197f5fc8e18239"}
+  ],
+  "protected_dirty_file_hashes": [
+    {"path": "src/research_assistant/source/arxiv_source.py", "sha256": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8"},
+    {"path": "src/research_assistant/ingest/arxiv_batch.py", "sha256": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be"},
+    {"path": "tests/unit/test_arxiv_source.py", "sha256": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"},
+    {"path": "tests/integration/test_arxiv_batch_intake.py", "sha256": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80"}
+  ],
+  "validation": {
+    "phase6_unit_module": "79 passed",
+    "focused_phase6_cli": "121 passed, 82 deselected",
+    "combined_phase1_through_phase6": "375 passed",
+    "full_unit": "579 passed",
+    "full_cli_integration": "124 passed",
+    "exact_survey_scripts": "6 passed",
+    "phase8_ux": "passed with zero issues",
+    "compile_parse_writer_diff": "passed",
+    "reconciliation": "passed"
+  },
+  "unexpected_mismatches": []
+}

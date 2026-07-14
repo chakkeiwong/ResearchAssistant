@@ -1,0 +1,41 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 5,
+  "captured_at": "2026-07-12T00:32:12+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "passed_after_repair_round2_read_only_agree",
+  "authorized_plan_sha256": "8be2fb136c3409956f703ec9b4e82fe3fc6473785186a61f12ae66659420c257",
+  "product_and_test_hashes": [
+    {"path": "src/research_assistant/survey/mission_state.py", "sha256": "fd4913f2fe80bb0e15ddef3b50c2b7762bf1a55c4535cda059e60922bcbc528b"},
+    {"path": "src/research_assistant/survey/artifact_lineage.py", "sha256": "ddb3c20246fec0b3b2c104abbf8c3f9f446e894790a3f4b92d5addc47bcdb95d"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "sha256": "a27f3424a56e41abad180b7db695c8f4d3fba5f20672178840aab72d0a14f3b0"},
+    {"path": "src/research_assistant/survey/supervisor.py", "sha256": "bc93835d27bdbaea633ae65755510fb80f85285d5aa1e6705c7770ec469e2e41"},
+    {"path": "src/research_assistant/cli.py", "sha256": "26a1674768a930ca43aef61dc5ae477610f083ce029e2ec03c336150316f47b6"},
+    {"path": "tests/unit/test_literature_survey_m16.py", "sha256": "1535a593bef5775aaa65735ab1d1415af6ba639042c90ee916bb5e02671e4612"},
+    {"path": "tests/unit/test_literature_survey_m16_phase2.py", "sha256": "cd1a383a87aff8331e49c83faab08b58194f99ae62104d36e9d08ee8fa801438"},
+    {"path": "tests/unit/test_literature_survey_m16_phase3.py", "sha256": "e6ebe3a9cbb04e1183b20950c5844d57190ed72227a09e8257acebe3575baa92"},
+    {"path": "tests/unit/test_literature_survey_m16_phase4.py", "sha256": "98decb1cb1456df86ee4a21424ecfdf2a28457e28147b0409cbca59e67f2284a"},
+    {"path": "tests/unit/test_literature_survey_m16_phase5.py", "sha256": "100cc378503643dc9fa4852b1486905d11b55dc36cbb5df70e2d230c23af8d51"},
+    {"path": "tests/integration/test_cli_commands.py", "sha256": "7d35eb9906d2cb1c1149bfa15c29471980b1bf7b55a6a37601aa2cd03f438738"},
+    {"path": "scripts/literature_survey_phase8_ux_validation.py", "sha256": "52ffb9d24b12778af1e468de3ed1b0d9dc15b261a2a4e5bbe4197f5fc8e18239"}
+  ],
+  "read_only_dependency_hashes": [
+    {"path": "src/research_assistant/survey/reviewed_merge.py", "sha256": "036c9ec1e579e7b7a5c5a089a33c7164e1c1e50c84b5d466e6d1aca72076b99b"},
+    {"path": "src/research_assistant/survey/reviewed_packet.py", "sha256": "cd385f5e1d2da804eea2329d96d5c7dca4db2c4bf969f74252dc7a46b2bd7dd8"},
+    {"path": "src/research_assistant/survey/hostile_review.py", "sha256": "095a95308511fe86970033e57601623413d5310a4cec8c4ae38a42bed1257073"}
+  ],
+  "validation": {
+    "repair_round1_adversarial": "5 passed",
+    "repair_round2_anchor_replay": "4 passed",
+    "focused_phase5": "105 passed",
+    "phase5_unit_module": "65 passed",
+    "combined_phase1_through_phase5": "296 passed",
+    "full_unit": "500 passed",
+    "full_cli_integration": "124 passed",
+    "exact_survey_scripts": "6 passed",
+    "phase8_ux": "passed with zero issues",
+    "compile_parse_writer_diff": "passed",
+    "reconciliation": "passed"
+  },
+  "unexpected_mismatches": []
+}

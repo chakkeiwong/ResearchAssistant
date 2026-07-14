@@ -1,0 +1,24 @@
+{
+  "schema_version": "ra-literature-survey-m16-phase10-static-audit-v1",
+  "status": "passed",
+  "captured_at": "2026-07-13T14:07:34+08:00",
+  "cpu_gpu_status": "CUDA_VISIBLE_DEVICES=-1 for every Python/test command; GPU devices intentionally hidden",
+  "transitive_primary_evidence": {"artifact_count": 1137, "regular_file_count": 1136, "symlink_count": 1, "unique_path_count": 1137, "tree_sha256": "b6d5ddb4f52238abadaa07b5bd80ed74e478dab64088efa65eac3c7fd6c09d41", "hash_mismatches": [], "focused_canonical_replay": "passed"},
+  "json_junit_parse": {"intentional_malformed_fixture": "negative/malformed_reviewed_merge/mission/reviewed_evidence/reviewed_evidence_status.json", "unexpected_json_failures": [], "junit_files_parsed": 8, "junit_tests": 2337, "junit_failures": 0, "junit_errors": 0, "junit_skipped": 0},
+  "provider_transport_ast_sha256": {"_arxiv_metadata_query": "81a38f4224ef6c1a790cac59f3c5c6fa2c448a580684d1cadcfcad7f47651489", "_fetch_public_json": "d68b5d0bed70cafd80f2716c83a506be496d62b11800c14a19c2894c76a8f0f6", "_openalex_cited_by": "50b6e0f446b8b16ac07818cd2576c99d6bff8c4cdb4a46c757a8ac0ecf43d97f", "_openalex_metadata_search": "61149d8b66b515e51ed8abd9afd3109026631ae7f9a88421ba186e0c6045338b", "_parse_arxiv_metadata_records": "abb93add32b40b00608952b2f088c48158d731bd64c29e788e660c5412035fde"},
+  "writer_table": {"survey_action_count": 12, "classified_action_count": 12, "missing_actions": [], "unknown_classifications": [], "missing_output_fields": []},
+  "protected_hashes": [
+    {"path": "src/research_assistant/source/arxiv_source.py", "sha256": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8"},
+    {"path": "src/research_assistant/ingest/arxiv_batch.py", "sha256": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be"},
+    {"path": "tests/unit/test_arxiv_source.py", "sha256": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"},
+    {"path": "tests/integration/test_arxiv_batch_intake.py", "sha256": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80"},
+    {"path": ".gitignore", "sha256": "29344e75c13a1a6d4e9b1bb653d106156cafb02ee61b1c99701c9a32f5ec9074"},
+    {"path": "docs/benchmark_plan.md", "sha256": "2395402f907a6d163979e37fa62d6975109c5e9ccfcb7322962b3a0a2e00a033"},
+    {"path": "src/research_assistant/survey/source_intake.py", "sha256": "fc7c1981e2e9373d5ed2e4f2859c644b544812a6cb1bc964acc4cd1964c421e1"},
+    {"path": "src/research_assistant/survey/anchors.py", "sha256": "ff97005f8901ebdb3cbce64cbbbb49f1e802aee7bac119ffdbab8cf1c5c3f35c"},
+    {"path": "src/research_assistant/survey/packet.py", "sha256": "e30cccbd346050e68f1f3ab2ef73afd7e14ae43515f5703cf18cd31fbba33eaf"},
+    {"path": "src/research_assistant/survey/supervisor.py", "sha256": "4a5eac36ebe0651958551d4109f4792df19ffe20f37ef17fa0bffb9de7afa7b7"}
+  ],
+  "checks": {"changed_module_py_compile": "passed", "git_diff_check": "passed", "json_artifact_parse": "passed with one exact malformed negative fixture excluded", "junit_artifact_parse": "passed", "inventory_count_length_uniqueness": "passed", "selected_authority_replay": "independently derived for both CLI records", "legacy_cli_replay": "exactly three unique rows/files/commands with argv and return-code equality", "negative_mutation_contracts": "passed", "symlink_and_descriptor_boundaries": "passed", "protected_hashes": "passed", "provider_transport_ast_identity": "passed", "writer_table_coverage": "passed", "phase8_ux_compatibility": "passed", "stale_path_scan": "passed"},
+  "nonclaims": ["fixture evidence does not establish authenticated human review", "fixture evidence does not establish source safety, claim truth, completeness, scientific correctness, prose quality, Git reproducibility, live reliability, or product readiness"]
+}

@@ -1,0 +1,48 @@
+{
+  "entries": [
+    {
+      "category": "latex_monograph",
+      "corpus": "CIP_monograph_redacted",
+      "evidence_counts": {
+        "bibliography_entries": 180,
+        "labelled_equations": 74,
+        "source_files": 42
+      },
+      "expected_tasks": [
+        "backward_snowball",
+        "claim_anchor_audit"
+      ],
+      "private_only": true,
+      "redacted_id": "redacted:latex_cip_001"
+    },
+    {
+      "category": "macrofinance",
+      "corpus": "macrofinance_redacted",
+      "evidence_counts": {
+        "bibliography_entries": 95,
+        "pdf_records": 38
+      },
+      "expected_tasks": [
+        "citation_map",
+        "omission_risk"
+      ],
+      "private_only": true,
+      "redacted_id": "redacted:macrofinance_001"
+    },
+    {
+      "category": "bayesfilter",
+      "corpus": "bayesfilter_redacted",
+      "evidence_counts": {
+        "benchmark_notes": 12,
+        "source_records": 20
+      },
+      "expected_tasks": [
+        "source_support",
+        "claim_support"
+      ],
+      "private_only": false,
+      "redacted_id": "redacted:bayesfilter_001"
+    }
+  ],
+  "schema_version": "ra-surveybench-local-manifest-v1"
+}

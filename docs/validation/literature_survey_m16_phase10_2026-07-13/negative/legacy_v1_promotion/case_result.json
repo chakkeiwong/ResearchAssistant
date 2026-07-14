@@ -1,0 +1,174 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "812d38407838dbefdb8f7972ef16215705929afaac45f643d351076897b7977d",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "54ba2d4ced8f07d214a65cbe0eeafd86d0250ecac8df3bd0567764788900150f",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "file",
+      "sha256": "1c0e337cea45620228b7ab52f829e48e9702ae5821c54050ef880616bd306d22",
+      "size_bytes": 101
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "absent"
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "812d38407838dbefdb8f7972ef16215705929afaac45f643d351076897b7977d",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "54ba2d4ced8f07d214a65cbe0eeafd86d0250ecac8df3bd0567764788900150f",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "file",
+      "sha256": "1c0e337cea45620228b7ab52f829e48e9702ae5821c54050ef880616bd306d22",
+      "size_bytes": 101
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "absent"
+    }
+  },
+  "case_id": "legacy_v1_promotion",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "compose-reviewed-final-packet",
+        "--mission-root",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission",
+        "--review-queue",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/.artifact_state/sets/s-3d3dd92dd5efc09985a044ec38eaad0155612e3806e3dbff5ad70330f8aac85b/review_queue.json",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/packet",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/anchors",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_final_packet"
+      ],
+      "evidence": "compose_cli.json",
+      "return_code": 1
+    },
+    {
+      "argv": [
+        "survey",
+        "hostile-review",
+        "--reviewed-final-packet",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_final_packet/reviewed_final_packet.json",
+        "--mission-root",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission",
+        "--review-queue",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/.artifact_state/sets/s-3d3dd92dd5efc09985a044ec38eaad0155612e3806e3dbff5ad70330f8aac85b/review_queue.json",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/packet",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/anchors",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/hostile_review"
+      ],
+      "evidence": "hostile_cli.json",
+      "return_code": 1
+    },
+    {
+      "argv": [
+        "survey",
+        "merge-reviewed-evidence",
+        "--review-queue",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/.artifact_state/sets/s-3d3dd92dd5efc09985a044ec38eaad0155612e3806e3dbff5ad70330f8aac85b/review_queue.json",
+        "--reviewed-claims",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_claims/reviewed_claims.json",
+        "--reviewed-source-safety",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_source_safety/reviewed_source_safety.json",
+        "--reviewed-omissions",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_omissions/reviewed_omissions.json",
+        "--reviewed-workflow-blockers",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_workflow_blockers/reviewed_workflow_blockers.json",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_evidence"
+      ],
+      "evidence": "merge_cli.json",
+      "return_code": 1
+    }
+  ],
+  "declared_synthetic_v1_packet": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_final_packet/reviewed_final_packet.json",
+  "expected": {
+    "compose": "legacy_evidence_authority",
+    "hostile": "legacy_evidence_authority",
+    "merge": "legacy_evidence_authority"
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": false,
+    "reviewed_packet": true
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [],
+    "changed_paths": [],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "observed": {
+    "compose": "legacy_evidence_authority",
+    "hostile": "legacy_evidence_authority",
+    "merge": "legacy_evidence_authority"
+  },
+  "setup_status": "passed",
+  "status": "passed",
+  "synthetic_input_unchanged": true,
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "blocked_claims": [
+    {
+      "available_anchor_count": 1,
+      "claim_id": "phase5_no_unmapped_technical_claims",
+      "paper_ids": [
+        "paper_arxiv_2201_12220v3_2965c3197c3e"
+      ],
+      "reason": "theorem, algorithm, method, empirical, historical priority, or literature-completeness claims until a claim row is explicitly mapped to checked source anchors and reviewed",
+      "status": "blocked",
+      "support_class": "source_gap_pending_claim_mapping"
+    }
+  ],
+  "claim_candidates": [
+    {
+      "anchor_ids": [
+        "section:sec-method"
+      ],
+      "anchor_role": "method_anchor_candidate",
+      "anchor_title": "Method",
+      "anchor_type": "section",
+      "claim_id": "candidate_claim_001",
+      "claim_support_allowed": false,
+      "next_action": "Review the changed Phase 10 claim semantics.",
+      "paper_ids": [
+        "paper_arxiv_2201_12220v3_2965c3197c3e"
+      ],
+      "reason": "source anchor is available, but no reviewed claim text has been mapped to it",
+      "review_status": "machine_extracted_requires_human_or_model_review",
+      "status": "review_required",
+      "support_class": "anchor_candidate_not_support"
+    }
+  ],
+  "claim_support_policy": {
+    "claim_candidates_are_not_supported_claims": true,
+    "metadata_only_support_allowed_for_technical_claims": false,
+    "phase6_claim_gate": "technical claims require explicit claim rows mapped to checked source anchor ids and a completed review; metadata, citation counts, and source availability are not support",
+    "raw_anchor_text_must_be_retrieved_from_local_source_record_for_review": true,
+    "source_availability_support_allowed_for_technical_claims": false,
+    "technical_claims_require_checked_anchors": true,
+    "titles_abstracts_and_provider_snippets_do_not_support_technical_claims": true,
+    "unreviewed_anchor_support_allowed_for_technical_claims": false
+  },
+  "claims": [],
+  "not_concluded": [
+    "final survey prose quality",
+    "literature completeness",
+    "scientific correctness",
+    "technical claim support",
+    "retraction/version safety",
+    "product readiness"
+  ],
+  "schema_version": "ra-survey-public-source-claim-support-v1",
+  "status": "no_supported_technical_claims",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

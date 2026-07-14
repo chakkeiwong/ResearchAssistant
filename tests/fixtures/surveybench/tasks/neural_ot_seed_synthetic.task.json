@@ -1,0 +1,87 @@
+{
+  "allowed_sources": [
+    "fixture_discovery",
+    "fixture_citation_graph",
+    "fixture_source_status"
+  ],
+  "citation_map_policy": {
+    "adjacent_query_count": 2,
+    "backward_depth": 1,
+    "forward_depth": 1,
+    "max_downloads": 4,
+    "max_nodes": 8
+  },
+  "expected_outputs": {
+    "candidate_ledger": "../neural_ot_seed/expected_candidate_ledger.json",
+    "citation_map": "../neural_ot_seed/expected_citation_map.json",
+    "claim_support": "../neural_ot_seed/expected_claim_support.json",
+    "omission_risk": "../neural_ot_seed/expected_omission_risk.json",
+    "source_support": "../neural_ot_seed/expected_source_support.json"
+  },
+  "fixture_inputs": {
+    "anchor_inventory": "../neural_ot_seed/anchor_inventory.json",
+    "citation_graph": "../neural_ot_seed/fixture_citation_graph.json",
+    "discovery_results": "../neural_ot_seed/fixture_discovery_results.json"
+  },
+  "forbidden_claims": [
+    "this citation map proves scientific priority",
+    "neural optimal transport dominates all normalizing-flow methods"
+  ],
+  "required_clusters": [
+    "classical_optimal_transport",
+    "neural_optimal_transport",
+    "adjacent_normalizing_flows"
+  ],
+  "required_edges": [
+    {
+      "edge_type": "cites",
+      "source": "seed_neural_ot",
+      "target": "classical_ot_foundation"
+    },
+    {
+      "edge_type": "cites",
+      "source": "major_citing_work",
+      "target": "seed_neural_ot"
+    },
+    {
+      "edge_type": "adjacent_method",
+      "source": "seed_neural_ot",
+      "target": "normalizing_flows_review"
+    }
+  ],
+  "required_outputs": [
+    "citation_map",
+    "candidate_ledger",
+    "source_support",
+    "claim_support",
+    "omission_risk"
+  ],
+  "required_papers": [
+    "seed_neural_ot",
+    "classical_ot_foundation",
+    "major_citing_work",
+    "normalizing_flows_review"
+  ],
+  "schema_version": "ra-surveybench-task-v1",
+  "seed_papers": [
+    {
+      "identifier": "synthetic:seed_neural_ot",
+      "paper_key": "seed_neural_ot",
+      "role": "seed"
+    }
+  ],
+  "task_id": "neural_ot_seed_synthetic",
+  "tier": "offline_synthetic",
+  "timeouts": {
+    "agent_trial_seconds": 900,
+    "offline_seconds": 60
+  },
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "vetoes": [
+    "missing_citation_map",
+    "missing_required_edge",
+    "missing_anchor",
+    "unsupported_technical_claim",
+    "forbidden_claim"
+  ]
+}

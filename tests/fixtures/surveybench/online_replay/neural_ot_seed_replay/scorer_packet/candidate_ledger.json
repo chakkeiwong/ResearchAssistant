@@ -1,0 +1,48 @@
+{
+  "candidate_count": 7,
+  "duplicates": [
+    {
+      "canonical_key": "p_seed_001",
+      "duplicate_keys": [
+        "p_dup_001"
+      ],
+      "match_reason": "same DOI and arXiv identifier in replay metadata"
+    }
+  ],
+  "excluded": [
+    {
+      "paper_key": "p_noise_001",
+      "reason": "application-domain branch outside the survey scope"
+    },
+    {
+      "paper_key": "p_noise_002",
+      "reason": "architecture-search false positive"
+    }
+  ],
+  "included": [
+    {
+      "paper_key": "p_seed_001",
+      "reason": "seed identifier match",
+      "source": "fixture_arxiv"
+    },
+    {
+      "paper_key": "p_ref_001",
+      "reason": "backward lineage from seed references",
+      "source": "fixture_reference_parser"
+    },
+    {
+      "paper_key": "p_cite_001",
+      "reason": "forward citation from citation endpoint",
+      "source": "fixture_openalex_fallback"
+    },
+    {
+      "paper_key": "p_adj_001",
+      "reason": "adjacent density-modeling survey",
+      "source": "fixture_adjacent_search"
+    }
+  ],
+  "query": "Neural Optimal Transport for generative modeling and inference",
+  "schema_version": "ra-surveybench-candidate-ledger-v1",
+  "task_id": "neural_ot_seed_replay"
+}
+

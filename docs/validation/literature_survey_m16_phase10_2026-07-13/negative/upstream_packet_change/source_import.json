@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "survey",
+    "import-source-safety-review",
+    "--review-queue",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/mission/.artifact_state/sets/s-2255323be90bd4a8d098a9d9fcac4cbc2ff53cc79d364983ab358580aca47934/review_queue.json",
+    "--decisions",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/decisions/source.json",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/mission/reviewed_source_safety"
+  ],
+  "payload": {
+    "accepted_source_safety_count": 1,
+    "blocked_count": 0,
+    "checked_clear_count": 1,
+    "decision_coverage_complete": true,
+    "decision_set_id": "sd-f56e4a4ae1077b150379a33067749bb717550313d7b960754d4151f6eac02ad8",
+    "observation_set_id": "ss-d923beea60be6d8e1f805bde7875fdf4ca4beb4bcd649556021df83b438749b0",
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/mission/reviewed_source_safety",
+    "quarantined_count": 0,
+    "ready_for_prose": false,
+    "ready_for_reviewed_packet": false,
+    "rejected_source_safety_count": 0,
+    "reviewed_source_safety_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/mission/reviewed_source_safety/decision_sets/sd-f56e4a4ae1077b150379a33067749bb717550313d7b960754d4151f6eac02ad8/reviewed_source_safety.json",
+    "schema_version": "ra-survey-reviewed-source-safety-import-result-v2",
+    "status": "reviewed_source_safety_complete",
+    "what_is_not_concluded": [
+      "complete retraction safety",
+      "version correctness at scale",
+      "literature completeness",
+      "final prose readiness",
+      "live web coverage",
+      "product readiness",
+      "real-agent reliability",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 0,
+  "stderr": "",
+  "stdout": "{\n  \"accepted_source_safety_count\": 1,\n  \"blocked_count\": 0,\n  \"checked_clear_count\": 1,\n  \"decision_coverage_complete\": true,\n  \"decision_set_id\": \"sd-f56e4a4ae1077b150379a33067749bb717550313d7b960754d4151f6eac02ad8\",\n  \"observation_set_id\": \"ss-d923beea60be6d8e1f805bde7875fdf4ca4beb4bcd649556021df83b438749b0\",\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/mission/reviewed_source_safety\",\n  \"quarantined_count\": 0,\n  \"ready_for_prose\": false,\n  \"ready_for_reviewed_packet\": false,\n  \"rejected_source_safety_count\": 0,\n  \"reviewed_source_safety_path\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/upstream_packet_change/mission/reviewed_source_safety/decision_sets/sd-f56e4a4ae1077b150379a33067749bb717550313d7b960754d4151f6eac02ad8/reviewed_source_safety.json\",\n  \"schema_version\": \"ra-survey-reviewed-source-safety-import-result-v2\",\n  \"status\": \"reviewed_source_safety_complete\",\n  \"what_is_not_concluded\": [\n    \"complete retraction safety\",\n    \"version correctness at scale\",\n    \"literature completeness\",\n    \"final prose readiness\",\n    \"live web coverage\",\n    \"product readiness\",\n    \"real-agent reliability\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

@@ -1,0 +1,108 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 9,
+  "captured_at": "2026-07-13T05:32:44+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "frozen_pending_independent_read_only_implementation_review",
+  "review_submission": {
+    "path": "docs/reviews/literature_survey_m16_phase9_implementation_review_bundle_2026-07-13.md",
+    "sha256": "1cabe27731b93ee9f5641a16210545bb125db9b7b233e2b1be079fb43b8a5a83"
+  },
+  "authorized_plans": [
+    {
+      "path": "docs/plans/literature_survey_m16_phase9_evidence_semantics_subplan_2026-07-10.md",
+      "sha256": "13301f7bd8235aea4d9c2bf200a9ee6110766a7c64022a95a2395a9a7816102e"
+    },
+    {
+      "path": "docs/plans/literature_survey_m16_remaining_phases_repair_execution_plan_2026-07-12.md",
+      "sha256": "6af778b54acb0715712f5c2dcd66d6733b823730ecf62f81a0d7a67aae7fe1e9"
+    }
+  ],
+  "product_and_test_hashes": [
+    {"path": "src/research_assistant/survey/evidence_semantics.py", "sha256": "e359bb2a7d93caef518d8d84383e50ed9dbea7154a4b28ab9f22247534de80b4"},
+    {"path": "src/research_assistant/survey/source_safety_review.py", "sha256": "0af0c8c0443a37201aba30e1bb8bd9d89dfbf99818e18a054337ae8dfe36903d"},
+    {"path": "src/research_assistant/survey/claim_review.py", "sha256": "fab01d2e8eeaae6183b3bf2fcd9adcfe9b25b0b48910904b76a20d896e084b4a"},
+    {"path": "src/research_assistant/survey/artifact_lineage.py", "sha256": "cfd04ead8fe938e9ce05c525135a187ca99369a7533f54a0c76e6a99a015362d"},
+    {"path": "src/research_assistant/survey/omission_review.py", "sha256": "c8ef5240147111faf802497731a42864eb3ae80e131ffbcae5dbdb76f22f5271"},
+    {"path": "src/research_assistant/survey/review_decisions.py", "sha256": "ee6237732b3d4fd111278481bdcb67966bd22c84c6e6abbcd1bcb418ff199985"},
+    {"path": "src/research_assistant/survey/reviewed_merge.py", "sha256": "f3acfd670cf6f01589f07407f4d25c84af3d4c469901236064aef9eb7519bfef"},
+    {"path": "src/research_assistant/survey/reviewed_packet.py", "sha256": "172cc1ee93a5d38154dd7438cc910281fa4454bab0311b299d8e859fabd97517"},
+    {"path": "src/research_assistant/survey/hostile_review.py", "sha256": "f1dff7678f202535c92bca085ea83f8a2ef2f9e429a938293caa75c6be52615c"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "sha256": "25f6118d5faaa8c478861e677cfeb66d1eccfb2d37d1408f98ca565d48797014"},
+    {"path": "src/research_assistant/survey/build.py", "sha256": "14a79e6f648f94bf9ebbb33040010e488e6d0f17c6e7ea98e9d8f0d8b2430875"},
+    {"path": "src/research_assistant/cli.py", "sha256": "50e1369dcde963e87f5fecc15ad31b791f83576cc27ae1b89a37b3b164f3509f"},
+    {"path": "scripts/literature_survey_phase5_command_validation.py", "sha256": "ac1ebfc13368d227c8e03304d34847906f1c431126a14c3ede955b981c024693"},
+    {"path": "scripts/literature_survey_phase8_ux_validation.py", "sha256": "72bc1ae70b72a57ce1c587b7ec45084f954099af834fc825186d9141a3213dc0"},
+    {"path": "tests/scripts/test_literature_survey_phase5_command_validation.py", "sha256": "92db80fcaa34bf3f8e5dc856e6b686b7803960390650fbfdea5fd7b035848542"},
+    {"path": "tests/unit/test_literature_survey_m16_phase3.py", "sha256": "e6ebe3a9cbb04e1183b20950c5844d57190ed72227a09e8257acebe3575baa92"},
+    {"path": "tests/unit/test_literature_survey_m16_phase4.py", "sha256": "1aa6a386c83b05abb20d5e2c2778fd5a206d3caea0600f6a2a721a537985004b"},
+    {"path": "tests/unit/test_literature_survey_m16_phase5.py", "sha256": "100cc378503643dc9fa4852b1486905d11b55dc36cbb5df70e2d230c23af8d51"},
+    {"path": "tests/unit/test_literature_survey_m16_phase6.py", "sha256": "872c1a0cfa49bdc8da16949b37b4a82c6205ace81f0a99927033bcfdff1b30c9"},
+    {"path": "tests/unit/test_literature_survey_m16_phase7.py", "sha256": "4c12c3a63bbb1632fad7be81a23576cd1b5fdcaf36da86bfd803bd15b0426370"},
+    {"path": "tests/unit/test_literature_survey_m16_phase8.py", "sha256": "b363f2e62e5686f6b2641d8e3f1c2395d3efc022cd9028d66b14a82662511b93"},
+    {"path": "tests/unit/test_literature_survey_m16_phase9.py", "sha256": "9353f4e8126d6696d8b66d0f06ccace7ace637f8e41c299f62229ae59374782c"},
+    {"path": "tests/integration/test_cli_commands.py", "sha256": "214e852a051623c4ad18a017da9798bccae3bf63d800cee989ba1f501354507a"}
+  ],
+  "final_validation_evidence": [
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/omission_lineage_focused_repair1.xml", "sha256": "3c9ad5f2804e05a502bd7835c34e437bf6ed80b859232068f63a5fc12b9ed8ce", "result": "33 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/auxiliary_coverage_schema_repair2.xml", "sha256": "eda97d1d09e2389c86742b59510a4b6f365d867dfbf660861022a5a2e60b653c", "result": "7 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/retained_artifact_validation_repair4.xml", "sha256": "6c5ca08d5821bc749ed92c98d4d2615c1ef1bc4087b97c95ad3abcd4ca2894de", "result": "29 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/phase8_unit_auxiliary_schema_repair2.xml", "sha256": "42b719a772efe26a741bab50b5f568e46d5231c9d59dc04e8e46c675cc6b2580", "result": "139 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/phase9_unit_auxiliary_schema_repair2.xml", "sha256": "8e2eaac41b0b7131c382ebfa0cb0be848bbc381bceb0e76385d1a460384791ac", "result": "209 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/phase3_through_phase9_auxiliary_schema_repair1.xml", "sha256": "5fc25d467c989679685383265cdca8e4a749489aecac42dcdb30ad0be5835aaa", "result": "635 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/full_unit_auxiliary_schema_repair1.xml", "sha256": "79f0686116fca4129090f72efa80ce81b90dc489877249e9dd706bcdadeb82d7", "result": "985 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/full_cli_auxiliary_schema_repair1.xml", "sha256": "bf2884c35f574521ea6960daab31da711c132e692fe1e1bb32e36d117c8519d7", "result": "125 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/exact_scripts_auxiliary_schema_repair1.xml", "sha256": "38582cf68c118b1fb44ad8f6b872e35ec95de9bcde79b2a0ddbc7baf1d23cd4c", "result": "6 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/phase8_ux_validation_result.json", "sha256": "eab6de294e3d5f5c6615b68b918a24f226e898385d2da21d8175602cf0d0c7cd", "result": "passed with zero issues; pure V1 promotion vetoed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/static_audit.json", "sha256": "6365e7a795a37f076ac274b7e5deb8a6c21ef722f0463e746c0e8b41377aa60a", "result": "passed"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/nul_safe_reconciliation.json", "sha256": "7e041a616e466a77ae5cb51421e83d1fecbe8ebe14a979a364f51fc8d448bd5c", "result": "1549 unique paths; zero missing, unknown, or duplicate paths"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/run_manifest.json", "sha256": "22b7de0ff22b3394dd4125b4468cfc857ad6937dbfdbc5fdc4bd6de1ac0f35a7", "result": "repair-round-2 local gates passed; pending round-3 independent implementation review"}
+  ],
+  "reachability_evidence": [
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/quarantine_reachability_audit.json", "sha256": "78ea6e19b7c4cf9ba29b62dccc62750b5f1e9f3657b2e607437a86dbd9b1d89a"},
+    {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/positive_terminal_reachability_audit.json", "sha256": "ade1c0640b8dc9644feab13287d028d8cd10812f437f867f539bb41c2cf36f79"}
+  ],
+  "review_evidence": [
+    {
+      "path": "docs/reviews/literature_survey_m16_phase9_implementation_review_verdict_round1_2026-07-13.md",
+      "sha256": "c676156ed110c91b70bec2f877295bba6971aac0d2c2203f98b7db9d07ccef68",
+      "verdict": "REVISE",
+      "reviewer": "fresh independent Codex read-only fallback"
+    },
+    {
+      "path": "docs/reviews/literature_survey_m16_phase9_implementation_review_verdict_round2_2026-07-13.md",
+      "sha256": "769dfc830fc732ed0f555094d18a292453c852eb9be091cd8b63bbf9482f9617",
+      "verdict": "REVISE",
+      "reviewer": "fresh independent Codex read-only fallback"
+    },
+    {
+      "path": "docs/reviews/literature_survey_m16_phase9_omission_lineage_repair_plan_verdict_round2_2026-07-13.md",
+      "sha256": "a9789225e8b7e0bc42320dd80646f16daf890a7c2f03460c8da46847466195c9",
+      "verdict": "AGREE",
+      "reviewer": "fresh independent Codex read-only fallback"
+    },
+    {
+      "path": "docs/reviews/literature_survey_m16_phase9_ux_compatibility_plan_review_verdict_2026-07-13.md",
+      "sha256": "031bbb68c1b70abb7b075329f40db984455eb8e32feebcc18782a0361d68908d",
+      "verdict": "AGREE",
+      "reviewer": "fresh independent Codex read-only fallback"
+    }
+  ],
+  "diagnostic_only_failed_artifacts": [
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/focused_cli_selector_repair.xml",
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/full_cli_selector_repair.xml",
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/focused_cli_selector_repair2.xml",
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/focused_cli_selector_repair3.xml",
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/retained_artifact_validation_repair1.xml",
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/omission_queue_transition_diagnostic1.xml",
+    "docs/validation/literature_survey_m16_phase9_2026-07-12/auxiliary_coverage_schema_repair1.xml"
+  ],
+  "decision": "submit the frozen Phase 9 implementation surface for independent read-only review",
+  "open_program_boundaries": [
+    "Phase 8 open quarantine risk remains open and cannot be closed by Phase 9",
+    "unavailable source outcomes remain readiness vetoes",
+    "human authenticity, claim truth, source safety in fact, literature completeness, scientific correctness, product/release/live readiness remain unestablished",
+    "Git integration remains pending"
+  ],
+  "unexpected_mismatches": []
+}

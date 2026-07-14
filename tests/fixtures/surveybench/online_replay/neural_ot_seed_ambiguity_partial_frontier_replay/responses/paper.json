@@ -1,0 +1,105 @@
+{
+  "endpoint": "paper",
+  "records": [
+    {
+      "abstract_present": true,
+      "arxiv_id": "2201.12220v3",
+      "paper_key": "p_seed_001",
+      "relation_signals": [
+        "matches_seed_identifier",
+        "canonical_seed_candidate",
+        "topic_title_match"
+      ],
+      "source_status": "available_fixture",
+      "title": "Neural Optimal Transport",
+      "version_hint": "v3",
+      "year": 2022
+    },
+    {
+      "arxiv_id": "2201.12220v1",
+      "canonical_hint": "p_seed_001",
+      "paper_key": "p_seed_variant_001",
+      "relation_signals": [
+        "same_identifier_family_as_seed",
+        "wrong_version_for_fixture",
+        "short_title_variant"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Neural OT",
+      "version_hint": "v1",
+      "year": 2022
+    },
+    {
+      "paper_key": "p_ref_001",
+      "relation_signals": [
+        "appears_in_seed_references",
+        "optimal_transport_lineage"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "A Computational Fluid Mechanics Solution to the Monge-Kantorovich Mass Transfer Problem",
+      "year": 2000
+    },
+    {
+      "paper_key": "p_cite_001",
+      "relation_signals": [
+        "cites_seed_in_fixture",
+        "later_neural_transport_method",
+        "visible_forward_frontier_record"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Scalable Neural Transport Methods for Inference",
+      "year": 2023
+    },
+    {
+      "paper_key": "p_adj_001",
+      "relation_signals": [
+        "adjacent_density_modeling_survey",
+        "not_a_seed_citation"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Normalizing Flows: An Introduction and Review of Current Methods",
+      "year": 2020
+    },
+    {
+      "paper_key": "p_noise_001",
+      "relation_signals": [
+        "contains_topic_terms",
+        "application_domain_shift"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Learning Single-Cell Perturbation Responses using Neural Optimal Transport",
+      "year": 2021
+    },
+    {
+      "paper_key": "p_noise_002",
+      "relation_signals": [
+        "contains_topic_terms",
+        "architecture_search_not_transport_method"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    },
+    {
+      "paper_key": "p_quarantine_001",
+      "quarantine_status": "withdrawn_fixture",
+      "relation_signals": [
+        "contains_topic_terms",
+        "quarantined_or_retracted"
+      ],
+      "source_status": "quarantined_or_retracted_fixture",
+      "title": "Withdrawn Neural Transport Claim",
+      "year": 2021
+    }
+  ],
+  "request_id": "paper-all-visible-records-ambiguity",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "seed_resolution": {
+    "canonical_candidate_key": "p_seed_001",
+    "rejected_candidate_keys": [
+      "p_seed_variant_001"
+    ],
+    "seed_resolution_status": "ambiguous_fixture"
+  },
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay"
+}
