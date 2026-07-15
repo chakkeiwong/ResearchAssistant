@@ -1,7 +1,7 @@
 # Literature Survey North-Star Gap-Closure Master Program
 
 Date: `2026-07-13`
-Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
+Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
 
 ## North-Star Mission
 
@@ -76,9 +76,33 @@ review converged at fresh Codex fallback round 4 after Claude export was
 policy-rejected before invocation.
 
 This closes G2 only. It is not provider-quality, citation-recall, source,
-scientific, product, or north-star evidence. M20A is the active no-network
-local lane. M20B provider use requires a future reviewed exact packet and fresh
-approval; M19 authority cannot be reused.
+scientific, product, or north-star evidence. M20A local engineering now passes:
+the documentation campaign closed at `6/6`, route-independent runtime covers
+all `294` composition states, strict OpenAlex descriptor/parser integration
+passes, and final material review agrees. Both checked OpenAlex operations
+require `api_key`. M20B1 has now retained the official authentication/pricing
+and rate-limit pages in one consumed two-transaction campaign. They establish
+query-parameter key placement, current USD route costs, `meta.cost_usd`,
+current rate-limit USD fields, and a documented `$0.0011` planned OpenAlex
+cost for the frozen M20 matrix. M20B2 now passes in its authorized local
+synthetic-only scope after two terminal review rounds. It binds only
+`OPENALEX_API_KEY`, enforces the approved `$0.01` cap and closed cost-state
+transaction, and tests the approved enumerated canary representations without
+reading a real key or calling a provider. The human authorized bounded M20B3
+local integration, but its material worker/supervisor review exhausted five
+rounds with one unresolved replay-integrity defect: blocked-after-dispatch
+`observed_cost_usd` values are not fully bound to producer-reachable states.
+M20B3 stopped before staging, commit, clone, wheel, installed validation, or
+packet freeze. Identified installed execution bytes, a frozen exact live
+packet, and exact M20B4 human campaign authorization remain later gates. M19
+and M20B1 attempt authority cannot be reused.
+
+The five-round M20B3 blocker was subsequently repaired under one explicit
+extra human-authorized replay-integrity round. The repaired frozen bytes pass
+`54` focused and `227` cumulative tests, and the extra terminal read-only
+review returned `AGREE`. M20B3 local Git/clone/wheel/install/packet-freeze work
+is active again under its prior bounded authority. This does not authorize
+M20B4, a real credential, a provider call, source access, push, or release.
 
 ## Visible Execution Artifact Index
 
@@ -88,13 +112,22 @@ only. No detached runner is authorized.
 
 | Role | Exact artifact | Current setup state |
 | --- | --- | --- |
-| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | M19 passed; M20A local ready; M20B forbidden |
-| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | M19 attempt/replay/review recorded |
-| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M19 passed; M20 provider use forbidden |
+| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | Extra replay repair/review agreed; M20B3 bounded local integration resumed |
+| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Five-round blocker and extra-authorized repair/review transaction recorded; integration active |
+| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M20B3 local Git/clone/wheel/install/packet freeze active; M20B4 provider execution forbidden |
 | M17 subplan | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | Passed local engineering |
 | M18 subplan | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | Passed local Git/install reproducibility |
 | M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | Passed; terminal review agreed; one attempt consumed |
-| M20 subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | M20A local ready; M20B `DO_NOT_EXECUTE` |
+| M20 subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | M20A-M20B2 passed; extra M20B3 replay review agreed and bounded local integration resumed |
+| M20A historical blocker | `docs/plans/literature_survey_north_star_m20a_local_hardening_blocker_result_2026-07-14.md` | Superseded procedurally by current policy; retained as review history |
+| M20A route-independent result | `docs/plans/literature_survey_north_star_m20a_route_independent_hardening_result_2026-07-14.md` | `PASSED_ROUTE_INDEPENDENT_LOCAL_ENGINEERING_OFFICIAL_ROUTE_CONTRACT_PENDING` |
+| M20A route-specific result | `docs/plans/literature_survey_north_star_m20a_route_specific_openalex_adapter_result_2026-07-14.md` | `PASSED_LOCAL_NO_NETWORK_ENGINEERING_M20B_BOUNDARY_PENDING` |
+| M20A close record | `docs/plans/literature_survey_north_star_m20a_close_record_2026-07-14.md` | M20A closed locally; M20 milestone remains active |
+| M20B boundary subplan | `docs/plans/literature_survey_north_star_m20b_credential_privacy_cost_decision_subplan_2026-07-14.md` | Planning-only; human credential/privacy/cost decisions required; no provider call authorized |
+| M20B1 result | `docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_result_2026-07-14.md` | Passed official documentation contract; `2/2` attempt consumed |
+| M20B2 subplan/result | `docs/plans/literature_survey_north_star_m20b2_synthetic_credential_redaction_cost_controls_result_2026-07-15.md` | Passed local synthetic-only engineering; terminal review agreed; no real key/network/Git action |
+| M20B3 subplan | `docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md` | Extra replay review agreed; bounded local integration active; M20B4 forbidden |
+| M20B3 blocker result | `docs/plans/literature_survey_north_star_m20b3_review_nonconvergence_blocker_result_2026-07-15.md` | Historical five-round stop superseded only by the explicit extra repair/review agreement |
 | M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M22 subplan | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
@@ -103,8 +136,9 @@ only. No detached runner is authorized.
 | Extra governance verdict | `docs/reviews/literature_survey_north_star_program_setup_governance_extra_authorized_review_verdict_2026-07-13.md` | `VERDICT: AGREE` |
 
 Declared milestone result paths are indexed in the visible runbook. M17-M19
-results now exist; M20-M23 result paths remain future outputs and must remain
-absent until the corresponding milestone runs.
+results and the intermediate M20A/M20B1/M20B2 results now exist. M20 has no completed
+live milestone result; M21-M23 result paths remain future outputs and must
+remain absent until the corresponding milestone runs.
 At each M17-M22 handoff, the next subplan must be refreshed from actual
 predecessor artifacts and reviewed before execution. M23 instead closes through
 its terminal completion/blocker handoff. These initial M18-M23 shells do not

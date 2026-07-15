@@ -1,0 +1,90 @@
+{
+  "artifacts": {
+    "base_fetch_primitive": {
+      "path": "scripts/literature_survey_m20_official_provider_contract_fetch.py",
+      "sha256": "6c872b670b4cd4f640cb25c0e896ab40381309c769393d0ecc980a08bd288845"
+    },
+    "base_fetch_tests": {
+      "path": "tests/scripts/test_literature_survey_m20_official_provider_contract_fetch.py",
+      "sha256": "55aea266bcdcb12e953c2736fad19989f3681b4864643d27f2fdcbc653a6f42d"
+    },
+    "prefetch_ledger_review_pending": {
+      "path": "docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_prefetch_ledger_2026-07-14.json",
+      "sha256": "88dbcb36df42d1db7a0b50bf7f2bdd97aac162a356c4ce7f8850c2e2192b62e6"
+    },
+    "subplan": {
+      "path": "docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_subplan_2026-07-14.md",
+      "sha256": "5c7259bfc31762e6b5271733501e6cdd23f7050115739cdd483ca5a8ebdda342"
+    },
+    "supervisor": {
+      "path": "scripts/literature_survey_m20b1_authentication_pricing_contract_supervisor.py",
+      "sha256": "5b7ee01c320c0eeef8059e4e6fd8bf8e8c5438845dbd1487a35d8635bc0ebcff"
+    },
+    "supervisor_tests": {
+      "path": "tests/scripts/test_literature_survey_m20b1_authentication_pricing_contract_supervisor.py",
+      "sha256": "9c52b68e54ff71e43f293a16969432a98c93718e2c24f4834570eb5195b8bc28"
+    },
+    "worker": {
+      "path": "scripts/literature_survey_m20b1_authentication_pricing_contract_fetch.py",
+      "sha256": "ac070d73d49ca751b459af2affe7bdf59f48e3c04064203f53b6f9281ae9c28d"
+    },
+    "worker_tests": {
+      "path": "tests/scripts/test_literature_survey_m20b1_authentication_pricing_contract_fetch.py",
+      "sha256": "323252bad25fe83584bf653321d92b308d973086a63841ed7d188f95e975f144"
+    }
+  },
+  "campaign": {
+    "aggregate_body_byte_cap": 4000000,
+    "campaign_id": "literature-survey-m20b1-auth-pricing-20260714-v1",
+    "diagnostic_overflow_byte_cap": 1,
+    "output_root": "docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14",
+    "output_root_absent_at_freeze": true,
+    "per_response_body_byte_cap": 2000000,
+    "redirect_cap": 0,
+    "retry_cap": 0,
+    "socket_timeout_seconds": 30,
+    "transaction_cap": 2,
+    "worker_termination_deadline_seconds": 90
+  },
+  "command": [
+    "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "/home/chakwong/research-assistant/scripts/literature_survey_m20b1_authentication_pricing_contract_supervisor.py",
+    "--ledger",
+    "/home/chakwong/research-assistant/docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_prefetch_ledger_2026-07-14.json",
+    "--output-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14"
+  ],
+  "forbidden": {
+    "credential_inspection_or_use": true,
+    "m20b2_or_later_action": true,
+    "provider_api_routes": true,
+    "redirects": true,
+    "retries": true,
+    "source_pdf_fulltext": true
+  },
+  "review_activation": {
+    "allowed_post_agree_change": "prefetch_ledger.status: review_pending -> reviewed_ready",
+    "all_other_reviewed_bytes_must_remain_unchanged": true,
+    "network_authority_from_review": false,
+    "post_activation_checks": [
+      "ledger JSON parse",
+      "worker validate_ledger",
+      "supervisor _read_ledger",
+      "42-test focused and inherited suite",
+      "git diff --check",
+      "absent output root",
+      "activation record with before/after ledger hashes"
+    ]
+  },
+  "schema_version": "ra-literature-survey-m20b1-command-packet-v1",
+  "targets": [
+    "https://developers.openalex.org/api-reference/authentication",
+    "https://developers.openalex.org/api-reference/rate-limits/check-rate-limit-status"
+  ],
+  "tests": {
+    "cpu_only": true,
+    "network_used": false,
+    "passed": 42,
+    "seconds": 0.19
+  }
+}

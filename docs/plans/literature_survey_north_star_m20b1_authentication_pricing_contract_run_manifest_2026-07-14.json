@@ -1,0 +1,30 @@
+{
+  "campaign_id": "literature-survey-m20b1-auth-pricing-20260714-v1",
+  "command": [
+    "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "/home/chakwong/research-assistant/scripts/literature_survey_m20b1_authentication_pricing_contract_supervisor.py",
+    "--ledger",
+    "/home/chakwong/research-assistant/docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_prefetch_ledger_2026-07-14.json",
+    "--output-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14"
+  ],
+  "cpu_gpu_status": "CPU-only; supervisor set CUDA_VISIBLE_DEVICES=-1 for the worker",
+  "data_version": "Official OpenAlex documentation retrieved 2026-07-14T20:04:02Z through 2026-07-14T20:04:04Z",
+  "environment": "/home/chakwong/anaconda3/envs/tf-gpu; worker received only CUDA_VISIBLE_DEVICES=-1 and PYTHONDONTWRITEBYTECODE=1",
+  "git_commit": "ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5",
+  "output_artifacts": {
+    "campaign_manifest": "docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14/campaign_manifest.json",
+    "fetch_manifest": "docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14/fetch_manifest.json",
+    "output_root": "docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14",
+    "supervisor_manifest": "docs/validation/literature_survey_m20b1_authentication_pricing_contract_2026-07-14/supervisor_manifest.json"
+  },
+  "plan_file": "docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_subplan_2026-07-14.md",
+  "random_seeds": "N/A; deterministic documentation acquisition",
+  "result_file": "docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_result_2026-07-14.md",
+  "schema_version": "ra-literature-survey-m20b1-run-manifest-v1",
+  "wall_time_seconds": {
+    "artifact_replay": 0.002095,
+    "prepublication": 3.900129,
+    "worker_lifecycle": 3.89803
+  }
+}

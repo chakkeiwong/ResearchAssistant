@@ -1,7 +1,7 @@
 # M20 Live Discovery And Citation Frontier Subplan
 
 Date: `2026-07-14`
-Status: `MATERIAL_PLAN_REVIEW_AGREED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
+Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
 Milestone: `M20_live_discovery_and_citation_frontier`
 Closes: `G3_live_citation_discovery`
 
@@ -45,12 +45,33 @@ body store.
 
 ## Skeptical Plan Audit
 
+### 2026-07-14 Policy Migration And Focused Repair
+
+The current repository policy retires hash-bound natural-language approval and
+custom approval-token machinery for trusted local research. The round-5 demand
+that the canonical automaton JSON independently authorize execution is
+therefore superseded; the JSON remains useful diagnostic documentation, but its
+digest is not execution authority. Historical review artifacts are preserved
+and are not regenerated to satisfy the retired gate.
+
+The substantive round-5 engineering finding remains valid: only six of the
+`254` forbidden composition tuples had direct test coverage. A skeptical audit
+of the focused repair found no baseline, metric, environment, or scope drift:
+the runtime already rejects tuples outside its 40-row permitted set, and the
+smallest catching repair is one exhaustive `6 x 7 x 7` test that verifies all
+`40` permitted and all `254` rejected states. The runtime implementation,
+provider routes, caps, target, data, scientific claims, and M20B boundary stay
+unchanged. This focused CPU-only, no-network test repair may proceed under the
+user's request to continue; it does not authorize provider-documentation access
+or M20B.
+
 Pre-execution audit status: `PASS`. Material read-only review converged at
 round 4 after repairs for accepted-body replay, deterministic outcome/cap
 semantics, identity/frontier separation, and backward-attempt origin binding.
-M20A local implementation may begin under the exact allowlist. M20B live use
-remains blocked pending M20A evidence, code/packet review, and fresh exact human
-approval.
+M20A local implementation and material review are complete. M20B live use
+remains blocked pending checked authentication/pricing semantics, human
+credential/privacy/cost decisions, installed execution-byte evidence, a frozen
+exact live packet, and fresh exact human approval.
 
 - Baseline: M19 proves transport/ledger closure for four routes, not production
   bootstrap, identity quality, or frontier coverage.
@@ -152,15 +173,41 @@ production capability contracts without any provider call.
    extra, mismatched, unparsable, or differently normalized body is a boundary
    or artifact failure, not provider unavailability.
 
-M20A handoff: code and fixtures are tied to an identified successor commit;
-all local catching/cumulative gates pass; official route contracts and all
-defaults are hashed; material code/plan review agrees; and an exact live packet
-is frozen. M20A does not itself authorize provider access.
+M20A handoff: local code, fixtures, official route evidence, catching and
+cumulative gates, and material code review pass under exact artifact hashes.
+The identified successor commit/install, credential/privacy/cost design, and
+exact live packet are M20B entry gates because they depend on still-unresolved
+human and external boundaries. M20A does not authorize provider access.
 
 ### M20B - Exact Bounded Live Matrix
 
 Objective: run the frozen five-request matrix once under separate approval and
 classify boundary validity before contents.
+
+#### Active M20B Phase Decomposition
+
+The monolithic M20B execution description below remains the scientific target
+and exact five-request matrix, but its setup/execution ownership is superseded
+by the reviewed M20B0-M20B4 decomposition:
+
+- M20B0 defined human decisions and boundaries;
+- M20B1 retained the official authentication/pricing/rate-limit contract and
+  is now passed and permanently consumed;
+- M20B2 passed local synthetic-canary credential/redaction/cost controls after
+  the three explicit human decisions and two terminal review rounds;
+- M20B3 owns identified commit/install equality and exact live packet freeze,
+  but stopped before Git integration after five nonconvergent material review
+  rounds; any extra replay-integrity repair/review round requires human
+  direction;
+  and
+- M20B4 owns one separately and explicitly human-authorized live matrix.
+
+The older campaign-cap phrase `no credentials` means no credential may be
+persisted in descriptors, bodies, ledgers, diagnostics, or artifacts. It does
+not mean the checked OpenAlex routes can run anonymously: official retained
+evidence requires `api_key`. A real key may exist only ephemerally at the
+reviewed M20B4 worker/dispatch boundary after all M20B2-M20B4 gates. Until then,
+provider execution remains `DO_NOT_EXECUTE`.
 
 The matrix must use fresh output roots and this order:
 
@@ -172,7 +219,10 @@ The matrix must use fresh output roots and this order:
 
 All OpenAlex requests use the M19 `select` field set:
 `id,display_name,authorships,publication_year,doi,cited_by_count,referenced_works,ids,type,publication_date`.
-The forward query additionally uses `sort=cited_by_count:desc`. Exact encoded
+The forward query additionally uses `sort=-cited_by_count`, the current
+official descending-sort syntax. The earlier `sort=cited_by_count:desc`
+assumption was wrong relative to the retained operation contract and is
+retired before route-specific implementation. Exact encoded
 queries, headers, bindings, route-manifest digest, execution commit, command,
 and roots must be generated and reviewed after M20A; if official documentation
 does not support a route exactly, remove or replace it through visible plan
@@ -516,8 +566,17 @@ rerun live under the same approval.
 
 ## Exact Current Handoff
 
-Begin M20A with an offline inventory of already-local provider documentation
-and an exact implementation baseline check. If the required official route
-contract is not already local, stop only that documentation-dependent slice
-and request authority for a bounded documentation fetch; do not guess. No M20B
-provider action is authorized.
+M20A, M20B1, and M20B2 pass in their bounded scopes. M20B3 received local Git
+integration authority, but its worker/supervisor review did not converge after
+five material rounds. Round 5 found an underconstrained
+`observed_cost_usd` replay predicate for blocked-after-dispatch evidence. The
+phase stopped before staging, commit, clone, wheel, installed validation, or
+packet freeze. No real key was read and no provider call occurred.
+
+Blocker result:
+`docs/plans/literature_survey_north_star_m20b3_review_nonconvergence_blocker_result_2026-07-15.md`.
+
+The human authorized one extra narrow replay repair/review round; the repair
+passed `54` focused and `227` cumulative tests, and terminal review returned
+`AGREE`. The previously authorized M20B3 Git/clone/wheel/install/packet-freeze
+lane is active. M20B4 provider execution and M21 remain separate later gates.

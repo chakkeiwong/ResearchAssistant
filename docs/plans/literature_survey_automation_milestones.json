@@ -5,15 +5,15 @@
   "command_surface": "ra survey run-public-source-workflow --topic <topic> [--seed <paper>] --out <mission-dir>",
   "current_command_surface": "ra survey run-public-source-workflow --topic <topic> [--seed <paper>] --out <mission-dir>",
   "target_input_modes": ["idea_or_topic_without_initial_paper_seed", "paper_title", "doi", "arxiv_identifier", "other_supported_paper_identifier"],
-  "updated_at": "2026-07-14",
+  "updated_at": "2026-07-15",
   "authoritative_status": {
-    "status": "M19_BOUNDED_LIVE_METADATA_COMPLETE_M20A_LOCAL_READY_M20B_NOT_AUTHORIZED",
+    "status": "M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE",
     "completed_milestone": "M19_bounded_live_metadata_validation",
-    "completed_scope": "M16 Phases 0-10, M17 topic/bootstrap engineering, M18 identified local Git/install reproducibility, and one boundary-valid replay-valid M19 metadata attempt in the observed environment",
+    "completed_scope": "M16 Phases 0-10, M17 topic/bootstrap engineering, M18 identified local Git/install reproducibility, one boundary-valid replay-valid M19 metadata attempt, M20A local engineering, one closed M20B1 authentication/pricing documentation campaign, and terminally reviewed M20B2 local synthetic credential/redaction/cost engineering; M20B3 stopped before Git integration after five nonconvergent material code-review rounds",
     "git_integration": "candidate_654e6e1_isolated_clone_and_wheel_passed",
-    "live_execution": "M19_one_exact_four_request_metadata_attempt_completed_attempt_budget_consumed",
+    "live_execution": "M19_four_request_metadata_attempt_and_M20B1_two_document_public_documentation_attempt_completed_both_attempt_budgets_consumed",
     "north_star_mission": "in_progress",
-    "authority": "docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md"
+    "authority": "docs/reviews/literature_survey_north_star_m20b3_extra_observed_cost_terminal_review_verdict_2026-07-15.md"
   },
   "active_milestones": [
     "M20_live_discovery_and_citation_frontier"
@@ -50,7 +50,12 @@
     "active_local_integration": "The milestone is the active trusted-local integration lane under the user's execute/resume request and current repository policy; push, release, destructive actions, and later external boundaries remain unauthorized.",
     "completed_local_git_install_reproducibility": "An identified commit passed the declared isolated clone, offline wheel, origin, payload, and local regression gates in the observed environment; no live or product-readiness claim follows.",
     "completed_bounded_live_metadata_engineering": "One exactly approved metadata-only attempt passed the frozen boundary and replay contract; this does not establish provider quality, citation recall, source support, or product readiness.",
-    "active_local_hardening_no_live": "The milestone may perform its reviewed local no-network implementation and test allowlist; provider/documentation network use and live execution remain separately unauthorized.",
+    "route_independent_local_engineering_passed_official_route_contract_pending": "The route-independent state machine, replay, inventory, and exhaustive composition gates pass locally; official provider-route evidence and route-specific adapters remain pending, and no live provider use is authorized.",
+    "m20a_local_no_network_engineering_passed_m20b_boundary_pending": "Official route evidence plus route-independent and route-specific no-network engineering pass locally; M20 remains incomplete and M20B requires credential, privacy, cost, installed-byte, exact-packet, and human execution authority.",
+    "m20b1_documentation_contract_passed_m20b2_human_decisions_required": "Historical state: the bounded official authentication/pricing documentation campaign passed and was consumed; M20B2 had not yet received its human interface, privacy, and numeric cost decisions.",
+    "m20b2_local_synthetic_engineering_passed_m20b3_git_authority_required": "M20B2 passed local synthetic-only credential/redaction/cost engineering and terminal review without real-key or network use; M20 remains incomplete, and M20B3 requires new explicit human authority for its exact bounded Git payload, stage/commit, isolated clone, and offline wheel operation.",
+    "blocked_m20b3_review_nonconvergence_after_five_rounds_no_git_action": "M20B3 exhausted five material review rounds with an unresolved blocked-after-dispatch observed-cost replay defect and stopped before staging, commit, clone, wheel, installed validation, or packet freeze; human direction is required before any extra repair round.",
+    "m20b3_local_integration_resumed_extra_review_agreed_m20b4_do_not_execute": "One explicitly human-authorized extra replay-integrity repair/review round closed the observed-cost blocker; bounded M20B3 local Git/clone/wheel/install/packet-freeze work is active, while M20B4 and all external boundaries remain forbidden.",
     "completed_local_engineering_git_integration_pending": "The milestone's local engineering and review gates passed; clean Git integration and later live/product evidence remain outside the claim.",
     "pending": "The milestone has not met its entry conditions or promotion criterion."
   },
@@ -1047,7 +1052,7 @@
     {
       "id": "M20_live_discovery_and_citation_frontier",
       "name": "Live Discovery And Citation Frontier",
-      "status": "active_local_hardening_no_live",
+      "status": "m20b3_local_integration_resumed_extra_review_agreed_m20b4_do_not_execute",
       "objective": "Replace fixture-only discovery/frontier capabilities with reviewed production adapters for idea/topic bootstrap, title/identifier resolution, backward references, forward citations, adjacent clusters, and dated omission-risk outcomes under one mission confirmation.",
       "entry_conditions": [
         "M19 boundary-valid metadata transport exists.",

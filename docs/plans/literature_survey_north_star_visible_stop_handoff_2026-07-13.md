@@ -1,14 +1,27 @@
 # Literature Survey North-Star Visible Stop And Handoff Record
 
-Date: `2026-07-14`
-Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
+Date: `2026-07-15`
+Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
 
 ## Current Position
 
-M19 is complete as
-`PASSED_BOUNDED_ENGINEERING_QUESTION_TERMINAL_REVIEW_AGREED_ONE_ATTEMPT_CONSUMED`.
-M20A is the sole active local no-network lane. M20B provider execution remains
-forbidden pending its later evidence, review, and exact approval.
+M19 and M20A remain complete in their bounded scopes. M20B1 also passes:
+its exact public-documentation attempt retained two official OpenAlex pages at
+`867,402/4,000,000` bytes, consumed `2/2` transactions, and closed with zero
+overflow, no redirects/retries/credentials/provider API, and a confirmed
+reaped worker. Current authentication/pricing/rate-limit semantics are now
+checked. M20B2 now passes local synthetic-only engineering and round-2 terminal
+review with `33` focused, `221` combined, and `42` retained tests. It read no
+real key and made no provider action. M20B3 local integration was authorized,
+but its code review exhausted five material rounds. Round 5 found that
+blocked-after-dispatch `observed_cost_usd` remains underconstrained during
+offline replay. M20 remains incomplete, and M20B3 stopped before any Git
+staging, commit, clone, wheel, installed validation, or packet freeze.
+
+The human authorized one extra replay-integrity repair/review round. The
+repair passes `54` focused and `227` cumulative tests and terminal review
+returned `AGREE`. The earlier blocker is historical; the already authorized
+M20B3 local Git/clone/wheel/install/packet-freeze operation is active again.
 
 ## M19 Authority And Evidence
 
@@ -45,32 +58,37 @@ No provider reliability/quality, citation recall, source support, scientific
 correctness, product readiness, literature completeness, or north-star
 completion is established.
 
-## M20A Handoff
+## M20A Local Close
 
-The reviewed M20 plan is
-`docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md`
-with status `MATERIAL_PLAN_REVIEW_AGREED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`.
+The historical local-hardening blocker remains preserved. Its substantive
+forbidden-tuple gap was repaired, the documentation campaign later closed, and
+the strict route-specific adapter passed review. Current authority is:
 
-M20A may perform only its exact no-network product/test/evidence allowlist. It
-must first inventory already-local official OpenAlex/arXiv route documentation;
-if the necessary contract is absent, it must request bounded documentation-
-fetch authority rather than guess semantics. Its reviewed design requires
-capped hash-bound accepted-body retention for future parser replay, separate
-identity/backward/forward automata, complete target disposition accounting,
-and an identified installed successor before any live packet can be approved.
+- `docs/plans/literature_survey_north_star_m20a_route_specific_openalex_adapter_result_2026-07-14.md`;
+- `docs/plans/literature_survey_north_star_m20a_close_record_2026-07-14.md`;
+- `docs/reviews/literature_survey_m20a_route_specific_adapter_code_review_verdict_round3_2026-07-14.md`.
+
+The final code review used a fresh Codex read-only fallback after Claude's
+substantive export was policy-rejected. The fallback returned `AGREE` and
+independently reproduced `59` focused passes. M20A completion is local only;
+there is no live M20 identity/frontier authority.
 
 ## Exact Next Safe Action
 
-Begin M20A offline precheck and local provider-contract inventory. Do not call
-OpenAlex, arXiv, DNS, a proxy, or a documentation URL. Do not access source,
-PDF, full text, credentials, private/paid services, GPU, push, or release.
+Execute only the remaining bounded M20B3 local integration steps in
+`docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md`:
+exact allowlist staging/commit, isolated clone, offline wheel/member equality,
+installed synthetic validation, and non-executable M20B4 packet freeze/review.
+Do not inspect or disclose a credential or call a provider.
 
 ## Stop And Authority Boundaries
 
-M20A stops only the documentation-dependent slice if checked official route
-semantics are not already local. M20B requires a separately reviewed exact
-five-request packet and fresh human approval. M19 approval does not carry
-forward. M21-M23 remain non-executable until their predecessor handoffs pass.
+M20B1's official contract is closed and its attempt cannot be rerun. M20B2 is
+closed in its local synthetic-only scope and must not be rerun as a provider or
+real-secret phase. M20B3 identified commit/install and packet freeze remain
+unstarted but are now active after the extra review agreement. M20B4 still requires
+separate human live authorization after a future reviewed packet; no current
+approval carries forward. M21-M23 remain non-executable.
 
 Protected dirty paths recorded in the M19 handoff remain untouched. No reset,
 restore, clean, stash, rebase, amend, wildcard stage, push, or destructive

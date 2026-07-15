@@ -1,0 +1,420 @@
+{
+  "campaign_cost_cap_usd": "0.01",
+  "canary_value_or_digest_persisted": false,
+  "cases": [
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "topic_success",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": null,
+        "cost_state": "open",
+        "dispatch_count": 1,
+        "observed_cost_usd": "0.001",
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0.001",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": null,
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "completed"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "direct_success",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": null,
+        "cost_state": "open",
+        "dispatch_count": 2,
+        "observed_cost_usd": "0",
+        "predicted_cost_usd": "0",
+        "reconciled_cost_usd": "0.001",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": null,
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "completed"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "forward_success",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": null,
+        "cost_state": "open",
+        "dispatch_count": 3,
+        "observed_cost_usd": "0.0001",
+        "predicted_cost_usd": "0.0001",
+        "reconciled_cost_usd": "0.0011",
+        "reserved_cost_usd": "0.0011"
+      },
+      "credential_lookup_count": 1,
+      "error_code": null,
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "completed"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "timeout_closed",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": "dispatch_cost_unreconciled",
+        "cost_state": "blocked",
+        "dispatch_count": 1,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "dispatch_failed_closed",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_after_dispatch"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "provider_http_error_closed",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": "dispatch_cost_unreconciled",
+        "cost_state": "blocked",
+        "dispatch_count": 1,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "dispatch_failed_closed",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_after_dispatch"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "worker_termination_closed",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": "dispatch_cost_unreconciled",
+        "cost_state": "blocked",
+        "dispatch_count": 1,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "dispatch_failed_closed",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_after_dispatch"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "secret_bearing_exception_closed",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": "dispatch_cost_unreconciled",
+        "cost_state": "blocked",
+        "dispatch_count": 1,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "dispatch_failed_closed",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_after_dispatch"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "parser_error_closed",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": "response_cost_unreconciled",
+        "cost_state": "blocked",
+        "dispatch_count": 1,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "response_cost_unreconciled",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_after_dispatch"
+    },
+    {
+      "authenticated_request_count": 0,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 0,
+        "named_source_value": 0
+      },
+      "case_id": "missing_credential",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": null,
+        "cost_state": "open",
+        "dispatch_count": 0,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "invalid_credential",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_before_dispatch"
+    },
+    {
+      "authenticated_request_count": 0,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 0,
+        "named_source_value": 0
+      },
+      "case_id": "wrong_source",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": null,
+        "cost_state": "open",
+        "dispatch_count": 0,
+        "observed_cost_usd": null,
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0"
+      },
+      "credential_lookup_count": 0,
+      "error_code": "wrong_credential_source",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_before_dispatch"
+    },
+    {
+      "authenticated_request_count": 1,
+      "authorized_occurrence_classes": {
+        "ephemeral_authenticated_request": 1,
+        "named_source_value": 1
+      },
+      "case_id": "cost_contradiction",
+      "cost_evidence": {
+        "campaign_cost_cap_usd": "0.01",
+        "cost_block_code": "cost_contradiction",
+        "cost_state": "blocked",
+        "dispatch_count": 1,
+        "observed_cost_usd": "0.002",
+        "predicted_cost_usd": "0.001",
+        "reconciled_cost_usd": "0",
+        "reserved_cost_usd": "0.001"
+      },
+      "credential_lookup_count": 1,
+      "error_code": "cost_contradiction",
+      "prohibited_surface_scan": {
+        "captured_stderr": "clear",
+        "captured_stdout": "clear",
+        "command_arguments": "clear",
+        "descriptor": "clear",
+        "exception_crossing_boundary": "clear",
+        "git_candidates": "clear",
+        "ipc_value": "clear",
+        "persisted_case_artifact": "not_created",
+        "returned_body": "clear",
+        "returned_evidence": "clear",
+        "temporary_file_inventory": "clear"
+      },
+      "status": "blocked_after_dispatch"
+    }
+  ],
+  "credential_interface_name": "OPENALEX_API_KEY",
+  "documented_route_sum_usd": "0.0011",
+  "network_used": false,
+  "nonclaims": [
+    "actual_account_balance_or_billing",
+    "provider_behavior_or_readiness",
+    "real_key_availability_or_authority",
+    "universal_secret_leak_freedom"
+  ],
+  "prohibited_surface_inventory": [
+    "accepted_response_body",
+    "application_log",
+    "captured_stderr",
+    "captured_stdout",
+    "command_argument",
+    "descriptor",
+    "environment_manifest",
+    "exception_crossing_boundary",
+    "filename",
+    "git_candidate",
+    "ipc_value",
+    "junit_artifact",
+    "manifest",
+    "returned_evidence",
+    "review_artifact",
+    "temporary_file"
+  ],
+  "real_credential_accessed": false,
+  "scan_method": "exact_runtime_canary_scan_while_each_canary_is_live",
+  "schema_version": "ra-literature-survey-m20b2-synthetic-validation-v1",
+  "shared_success_budget": {
+    "allowance_accounting": "usage_cost_counts_regardless_of_daily_or_prepaid_coverage",
+    "campaign_cost_cap_usd": "0.01",
+    "cost_block_code": null,
+    "cost_state": "open",
+    "dispatch_count": 3,
+    "reconciled_cost_usd": "0.0011",
+    "reserved_cost_usd": "0.0011"
+  },
+  "status": "passed"
+}

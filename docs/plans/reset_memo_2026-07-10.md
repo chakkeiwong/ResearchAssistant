@@ -305,3 +305,180 @@ fresh material review, and fresh exact user approval.
 
 No push, live provider/source action, GPU, credential, release, or destructive
 Git action occurred in M18. Preserve the unrelated dirty/untracked worktree.
+
+## M20A Route-Independent Checkpoint - 2026-07-14
+
+M19 remains complete and its one approved attempt is consumed. Do not rerun it.
+
+M20A route-independent engineering now passes. Runtime
+`src/research_assistant/survey/discovery_capability.py` remains at SHA-256
+`ceea83a8efcfb21d40533b0f42ff75e8b4cc0d0131916fb080a77ca2278189ba`.
+The focused test was repaired to exercise the complete `6 x 7 x 7 = 294`
+composition space: all `40` permitted tuples close from real producers and all
+`254` forbidden tuples fail closed. The updated test SHA-256 is
+`50a78d05365ad6660533916e071675cba233a07c04605ebd2be9149d9d5029ff`.
+
+Final local gates pass CPU-only and no-network: M19+M20 `128 passed in 4.92s`;
+affected M16/M17 `262 passed in 105.47s`. The result is
+`docs/plans/literature_survey_north_star_m20a_route_independent_hardening_result_2026-07-14.md`.
+
+The current repository policy retires hash-bound approval-token machinery for
+trusted local work. Preserve the prior M20A blocker/review as history, but do
+not rebuild canonical manifests merely to authorize more local work. The real
+remaining M20A prerequisite is checked official arXiv/OpenAlex route evidence.
+The next subplan is
+`docs/plans/literature_survey_north_star_m20a_official_provider_contract_subplan_2026-07-14.md`.
+M20B, provider API calls, M21, source/PDF/full-text, push, and release remain
+`DO_NOT_EXECUTE`.
+
+## M20A Official Contract Attempt 1 - 2026-07-14
+
+The exact reviewed documentation fetch ran once and stopped correctly after two
+transactions. It retained the official arXiv API manual (`160,616` bytes,
+SHA-256 `14579fd2abb6d7c1aa0fe01af75754ea283852d4b8f63c3072ae31ebeb04b445`)
+and observed a legacy OpenAlex documentation `301` to
+`https://developers.openalex.org/`. The redirect was not followed; no retry or
+alternate URL was attempted.
+
+The local extract anchors arXiv `search_query`, `id_list`, `start`,
+`max_results`, `sortBy`, `sortOrder`, Atom fields, and the documented
+three-second multi-request cadence. OpenAlex route/field semantics remain
+unchecked. Campaign budget use is `2/6` transactions and
+`160,783/8,000,000` accepted response-body bytes, zero diagnostic overflow.
+
+Treat this as an infrastructure repair trigger, not evidence against M20. The
+next plan is
+`docs/plans/literature_survey_north_star_m20a_openalex_documentation_root_subplan_2026-07-14.md`,
+which may inspect exactly the observed official root once after review. M20B,
+provider APIs, M21, source/PDF/full-text, push, and release remain forbidden.
+
+## M20A Local Close - 2026-07-14
+
+M20A local no-network engineering is complete. The fixed official
+documentation campaign closed permanently at `6/6` transactions and
+`2,390,766/8,000,000` accepted bytes with zero overflow. Both checked OpenAlex
+operations require `api_key`; correct list syntax is `per_page` and
+`sort=-cited_by_count`; the official `ids` object does not establish an arXiv
+alias.
+
+The strict route-specific adapter result is
+`docs/plans/literature_survey_north_star_m20a_route_specific_openalex_adapter_result_2026-07-14.md`.
+Adapter SHA-256 is
+`e079e50a5e6024eda3425393816ecfe75e05608a1e8c99890648af3c28ffd31e`;
+tests SHA-256 is
+`a2a4603828ef6846df908df521f198a66d2161b0d4ba82f7f42fc3ccf8738c73`.
+Final gates are adapter `59 passed`, M19+M20 `188 passed`, and affected
+M16/M17 `846 passed`. Provider-returned OpenAlex IDs now require exact
+`https://openalex.org/W<digits>` form across top-level identity,
+`ids.openalex`, and backward lineage.
+
+Claude was responsive to a tiny probe, but the substantive export was
+policy-rejected and not routed around. A fresh Codex read-only fallback returned
+`AGREE` and independently reproduced the focused test gate.
+
+M20 is not complete. No live M20 frontier attempt or selected M20 authority
+exists. The next planning-only artifact is
+`docs/plans/literature_survey_north_star_m20b_credential_privacy_cost_decision_subplan_2026-07-14.md`.
+Before any provider call, obtain current authentication/pricing/rate-limit
+evidence, an authorized key source, approved redaction/privacy handling, a
+numeric cost/credit cap, passing secret-leak and cost-accounting tests,
+identified installed execution bytes, a reviewed exact packet, and explicit
+human campaign authorization. Do not inspect environment secrets, reopen the
+closed documentation campaign, execute M20B, start M21, push, or release.
+
+## M20B1 Authentication/Pricing Checkpoint - 2026-07-14
+
+M20B1 passed and its exact two-document attempt is consumed. The immutable
+root retained `867,402/4,000,000` bytes over `2/2` successful transactions,
+with zero overflow, redirects, retries, credentials, or provider API calls.
+The worker exited `0`, was reaped, and terminal replay plus `42/42` post-run
+CPU-only/no-network tests passed.
+
+Official retained bytes establish query-parameter `api_key`, a `$1/day` keyed
+allowance, current USD route pricing, `meta.cost_usd`, current rate-limit USD
+fields, midnight-UTC reset, and a 100 requests/second ceiling. Planned M20
+OpenAlex usage is `$0.0011`: one search `$0.001`, one singleton `$0`, and one
+list/filter `$0.0001`. This does not establish a key, use authority, actual
+balance, free execution, or provider readiness.
+
+Terminal review converged in two rounds after repairing the M20B2 canary model
+to allow only the named synthetic source and one ephemeral fake-sink-observed
+authenticated request, with no occurrence allowed to persist or cross the
+dispatch boundary.
+
+The active plan is
+`docs/plans/literature_survey_north_star_m20b2_synthetic_credential_redaction_cost_controls_subplan_2026-07-14.md`.
+It is `DO_NOT_EXECUTE` until the human selects an authorized runtime interface,
+approves the enumerated privacy/redaction rules, and sets a numeric maximum
+total campaign cost. Recommended: `OPENALEX_API_KEY`, existing M20B0 privacy
+rules, and `$0.01` total usage with unknown or unreconciled cost as a stop. Do
+not send a secret value. M20B3/B4, provider calls, M21, source/PDF/full-text,
+push, and release remain forbidden.
+
+## M20B2 Local Synthetic Engineering Checkpoint - 2026-07-15
+
+M20B2 is closed as passed in its authorized synthetic-only local scope. The
+sole future runtime interface is `OPENALEX_API_KEY`; no real value was
+inspected, read, hashed, or used. No provider or other network call occurred.
+The approved total live-campaign usage cap remains USD `$0.01`, with unknown,
+contradictory, or unreconciled cost as a hard stop.
+
+The authoritative candidate is
+`docs/validation/literature_survey_m20b2_synthetic_credential_cost_v8_2026-07-15/`.
+It records 11 synthetic scenarios and exact `$0.0011/$0.01` closure. Final
+local gates pass `33` focused, `221` combined M19/M20/M20B2, and `42` retained
+M20B1 tests. Round-1 review returned `REVISE`; repairs added validated read-only
+budget state, exact versioned reservation tokens, a locked synchronous
+dispatch/reconciliation/evidence transaction, shared encoded-canary scanning,
+and an explicit new-human-Git-authority gate. Round-2 review returned `AGREE`.
+
+M20 and the north-star mission remain incomplete. The next plan is
+`docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md`,
+but it is `DO_NOT_EXECUTE` until the human explicitly authorizes the exact
+bounded M20B3 Git payload, stage/commit, isolated clone, and offline wheel
+operation. This checkpoint authorizes no Git integration, real key access,
+provider call, M20B4, source access, push, or release.
+
+## M20B3 Five-Round Review Blocker - 2026-07-15
+
+The human authorized bounded M20B3 local integration, but review did not
+converge before the subplan's five-round stop. Round 5 found that
+blocked-after-dispatch cost replay accepts producer-impossible
+`observed_cost_usd` values; specifically, a digest-rebound
+`dispatch_failed_closed` row with `"not-a-cost"` still passed replay.
+
+The frozen candidate hashes are worker
+`74e28e5099481826008a54a800dde10c314d914d7ecdd6ac7f4714261047b92b`,
+supervisor
+`96890d38f984bb579fdcc79eff1487dd39925a198d5d955980099a6ba7a30fb6`,
+worker tests
+`b3603622905d3b19ae9d7b89e5676f311133515d331f6d955b0e7e4250fa4bd3`,
+and supervisor tests
+`f7013e5229aa29b9288aabc5789ce0cd0eadb87f2afd83668fc35cf815ea8c7e`.
+Focused checks pass `43/43`, but that does not rebut the adversarial finding.
+
+No Git path was staged or committed; `HEAD` remains
+`ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5`. No clone, wheel, installed
+validation, packet, credential lookup, or provider call occurred. The exact
+blocker is
+`docs/plans/literature_survey_north_star_m20b3_review_nonconvergence_blocker_result_2026-07-15.md`.
+Continuing requires human direction on one additional narrowly scoped local
+replay-integrity repair and terminal review round. M20B4, M21, source access,
+push, release, and all completion claims remain blocked.
+
+## M20B3 Extra Replay Repair Agreement - 2026-07-15
+
+The human authorized one extra local repair and terminal review round limited
+to blocked-after-dispatch `observed_cost_usd`. The repaired worker is
+`ef873948aa3c61dea87a82a0af9d85154f7e8a2762961c4274dc941da1129157`;
+the repaired worker tests are
+`10d3b2f018d24d84a99eb1b4a0c788b6a0e2a6a9c6a20d89484842291fe28040`.
+The supervisor artifacts remain unchanged.
+
+Focused tests pass `54/54`, cumulative M20 tests pass `227/227`, and the fresh
+Codex read-only fallback returned `AGREE`. Claude export was policy-rejected
+before invocation and was not routed around. The five-round blocker is
+historical but preserved. The already authorized bounded M20B3
+Git/clone/wheel/install/packet-freeze lane is active. M20B4, real credentials,
+provider calls, source access, M21, push, release, and completion claims remain
+forbidden.

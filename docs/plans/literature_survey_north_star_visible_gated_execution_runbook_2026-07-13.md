@@ -1,7 +1,7 @@
 # Literature Survey North-Star Visible Gated Execution Runbook
 
 Date: `2026-07-13`
-Status: `M19_PASSED_M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE`
+Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
 
 ## Role Contract
 
@@ -40,14 +40,16 @@ successful setup or M17 pass is not mission completion.
 | M17 | Idea And Topic Bootstrap | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_result_2026-07-13.md` | `PASSED_LOCAL_ENGINEERING_GIT_INTEGRATION_PENDING` |
 | M18 | Reproducible Git Integration | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_result_2026-07-14.md` | `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` |
 | M19 | Bounded Live Metadata Validation | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md` | `PASSED_TERMINAL_REVIEW_AGREED_ONE_ATTEMPT_CONSUMED` |
-| M20 | Live Discovery And Citation Frontier | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_result_2026-07-13.md` | `M20A_LOCAL_READY_M20B_DO_NOT_EXECUTE` |
+| M20 | Live Discovery And Citation Frontier | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md` | `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE` |
 | M21 | Live Source Status And Anchor Intake | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M22 | Human-Attested Review And Real Missions | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | M23 | North-Star Acceptance And Operational Closeout | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_result_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 
-M17-M19 result paths in this table now contain actual evidence. M20-M23 result
-paths are declarations, not evidence, and must remain absent until their
-milestone writes them.
+M17-M19 result paths in this table contain actual evidence. M20 has passing
+M20A, M20B1, and M20B2 intermediate results plus an M20B3 blocker result, but
+not a completed live milestone result.
+M21-M23 result paths are declarations, not evidence, and must remain absent
+until their milestone writes them.
 
 ## Program Evidence Contract
 
@@ -357,11 +359,29 @@ Stop and update the handoff when continuing requires:
 
 M19 passed its bounded engineering result and terminal review. The exact live
 root is immutable, all `14` replay checks pass, and the one-attempt budget is
-consumed. M20A is the sole active no-network local lane under its reviewed
-allowlist. M20B live discovery/frontier use remains `DO_NOT_EXECUTE` pending
-official-contract evidence, local implementation/gates, an identified commit,
-material code/packet review, and fresh exact human approval. M21-M23 remain
-non-executable until refreshed from their predecessor.
+consumed. M20A local no-network engineering also passes: the official
+documentation campaign closed at `6/6`, all `294` route-independent
+composition states are covered, strict route-specific adapter gates pass, and
+material review agrees. M20B1 now passes and its one two-document attempt is
+consumed. Retained official bytes establish query-parameter key placement,
+current USD route costs, `meta.cost_usd`, rate-limit USD fields, and `$0.0011`
+documented planned OpenAlex usage for the frozen matrix. M20B2 passes its
+authorized local synthetic-only scope with `33` focused, `221` combined, and
+`42` retained tests plus round-2 terminal review agreement. M20B3 local
+integration was then authorized, but five material review rounds did not
+converge: round 5 found producer-impossible blocked-after-dispatch
+`observed_cost_usd` evidence can pass offline replay. The runbook stopped before
+Git staging, commit, clone, wheel, installed validation, or packet freeze. It
+read no real key and made no provider call. Continuing now requires human
+direction for one additional narrowly scoped replay-integrity repair/review
+round. M20B4 and M21-M23 remain non-executable until their separate boundaries
+and refreshed predecessor handoffs are satisfied.
+
+The human then authorized that one extra narrow repair/review round. The
+repaired replay passes `54` focused and `227` cumulative tests, and terminal
+read-only review returned `AGREE`. The bounded M20B3 local
+Git/clone/wheel/install/packet-freeze lane has resumed. M20B4 provider execution
+and M21-M23 remain non-executable.
 
 ## Final Visible Handoff
 
