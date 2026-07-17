@@ -1,0 +1,76 @@
+# M20 Recovery V3 Repair Result
+
+Date: `2026-07-17`
+Status: `PASSED_LOCAL_REPAIR_FRESH_INTEGRATION_PENDING`
+Plan: `docs/plans/literature_survey_north_star_m20_recovery_campaign_plan_2026-07-17.md`
+
+## Migration And Decision
+
+The current repository policy retires the earlier packet-level launch ceremony
+as execution authority while preserving its artifacts as historical evidence.
+The unexecuted recovery v2 packet, wheel, install, and review packet under
+`docs/validation/literature_survey_m20_recovery_campaign_2026-07-17/` are now
+superseded proposals and must not be executed. The consumed historical M20B4
+packet remains immutable and must never be rerun.
+
+The skeptical audit passed for local repair. The baseline remains the reviewed
+five-route M20 workflow, not the dirty worktree; request yield and latency
+remain explanatory only; unknown provider or cost state remains a continuation
+veto; and no command in this repair used a real credential or network.
+
+## Material Repairs
+
+| Prior finding | Repair and catching evidence |
+| --- | --- |
+| Diagnostic publication was a single point of failure | A credential-blind outer intent is atomically published before child start. Failure prevents launch. Primary and fallback terminal records bind the intent hash; total terminal publication failure leaves the intent as an explicit hard-stop artifact. |
+| Diagnostic transitions and exits were underconstrained | Closeout requires exact diagnostic transitions, manifest presence, outer reconciliation, and `completed -> 0`; every other supervisor classification requires exit `2`. |
+| Lifecycle-error histories did not mirror the producer | Supervisor manifest schema v2 records the exact lifecycle stage. Closeout accepts only stage/signal combinations reachable from initial wait, post-TERM wait, post-KILL wait, final-reap timeout, and cleanup. |
+| Timing was not classification/deadline coherent | Soft, hard, final-reap, lifecycle, and cleanup stages have classification-specific elapsed-time floors, including preservation of the final-reap floor through cleanup reclassification. |
+| Completed inventory ignored empty directories and hardlinks | Closeout requires the exact producer directory set, exact file set, exact size/hash rows, no symlinks/special files, and link count one for every retained file. |
+| Replay could use ambient code | The isolated interpreter reports all six runtime module origins and hashes from inside the replay process; closeout compares them exactly and verifies that the interpreter belongs to the installed environment. |
+| Campaign attempt/cost state was not automatic | One normalized predecessor/successor schema records attempts, provider-capable launches, reconciled/remaining cost, lineage, retry permission, and continuation veto. Supervisor preflight validates the state before credential lookup. |
+
+Additional audit repairs reject non-finite elapsed values, require exact runtime
+module coverage including the outer launcher, validate canonical terminal-record
+parents, and allow the new intent-preflight error only through the bounded
+preflight diagnostic vocabulary.
+
+## Checks
+
+All test commands used source-tree imports explicitly. No test accessed
+`OPENALEX_API_KEY`; synthetic canaries were used where credential behavior was
+needed. GPU was not initialized because this is a CPU-only metadata lane.
+
+| Check | Result |
+| --- | --- |
+| Focused launcher/supervisor/recovery-closeout matrix | `76 passed` |
+| Complete affected M20 plus historical and recovery closeout matrix | `428 passed in 2.95s` |
+| Python compile | passed |
+| `git diff --check` | passed |
+| Skeptical diff audit | passed after repairing a displaced parent-path check and two replay/timing gaps |
+
+## Evidence Boundary
+
+| Boundary | State |
+| --- | --- |
+| Historical M20B4 packet rerun | false |
+| Superseded recovery v2 packet execution | false |
+| Real `OPENALEX_API_KEY` inspected/read/used | false |
+| Provider or other network call | false |
+| Source/PDF/full-text access | false |
+| M21, push, or release | false |
+| M20/G3/north-star completion claim | false |
+
+## Handoff
+
+Create one narrow integration commit containing the v3 launcher, supervisor,
+credential-free closeout, focused tests, and this result. Reproduce that exact
+commit from a fresh isolated clone, build and install an offline wheel, prove
+complete member equality, rerun installed synthetic checks, and create a new
+versioned v3 packet and validation root. Do not reuse or execute any v2 path.
+
+Only after the fresh packet passes exact-hash advisory review may the campaign
+reach the external boundary. Credential lookup, arXiv/OpenAlex calls, and paid
+usage still require explicit human authority under a total USD `$0.01` cap and
+at most two provider-capable launches, with no retry after unknown or
+unreconciled provider/cost state.

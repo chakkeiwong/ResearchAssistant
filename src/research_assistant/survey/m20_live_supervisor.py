@@ -36,9 +36,10 @@ from research_assistant.survey.openalex_credential_cost import (
 )
 
 
-PACKET_SCHEMA = "ra-literature-survey-m20-recovery-live-packet-v2"
-SUPERVISOR_SCHEMA = "ra-literature-survey-m20-live-supervisor-v1"
+PACKET_SCHEMA = "ra-literature-survey-m20-recovery-live-packet-v3"
+SUPERVISOR_SCHEMA = "ra-literature-survey-m20-live-supervisor-v2"
 LAUNCH_DIAGNOSTIC_SCHEMA = "ra-literature-survey-m20-launch-diagnostic-v1"
+OUTER_INTENT_SCHEMA = "ra-literature-survey-m20-recovery-outer-intent-v1"
 SOFT_SECONDS = float(WHOLE_ATTEMPT_SECONDS)
 HARD_SECONDS = SOFT_SECONDS + 3.0
 FINAL_REAP_SECONDS = HARD_SECONDS + 2.0
@@ -58,6 +59,12 @@ PACKET_KEYS = {
     "route_manifest_sha256",
     "output_root",
     "launch_diagnostic_path",
+    "outer_intent_path",
+    "outer_invocation_path",
+    "outer_invocation_fallback_path",
+    "campaign_id",
+    "campaign_attempt_id",
+    "campaign_state",
     "command",
     "request_budget",
     "credential_interface",
@@ -65,6 +72,14 @@ PACKET_KEYS = {
     "one_attempt_rule",
     "nonclaims",
     "forbidden_actions",
+}
+RUNTIME_MODULE_NAMES = {
+    "research_assistant.survey.discovery_capability",
+    "research_assistant.survey.m20_live_supervisor",
+    "research_assistant.survey.m20_live_worker",
+    "research_assistant.survey.m20_recovery_launcher",
+    "research_assistant.survey.openalex_adapter",
+    "research_assistant.survey.openalex_credential_cost",
 }
 TOP_LEVEL_WORKER_FILES = {
     "accepted_body_inventory.json",
@@ -178,6 +193,84 @@ def _validate_launch_diagnostic_path(path: Path) -> None:
         raise M20SupervisorError("launch_diagnostic_parent_invalid")
 
 
+def _validate_fresh_record_path(path: Path, *, code: str) -> None:
+    if not path.is_absolute() or path.exists() or path.is_symlink():
+        raise M20SupervisorError(code)
+    if not path.parent.is_dir() or path.parent.is_symlink() or path.parent.resolve(strict=True) != path.parent:
+        raise M20SupervisorError(code)
+
+
+def _validate_outer_intent(path: Path, *, packet_path: Path, expected_command: list[str]) -> None:
+    try:
+        value = _loads_closed(path.read_bytes())
+    except (OSError, M20SupervisorError) as exc:
+        raise M20SupervisorError("packet_outer_intent_invalid") from exc
+    if (
+        not path.is_absolute()
+        or not path.is_file()
+        or path.is_symlink()
+        or not isinstance(value, dict)
+        or set(value) != {
+            "schema_version",
+            "packet_file_sha256",
+            "child_command",
+            "credential_read_or_enumerated_by_launcher",
+            "provider_activity",
+            "cost_usd",
+            "privacy_state",
+        }
+        or value["schema_version"] != OUTER_INTENT_SCHEMA
+        or value["packet_file_sha256"] != _sha_path(packet_path)
+        or value["child_command"] != expected_command
+        or value["credential_read_or_enumerated_by_launcher"] is not False
+        or value["provider_activity"] is not False
+        or value["cost_usd"] != "0.00"
+        or value["privacy_state"] != "passed_closed_construction_before_child"
+        or not path.parent.is_dir()
+        or path.parent.is_symlink()
+        or path.parent.resolve(strict=True) != path.parent
+    ):
+        raise M20SupervisorError("packet_outer_intent_invalid")
+
+
+def _validate_campaign_state(path: Path, *, packet: dict[str, Any]) -> None:
+    try:
+        state = _loads_closed(path.read_bytes())
+        cap = Decimal(state["cost_cap_usd"])
+        reconciled = Decimal(state["reconciled_cost_usd"])
+        remaining = Decimal(state["remaining_cost_usd"])
+    except (OSError, KeyError, TypeError, InvalidOperation, M20SupervisorError) as exc:
+        raise M20SupervisorError("packet_campaign_state_invalid") from exc
+    completed = state.get("attempts_completed")
+    predecessor = state.get("predecessor_campaign_state_sha256")
+    if (
+        not isinstance(state, dict)
+        or set(state) != {
+            "schema_version", "campaign_id", "attempts_completed",
+            "provider_launches_used", "cost_cap_usd", "reconciled_cost_usd",
+            "remaining_cost_usd", "next_attempt_id", "next_attempt_allowed",
+            "continuation_veto", "predecessor_campaign_state_sha256",
+        }
+        or state["schema_version"] != "ra-literature-survey-m20-recovery-campaign-state-v1"
+        or state["campaign_id"] != packet["campaign_id"]
+        or state["next_attempt_id"] != packet["campaign_attempt_id"]
+        or type(completed) is not int
+        or type(state["provider_launches_used"]) is not int
+        or state["provider_launches_used"] != completed
+        or completed not in {0, 1}
+        or state["next_attempt_id"] != f"attempt-{completed + 1:02d}"
+        or state["next_attempt_allowed"] is not True
+        or state["continuation_veto"] is not False
+        or (completed == 0 and predecessor is not None)
+        or (completed == 1 and not _is_sha256(predecessor))
+        or not cap.is_finite()
+        or not reconciled.is_finite()
+        or not remaining.is_finite()
+        or cap != CAMPAIGN_COST_CAP_USD
+        or min(reconciled, remaining) < 0
+        or reconciled + remaining != cap
+    ):
+        raise M20SupervisorError("packet_campaign_state_invalid")
 def _validate_existing_root(root: Path) -> None:
     if not root.is_absolute() or not root.is_dir() or root.is_symlink() or root.resolve(strict=True) != root:
         raise M20SupervisorError("output_root_invalid")
@@ -280,7 +373,7 @@ def _validate_installed_members(
 
 
 def _validate_runtime_modules(runtime_modules: Any, *, installed_members: dict[str, str]) -> None:
-    if not isinstance(runtime_modules, dict) or not runtime_modules:
+    if not isinstance(runtime_modules, dict) or set(runtime_modules) != RUNTIME_MODULE_NAMES:
         raise M20SupervisorError("runtime_modules_invalid")
     for module_name, expected in sorted(runtime_modules.items()):
         if not isinstance(module_name, str) or not isinstance(expected, dict) or set(expected) != {"origin", "sha256"}:
@@ -364,7 +457,28 @@ def validate_packet(
         raise M20SupervisorError("packet_output_root_invalid")
     if packet["launch_diagnostic_path"] != str(launch_diagnostic_path):
         raise M20SupervisorError("packet_launch_diagnostic_path_invalid")
-    expected_command = [
+    if (
+        packet["campaign_id"] != "m20-recovery-2026-07-17"
+        or packet["campaign_attempt_id"] not in {"attempt-01", "attempt-02"}
+    ):
+        raise M20SupervisorError("packet_campaign_identity_invalid")
+    campaign_state = packet["campaign_state"]
+    if (
+        not isinstance(campaign_state, dict)
+        or set(campaign_state) != {"path", "sha256"}
+        or not _is_sha256(campaign_state.get("sha256"))
+    ):
+        raise M20SupervisorError("packet_campaign_state_invalid")
+    campaign_state_path = Path(campaign_state["path"])
+    if (
+        not campaign_state_path.is_absolute()
+        or not campaign_state_path.is_file()
+        or campaign_state_path.is_symlink()
+        or _sha_path(campaign_state_path) != campaign_state["sha256"]
+    ):
+        raise M20SupervisorError("packet_campaign_state_invalid")
+    _validate_campaign_state(campaign_state_path, packet=packet)
+    child_command = [
         sys.executable,
         "-I",
         "-m",
@@ -377,10 +491,37 @@ def validate_packet(
         str(launch_diagnostic_path),
         "--execute-m20-recovery-campaign",
     ]
+    expected_command = [
+        sys.executable,
+        "-I",
+        "-m",
+        "research_assistant.survey.m20_recovery_launcher",
+        "--packet",
+        str(packet_path),
+        "--output-root",
+        str(output_root),
+        "--launch-diagnostic-path",
+        str(launch_diagnostic_path),
+        "--outer-intent-path",
+        packet["outer_intent_path"],
+        "--outer-invocation-path",
+        packet["outer_invocation_path"],
+        "--outer-invocation-fallback-path",
+        packet["outer_invocation_fallback_path"],
+        "--execute-m20-recovery-campaign",
+    ]
     if packet["command"] != expected_command:
         raise M20SupervisorError("packet_command_invalid")
     _preflight_absent_root(output_root)
     _validate_launch_diagnostic_path(launch_diagnostic_path)
+    intent_path = Path(packet["outer_intent_path"])
+    outer_path = Path(packet["outer_invocation_path"])
+    fallback_path = Path(packet["outer_invocation_fallback_path"])
+    if len({intent_path, outer_path, fallback_path}) != 3:
+        raise M20SupervisorError("packet_outer_invocation_paths_invalid")
+    _validate_outer_intent(intent_path, packet_path=packet_path, expected_command=child_command)
+    _validate_fresh_record_path(outer_path, code="packet_outer_invocation_path_invalid")
+    _validate_fresh_record_path(fallback_path, code="packet_outer_invocation_fallback_path_invalid")
     return dict(packet)
 
 
@@ -535,6 +676,7 @@ def _supervisor_record(
     *,
     packet: dict[str, Any],
     classification: str,
+    lifecycle_stage: str,
     returncode: int | None,
     worker_reaped: bool | None,
     signals_sent: list[str],
@@ -544,6 +686,7 @@ def _supervisor_record(
     return {
         "schema_version": SUPERVISOR_SCHEMA,
         "classification": classification,
+        "lifecycle_stage": lifecycle_stage,
         "packet_contract_sha256": packet["packet_contract_sha256"],
         "execution_commit": packet["execution_commit"],
         "route_manifest_sha256": packet["route_manifest_sha256"],
@@ -585,6 +728,7 @@ def run_supervised(
     worker = None
     signals_sent: list[str] = []
     classification = "worker_start_failed"
+    lifecycle_stage = "worker_spawn"
     artifacts: list[dict[str, Any]] = []
     soft_deadline = started + SOFT_SECONDS
     hard_deadline = started + HARD_SECONDS
@@ -603,6 +747,7 @@ def run_supervised(
                     "PYTHONDONTWRITEBYTECODE": "1",
                 },
             )
+            lifecycle_stage = "initial_wait"
             worker.communicate(timeout=_remaining(clock, soft_deadline))
             classification = "completed" if worker.returncode == 0 else "worker_failed"
         except subprocess.TimeoutExpired:
@@ -610,28 +755,41 @@ def run_supervised(
             if worker is not None:
                 _signal_worker(worker, signal.SIGTERM, signals_sent)
                 try:
+                    lifecycle_stage = "post_term_wait"
                     worker.communicate(timeout=_remaining(clock, hard_deadline))
                 except subprocess.TimeoutExpired:
                     classification = "hard_timeout"
                     _signal_worker(worker, signal.SIGKILL, signals_sent)
                     try:
+                        lifecycle_stage = "post_kill_wait"
                         worker.communicate(timeout=_remaining(clock, final_reap_deadline))
                     except subprocess.TimeoutExpired:
                         classification = "final_reap_timeout"
+                        lifecycle_stage = "final_reap_timeout"
+                    except (OSError, ValueError, subprocess.SubprocessError):
+                        classification = "supervisor_lifecycle_error"
+                except (OSError, ValueError, subprocess.SubprocessError):
+                    classification = "supervisor_lifecycle_error"
         except (OSError, ValueError, subprocess.SubprocessError):
             classification = "worker_start_failed" if worker is None else "supervisor_lifecycle_error"
     finally:
         if worker is not None and worker.returncode is None:
             _signal_worker(worker, signal.SIGKILL, signals_sent)
             try:
+                prior_stage = lifecycle_stage
+                lifecycle_stage = f"cleanup_wait_after_{prior_stage}"
                 worker.wait(timeout=_remaining(clock, absolute_deadline))
             except (OSError, ValueError, subprocess.SubprocessError):
                 classification = "cleanup_reap_indeterminate"
+            else:
+                if classification == "supervisor_lifecycle_error":
+                    lifecycle_stage = prior_stage
         worker_reaped = worker is not None and worker.returncode is not None
         if worker is not None and not worker_reaped:
             classification = "cleanup_reap_indeterminate"
         if classification == "completed":
             try:
+                lifecycle_stage = "artifact_validation"
                 artifacts = validate_worker_artifacts(output_root, credential=credential)
             except (OSError, M20SupervisorError, M20WorkerError):
                 classification = "worker_artifact_invalid"
@@ -644,6 +802,7 @@ def run_supervised(
         record = _supervisor_record(
             packet=packet,
             classification=classification,
+            lifecycle_stage=lifecycle_stage,
             returncode=worker.returncode if worker is not None else None,
             worker_reaped=worker_reaped if worker is not None else None,
             signals_sent=signals_sent,

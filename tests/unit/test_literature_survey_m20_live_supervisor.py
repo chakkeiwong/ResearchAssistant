@@ -29,6 +29,7 @@ def _runtime_modules() -> dict:
         "research_assistant.survey.discovery_capability",
         "research_assistant.survey.m20_live_supervisor",
         "research_assistant.survey.m20_live_worker",
+        "research_assistant.survey.m20_recovery_launcher",
         "research_assistant.survey.openalex_adapter",
         "research_assistant.survey.openalex_credential_cost",
     ):
@@ -80,17 +81,29 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
         "route_manifest_sha256": route_manifest_sha256(),
         "output_root": str(output_root),
         "launch_diagnostic_path": str(launch_diagnostic_path),
+        "outer_intent_path": str((tmp_path / "outer-intent.json").resolve()),
+        "outer_invocation_path": str((tmp_path / "outer.json").resolve()),
+        "outer_invocation_fallback_path": str((tmp_path / "outer-fallback.json").resolve()),
+        "campaign_id": "m20-recovery-2026-07-17",
+        "campaign_attempt_id": "attempt-01",
+        "campaign_state": {"path": "", "sha256": ""},
         "command": [
             sys.executable,
             "-I",
             "-m",
-            "research_assistant.survey.m20_live_supervisor",
+            "research_assistant.survey.m20_recovery_launcher",
             "--packet",
             str(packet_path),
             "--output-root",
             str(output_root),
             "--launch-diagnostic-path",
             str(launch_diagnostic_path),
+            "--outer-intent-path",
+            str((tmp_path / "outer-intent.json").resolve()),
+            "--outer-invocation-path",
+            str((tmp_path / "outer.json").resolve()),
+            "--outer-invocation-fallback-path",
+            str((tmp_path / "outer-fallback.json").resolve()),
             "--execute-m20-recovery-campaign",
         ],
         "request_budget": {
@@ -110,8 +123,45 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
         "nonclaims": ["provider_behavior", "m20_completion"],
         "forbidden_actions": ["source_access", "push", "release"],
     }
+    state = (tmp_path / "campaign_state.json").resolve()
+    state.write_bytes(canonical_json_bytes({
+        "schema_version": "ra-literature-survey-m20-recovery-campaign-state-v1",
+        "campaign_id": "m20-recovery-2026-07-17",
+        "attempts_completed": 0,
+        "provider_launches_used": 0,
+        "cost_cap_usd": "0.01",
+        "reconciled_cost_usd": "0.00",
+        "remaining_cost_usd": "0.01",
+        "next_attempt_id": "attempt-01",
+        "next_attempt_allowed": True,
+        "continuation_veto": False,
+        "predecessor_campaign_state_sha256": None,
+    }))
+    packet["campaign_state"] = {"path": str(state), "sha256": _sha(state)}
     packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
     packet_path.write_bytes(canonical_json_bytes(packet))
+    child_command = [
+        sys.executable,
+        "-I",
+        "-m",
+        "research_assistant.survey.m20_live_supervisor",
+        "--packet",
+        str(packet_path),
+        "--output-root",
+        str(output_root),
+        "--launch-diagnostic-path",
+        str(launch_diagnostic_path),
+        "--execute-m20-recovery-campaign",
+    ]
+    Path(packet["outer_intent_path"]).write_bytes(canonical_json_bytes({
+        "schema_version": supervisor.OUTER_INTENT_SCHEMA,
+        "packet_file_sha256": _sha(packet_path),
+        "child_command": child_command,
+        "credential_read_or_enumerated_by_launcher": False,
+        "provider_activity": False,
+        "cost_usd": "0.00",
+        "privacy_state": "passed_closed_construction_before_child",
+    }))
     return packet_path, packet
 
 
@@ -332,6 +382,53 @@ def test_preflight_rejects_runtime_module_byte_drift(tmp_path: Path) -> None:
     packet["runtime_modules"]["research_assistant.survey.m20_live_worker"]["sha256"] = "0" * 64
     packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
     with pytest.raises(supervisor.M20SupervisorError, match="runtime_module_bytes_invalid"):
+        supervisor.validate_packet(
+            packet,
+            packet_path=packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            git_identity=_git_identity,
+        )
+
+
+def test_preflight_rejects_campaign_continuation_veto(tmp_path: Path) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    state_path = Path(packet["campaign_state"]["path"])
+    state = json.loads(state_path.read_text())
+    state["continuation_veto"] = True
+    state["next_attempt_allowed"] = False
+    state_path.write_bytes(canonical_json_bytes(state))
+    packet["campaign_state"]["sha256"] = _sha(state_path)
+    packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
+    packet_path.write_bytes(canonical_json_bytes(packet))
+    with pytest.raises(supervisor.M20SupervisorError, match="packet_campaign_state_invalid"):
+        supervisor.validate_packet(
+            packet,
+            packet_path=packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            git_identity=_git_identity,
+        )
+
+
+def test_preflight_rejects_symlinked_outer_record_parent(tmp_path: Path) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    actual = tmp_path / "actual-outer"
+    actual.mkdir()
+    alias = tmp_path / "outer-alias"
+    alias.symlink_to(actual, target_is_directory=True)
+    packet["outer_invocation_path"] = str(alias / "outer.json")
+    packet["command"][packet["command"].index("--outer-invocation-path") + 1] = packet[
+        "outer_invocation_path"
+    ]
+    packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
+    packet_path.write_bytes(canonical_json_bytes(packet))
+    intent = json.loads(Path(packet["outer_intent_path"]).read_text())
+    intent["packet_file_sha256"] = _sha(packet_path)
+    Path(packet["outer_intent_path"]).write_bytes(canonical_json_bytes(intent))
+    with pytest.raises(supervisor.M20SupervisorError, match="packet_outer_invocation_path_invalid"):
         supervisor.validate_packet(
             packet,
             packet_path=packet_path,
