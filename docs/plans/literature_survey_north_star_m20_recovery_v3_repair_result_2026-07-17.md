@@ -108,3 +108,21 @@ failed local evidence and must not be used for packet creation. The repair adds
 interpreter flag `-B` to the launcher, supervisor, worker, and installed replay
 commands while retaining `-I`, making bytecode suppression explicit and
 testable rather than environment-dependent.
+
+## Integration Attempt 3 Repair Trigger
+
+Commit `db4e323edc5abbd145f6b2b2782e640c7558feba` reproduced `296/296`
+tracked tests, built wheel SHA-256
+`d60894438aaa182937ac3490090170e73c39f3bc8a40f6e98dce89f8e54690f1`,
+passed `100/100` installed equality before and after synthetic execution, and
+froze unexecuted packet SHA-256
+`94adcb451a01fb8021a1867cbb66137b145265a7ef29ff5ee3b385807e6e652c`.
+Exact packet audit then found that its immutable status self-asserted
+`reviewed` before advisory review occurred.
+
+This is a local evidence-labeling defect with zero credential access, zero
+provider activity, and zero cost. The wheel/install remain valid engineering
+evidence, but the packet is superseded and must not be executed. The repair
+renames the immutable packet state to
+`candidate_pending_advisory_review_and_external_authority`; any later advisory
+agreement must be a separate result bound to the unchanged candidate hashes.

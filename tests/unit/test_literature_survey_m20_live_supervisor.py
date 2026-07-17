@@ -69,7 +69,7 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
     launch_diagnostic_path = (tmp_path / "launch_diagnostic.json").resolve()
     packet = {
         "schema_version": supervisor.PACKET_SCHEMA,
-        "status": "reviewed_m20_recovery_campaign_pending_external_authority",
+        "status": "candidate_pending_advisory_review_and_external_authority",
         "packet_contract_sha256": "",
         "execution_commit": "a" * 40,
         "execution_tree": "b" * 40,

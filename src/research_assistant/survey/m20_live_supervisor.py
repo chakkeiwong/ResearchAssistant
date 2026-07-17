@@ -404,7 +404,7 @@ def validate_packet(
         raise M20SupervisorError("packet_shape_invalid")
     fixed = {
         "schema_version": PACKET_SCHEMA,
-        "status": "reviewed_m20_recovery_campaign_pending_external_authority",
+        "status": "candidate_pending_advisory_review_and_external_authority",
         "credential_interface": CREDENTIAL_INTERFACE,
         "route_manifest_sha256": route_manifest_sha256(),
         "one_attempt_rule": "campaign_attempt_subject_to_plan_budget_and_repair_rules",
