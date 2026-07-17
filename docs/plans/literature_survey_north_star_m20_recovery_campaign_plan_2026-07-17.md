@@ -1,7 +1,7 @@
 # M20 Live Discovery Recovery Campaign Plan
 
 Date: `2026-07-17`
-Status: `LOCAL_RECOVERY_IMPLEMENTATION_AUTHORIZED_EXTERNAL_BOUNDARY_PENDING`
+Status: `NEW_CAMPAIGN_AUTHORIZED_LOCAL_REPAIR_IN_PROGRESS_EXTERNAL_CREDENTIAL_BOUNDARY_PENDING`
 Milestone: `M20_live_discovery_and_citation_frontier`
 Closes if passed: `G3_live_citation_discovery`
 
@@ -52,6 +52,13 @@ Audit results:
   cost, or unreaped process is a validity veto.
 - Every attempt needs a fresh versioned root. Prior evidence is never
   overwritten.
+- A replay-valid closed run without an explicit selected candidate is a valid
+  negative result, not M20 success. It writes
+  `BLOCKED_NO_SELECTED_REAL_CANDIDATE_AFTER_FROZEN_MATRIX` and cannot hand off
+  M21.
+- Before credential lookup, the predecessor campaign state must retain at
+  least the fixed maximum next-attempt OpenAlex reservation of USD `$0.0011`.
+  Post-attempt accounting remains cumulative against the USD `$0.01` cap.
 - The campaign passes this audit for local recovery implementation only.
   Credential access, paid provider calls, and the live launch remain a separate
   explicit human boundary.
@@ -62,7 +69,7 @@ Audit results:
 | --- | --- |
 | Question | Can the five-route M20 metadata/frontier workflow execute with boundary-valid, replayable evidence? |
 | Baseline | M20B3 commit `7283a00e...a25c`, installed packet preflight, and the historical early-exit result |
-| Primary pass criterion | A fresh live root has a valid manifest, complete five-row disposition ledger, accepted-body inventory, offline replay, reconciled cost evidence, and valid identity/frontier outcomes |
+| Primary pass criterion | A fresh live root has a valid manifest, complete five-row disposition ledger, accepted-body inventory, offline replay, reconciled cost evidence, valid identity/frontier outcomes, and at least one replay-valid explicit selected candidate authority |
 | Promotion vetoes | Invalid identity binding, missing/extra artifacts, accepted-body mismatch, failed replay, unreconciled cost, credential representation in retained artifacts, or invalid process lifecycle |
 | Continuation vetoes | Unknown prior provider/cost state before a retry, campaign budget exhausted, corrupted immutable evidence, unbounded process state, privacy-boundary failure, or changed scientific/provider contract |
 | Repair triggers | Packet/install/preflight, launch instrumentation, serialization, process supervision, or other localized infrastructure failure with provider and cost state established |

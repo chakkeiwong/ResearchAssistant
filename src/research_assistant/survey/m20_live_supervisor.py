@@ -32,6 +32,7 @@ from research_assistant.survey.mission_state import canonical_json_bytes, pretty
 from research_assistant.survey.openalex_credential_cost import (
     CAMPAIGN_COST_CAP_USD,
     CREDENTIAL_INTERFACE,
+    ROUTE_COST_USD,
     contains_credential_representation,
 )
 
@@ -45,6 +46,7 @@ HARD_SECONDS = SOFT_SECONDS + 3.0
 FINAL_REAP_SECONDS = HARD_SECONDS + 2.0
 ABSOLUTE_SECONDS = FINAL_REAP_SECONDS + 1.0
 ARTIFACT_BYTE_CAP = TOTAL_BODY_CAP + 2_000_000
+MAXIMUM_ATTEMPT_RESERVATION_USD = sum(ROUTE_COST_USD.values(), Decimal("0"))
 PACKET_KEYS = {
     "schema_version",
     "status",
@@ -269,6 +271,7 @@ def _validate_campaign_state(path: Path, *, packet: dict[str, Any]) -> None:
         or cap != CAMPAIGN_COST_CAP_USD
         or min(reconciled, remaining) < 0
         or reconciled + remaining != cap
+        or remaining < MAXIMUM_ATTEMPT_RESERVATION_USD
     ):
         raise M20SupervisorError("packet_campaign_state_invalid")
 def _validate_existing_root(root: Path) -> None:

@@ -663,6 +663,7 @@ def build_closeout(
     cost_block_code: str | None = None
     replay_status = NOT_ESTABLISHED
     campaign_validity = NOT_ESTABLISHED
+    selected_candidate_authority = False
     privacy_state = diagnostic["privacy_state"]
     retry_eligible = False
     if manifest_exists:
@@ -685,6 +686,9 @@ def build_closeout(
                     replay_validator = lambda root: _installed_replay(packet, root)
                 replay_result = replay_validator(live_root)
                 campaign_validity = replay_result["campaign_validity"]
+                selected_candidate_authority = replay_result["selected_candidate_authority"]
+                if type(selected_candidate_authority) is not bool:
+                    raise RecoveryCloseoutError("selected_candidate_authority_invalid")
                 cost_usd, cost_reconciled, cost_state, cost_block_code = _completed_cost(live_root)
                 provider_activity = True
                 replay_status = "passed"
@@ -748,6 +752,13 @@ def build_closeout(
             "passed"
             if replay_status == "passed"
             and campaign_validity == "closed"
+            and selected_candidate_authority
+            and cost_reconciled
+            and privacy_state == "passed_enumerated_retained_artifacts"
+            else "BLOCKED_NO_SELECTED_REAL_CANDIDATE_AFTER_FROZEN_MATRIX"
+            if replay_status == "passed"
+            and campaign_validity == "closed"
+            and not selected_candidate_authority
             and cost_reconciled
             and privacy_state == "passed_enumerated_retained_artifacts"
             else "boundary_outcome"
@@ -771,9 +782,11 @@ def build_closeout(
         "cost_block_code": cost_block_code,
         "replay_status": replay_status,
         "campaign_validity": campaign_validity,
+        "selected_candidate_authority": selected_candidate_authority,
         "m20_primary_criterion_passed": (
             replay_status == "passed"
             and campaign_validity == "closed"
+            and selected_candidate_authority
             and cost_reconciled
             and privacy_state == "passed_enumerated_retained_artifacts"
         ),

@@ -437,7 +437,9 @@ def test_invalid_backward_view_vetoes_forward_before_dispatch(tmp_path: Path) ->
 
 def test_offline_validator_replays_closed_success_and_boundary_result(tmp_path: Path) -> None:
     root, _summary, _canary, _arxiv, _openalex, _getter = _run(tmp_path)
-    assert validate_published_run(root, execution_mode="synthetic")["campaign_validity"] == "closed"
+    replay = validate_published_run(root, execution_mode="synthetic")
+    assert replay["campaign_validity"] == "closed"
+    assert replay["selected_candidate_authority"] is True
 
     boundary_root = (tmp_path / "boundary").resolve()
     run_matrix(
@@ -448,6 +450,7 @@ def test_offline_validator_replays_closed_success_and_boundary_result(tmp_path: 
     )
     replay = validate_published_run(boundary_root, execution_mode="synthetic")
     assert replay["campaign_validity"] == "boundary_invalid"
+    assert replay["selected_candidate_authority"] is False
     assert replay["accepted_body_count"] == 1
 
     credential_root = (tmp_path / "invalid_credential").resolve()

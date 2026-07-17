@@ -351,16 +351,24 @@ def test_completed_inventory_rejects_hardlinked_file(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    ("campaign_validity", "reserved", "reconciled", "expected_status", "primary", "veto"),
+    (
+        "campaign_validity", "selected_candidate_authority", "reserved", "reconciled",
+        "expected_status", "primary", "veto",
+    ),
     [
-        ("closed", "0.0011", "0.0011", "passed", True, False),
-        ("boundary_invalid", "0.0011", "0.0011", "boundary_outcome", False, False),
-        ("boundary_invalid", "0.0011", "0", "stopped", False, True),
+        ("closed", True, "0.0011", "0.0011", "passed", True, False),
+        (
+            "closed", False, "0.0011", "0.0011",
+            "BLOCKED_NO_SELECTED_REAL_CANDIDATE_AFTER_FROZEN_MATRIX", False, False,
+        ),
+        ("boundary_invalid", False, "0.0011", "0.0011", "boundary_outcome", False, False),
+        ("boundary_invalid", False, "0.0011", "0", "stopped", False, True),
     ],
 )
 def test_completed_closeout_integrates_replay_cost_privacy_and_promotion(
     tmp_path: Path,
     campaign_validity: str,
+    selected_candidate_authority: bool,
     reserved: str,
     reconciled: str,
     expected_status: str,
@@ -399,13 +407,17 @@ def test_completed_closeout_integrates_replay_cost_privacy_and_promotion(
 
     record = MODULE.build_closeout(
         **args,
-        replay_validator=lambda _root: {"campaign_validity": campaign_validity},
+        replay_validator=lambda _root: {
+            "campaign_validity": campaign_validity,
+            "selected_candidate_authority": selected_candidate_authority,
+        },
     )
     assert record["status"] == expected_status
     assert record["m20_primary_criterion_passed"] is primary
     assert record["continuation_veto"] is veto
     assert record["retry_eligible_under_unchanged_campaign"] is False
     assert record["privacy_state"] == "passed_enumerated_retained_artifacts"
+    assert record["selected_candidate_authority"] is selected_candidate_authority
 
 
 @pytest.mark.parametrize(
@@ -557,7 +569,13 @@ def test_completed_manifest_requires_zero_exit(tmp_path: Path) -> None:
     diagnostic_path.write_text(json.dumps(diagnostic))
     _refresh_outer(args)
     with pytest.raises(MODULE.RecoveryCloseoutError, match="supervisor_exit_classification_invalid"):
-        MODULE.build_closeout(**args, replay_validator=lambda _root: {"campaign_validity": "closed"})
+        MODULE.build_closeout(
+            **args,
+            replay_validator=lambda _root: {
+                "campaign_validity": "closed",
+                "selected_candidate_authority": True,
+            },
+        )
 
 
 @pytest.mark.parametrize(

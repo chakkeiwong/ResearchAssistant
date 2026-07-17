@@ -437,6 +437,49 @@ def test_preflight_rejects_campaign_continuation_veto(tmp_path: Path) -> None:
         )
 
 
+def test_attempt_two_preflight_rejects_insufficient_remaining_campaign_cost(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    state_path = Path(packet["campaign_state"]["path"])
+    state = json.loads(state_path.read_text())
+    state.update({
+        "attempts_completed": 1,
+        "provider_launches_used": 1,
+        "reconciled_cost_usd": "0.0090",
+        "remaining_cost_usd": "0.0010",
+        "next_attempt_id": "attempt-02",
+        "predecessor_campaign_state_sha256": "c" * 64,
+    })
+    state_path.write_bytes(canonical_json_bytes(state))
+    packet["campaign_attempt_id"] = "attempt-02"
+    packet["campaign_state"]["sha256"] = _sha(state_path)
+    packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
+    packet_path.write_bytes(canonical_json_bytes(packet))
+    intent_path = Path(packet["outer_intent_path"])
+    intent = json.loads(intent_path.read_text())
+    intent["packet_file_sha256"] = _sha(packet_path)
+    intent_path.write_bytes(canonical_json_bytes(intent))
+    monkeypatch.setattr(
+        supervisor,
+        "_environment_credential",
+        lambda: pytest.fail("insufficient remaining campaign cost must fail before credential lookup"),
+    )
+    load_and_preflight = supervisor.load_and_preflight_packet
+    monkeypatch.setattr(
+        supervisor,
+        "load_and_preflight_packet",
+        lambda *args, **kwargs: load_and_preflight(*args, **kwargs, git_identity=_git_identity),
+    )
+
+    assert supervisor.main(_main_args(packet_path, packet)) == 2
+    diagnostic = json.loads(Path(packet["launch_diagnostic_path"]).read_text())
+    assert diagnostic["outcome"] == "preflight_failed"
+    assert diagnostic["error_code"] == "packet_campaign_state_invalid"
+    assert diagnostic["credential_lookup_performed"] is False
+
+
 def test_preflight_rejects_symlinked_outer_record_parent(tmp_path: Path) -> None:
     output_root = (tmp_path / "run").resolve()
     packet_path, packet = _packet(tmp_path, output_root)

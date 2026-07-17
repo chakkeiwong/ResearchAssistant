@@ -550,6 +550,13 @@ def _read_artifact(path: Path) -> Any:
         raise M20WorkerError("published_artifact_invalid") from exc
 
 
+def _selected_candidate_authority(outcomes: dict[str, Any]) -> bool:
+    return (
+        outcomes["explicit_arxiv_seed"]["outcome"] == "selected"
+        or outcomes["openalex_case"]["m21_candidate_authority"] is True
+    )
+
+
 def _validate_published_run(root: Path, *, execution_mode: str) -> dict[str, Any]:
     if execution_mode not in EXECUTION_MODES or not root.is_absolute() or not root.is_dir():
         raise M20WorkerError("published_root_invalid")
@@ -905,6 +912,7 @@ def _validate_published_run(root: Path, *, execution_mode: str) -> dict[str, Any
     return {
         "status": "passed",
         "campaign_validity": campaign_validity,
+        "selected_candidate_authority": _selected_candidate_authority(outcomes),
         "accepted_body_count": len(bodies),
         "accepted_body_bytes": accepted_bytes,
     }
