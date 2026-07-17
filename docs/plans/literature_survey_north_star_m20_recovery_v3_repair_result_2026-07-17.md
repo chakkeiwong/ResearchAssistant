@@ -74,3 +74,20 @@ reach the external boundary. Credential lookup, arXiv/OpenAlex calls, and paid
 usage still require explicit human authority under a total USD `$0.01` cap and
 at most two provider-capable launches, with no retry after unknown or
 unreconciled provider/cost state.
+
+## Integration Attempt 1 Repair Trigger
+
+Commit `89ad6d6019c18a3417a292fdd0f24f83378e7bac` reproduced `295/295`
+tracked M20/recovery tests and built an offline wheel, but packet-generation
+audit found that packet-only preflight required the outer intent to exist even
+though the launcher must create that intent at the start of the real
+invocation. Running packet preflight would therefore consume the path and make
+the later launcher fail closed before its child started.
+
+This is a localized launch-instrumentation failure with zero credential access,
+zero provider activity, and zero cost. Commit `89ad6d60`, its clone, wheel, and
+pip-less install are superseded integration-attempt evidence and must not be
+used to create or execute a live packet. The repair separates packet-only
+preflight (`intent path must be fresh and absent`) from execution-time child
+preflight (`launcher-created intent must validate`) while retaining the rule
+that intent validation completes before credential lookup.

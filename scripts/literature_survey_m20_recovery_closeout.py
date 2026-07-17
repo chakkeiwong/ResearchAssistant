@@ -54,6 +54,7 @@ PREFLIGHT_ERROR_CODES = {
     "output_parent_invalid", "launch_diagnostic_path_not_fresh", "launch_diagnostic_parent_invalid",
     "packet_outer_invocation_paths_invalid", "packet_outer_invocation_path_invalid",
     "packet_outer_invocation_fallback_path_invalid", "packet_outer_intent_invalid",
+    "packet_outer_intent_path_invalid",
     "preflight_os_error",
     "preflight_unexpected_error",
 }

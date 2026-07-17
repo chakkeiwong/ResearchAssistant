@@ -397,6 +397,7 @@ def validate_packet(
     packet_path: Path,
     output_root: Path,
     launch_diagnostic_path: Path,
+    require_outer_intent: bool = True,
     git_identity: Callable[[Path], tuple[str, str]] = _git_identity,
 ) -> dict[str, Any]:
     if not isinstance(packet, dict) or set(packet) != PACKET_KEYS:
@@ -519,7 +520,10 @@ def validate_packet(
     fallback_path = Path(packet["outer_invocation_fallback_path"])
     if len({intent_path, outer_path, fallback_path}) != 3:
         raise M20SupervisorError("packet_outer_invocation_paths_invalid")
-    _validate_outer_intent(intent_path, packet_path=packet_path, expected_command=child_command)
+    if require_outer_intent:
+        _validate_outer_intent(intent_path, packet_path=packet_path, expected_command=child_command)
+    else:
+        _validate_fresh_record_path(intent_path, code="packet_outer_intent_path_invalid")
     _validate_fresh_record_path(outer_path, code="packet_outer_invocation_path_invalid")
     _validate_fresh_record_path(fallback_path, code="packet_outer_invocation_fallback_path_invalid")
     return dict(packet)
@@ -530,6 +534,7 @@ def load_and_preflight_packet(
     *,
     output_root: Path,
     launch_diagnostic_path: Path,
+    require_outer_intent: bool = True,
     git_identity: Callable[[Path], tuple[str, str]] = _git_identity,
 ) -> dict[str, Any]:
     if not packet_path.is_absolute() or not packet_path.is_file() or packet_path.is_symlink():
@@ -539,6 +544,7 @@ def load_and_preflight_packet(
         packet_path=packet_path,
         output_root=output_root,
         launch_diagnostic_path=launch_diagnostic_path,
+        require_outer_intent=require_outer_intent,
         git_identity=git_identity,
     )
 

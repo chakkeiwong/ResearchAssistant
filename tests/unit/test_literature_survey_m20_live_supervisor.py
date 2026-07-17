@@ -190,6 +190,29 @@ def test_preflight_closes_packet_before_any_credential_lookup(tmp_path: Path) ->
         )
 
 
+def test_packet_only_preflight_requires_fresh_absent_intent_path(tmp_path: Path) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    intent_path = Path(packet["outer_intent_path"])
+    intent_path.unlink()
+    assert supervisor.load_and_preflight_packet(
+        packet_path,
+        output_root=output_root,
+        launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+        require_outer_intent=False,
+        git_identity=_git_identity,
+    ) == packet
+    intent_path.write_text("occupied")
+    with pytest.raises(supervisor.M20SupervisorError, match="packet_outer_intent_path_invalid"):
+        supervisor.load_and_preflight_packet(
+            packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            require_outer_intent=False,
+            git_identity=_git_identity,
+        )
+
+
 def test_main_never_reads_credential_when_packet_preflight_fails(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
