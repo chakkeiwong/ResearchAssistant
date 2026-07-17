@@ -91,3 +91,20 @@ used to create or execute a live packet. The repair separates packet-only
 preflight (`intent path must be fresh and absent`) from execution-time child
 preflight (`launcher-created intent must validate`) while retaining the rule
 that intent validation completes before credential lookup.
+
+## Integration Attempt 2 Repair Trigger
+
+Commit `efee4bfad8f79514938bdc21fa164c7e6ec93c4a` reproduced `296/296`
+tracked M20/recovery tests and built wheel SHA-256
+`72ae86537cd9bfbf96db7b62a7ce8a0623ae46fda5e16349a2bef0f2494b96ae`.
+The complete installed-member gate then found `__pycache__` files created by an
+installed import probe despite `PYTHONDONTWRITEBYTECODE=1`. Python isolated mode
+(`-I`) ignores `PYTHON*` environment variables, so the prior no-bytecode claim
+was unsupported at installed execution boundaries.
+
+This is a localized packaging/topology failure with zero credential access,
+zero provider activity, and zero cost. Both attempt-2 installs are preserved as
+failed local evidence and must not be used for packet creation. The repair adds
+interpreter flag `-B` to the launcher, supervisor, worker, and installed replay
+commands while retaining `-I`, making bytecode suppression explicit and
+testable rather than environment-dependent.

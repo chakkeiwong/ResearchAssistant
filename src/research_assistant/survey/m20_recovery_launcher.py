@@ -69,6 +69,7 @@ def run(
     packet_file_sha256 = _sha_path(packet_path)
     command = [
         sys.executable,
+        "-B",
         "-I",
         "-m",
         "research_assistant.survey.m20_live_supervisor",

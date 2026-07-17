@@ -481,6 +481,7 @@ def validate_packet(
     _validate_campaign_state(campaign_state_path, packet=packet)
     child_command = [
         sys.executable,
+        "-B",
         "-I",
         "-m",
         "research_assistant.survey.m20_live_supervisor",
@@ -494,6 +495,7 @@ def validate_packet(
     ]
     expected_command = [
         sys.executable,
+        "-B",
         "-I",
         "-m",
         "research_assistant.survey.m20_recovery_launcher",
@@ -724,6 +726,7 @@ def run_supervised(
     _preflight_absent_root(output_root)
     command = [
         sys.executable,
+        "-B",
         "-I",
         "-m",
         "research_assistant.survey.m20_live_worker",

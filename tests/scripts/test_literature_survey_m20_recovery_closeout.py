@@ -130,7 +130,7 @@ def _args(tmp_path: Path, outcome: str, started: bool) -> tuple[dict, dict, Path
     diagnostic_path.write_text(json.dumps(diagnostic, sort_keys=True))
     child_command = [
         packet["command"][0],
-        "-I", "-m", "research_assistant.survey.m20_live_supervisor",
+        "-B", "-I", "-m", "research_assistant.survey.m20_live_supervisor",
         "--packet", str(packet_path),
         "--output-root", str(live_root),
         "--launch-diagnostic-path", str(diagnostic_path),

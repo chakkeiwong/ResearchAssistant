@@ -569,7 +569,7 @@ def _installed_replay(packet: dict[str, Any], root: Path) -> dict[str, Any]:
     ])
     try:
         completed = subprocess.run(
-            [str(interpreter), "-I", "-c", code],
+            [str(interpreter), "-B", "-I", "-c", code],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
@@ -620,7 +620,7 @@ def build_closeout(
     ):
         raise RecoveryCloseoutError("outer_invocation_packet_binding_invalid")
     expected_child_command = [
-        packet["command"][0], "-I", "-m",
+        packet["command"][0], "-B", "-I", "-m",
         "research_assistant.survey.m20_live_supervisor",
         "--packet", str(packet_path),
         "--output-root", str(live_root),

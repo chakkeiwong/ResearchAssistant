@@ -89,6 +89,7 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
         "campaign_state": {"path": "", "sha256": ""},
         "command": [
             sys.executable,
+            "-B",
             "-I",
             "-m",
             "research_assistant.survey.m20_recovery_launcher",
@@ -142,6 +143,7 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
     packet_path.write_bytes(canonical_json_bytes(packet))
     child_command = [
         sys.executable,
+        "-B",
         "-I",
         "-m",
         "research_assistant.survey.m20_live_supervisor",
