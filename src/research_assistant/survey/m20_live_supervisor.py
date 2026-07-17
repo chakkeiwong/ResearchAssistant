@@ -36,8 +36,9 @@ from research_assistant.survey.openalex_credential_cost import (
 )
 
 
-PACKET_SCHEMA = "ra-literature-survey-m20b4-live-packet-v1"
+PACKET_SCHEMA = "ra-literature-survey-m20-recovery-live-packet-v2"
 SUPERVISOR_SCHEMA = "ra-literature-survey-m20-live-supervisor-v1"
+LAUNCH_DIAGNOSTIC_SCHEMA = "ra-literature-survey-m20-launch-diagnostic-v1"
 SOFT_SECONDS = float(WHOLE_ATTEMPT_SECONDS)
 HARD_SECONDS = SOFT_SECONDS + 3.0
 FINAL_REAP_SECONDS = HARD_SECONDS + 2.0
@@ -56,6 +57,7 @@ PACKET_KEYS = {
     "route_manifest",
     "route_manifest_sha256",
     "output_root",
+    "launch_diagnostic_path",
     "command",
     "request_budget",
     "credential_interface",
@@ -167,6 +169,13 @@ def _preflight_absent_root(root: Path) -> None:
         raise M20SupervisorError("output_root_not_fresh")
     if not root.parent.is_dir() or root.parent.is_symlink() or root.parent.resolve(strict=True) != root.parent:
         raise M20SupervisorError("output_parent_invalid")
+
+
+def _validate_launch_diagnostic_path(path: Path) -> None:
+    if not path.is_absolute() or path.exists() or path.is_symlink():
+        raise M20SupervisorError("launch_diagnostic_path_not_fresh")
+    if not path.parent.is_dir() or path.parent.is_symlink() or path.parent.resolve(strict=True) != path.parent:
+        raise M20SupervisorError("launch_diagnostic_parent_invalid")
 
 
 def _validate_existing_root(root: Path) -> None:
@@ -294,16 +303,17 @@ def validate_packet(
     *,
     packet_path: Path,
     output_root: Path,
+    launch_diagnostic_path: Path,
     git_identity: Callable[[Path], tuple[str, str]] = _git_identity,
 ) -> dict[str, Any]:
     if not isinstance(packet, dict) or set(packet) != PACKET_KEYS:
         raise M20SupervisorError("packet_shape_invalid")
     fixed = {
         "schema_version": PACKET_SCHEMA,
-        "status": "reviewed_proposal_m20b4_not_authorized",
+        "status": "reviewed_m20_recovery_campaign_pending_external_authority",
         "credential_interface": CREDENTIAL_INTERFACE,
         "route_manifest_sha256": route_manifest_sha256(),
-        "one_attempt_rule": "one_exact_attempt_no_retries_or_reruns",
+        "one_attempt_rule": "campaign_attempt_subject_to_plan_budget_and_repair_rules",
         "network_scope": ["api.openalex.org:443", "export.arxiv.org:443"],
     }
     if any(packet.get(key) != value for key, value in fixed.items()):
@@ -352,6 +362,8 @@ def validate_packet(
         raise M20SupervisorError("packet_forbidden_actions_invalid")
     if packet["output_root"] != str(output_root):
         raise M20SupervisorError("packet_output_root_invalid")
+    if packet["launch_diagnostic_path"] != str(launch_diagnostic_path):
+        raise M20SupervisorError("packet_launch_diagnostic_path_invalid")
     expected_command = [
         sys.executable,
         "-I",
@@ -361,11 +373,14 @@ def validate_packet(
         str(packet_path),
         "--output-root",
         str(output_root),
-        "--execute-approved-m20b4",
+        "--launch-diagnostic-path",
+        str(launch_diagnostic_path),
+        "--execute-m20-recovery-campaign",
     ]
     if packet["command"] != expected_command:
         raise M20SupervisorError("packet_command_invalid")
     _preflight_absent_root(output_root)
+    _validate_launch_diagnostic_path(launch_diagnostic_path)
     return dict(packet)
 
 
@@ -373,6 +388,7 @@ def load_and_preflight_packet(
     packet_path: Path,
     *,
     output_root: Path,
+    launch_diagnostic_path: Path,
     git_identity: Callable[[Path], tuple[str, str]] = _git_identity,
 ) -> dict[str, Any]:
     if not packet_path.is_absolute() or not packet_path.is_file() or packet_path.is_symlink():
@@ -381,6 +397,7 @@ def load_and_preflight_packet(
         _loads_closed(packet_path.read_bytes()),
         packet_path=packet_path,
         output_root=output_root,
+        launch_diagnostic_path=launch_diagnostic_path,
         git_identity=git_identity,
     )
 
@@ -641,24 +658,160 @@ def _environment_credential() -> str | None:
     return os.environ.get(CREDENTIAL_INTERFACE)
 
 
+def _publish_launch_diagnostic(
+    path: Path,
+    *,
+    outcome: str,
+    exit_code: int,
+    packet: dict[str, Any] | None = None,
+    error_code: str | None = None,
+    credential_lookup_performed: bool,
+    credential_available: bool | None,
+    supervised_execution_started: bool,
+    output_root: Path,
+) -> None:
+    _validate_launch_diagnostic_path(path)
+    manifest_path = output_root / "supervisor_manifest.json"
+    record = {
+        "schema_version": LAUNCH_DIAGNOSTIC_SCHEMA,
+        "outcome": outcome,
+        "exit_code": exit_code,
+        "error_code": error_code,
+        "packet_contract_sha256": (
+            packet["packet_contract_sha256"] if packet is not None else "not_established"
+        ),
+        "preflight_completed": packet is not None,
+        "credential_lookup_performed": credential_lookup_performed,
+        "credential_available": credential_available,
+        "supervised_execution_started": supervised_execution_started,
+        "live_root_exists": output_root.exists(),
+        "supervisor_manifest_exists": manifest_path.is_file() and not manifest_path.is_symlink(),
+        "provider_activity": "not_established" if supervised_execution_started else False,
+        "cost_usd": "not_established" if supervised_execution_started else "0.00",
+        "privacy_state": "not_established",
+    }
+    _atomic_write(path, pretty_json_bytes(record))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--packet", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
-    parser.add_argument("--execute-approved-m20b4", action="store_true")
+    parser.add_argument("--launch-diagnostic-path", type=Path, required=True)
+    parser.add_argument("--execute-m20-recovery-campaign", action="store_true")
     args = parser.parse_args(argv)
-    if not args.execute_approved_m20b4:
-        return 2
     packet_path = args.packet.resolve(strict=False)
     output_root = args.output_root.resolve(strict=False)
+    diagnostic_path = args.launch_diagnostic_path.resolve(strict=False)
+    packet = None
+    if not args.execute_m20_recovery_campaign:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="execution_flag_missing",
+            exit_code=2,
+            error_code="execution_flag_missing",
+            credential_lookup_performed=False,
+            credential_available=None,
+            supervised_execution_started=False,
+            output_root=output_root,
+        )
+        return 2
     try:
-        packet = load_and_preflight_packet(packet_path, output_root=output_root)
-    except (OSError, M20SupervisorError):
+        packet = load_and_preflight_packet(
+            packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=diagnostic_path,
+        )
+    except M20SupervisorError as exc:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="preflight_failed",
+            exit_code=2,
+            error_code=exc.code,
+            credential_lookup_performed=False,
+            credential_available=None,
+            supervised_execution_started=False,
+            output_root=output_root,
+        )
         return 2
-    credential = _environment_credential()
+    except OSError:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="preflight_failed",
+            exit_code=2,
+            error_code="preflight_os_error",
+            credential_lookup_performed=False,
+            credential_available=None,
+            supervised_execution_started=False,
+            output_root=output_root,
+        )
+        return 2
+    except Exception:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="preflight_failed",
+            exit_code=2,
+            error_code="preflight_unexpected_error",
+            credential_lookup_performed=False,
+            credential_available=None,
+            supervised_execution_started=False,
+            output_root=output_root,
+        )
+        return 2
+    try:
+        credential = _environment_credential()
+    except Exception:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="credential_lookup_failed",
+            exit_code=2,
+            packet=packet,
+            error_code="credential_lookup_failed",
+            credential_lookup_performed=True,
+            credential_available=None,
+            supervised_execution_started=False,
+            output_root=output_root,
+        )
+        return 2
     if credential is None:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="credential_unavailable",
+            exit_code=2,
+            packet=packet,
+            error_code="credential_unavailable",
+            credential_lookup_performed=True,
+            credential_available=False,
+            supervised_execution_started=False,
+            output_root=output_root,
+        )
         return 2
-    return run_supervised(packet, credential=credential)
+    try:
+        exit_code = run_supervised(packet, credential=credential)
+    except Exception:
+        _publish_launch_diagnostic(
+            diagnostic_path,
+            outcome="supervisor_error",
+            exit_code=2,
+            packet=packet,
+            error_code="supervisor_error",
+            credential_lookup_performed=True,
+            credential_available=True,
+            supervised_execution_started=True,
+            output_root=output_root,
+        )
+        return 2
+    _publish_launch_diagnostic(
+        diagnostic_path,
+        outcome="supervised_execution_returned",
+        exit_code=exit_code,
+        packet=packet,
+        credential_lookup_performed=True,
+        credential_available=True,
+        supervised_execution_started=True,
+        output_root=output_root,
+    )
+    return exit_code
 
 
 if __name__ == "__main__":

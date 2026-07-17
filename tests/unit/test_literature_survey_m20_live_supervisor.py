@@ -65,9 +65,10 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
         "members": sorted(member_rows, key=lambda row: row["wheel_path"]),
     }))
     packet_path = (tmp_path / "packet.json").resolve()
+    launch_diagnostic_path = (tmp_path / "launch_diagnostic.json").resolve()
     packet = {
         "schema_version": supervisor.PACKET_SCHEMA,
-        "status": "reviewed_proposal_m20b4_not_authorized",
+        "status": "reviewed_m20_recovery_campaign_pending_external_authority",
         "packet_contract_sha256": "",
         "execution_commit": "a" * 40,
         "execution_tree": "b" * 40,
@@ -78,6 +79,7 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
         "route_manifest": route_manifest(),
         "route_manifest_sha256": route_manifest_sha256(),
         "output_root": str(output_root),
+        "launch_diagnostic_path": str(launch_diagnostic_path),
         "command": [
             sys.executable,
             "-I",
@@ -87,7 +89,9 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
             str(packet_path),
             "--output-root",
             str(output_root),
-            "--execute-approved-m20b4",
+            "--launch-diagnostic-path",
+            str(launch_diagnostic_path),
+            "--execute-m20-recovery-campaign",
         ],
         "request_budget": {
             "request_cap": 5,
@@ -102,7 +106,7 @@ def _packet(tmp_path: Path, output_root: Path) -> tuple[Path, dict]:
         },
         "credential_interface": "OPENALEX_API_KEY",
         "network_scope": ["api.openalex.org:443", "export.arxiv.org:443"],
-        "one_attempt_rule": "one_exact_attempt_no_retries_or_reruns",
+        "one_attempt_rule": "campaign_attempt_subject_to_plan_budget_and_repair_rules",
         "nonclaims": ["provider_behavior", "m20_completion"],
         "forbidden_actions": ["source_access", "push", "release"],
     }
@@ -119,14 +123,20 @@ def test_preflight_closes_packet_before_any_credential_lookup(tmp_path: Path) ->
     output_root = (tmp_path / "run").resolve()
     packet_path, packet = _packet(tmp_path, output_root)
     assert supervisor.load_and_preflight_packet(
-        packet_path, output_root=output_root, git_identity=_git_identity
+        packet_path,
+        output_root=output_root,
+        launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+        git_identity=_git_identity,
     ) == packet
     tampered = json.loads(packet_path.read_text())
     tampered["request_budget"]["request_cap"] = 6
     packet_path.write_bytes(canonical_json_bytes(tampered))
     with pytest.raises(supervisor.M20SupervisorError, match="packet_contract_hash_invalid"):
         supervisor.load_and_preflight_packet(
-            packet_path, output_root=output_root, git_identity=_git_identity
+            packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            git_identity=_git_identity,
         )
 
 
@@ -134,7 +144,7 @@ def test_main_never_reads_credential_when_packet_preflight_fails(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     output_root = (tmp_path / "run").resolve()
-    packet_path, _packet_value = _packet(tmp_path, output_root)
+    packet_path, packet = _packet(tmp_path, output_root)
     packet_path.write_bytes(b"{}")
     monkeypatch.setattr(
         supervisor,
@@ -144,8 +154,143 @@ def test_main_never_reads_credential_when_packet_preflight_fails(
     assert supervisor.main([
         "--packet", str(packet_path),
         "--output-root", str(output_root),
-        "--execute-approved-m20b4",
+        "--launch-diagnostic-path", packet["launch_diagnostic_path"],
+        "--execute-m20-recovery-campaign",
     ]) == 2
+    diagnostic = json.loads(Path(packet["launch_diagnostic_path"]).read_text())
+    assert diagnostic["outcome"] == "preflight_failed"
+    assert diagnostic["error_code"] == "packet_shape_invalid"
+    assert diagnostic["credential_lookup_performed"] is False
+    assert diagnostic["provider_activity"] is False
+    assert diagnostic["cost_usd"] == "0.00"
+
+
+def _main_args(packet_path: Path, packet: dict) -> list[str]:
+    return [
+        "--packet", str(packet_path),
+        "--output-root", packet["output_root"],
+        "--launch-diagnostic-path", packet["launch_diagnostic_path"],
+        "--execute-m20-recovery-campaign",
+    ]
+
+
+def test_main_records_credential_unavailable_after_preflight(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    monkeypatch.setattr(supervisor, "load_and_preflight_packet", lambda *args, **kwargs: packet)
+    monkeypatch.setattr(supervisor, "_environment_credential", lambda: None)
+
+    assert supervisor.main(_main_args(packet_path, packet)) == 2
+    diagnostic = json.loads(Path(packet["launch_diagnostic_path"]).read_text())
+    assert diagnostic["outcome"] == "credential_unavailable"
+    assert diagnostic["preflight_completed"] is True
+    assert diagnostic["credential_lookup_performed"] is True
+    assert diagnostic["credential_available"] is False
+    assert diagnostic["supervised_execution_started"] is False
+    assert diagnostic["provider_activity"] is False
+    assert diagnostic["cost_usd"] == "0.00"
+
+
+def test_main_records_unexpected_preflight_error_without_exception_text(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    monkeypatch.setattr(
+        supervisor,
+        "load_and_preflight_packet",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("sensitive_preflight_detail")),
+    )
+    monkeypatch.setattr(
+        supervisor,
+        "_environment_credential",
+        lambda: pytest.fail("credential lookup must follow complete packet preflight"),
+    )
+
+    assert supervisor.main(_main_args(packet_path, packet)) == 2
+    diagnostic_path = Path(packet["launch_diagnostic_path"])
+    diagnostic = json.loads(diagnostic_path.read_text())
+    assert diagnostic["outcome"] == "preflight_failed"
+    assert diagnostic["error_code"] == "preflight_unexpected_error"
+    assert diagnostic["credential_lookup_performed"] is False
+    assert b"sensitive_preflight_detail" not in diagnostic_path.read_bytes()
+
+
+def test_main_records_credential_lookup_failure_without_exception_text(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    monkeypatch.setattr(supervisor, "load_and_preflight_packet", lambda *args, **kwargs: packet)
+    monkeypatch.setattr(
+        supervisor,
+        "_environment_credential",
+        lambda: (_ for _ in ()).throw(RuntimeError("sensitive_lookup_detail")),
+    )
+
+    assert supervisor.main(_main_args(packet_path, packet)) == 2
+    diagnostic_path = Path(packet["launch_diagnostic_path"])
+    diagnostic = json.loads(diagnostic_path.read_text())
+    assert diagnostic["outcome"] == "credential_lookup_failed"
+    assert diagnostic["credential_lookup_performed"] is True
+    assert diagnostic["credential_available"] is None
+    assert diagnostic["supervised_execution_started"] is False
+    assert b"sensitive_lookup_detail" not in diagnostic_path.read_bytes()
+
+
+def test_main_records_supervised_execution_return(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    canary = "M20_RECOVERY_DIAGNOSTIC_CANARY"
+    monkeypatch.setattr(supervisor, "load_and_preflight_packet", lambda *args, **kwargs: packet)
+    monkeypatch.setattr(supervisor, "_environment_credential", lambda: canary)
+
+    def run(_packet_value: dict, *, credential: str) -> int:
+        assert credential == canary
+        output_root.mkdir()
+        (output_root / "supervisor_manifest.json").write_text("{}")
+        return 2
+
+    monkeypatch.setattr(supervisor, "run_supervised", run)
+    assert supervisor.main(_main_args(packet_path, packet)) == 2
+    diagnostic_path = Path(packet["launch_diagnostic_path"])
+    diagnostic = json.loads(diagnostic_path.read_text())
+    assert diagnostic["outcome"] == "supervised_execution_returned"
+    assert diagnostic["credential_available"] is True
+    assert diagnostic["supervised_execution_started"] is True
+    assert diagnostic["provider_activity"] == "not_established"
+    assert diagnostic["cost_usd"] == "not_established"
+    assert diagnostic["live_root_exists"] is True
+    assert diagnostic["supervisor_manifest_exists"] is True
+    assert canary.encode() not in diagnostic_path.read_bytes()
+
+
+def test_main_records_bounded_supervisor_error_without_exception_text(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    output_root = (tmp_path / "run").resolve()
+    packet_path, packet = _packet(tmp_path, output_root)
+    canary = "M20_RECOVERY_ERROR_CANARY"
+    monkeypatch.setattr(supervisor, "load_and_preflight_packet", lambda *args, **kwargs: packet)
+    monkeypatch.setattr(supervisor, "_environment_credential", lambda: canary)
+
+    def fail(_packet_value: dict, *, credential: str) -> int:
+        assert credential == canary
+        raise supervisor.M20SupervisorError("sensitive_exception_detail")
+
+    monkeypatch.setattr(supervisor, "run_supervised", fail)
+    assert supervisor.main(_main_args(packet_path, packet)) == 2
+    diagnostic_path = Path(packet["launch_diagnostic_path"])
+    diagnostic = json.loads(diagnostic_path.read_text())
+    assert diagnostic["outcome"] == "supervisor_error"
+    assert diagnostic["error_code"] == "supervisor_error"
+    assert diagnostic["credential_available"] is True
+    assert b"sensitive_exception_detail" not in diagnostic_path.read_bytes()
+    assert canary.encode() not in diagnostic_path.read_bytes()
 
 
 def test_preflight_rejects_existing_root_and_runtime_byte_drift(tmp_path: Path) -> None:
@@ -154,7 +299,11 @@ def test_preflight_rejects_existing_root_and_runtime_byte_drift(tmp_path: Path) 
     output_root.mkdir()
     with pytest.raises(supervisor.M20SupervisorError, match="output_root_not_fresh"):
         supervisor.validate_packet(
-            packet, packet_path=packet_path, output_root=output_root, git_identity=_git_identity
+            packet,
+            packet_path=packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            git_identity=_git_identity,
         )
 
 
@@ -169,7 +318,11 @@ def test_preflight_rejects_installed_member_drift(tmp_path: Path) -> None:
     packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
     with pytest.raises(supervisor.M20SupervisorError, match="installed_member_bytes_invalid"):
         supervisor.validate_packet(
-            packet, packet_path=packet_path, output_root=output_root, git_identity=_git_identity
+            packet,
+            packet_path=packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            git_identity=_git_identity,
         )
 
 
@@ -180,7 +333,11 @@ def test_preflight_rejects_runtime_module_byte_drift(tmp_path: Path) -> None:
     packet["packet_contract_sha256"] = supervisor.packet_contract_sha256(packet)
     with pytest.raises(supervisor.M20SupervisorError, match="runtime_module_bytes_invalid"):
         supervisor.validate_packet(
-            packet, packet_path=packet_path, output_root=output_root, git_identity=_git_identity
+            packet,
+            packet_path=packet_path,
+            output_root=output_root,
+            launch_diagnostic_path=Path(packet["launch_diagnostic_path"]),
+            git_identity=_git_identity,
         )
 
 
