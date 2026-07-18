@@ -18,6 +18,12 @@ from research_assistant.survey.evidence_semantics import (
 )
 from research_assistant.survey.mission_state import MissionStateError
 from research_assistant.survey.mission_state import canonical_json_bytes, pretty_json_bytes, sha256_bytes, sha256_file
+from research_assistant.survey.human_attestation import (
+    CLAIM_V4_SCHEMA,
+    export_human_receipt_archive,
+    validate_human_receipt_archive,
+    validate_human_receipt_decision,
+)
 from research_assistant.survey.review_decisions import (
     COMMON_SIDECAR_KEYS,
     ExactDecisionResult,
@@ -39,7 +45,10 @@ from research_assistant.survey.supervisor import validate_anchor_packet
 SURVEY_REVIEWED_CLAIMS_RESULT_SCHEMA_VERSION = "ra-survey-reviewed-claim-import-result-v2"
 SURVEY_REVIEWED_CLAIMS_SCHEMA_VERSION = "ra-survey-reviewed-claims-v2"
 SURVEY_CLAIM_REVIEW_V3_SCHEMA = "ra-survey-claim-review-v3"
+SURVEY_CLAIM_REVIEW_V4_SCHEMA = CLAIM_V4_SCHEMA
+SURVEY_CLAIM_AUTHORITY_V4_SCHEMA = "ra-survey-claim-review-authority-v4"
 SURVEY_REVIEWED_CLAIMS_V3_SCHEMA = "ra-survey-reviewed-claims-v3"
+SURVEY_REVIEWED_CLAIMS_V4_SCHEMA = "ra-survey-reviewed-claims-v4"
 SURVEY_CLAIM_DECISION_MANIFEST_SCHEMA = "ra-survey-claim-decision-set-manifest-v1"
 SURVEY_CLAIM_DECISION_CURRENT_SCHEMA = "ra-survey-claim-decision-current-v1"
 SURVEY_CLAIM_DEPENDENCY_MANIFEST_SCHEMA = "ra-survey-claim-dependency-manifest-v1"
@@ -86,6 +95,11 @@ CLAIM_V3_ENVELOPE_KEYS = {
     "schema_version", "decision_type", "mission_id", "mission_fingerprint",
     "mission_anchor_generation_id", "artifact_set_id", "queue_semantic_sha256",
     "review_queue_sha256", "decisions",
+}
+CLAIM_V4_AUTHORITY_ENVELOPE_KEYS = {
+    "schema_version", "decision_type", "mission_id", "mission_fingerprint",
+    "mission_anchor_generation_id", "artifact_set_id", "queue_semantic_sha256",
+    "review_queue_sha256", "attested_decisions", "human_receipt_archive",
 }
 CLAIM_V3_COMMON_KEYS = {
     "queue_item_id", "claim_id", "claim_text", "claim_type", "support_class",
@@ -171,12 +185,13 @@ def import_reviewed_claims(
     now: Callable[[], str] = utc_now_iso,
     nonce_factory: Callable[[], str] = lambda: secrets.token_hex(16),
     crash_hook: Callable[[str], None] | None = None,
+    human_attestation_receipt_path: Path | None = None,
 ) -> dict[str, Any]:
     try:
         envelope, raw = read_json_object_strict(decisions_path, label="claim decisions")
     except MissionStateError as exc:
         return _blocked(exc.code, output_dir.absolute(), [str(exc)])
-    if envelope.get("schema_version") == SURVEY_CLAIM_REVIEW_V3_SCHEMA:
+    if envelope.get("schema_version") in {SURVEY_CLAIM_REVIEW_V3_SCHEMA, SURVEY_CLAIM_REVIEW_V4_SCHEMA}:
         return _import_v3_claims(
             review_queue_path=review_queue_path,
             decisions_path=decisions_path,
@@ -187,6 +202,7 @@ def import_reviewed_claims(
             now=now,
             nonce_factory=nonce_factory,
             crash_hook=crash_hook,
+            human_attestation_receipt_path=human_attestation_receipt_path,
         )
     try:
         load_v2_evidence_context(review_queue_path)
@@ -267,17 +283,45 @@ def _import_v3_claims(
     now: Callable[[], str],
     nonce_factory: Callable[[], str],
     crash_hook: Callable[[str], None] | None,
+    human_attestation_receipt_path: Path | None,
 ) -> dict[str, Any]:
     output_dir = output_dir.absolute()
     try:
         if decisions_raw != pretty_json_bytes(envelope):
             raise MissionStateError("noncanonical_claim_review", "V3 claim review must be canonical pretty JSON")
+        human_mode = envelope.get("schema_version") == SURVEY_CLAIM_REVIEW_V4_SCHEMA
+        if human_mode != (human_attestation_receipt_path is not None):
+            raise MissionStateError(
+                "missing_human_attestation_receipt" if human_mode else "receipt_not_allowed_for_fixture_authority",
+                "V4 human claim review requires one receipt; V3 fixture review does not accept one",
+            )
         context = load_v2_evidence_context(review_queue_path)
-        require_exact_keys(envelope, CLAIM_V3_ENVELOPE_KEYS, "V3 claim-review envelope")
+        require_exact_keys(envelope, CLAIM_V3_ENVELOPE_KEYS, "V3/V4 claim-review envelope")
         if envelope.get("decision_type") != "claim_candidate":
             raise MissionStateError("wrong_decision_type", "V3 claim review has the wrong decision type")
         _require_claim_binding(envelope, context)
-        rows = _validate_v3_claim_rows(envelope.get("decisions"), context=context)
+        rows = _validate_v3_claim_rows(
+            envelope.get("decisions"), context=context, human_attested=human_mode,
+        )
+        authority_envelope = envelope
+        if human_mode:
+            assert human_attestation_receipt_path is not None
+            archive = export_human_receipt_archive(human_attestation_receipt_path)
+            receipt = validate_human_receipt_archive(archive)
+            validate_human_receipt_decision(
+                receipt=receipt,
+                decision_type="claim_candidate",
+                decisions_raw=decisions_raw,
+                expected_binding=context.binding,
+            )
+            authority_envelope = {
+                "schema_version": SURVEY_CLAIM_AUTHORITY_V4_SCHEMA,
+                "decision_type": "claim_candidate",
+                **context.binding,
+                "attested_decisions": envelope,
+                "human_receipt_archive": archive,
+            }
+        authority_raw = pretty_json_bytes(authority_envelope)
         required_ids = sorted(
             item["item_id"]
             for item in context.review_queue.get("items") or []
@@ -300,8 +344,8 @@ def _import_v3_claims(
         )
         selected = manager.load_predecessor_for_update()
         exact_replay = selected is not None and all([
-            selected.manifest.get("decisions_sha256") == sha256_bytes(decisions_raw),
-            selected.manifest.get("decisions_size_bytes") == len(decisions_raw),
+            selected.manifest.get("decisions_sha256") == sha256_bytes(authority_raw),
+            selected.manifest.get("decisions_size_bytes") == len(authority_raw),
             selected.manifest.get("normalized_claims_sha256") == normalized_hash,
         ])
         predecessor_id = (
@@ -320,8 +364,8 @@ def _import_v3_claims(
         )
         identity = {
             **context.binding,
-            "decisions_sha256": sha256_bytes(decisions_raw),
-            "decisions_size_bytes": len(decisions_raw),
+            "decisions_sha256": sha256_bytes(authority_raw),
+            "decisions_size_bytes": len(authority_raw),
             "normalized_claims_sha256": normalized_hash,
             "predecessor_decision_set_id": predecessor_id,
             "predecessor_decision_set_manifest_sha256": predecessor_hash,
@@ -329,17 +373,19 @@ def _import_v3_claims(
         decision_set_id, _ = manager.preview(
             identity_fields=identity,
             artifacts={
-                "reviewed_claim_decisions.json": decisions_raw,
+                "reviewed_claim_decisions.json": authority_raw,
                 "reviewed_claims.json": b"",
             },
         )
         sidecar_without_created_at = {
-            "schema_version": SURVEY_REVIEWED_CLAIMS_V3_SCHEMA,
+            "schema_version": (
+                SURVEY_REVIEWED_CLAIMS_V4_SCHEMA if human_mode else SURVEY_REVIEWED_CLAIMS_V3_SCHEMA
+            ),
             **context.binding,
             "decision_set_id": decision_set_id,
             "decisions_path": str(manager.sets_dir / decision_set_id / "reviewed_claim_decisions.json"),
-            "decisions_sha256": sha256_bytes(decisions_raw),
-            "decisions_size_bytes": len(decisions_raw),
+            "decisions_sha256": sha256_bytes(authority_raw),
+            "decisions_size_bytes": len(authority_raw),
             **semantic,
         }
         created_at = manager.preserve_staged_created_at(
@@ -353,7 +399,7 @@ def _import_v3_claims(
         snapshot = manager.compose_and_select(
             identity_fields=identity,
             artifacts={
-                "reviewed_claim_decisions.json": decisions_raw,
+                "reviewed_claim_decisions.json": authority_raw,
                 "reviewed_claims.json": pretty_json_bytes(sidecar),
             },
             force=force,
@@ -415,6 +461,18 @@ def resolve_current_reviewed_claims_sidecar_path(
     return snapshot.artifact_paths["reviewed_claims.json"]
 
 
+def selected_claim_human_receipt_archive(snapshot: AuthoritySnapshot) -> dict[str, Any] | None:
+    envelope, _ = read_json_object_strict(
+        snapshot.artifact_paths["reviewed_claim_decisions.json"],
+        label="selected claim review envelope",
+    )
+    if envelope.get("schema_version") == SURVEY_CLAIM_AUTHORITY_V4_SCHEMA:
+        archive = envelope.get("human_receipt_archive")
+        validate_human_receipt_archive(archive)
+        return archive
+    return None
+
+
 def _require_claim_binding(value: dict[str, Any], context: EvidenceContext) -> None:
     for field, expected in context.binding.items():
         if value.get(field) != expected:
@@ -422,7 +480,9 @@ def _require_claim_binding(value: dict[str, Any], context: EvidenceContext) -> N
             raise MissionStateError(code, f"V3 claim review {field} differs from selected authority")
 
 
-def _validate_v3_claim_rows(value: Any, *, context: EvidenceContext) -> list[dict[str, Any]]:
+def _validate_v3_claim_rows(
+    value: Any, *, context: EvidenceContext, human_attested: bool = False,
+) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         raise MissionStateError("invalid_claim_decisions", "claim decisions must be a list")
     queue_items = {
@@ -431,7 +491,13 @@ def _validate_v3_claim_rows(value: Any, *, context: EvidenceContext) -> list[dic
         if item.get("queue_type") == "claim_candidate"
     }
     normalized = [
-        _validate_v3_claim_row(row, queue_item=queue_items.get(row.get("queue_item_id")) if isinstance(row, dict) else None, context=context, index=index)
+        _validate_v3_claim_row(
+            row,
+            queue_item=queue_items.get(row.get("queue_item_id")) if isinstance(row, dict) else None,
+            context=context,
+            index=index,
+            human_attested=human_attested,
+        )
         for index, row in enumerate(value, start=1)
     ]
     normalized.sort(key=lambda row: row["queue_item_id"])
@@ -451,6 +517,7 @@ def _validate_v3_claim_row(
     queue_item: dict[str, Any] | None,
     context: EvidenceContext,
     index: int,
+    human_attested: bool = False,
 ) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise MissionStateError("invalid_claim_decision", f"claim decision row {index} is not an object")
@@ -476,8 +543,11 @@ def _validate_v3_claim_row(
     review_status = normalize_required_text(value.get("review_status"), field="review_status")
     if review_status not in CLAIM_REVIEW_STATUSES:
         raise MissionStateError("invalid_claim_reviewer_authority", "claim review status is not closed")
-    if value.get("fixture_only") is not True:
-        raise MissionStateError("invalid_claim_decision", "synthetic Phase 9 decisions must disclose fixture_only=true")
+    if value.get("fixture_only") is not (not human_attested):
+        raise MissionStateError(
+            "invalid_claim_decision",
+            "V3 decisions require fixture_only=true and receipt-bound V4 decisions require fixture_only=false",
+        )
     base: dict[str, Any] = {
         "queue_item_id": item_id,
         "claim_id": normalize_required_text(value.get("claim_id"), field="claim_id"),
@@ -488,7 +558,7 @@ def _validate_v3_claim_row(
         "reviewer": normalize_required_text(value.get("reviewer"), field="reviewer"),
         "reviewed_at": normalize_reviewed_at(value.get("reviewed_at")),
         "evidence_note": normalize_required_text(value.get("evidence_note"), field="evidence_note"),
-        "fixture_only": True,
+        "fixture_only": not human_attested,
     }
     if supporting:
         graph = _validate_dependency_graph(value, support_class=support_class, context=context)
@@ -745,6 +815,25 @@ def _validate_current_anchors(
     paper_ids: list[str],
     anchor_ids: list[str],
 ) -> None:
+    retained_status_path = context.mission_root / "source_intake" / "phase4_source_intake_status.json"
+    try:
+        retained_status, _ = read_json_object_strict(
+            retained_status_path,
+            label="mission source-intake status",
+        )
+    except MissionStateError:
+        retained_status = {}
+    if retained_status.get("schema_version") == "ra-survey-retained-source-intake-v1":
+        from research_assistant.survey.m22_retained_reconciliation import (
+            validate_retained_claim_anchors,
+        )
+
+        validate_retained_claim_anchors(
+            context=context,
+            paper_ids=paper_ids,
+            anchor_ids=anchor_ids,
+        )
+        return
     anchor_dir = context.mission_root / "source_anchors"
     validate_anchor_packet(
         anchor_dir,
@@ -800,7 +889,11 @@ def _claim_normalized_projection(
     *, context: EvidenceContext, semantic: dict[str, Any],
 ) -> dict[str, Any]:
     return {
-        "schema_version": SURVEY_REVIEWED_CLAIMS_V3_SCHEMA,
+        "schema_version": (
+            SURVEY_REVIEWED_CLAIMS_V4_SCHEMA
+            if any(row.get("fixture_only") is False for row in semantic.get("claims", []))
+            else SURVEY_REVIEWED_CLAIMS_V3_SCHEMA
+        ),
         **context.binding,
         **semantic,
     }
@@ -815,11 +908,37 @@ def _validate_v3_selected_claim_authority(
     )
     if envelope_raw != pretty_json_bytes(envelope):
         raise MissionStateError("noncanonical_claim_review", "selected claim review envelope is noncanonical")
-    require_exact_keys(envelope, CLAIM_V3_ENVELOPE_KEYS, "selected claim-review envelope")
-    if envelope.get("schema_version") != SURVEY_CLAIM_REVIEW_V3_SCHEMA or envelope.get("decision_type") != "claim_candidate":
-        raise MissionStateError("invalid_claim_review_schema", "selected claim review envelope is unsupported")
-    _require_claim_binding(envelope, context)
-    rows = _validate_v3_claim_rows(envelope.get("decisions"), context=context)
+    human_mode = envelope.get("schema_version") == SURVEY_CLAIM_AUTHORITY_V4_SCHEMA
+    if human_mode:
+        require_exact_keys(envelope, CLAIM_V4_AUTHORITY_ENVELOPE_KEYS, "selected human claim authority")
+        _require_claim_binding(envelope, context)
+        attested = envelope.get("attested_decisions")
+        if not isinstance(attested, dict):
+            raise MissionStateError("invalid_human_claim_authority", "attested claim decisions are missing")
+        attested_raw = pretty_json_bytes(attested)
+        require_exact_keys(attested, CLAIM_V3_ENVELOPE_KEYS, "attested V4 claim-review envelope")
+        if attested.get("schema_version") != SURVEY_CLAIM_REVIEW_V4_SCHEMA:
+            raise MissionStateError("invalid_claim_review_schema", "attested claim review schema is unsupported")
+        _require_claim_binding(attested, context)
+        receipt = validate_human_receipt_archive(envelope.get("human_receipt_archive"))
+        validate_human_receipt_decision(
+            receipt=receipt,
+            decision_type="claim_candidate",
+            decisions_raw=attested_raw,
+            expected_binding=context.binding,
+        )
+        review_envelope = attested
+    else:
+        require_exact_keys(envelope, CLAIM_V3_ENVELOPE_KEYS, "selected claim-review envelope")
+        if envelope.get("schema_version") != SURVEY_CLAIM_REVIEW_V3_SCHEMA:
+            raise MissionStateError("invalid_claim_review_schema", "selected claim review envelope is unsupported")
+        _require_claim_binding(envelope, context)
+        review_envelope = envelope
+    if envelope.get("decision_type") != "claim_candidate":
+        raise MissionStateError("invalid_claim_review_schema", "selected claim review envelope has the wrong type")
+    rows = _validate_v3_claim_rows(
+        review_envelope.get("decisions"), context=context, human_attested=human_mode,
+    )
     required_ids = sorted(
         item["item_id"]
         for item in context.review_queue.get("items") or []
@@ -839,7 +958,9 @@ def _validate_v3_selected_claim_authority(
         raise MissionStateError("noncanonical_claim_sidecar", "selected claim sidecar is noncanonical")
     require_exact_keys(sidecar, CLAIM_V3_SIDECAR_KEYS, "selected reviewed claims")
     expected_sidecar = {
-        "schema_version": SURVEY_REVIEWED_CLAIMS_V3_SCHEMA,
+        "schema_version": (
+            SURVEY_REVIEWED_CLAIMS_V4_SCHEMA if human_mode else SURVEY_REVIEWED_CLAIMS_V3_SCHEMA
+        ),
         **context.binding,
         "decision_set_id": snapshot.set_id,
         "decisions_path": str(snapshot.artifact_paths["reviewed_claim_decisions.json"]),
@@ -1026,10 +1147,13 @@ __all__ = [
     "REVIEWED_CLAIM_NONCLAIMS",
     "SURVEY_CLAIM_DEPENDENCY_MANIFEST_SCHEMA",
     "SURVEY_CLAIM_REVIEW_V3_SCHEMA",
+    "SURVEY_CLAIM_REVIEW_V4_SCHEMA",
     "SURVEY_REVIEWED_CLAIMS_V3_SCHEMA",
+    "SURVEY_REVIEWED_CLAIMS_V4_SCHEMA",
     "SURVEY_REVIEWED_CLAIMS_SCHEMA_VERSION",
     "_apply_claim_constraints",
     "_validate_decision",
     "claim_sidecar_expected_fields",
     "import_reviewed_claims",
+    "selected_claim_human_receipt_archive",
 ]

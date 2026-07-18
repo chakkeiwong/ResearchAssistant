@@ -995,6 +995,24 @@ def _validate_v2_coverage_replay(
     mission_anchor_generation_id: str,
     coverage_payloads: dict[str, dict[str, Any]],
 ) -> None:
+    retained_schema = "ra-survey-retained-evidence-reconciliation-v1"
+    if all(
+        payload.get("reconciliation_schema_version") == retained_schema
+        for payload in coverage_payloads.values()
+    ):
+        from research_assistant.survey.m22_retained_reconciliation import (
+            validate_retained_selected_coverage,
+        )
+
+        validate_retained_selected_coverage(
+            mission_root=mission_root,
+            mission_id=mission_id,
+            mission_fingerprint=mission_fingerprint,
+            mission_anchor_generation_id=mission_anchor_generation_id,
+            coverage_payloads=coverage_payloads,
+        )
+        return
+
     from research_assistant.survey.coverage_ledgers import load_v2_frontier_context
     from research_assistant.survey.frontier_expansion import (
         BACKWARD_FRONTIER_SCHEMA,
@@ -1116,6 +1134,12 @@ def _validate_v2_coverage_replay(
 def _validate_retained_v2_coverage_schemas(
     coverage_payloads: dict[str, dict[str, Any]],
 ) -> None:
+    retained_schema = "ra-survey-retained-evidence-reconciliation-v1"
+    if all(
+        payload.get("reconciliation_schema_version") == retained_schema
+        for payload in coverage_payloads.values()
+    ):
+        return
     _validate_exact_v2_coverage_schemas(
         coverage_payloads,
         error_code="invalid_retained_coverage_schema",

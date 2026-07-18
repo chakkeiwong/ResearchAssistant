@@ -1,7 +1,7 @@
 # M20 Live Discovery And Citation Frontier Subplan
 
 Date: `2026-07-14`
-Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
+Status: `BLOCKED_M20B4_EARLY_SUPERVISOR_EXIT_NO_MANIFEST_ATTEMPT_CONSUMED_NO_RERUN_HUMAN_DIRECTION_REQUIRED`
 Milestone: `M20_live_discovery_and_citation_frontier`
 Closes: `G3_live_citation_discovery`
 
@@ -566,17 +566,41 @@ rerun live under the same approval.
 
 ## Exact Current Handoff
 
-M20A, M20B1, and M20B2 pass in their bounded scopes. M20B3 received local Git
-integration authority, but its worker/supervisor review did not converge after
-five material rounds. Round 5 found an underconstrained
-`observed_cost_usd` replay predicate for blocked-after-dispatch evidence. The
-phase stopped before staging, commit, clone, wheel, installed validation, or
-packet freeze. No real key was read and no provider call occurred.
+M20A through M20B3 pass in their bounded scopes. M20B3 closed with identified
+commit/tree, isolated wheel/install equality, installed synthetic validation,
+exact packet preflight, and packet review agreement. This was the historical
+pre-launch handoff; the terminal M20B4 result below supersedes it. M21 remains
+a separate later source-access gate.
 
-Blocker result:
-`docs/plans/literature_survey_north_star_m20b3_review_nonconvergence_blocker_result_2026-07-15.md`.
+## M20B4 Review Blocker - 2026-07-16
 
-The human authorized one extra narrow replay repair/review round; the repair
-passed `54` focused and `227` cumulative tests, and terminal review returned
-`AGREE`. The previously authorized M20B3 Git/clone/wheel/install/packet-freeze
-lane is active. M20B4 provider execution and M21 remain separate later gates.
+M20B4's pre-launch subplan/closeout review exhausted five material rounds.
+The exact unresolved issue is local: closeout accepts impossible
+TERM-bearing/two-KILL histories while retaining
+`supervisor_lifecycle_error`. No live command ran, no credential was read, no
+provider was called, both roots remain absent, and the one-attempt budget is
+unconsumed. The exact next action is human direction for one extra local
+repair/review round limited to that signal predicate and focused tests. M21
+remains non-executable.
+
+## M20B4 Extra Repair Agreement - 2026-07-16
+
+The explicitly authorized extra predicate repair passed `37` focused and
+`104` combined checks, and terminal read-only review returned `AGREE`. The
+blocker is superseded only in that local scope. This paragraph records the
+historical pre-launch state and is superseded by the terminal result below.
+M21 remains non-executable.
+
+## M20B4 Terminal Result - 2026-07-16
+
+The exact packet command was invoked once under the human authorization and
+returned closed exit code `2`. It created no live root and no supervisor
+manifest, so the only supported classification is
+`early_supervisor_exit_no_manifest`. The sole attempt is consumed; retry or
+rerun is forbidden.
+
+The exact internal cause and all credential, provider, network, cost, privacy,
+request, identity, frontier, and candidate facts are `not_established`. M20's
+handoff conditions are not met, M20 remains blocked, and M21 must not be
+refreshed for execution. Any further live campaign requires a new reviewed
+plan, packet, budget, output root, and explicit human authority.

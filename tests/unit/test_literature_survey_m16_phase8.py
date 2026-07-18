@@ -29,8 +29,14 @@ from research_assistant.survey.omission_review import (
 from research_assistant.survey.claim_review import (
     SURVEY_CLAIM_DEPENDENCY_MANIFEST_SCHEMA,
     SURVEY_CLAIM_REVIEW_V3_SCHEMA,
+    SURVEY_CLAIM_REVIEW_V4_SCHEMA,
     import_reviewed_claims,
     resolve_current_reviewed_claims,
+)
+from research_assistant.survey.human_attestation import (
+    REVIEW_ROLES,
+    prepare_human_review_packet,
+    validate_human_attestation,
 )
 from research_assistant.survey.evidence_semantics import load_v2_evidence_context
 from research_assistant.survey.source_safety_review import (
@@ -38,6 +44,7 @@ from research_assistant.survey.source_safety_review import (
     SOURCE_OBSERVATION_NONCLAIMS,
     SURVEY_SOURCE_OBSERVATION_SET_SCHEMA,
     SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA,
+    SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA,
     import_reviewed_source_safety,
     preview_source_observation_binding,
     resolve_current_source_safety,
@@ -531,7 +538,13 @@ def _bound_envelope(queue_path: Path, queue: dict, decision_type: str, rows: lis
     }
 
 
-def _v3_source_envelope(queue_path: Path, output_dir: Path) -> dict:
+def _v3_source_envelope(
+    queue_path: Path,
+    output_dir: Path,
+    *,
+    human_attested: bool = False,
+    reviewer: str = "synthetic-fixture-reviewer",
+) -> dict:
     context = load_v2_evidence_context(queue_path)
     status = context.validated_source_intake["status"]
     status_raw = context.validated_source_intake["status_bytes"]
@@ -551,13 +564,16 @@ def _v3_source_envelope(queue_path: Path, output_dir: Path) -> dict:
             "source_record_size_bytes": identity.source_record_size_bytes,
             "provider": identity.provider,
             "final_url": identity.final_url,
-            "status_source": "synthetic fixture status registry",
+            "status_source": (
+                "reviewed local status registry"
+                if human_attested else "synthetic fixture status registry"
+            ),
             "evidence_class": "recorded_status_check",
             "observed_at": "2026-07-12T02:00:00Z",
             "checks_performed": SOURCE_CHECKS,
             "outcome": "checked_clear_for_recorded_checks",
             "notices": [],
-            "fixture_only": True,
+            "fixture_only": not human_attested,
             "claim_support_allowed": False,
             "what_is_not_concluded": SOURCE_OBSERVATION_NONCLAIMS,
         }
@@ -576,7 +592,7 @@ def _v3_source_envelope(queue_path: Path, output_dir: Path) -> dict:
         "source_outcome_ledger_path": str(ledger_path),
         "source_outcome_ledger_sha256": sha256_bytes(ledger_path.read_bytes()),
         "source_outcome_ledger_size_bytes": ledger_path.stat().st_size,
-        "fixture_only": True,
+        "fixture_only": not human_attested,
         "observations": observations,
         "what_is_not_concluded": SOURCE_OBSERVATION_NONCLAIMS,
         "predecessor_observation_set_id": None,
@@ -586,6 +602,7 @@ def _v3_source_envelope(queue_path: Path, output_dir: Path) -> dict:
         review_queue_path=queue_path,
         observation_set=observation_set,
         output_dir=output_dir,
+        human_attested=human_attested,
     )
     by_item = {row["queue_item_id"]: row for row in observations}
     decisions = []
@@ -602,13 +619,20 @@ def _v3_source_envelope(queue_path: Path, output_dir: Path) -> dict:
             "source_version": identity.source_version,
             "reviewer_authority": "human_reviewed_status",
             "decision": "checked_clear",
-            "reviewer": "synthetic-fixture-reviewer",
+            "reviewer": reviewer,
             "reviewed_at": "2026-07-12T02:01:00Z",
-            "reason": "Synthetic fixture decision for engineering state-transition tests only.",
-            "fixture_only": True,
+            "reason": (
+                "Human-shaped local fixture decision used only to test receipt-bound engineering transitions."
+                if human_attested
+                else "Synthetic fixture decision for engineering state-transition tests only."
+            ),
+            "fixture_only": not human_attested,
         })
     return {
-        "schema_version": SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA,
+        "schema_version": (
+            SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA
+            if human_attested else SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA
+        ),
         "decision_type": "source_safety",
         **context.binding,
         "observation_set": observation_set,
@@ -616,7 +640,12 @@ def _v3_source_envelope(queue_path: Path, output_dir: Path) -> dict:
     }
 
 
-def _v3_claim_envelope(queue_path: Path) -> dict:
+def _v3_claim_envelope(
+    queue_path: Path,
+    *,
+    human_attested: bool = False,
+    reviewer: str = "synthetic-fixture-reviewer",
+) -> dict:
     context = load_v2_evidence_context(queue_path)
     item = next(row for row in context.review_queue["items"] if row["queue_type"] == "claim_candidate")
     dependencies = [
@@ -648,7 +677,10 @@ def _v3_claim_envelope(queue_path: Path) -> dict:
         "source_dependencies": dependencies,
     }
     return {
-        "schema_version": SURVEY_CLAIM_REVIEW_V3_SCHEMA,
+        "schema_version": (
+            SURVEY_CLAIM_REVIEW_V4_SCHEMA
+            if human_attested else SURVEY_CLAIM_REVIEW_V3_SCHEMA
+        ),
         "decision_type": "claim_candidate",
         **context.binding,
         "decisions": [{
@@ -658,10 +690,14 @@ def _v3_claim_envelope(queue_path: Path) -> dict:
             "claim_type": "paper_technical",
             "review_status": "human_reviewed_passed",
             "support_class": "primary_technical_support",
-            "reviewer": "synthetic-fixture-reviewer",
+            "reviewer": reviewer,
             "reviewed_at": "2026-07-12T02:02:00Z",
-            "evidence_note": "Synthetic fixture review for engineering state-transition tests only.",
-            "fixture_only": True,
+            "evidence_note": (
+                "Human-shaped local fixture review used only to test receipt-bound engineering transitions."
+                if human_attested
+                else "Synthetic fixture review for engineering state-transition tests only."
+            ),
+            "fixture_only": not human_attested,
             "source_dependencies": dependencies,
             "dependency_manifests": manifests,
             "root_dependency_manifest_id": manifest_id,
@@ -782,6 +818,345 @@ def _import_complete_v2_reviews(
         "omission_risk": selected.sidecar_path,
         "workflow_blocker": mission / "reviewed_workflow_blockers" / "reviewed_workflow_blockers.json",
     }
+
+
+def test_v4_receipt_bound_human_claim_and_source_authority_imports_and_replays(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Synthetic human-shaped data exercises the production boundary only."""
+    mission, queue_path, queue = _canonical_v2_mission(tmp_path, monkeypatch)
+    reviewer = "Bounded Research Human"
+    decisions_dir = tmp_path / "human-decisions"
+    decisions_dir.mkdir()
+    claim_path = decisions_dir / "claim.json"
+    claim_path.write_bytes(pretty_json_bytes(_v3_claim_envelope(
+        queue_path,
+        human_attested=True,
+        reviewer=reviewer,
+    )))
+    source_path = decisions_dir / "source.json"
+    source_path.write_bytes(pretty_json_bytes(_v3_source_envelope(
+        queue_path,
+        mission / "reviewed_source_safety",
+        human_attested=True,
+        reviewer=reviewer,
+    )))
+    omission_rows = []
+    for item in queue["items"]:
+        if item["queue_type"] != "omission_risk":
+            continue
+        disposition = item["machine_disposition"]
+        decision = {
+            "inspect_next": "must_inspect",
+            "omit_with_reason": "acceptable_omission",
+            "quarantine": "blocked_pending_source",
+            "blocked_source_or_frontier": "acceptable_omission",
+        }[disposition]
+        row = {
+            "queue_item_id": item["item_id"],
+            "risk_id": item["risk_id"],
+            "decision": decision,
+            "reason": "Human-shaped bounded fixture disposition.",
+            "reviewer": reviewer,
+            "reviewed_at": "2026-07-12T02:03:00Z",
+        }
+        if decision in {"must_inspect", "expand_scope", "blocked_pending_source"}:
+            row["next_action"] = "Keep this recorded risk open."
+        else:
+            row["scope_basis"] = "Only the exact recorded fixture scope is closed."
+        omission_rows.append(row)
+    omission_path = decisions_dir / "omission.json"
+    omission_path.write_bytes(pretty_json_bytes(_bound_envelope(
+        queue_path, queue, "omission_risk", omission_rows,
+    )))
+    workflow_path = decisions_dir / "workflow.json"
+    workflow_rows = [{
+        "queue_item_id": item["item_id"],
+        "disposition": "resolved_by_reviewed_evidence",
+        "evidence_queue_item_ids": item["required_evidence_queue_item_ids"],
+        "rationale": "Human-shaped bounded fixture disposition.",
+        "reviewer": reviewer,
+        "reviewed_at": "2026-07-12T02:03:00Z",
+    } for item in queue["items"] if item["queue_type"] == "workflow_blocker"]
+    workflow_path.write_bytes(pretty_json_bytes(_bound_envelope(
+        queue_path, queue, "workflow_blocker", workflow_rows,
+    )))
+
+    human_packet = tmp_path / "human-packet"
+    prepare_human_review_packet(
+        review_queue_path=queue_path,
+        output_dir=human_packet,
+        now=lambda: "2026-07-12T02:04:00Z",
+    )
+    attestation = json_load(human_packet / "human_attestation_template.json")
+    attestation.update(status="completed_human_self_attestation", attested_at="2026-07-12T02:05:00Z")
+    attestation["reviewer"].update({
+        "opaque_reviewer_id": "reviewer-local-002",
+        "display_name": reviewer,
+        "authority_origin": "human_self_attested",
+        "is_human": True,
+        "roles": list(REVIEW_ROLES),
+        "competence_statement": "I can review this bounded evidence and record uncertainty.",
+        "conflict_status": "none_declared",
+        "conflict_details": None,
+        "privacy_notice_accepted": True,
+        "privacy_retention_accepted": True,
+    })
+    attestation["declarations"] = {
+        "decisions_are_my_own": True,
+        "evidence_inspected": True,
+        "model_output_is_not_human_judgment": True,
+        "limitations_understood": True,
+    }
+    attestation_path = tmp_path / "attestation.json"
+    attestation_path.write_bytes(pretty_json_bytes(attestation))
+    receipt_dir = tmp_path / "receipt"
+    receipt = validate_human_attestation(
+        review_queue_path=queue_path,
+        packet_path=human_packet / "human_review_packet.json",
+        attestation_path=attestation_path,
+        decision_paths={
+            "claim_candidate": claim_path,
+            "source_safety": source_path,
+            "omission_risk": omission_path,
+            "workflow_blocker": workflow_path,
+        },
+        output_dir=receipt_dir,
+        now=lambda: "2026-07-12T02:06:00Z",
+    )
+    receipt_path = Path(receipt["receipt_path"])
+
+    claim_result = import_reviewed_claims(
+        review_queue_path=queue_path,
+        decisions_path=claim_path,
+        output_dir=mission / "reviewed_claims",
+        human_attestation_receipt_path=receipt_path,
+    )
+    source_result = import_reviewed_source_safety(
+        review_queue_path=queue_path,
+        decisions_path=source_path,
+        output_dir=mission / "reviewed_source_safety",
+        human_attestation_receipt_path=receipt_path,
+    )
+    assert claim_result["status"] == "reviewed_claims_complete"
+    assert source_result["status"] == "reviewed_source_safety_complete"
+
+    omission_result = import_reviewed_omissions(
+        review_queue_path=queue_path,
+        decisions_path=omission_path,
+        output_dir=mission / "reviewed_omissions",
+    )
+    workflow_result = import_reviewed_workflow_blockers(
+        review_queue_path=queue_path,
+        decisions_path=workflow_path,
+        output_dir=mission / "reviewed_workflow_blockers",
+    )
+    assert omission_result["status"] == "reviewed_omissions_complete"
+    assert workflow_result["status"] == "reviewed_workflow_blockers_complete"
+
+    claim_sidecar = Path(claim_result["reviewed_claims_path"])
+    source_sidecar = Path(source_result["reviewed_source_safety_path"])
+    omissions = resolve_current_reviewed_omissions(
+        review_queue_path=queue_path,
+        reviewed_omissions_root=mission / "reviewed_omissions",
+    )
+    merge = merge_reviewed_evidence(
+        review_queue_path=queue_path,
+        reviewed_claims_path=claim_sidecar,
+        reviewed_source_safety_path=source_sidecar,
+        reviewed_omissions_path=omissions.sidecar_path,
+        reviewed_workflow_blockers_path=mission / "reviewed_workflow_blockers" / "reviewed_workflow_blockers.json",
+        output_dir=mission / "reviewed_evidence",
+    )
+    assert merge["status"] == "reviewed_evidence_complete", merge
+    packet_result = compose_reviewed_final_packet(
+        mission_root=mission,
+        review_queue_path=queue_path,
+        packet_dir=mission / "public_source_packet",
+        anchor_dir=mission / "source_anchors",
+        output_dir=mission / "reviewed_final_packet",
+        now=lambda: "2026-07-12T02:07:00Z",
+    )
+    assert packet_result["status"] == "reviewed_final_packet_ready_for_hostile_review", packet_result
+    packet_path = Path(packet_result["reviewed_final_packet_path"])
+    validated_packet = validate_reviewed_final_packet(
+        path=packet_path,
+        mission_root=mission,
+        review_queue_path=queue_path,
+        packet_dir=mission / "public_source_packet",
+        anchor_dir=mission / "source_anchors",
+    )
+    assert validated_packet["schema_version"] == "ra-survey-reviewed-final-packet-v2"
+    hostile = run_hostile_review_gate(
+        reviewed_final_packet_path=packet_path,
+        mission_root=mission,
+        review_queue_path=queue_path,
+        packet_dir=mission / "public_source_packet",
+        anchor_dir=mission / "source_anchors",
+        output_dir=mission / "hostile_review",
+        now=lambda: "2026-07-12T02:08:00Z",
+    )
+    assert hostile["status"] in {
+        "ready_for_reviewed_prose_within_recorded_scope",
+        "blocked_for_reviewed_prose",
+    }
+    _, replayed_claims = resolve_current_reviewed_claims(
+        review_queue_path=queue_path,
+        reviewed_claims_root=mission / "reviewed_claims",
+    )
+    _, _, replayed_source = resolve_current_source_safety(
+        review_queue_path=queue_path,
+        reviewed_source_safety_root=mission / "reviewed_source_safety",
+    )
+    assert replayed_claims["claims"][0]["fixture_only"] is False
+    assert replayed_source["source_safety"][0]["fixture_only"] is False
+
+    replacement = json_load(omission_path)
+    replacement["decisions"][0]["reason"] = (
+        "A same-queue successor that was not part of the attested transaction."
+    )
+    replacement_path = decisions_dir / "omission-replacement.json"
+    replacement_path.write_bytes(pretty_json_bytes(replacement))
+    replacement_result = import_reviewed_omissions(
+        review_queue_path=queue_path,
+        decisions_path=replacement_path,
+        output_dir=mission / "reviewed_omissions",
+        force=True,
+    )
+    assert replacement_result["status"] == "reviewed_omissions_complete"
+    replacement_selected = resolve_current_reviewed_omissions(
+        review_queue_path=queue_path,
+        reviewed_omissions_root=mission / "reviewed_omissions",
+    )
+    mixed = merge_reviewed_evidence(
+        review_queue_path=queue_path,
+        reviewed_claims_path=claim_sidecar,
+        reviewed_source_safety_path=source_sidecar,
+        reviewed_omissions_path=replacement_selected.sidecar_path,
+        reviewed_workflow_blockers_path=mission / "reviewed_workflow_blockers" / "reviewed_workflow_blockers.json",
+        output_dir=mission / "reviewed_evidence-mixed",
+    )
+    assert mixed["status"] == "blocked_invalid_review_artifacts"
+    assert mixed["blocked_reason"] == "mixed_human_review_receipt"
+
+
+def test_v4_human_claim_without_receipt_is_blocked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    mission, queue_path, _ = _canonical_v2_mission(tmp_path, monkeypatch)
+    decisions = tmp_path / "claim-v4.json"
+    decisions.write_bytes(pretty_json_bytes(_v3_claim_envelope(
+        queue_path, human_attested=True, reviewer="Bounded Research Human",
+    )))
+    result = import_reviewed_claims(
+        review_queue_path=queue_path,
+        decisions_path=decisions,
+        output_dir=mission / "claim-v4-no-receipt",
+    )
+    assert result["status"] == "blocked"
+    assert result["blocked_reason"] == "missing_human_attestation_receipt"
+
+
+def test_v3_fixture_envelope_cannot_use_human_receipt(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    mission, queue_path, _ = _canonical_v2_mission(tmp_path, monkeypatch)
+    decisions = tmp_path / "claim-v3.json"
+    decisions.write_bytes(pretty_json_bytes(_v3_claim_envelope(queue_path)))
+    receipt = tmp_path / "not-a-receipt.json"
+    receipt.write_text("{}")
+    result = import_reviewed_claims(
+        review_queue_path=queue_path,
+        decisions_path=decisions,
+        output_dir=mission / "claim-v3-with-receipt",
+        human_attestation_receipt_path=receipt,
+    )
+    assert result["status"] == "blocked"
+    assert result["blocked_reason"] == "receipt_not_allowed_for_fixture_authority"
+
+
+def test_v4_model_advisory_claim_cannot_promote(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    mission, queue_path, _ = _canonical_v2_mission(tmp_path, monkeypatch)
+    decisions = _v3_claim_envelope(
+        queue_path, human_attested=True, reviewer="Bounded Research Human",
+    )
+    decisions["decisions"][0]["review_status"] = "model_reviewed_advisory"
+    path = tmp_path / "model-advisory-v4.json"
+    path.write_bytes(pretty_json_bytes(decisions))
+    result = import_reviewed_claims(
+        review_queue_path=queue_path,
+        decisions_path=path,
+        output_dir=mission / "model-advisory-v4",
+    )
+    assert result["status"] == "blocked"
+    assert result["blocked_reason"] == "missing_human_attestation_receipt"
+
+
+def test_human_receipt_foreign_queue_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    first_mission, first_queue_path, _ = _canonical_v2_mission(tmp_path / "first", monkeypatch)
+    second_mission, second_queue_path, _ = _canonical_v2_mission(tmp_path / "second", monkeypatch)
+    packet = tmp_path / "packet"
+    prepare_human_review_packet(review_queue_path=first_queue_path, output_dir=packet)
+    attestation = json_load(packet / "human_attestation_template.json")
+    attestation.update(status="completed_human_self_attestation", attested_at="2026-07-12T02:05:00Z")
+    attestation["reviewer"].update({
+        "opaque_reviewer_id": "reviewer-local-003",
+        "display_name": "Bounded Research Human",
+        "authority_origin": "human_self_attested",
+        "is_human": True,
+        "roles": list(REVIEW_ROLES),
+        "competence_statement": "I can review this bounded evidence.",
+        "conflict_status": "none_declared",
+        "conflict_details": None,
+        "privacy_notice_accepted": True,
+        "privacy_retention_accepted": True,
+    })
+    attestation["declarations"] = {key: True for key in attestation["declarations"]}
+    attestation_path = tmp_path / "foreign-attestation.json"
+    attestation_path.write_bytes(pretty_json_bytes(attestation))
+    decisions = _v3_claim_envelope(first_queue_path, human_attested=True, reviewer="Bounded Research Human")
+    claim_path = tmp_path / "foreign-claim.json"
+    claim_path.write_bytes(pretty_json_bytes(decisions))
+    source_path = tmp_path / "foreign-source.json"
+    source_path.write_bytes(pretty_json_bytes(_v3_source_envelope(
+        first_queue_path, first_mission / "reviewed-source", human_attested=True,
+        reviewer="Bounded Research Human",
+    )))
+    omission = _omission_envelope(first_queue_path, json_load(first_queue_path))
+    for row in omission["decisions"]:
+        row["reviewer"] = "Bounded Research Human"
+        row["reviewed_at"] = "2026-07-12T02:03:00Z"
+    omission_path = tmp_path / "foreign-omission.json"
+    omission_path.write_bytes(pretty_json_bytes(omission))
+    workflow_rows = [{
+        "queue_item_id": row["item_id"],
+        "disposition": "resolved_by_reviewed_evidence",
+        "evidence_queue_item_ids": row["required_evidence_queue_item_ids"],
+        "rationale": "Bounded fixture.",
+        "reviewer": "Bounded Research Human",
+        "reviewed_at": "2026-07-12T02:03:00Z",
+    } for row in json_load(first_queue_path)["items"] if row["queue_type"] == "workflow_blocker"]
+    workflow_path = tmp_path / "foreign-workflow.json"
+    workflow_path.write_bytes(pretty_json_bytes(_bound_envelope(
+        first_queue_path, json_load(first_queue_path), "workflow_blocker", workflow_rows,
+    )))
+    receipt = validate_human_attestation(
+        review_queue_path=first_queue_path,
+        packet_path=packet / "human_review_packet.json",
+        attestation_path=attestation_path,
+        decision_paths={
+            "claim_candidate": claim_path,
+            "source_safety": source_path,
+            "omission_risk": omission_path,
+            "workflow_blocker": workflow_path,
+        },
+        output_dir=tmp_path / "foreign-receipt",
+    )
+    result = import_reviewed_claims(
+        review_queue_path=second_queue_path,
+        decisions_path=claim_path,
+        output_dir=second_mission / "foreign-claim-import",
+        human_attestation_receipt_path=Path(receipt["receipt_path"]),
+    )
+    assert result["status"] == "blocked"
+    assert result["blocked_reason"] in {"foreign_lineage", "stale_human_receipt"}
 
 
 def test_exact_projection_attempt_universe_and_recorded_roles(tmp_path: Path) -> None:

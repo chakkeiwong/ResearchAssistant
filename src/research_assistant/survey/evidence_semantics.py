@@ -147,6 +147,24 @@ def load_v2_evidence_context(review_queue_path: Path) -> EvidenceContext:
     queue, queue_raw = read_json_object_strict(selected.review_queue_path, label="selected review queue")
     if queue_raw != canonical_pretty_bytes(queue):
         raise MissionStateError("noncanonical_review_queue", "selected review queue is not canonical pretty JSON")
+    retained_status_path = selected.mission_root / "source_intake" / "phase4_source_intake_status.json"
+    try:
+        retained_status, _ = read_json_object_strict(
+            retained_status_path,
+            label="mission source-intake status",
+        )
+    except MissionStateError:
+        retained_status = {}
+    if retained_status.get("schema_version") == "ra-survey-retained-source-intake-v1":
+        from research_assistant.survey.m22_retained_reconciliation import (
+            load_retained_evidence_context,
+        )
+
+        return load_retained_evidence_context(
+            selected=selected,
+            queue=queue,
+            queue_raw=queue_raw,
+        )
     schemas: dict[str, Any] = {}
     for name in V2_FRONTIER_SCHEMAS:
         payload, raw = read_json_object_strict(selected.coverage_dir / name, label=name)

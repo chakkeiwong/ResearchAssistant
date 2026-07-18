@@ -1,7 +1,7 @@
 # M22 Human-Attested Review And Real Missions Subplan
 
-Date: `2026-07-13`
-Status: `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE`
+Date: `2026-07-18`
+Status: `REFRESHED_FROM_PASSED_M21_PLANNING_ONLY_HUMAN_BOUNDARY_OPEN`
 Milestone: `M22_human_attested_review_and_real_missions`
 Closes: `G5_human_attested_review`, `G6_representative_real_missions`
 
@@ -17,14 +17,38 @@ human action.
 
 ## Entry Conditions Inherited From M21
 
-- M21 supplies current real source/status records, exact retained bytes or
-  lawful unavailability records, checked anchor candidates, and complete gap,
-  quarantine, rights, and parser outcomes.
-- M21 result/review and identified clean commit are frozen.
+Satisfied M21 evidence entry:
+
+- Revised M20/G3 retained one exact seed source and `62` preliminary backward
+  candidates with `195` identifier-free bibliography units and unavailable
+  forward coverage.
+- The first M21 local slice bound that seed to a byte-identical structured
+  record and replayed `53` machine-extracted anchor candidates (`24` section,
+  `18` equation, `11` theorem-like), with zero supported claims and
+  `ready_for_prose=false`.
+- M21 context triage accounted for all `62` candidates: exactly `7` are cited
+  in the seed text and `55` are unused bundled BibTeX entries, retained as
+  omission risks rather than relevance rejections.
+- The one authorized seven-source campaign dispatched exactly seven arXiv
+  requests, made zero retries, and retained seven packages. Six produced `288`
+  machine anchor candidates; `1412.6980` is an explicit
+  `SOURCE_AVAILABLE_TEXT_PARSE_GAP_PDF_FALLBACK_OUT_OF_SCOPE` outcome.
+- M21 supported-claim count is zero. Publication/retraction/version status is
+  `NOT_CHECKED`; forward coverage remains `unavailable_out_of_scope` and
+  non-blocking. All machine anchors are review inputs only.
+- M21 close authority is
+  `docs/plans/literature_survey_north_star_m21_source_campaign_reconciliation_2026-07-18.md`;
+  exact live source bytes and the original execution sources remain preserved.
+- The current worktree is dirty. M21 evidence is hash-bound, but an identified
+  clean successor commit for M22 execution is not yet established.
 - Exact current claim, source-safety, omission, and workflow-blocker queues are
   derivable without hidden state.
 - No human identity, decision, conflict attestation, or mission-case outcome is
   prefilled or inferred from fixtures/models.
+
+M22 planning may now proceed. M22 execution remains blocked on the genuine
+human, privacy/attestation, frozen-matrix, and clean-execution-byte conditions
+below; no model review can satisfy those boundaries.
 
 ## Mandatory Refresh Gate
 
@@ -46,20 +70,24 @@ Before any human decision or real-mission execution, the refreshed plan must:
   methods, queries/artifacts, caps, rights, retention, output roots, and
   approval provenance for every external case;
 - default to `local_replay_only` using frozen M20-M21 artifacts. If any case
-  needs a new external action, freeze it in a separate reviewed boundary packet
-  and obtain fresh exact network/source approval; prior development runs do not
-  authorize it;
-- prove the attestation interface, orchestration, and case-execution bytes equal
-  the identified M21 commit or obtain reviewed exact Git approval, create an
-  identified successor commit, and pass isolated clean-install/cumulative gates
-  before genuine decisions or real-mission evidence is collected;
+  needs a new external action, state its exact routes, caps, rights, retention,
+  and output root in a concise boundary record and obtain explicit human
+  approval; prior development runs do not authorize it;
+- bind the attestation interface, orchestration, and case-execution bytes to an
+  identified successor commit and pass isolated clean-install/cumulative gates
+  before genuine decisions or real-mission evidence is collected. Routine local
+  implementation and Git integration need no approval beyond this task; push,
+  release, destructive actions, credentials, privacy changes, and external
+  access remain separate boundaries;
 - state primary criteria, hard vetoes, uncertainty handling, repair cases,
   privacy retention, commands, output roots, and independent audit method; and
 - prohibit case substitution after outcomes except through a declared invalid-
   harness replacement rule that preserves both records.
 
-The refreshed plan and operator materials require fresh read-only agreement.
-Reviewers may critique them but cannot authorize or perform human decisions.
+One material read-only plan review is advisory and should be attempted when it
+reduces risk; reviewer unavailability does not block local planning when the
+evidence contract and checks pass. Reviewers cannot authorize or perform human
+decisions.
 
 ## Research Intent Ledger
 
@@ -89,9 +117,10 @@ Reviewers may critique them but cannot authorize or perform human decisions.
 
 ## Exact Edit And Write Allowlist
 
-This shell authorizes no edits, human decisions, or mission runs. The refreshed
-plan must list exact UI/form/CLI, schema, state-manager, tests, documentation,
-mission-case, validation, receipt, audit, privacy, and review paths. Human
+This shell authorizes planning and routine local implementation/testing, but no
+human decisions or mission matrix execution. The implementation plan must list
+exact UI/form/CLI, schema, state-manager, tests, documentation, mission-case,
+validation, receipt, audit, privacy, and review paths. Human
 receipts may be written only by the approved interface into mission-local
 append-only roots. Sensitive identity fields must follow the approved minimum
 retention policy and must not appear in public review bundles.
@@ -103,8 +132,8 @@ retention policy and must not appear in public review bundles.
 - Operator review interface and exact rendering/receipt schemas.
 - No-human fixture tests proving model/fixture decisions cannot authenticate.
 - Frozen pre-result mission matrix and invalid-harness replacement rule.
-- Per-case external-action classification and, for any non-replay case, exact
-  fresh approval receipt and closed request/source ledger.
+- Per-case external-action classification and, for any non-replay case,
+  explicit human approval plus a closed request/source ledger.
 - Identified execution commit and isolated clean-checkout/install report for
   the review interface and mission runner.
 - Identified human participation/authority receipts, without oversharing
@@ -128,9 +157,8 @@ retention policy and must not appear in public review bundles.
 3. Test merge/reviewed-packet/hostile-review/resume terminals with deterministic
    nonhuman fixtures before genuine decisions.
 4. Review/freeze policy, interface, cases, criteria, commands, output roots, and
-   human-action request. If bytes differ from the identified M21 commit, obtain
-   separate exact Git approval, integrate, and validate an isolated successor.
-   Obtain fresh exact external approval for every case classified
+   human-action request. Integrate the reviewed local bytes into an identified
+   successor and validate an isolated install. Obtain explicit external approval for every case classified
    `new_external_actions_required`; obtain actual reviewer participation
    separately.
 5. Before each case, verify its external-action classification, identified
@@ -163,8 +191,8 @@ retention policy and must not appear in public review bundles.
 - Do not treat one success, counts, time, or descriptive differences as
   reliability, superiority, completeness, universal correctness, or product
   readiness.
-- Do not expose private reviewer data, run new network/source actions outside
-  inherited authority, mutate Git without exact approval, or change defaults.
+- Do not expose private reviewer data, run new network/source actions without
+  explicit authority, push/release, destructively mutate Git, or change defaults.
 
 ## Exact Next-Phase Handoff Conditions
 

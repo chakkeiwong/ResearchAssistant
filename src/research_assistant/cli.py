@@ -184,6 +184,11 @@ from research_assistant.survey.build import build_survey_evidence_packet
 from research_assistant.survey.claim_review import import_reviewed_claims
 from research_assistant.survey.coverage_ledgers import compose_coverage_ledgers
 from research_assistant.survey.hostile_review import run_hostile_review_gate
+from research_assistant.survey.human_attestation import (
+    prepare_human_review_packet,
+    render_human_review_materials,
+    validate_human_attestation,
+)
 from research_assistant.survey.omission_review import import_reviewed_omissions
 from research_assistant.survey.orchestrate import run_public_source_workflow
 from research_assistant.survey.packet import compose_public_source_evidence_packet
@@ -207,6 +212,9 @@ SURVEY_WRITE_OUTPUT_FIELDS = {
     "import-omission-review": ("out",),
     "import-workflow-blocker-review": ("out",),
     "merge-reviewed-evidence": ("out",),
+    "prepare-human-review": ("out",),
+    "render-human-review": ("out",),
+    "validate-human-attestation": ("out",),
 }
 
 
@@ -496,6 +504,8 @@ def cmd_arxiv_batch(args: argparse.Namespace) -> int:
             plan_hash=args.plan_hash,
             arxiv_ids=_split_csv(args.ids),
             candidate_file=Path(args.candidate_file) if args.candidate_file else None,
+            plan_file=Path(args.plan_file) if args.plan_file else None,
+            plan_file_sha256=args.plan_file_sha256,
             root=root,
         ))
     if args.arxiv_batch_action == "pdf-run":
@@ -743,6 +753,10 @@ def cmd_survey(args: argparse.Namespace) -> int:
             decisions_path=Path(args.decisions),
             output_dir=Path(args.out),
             force=args.force,
+            human_attestation_receipt_path=(
+                Path(args.human_attestation_receipt)
+                if args.human_attestation_receipt else None
+            ),
         )
         _print_json(report)
         return 0 if report["status"] == "reviewed_claims_complete" else 1
@@ -752,6 +766,10 @@ def cmd_survey(args: argparse.Namespace) -> int:
             decisions_path=Path(args.decisions),
             output_dir=Path(args.out),
             force=args.force,
+            human_attestation_receipt_path=(
+                Path(args.human_attestation_receipt)
+                if args.human_attestation_receipt else None
+            ),
         )
         _print_json(report)
         return 0 if report["status"] == "reviewed_source_safety_complete" else 1
@@ -791,6 +809,47 @@ def cmd_survey(args: argparse.Namespace) -> int:
             "reviewed_evidence_blocked",
             "reviewed_evidence_blocked_unavailable_source_outcome",
         } else 1
+    if args.survey_action == "prepare-human-review":
+        try:
+            report = prepare_human_review_packet(
+                review_queue_path=Path(args.review_queue),
+                output_dir=Path(args.out),
+                force=args.force,
+            )
+        except MissionStateError as exc:
+            report = _human_attestation_blocked(exc)
+        _print_json(report)
+        return 0 if report["status"] == "human_review_packet_prepared_unattested" else 1
+    if args.survey_action == "render-human-review":
+        try:
+            report = render_human_review_materials(
+                packet_path=Path(args.packet),
+                output_dir=Path(args.out) if args.out else None,
+                force=args.force,
+            )
+        except MissionStateError as exc:
+            report = _human_attestation_blocked(exc)
+        _print_json(report)
+        return 0 if report["status"] == "human_review_materials_rendered" else 1
+    if args.survey_action == "validate-human-attestation":
+        try:
+            report = validate_human_attestation(
+                review_queue_path=Path(args.review_queue),
+                packet_path=Path(args.packet),
+                attestation_path=Path(args.attestation),
+                decision_paths={
+                    "claim_candidate": Path(args.claim_decisions),
+                    "source_safety": Path(args.source_safety_decisions),
+                    "omission_risk": Path(args.omission_decisions),
+                    "workflow_blocker": Path(args.workflow_blocker_decisions),
+                },
+                output_dir=Path(args.out),
+                force=args.force,
+            )
+        except MissionStateError as exc:
+            report = _human_attestation_blocked(exc)
+        _print_json(report)
+        return 0 if report["status"] == "human_self_attestation_validated" else 1
     raise SystemExit(f"unknown survey action {args.survey_action}")
 
 
@@ -809,6 +868,26 @@ def _guard_survey_write_paths(args: argparse.Namespace) -> None:
         metadata_dir = getattr(args, "metadata_dir", None)
         if metadata_dir:
             assert_public_write_path_allowed(Path(metadata_dir))
+
+
+def _human_attestation_blocked(exc: MissionStateError) -> dict[str, Any]:
+    return {
+        "schema_version": "ra-survey-human-attestation-blocked-result-v1",
+        "status": "blocked",
+        "blocked_reason": exc.code,
+        "next_required_actions": [str(exc)],
+        "ready_for_review_import": False,
+        "ready_for_reviewed_packet": False,
+        "ready_for_prose": False,
+        "what_is_not_concluded": [
+            "human identity proof",
+            "review quality",
+            "decision correctness",
+            "claim truth",
+            "literature completeness",
+            "scientific correctness",
+        ],
+    }
 
 
 def cmd_surveybench(args: argparse.Namespace) -> int:
@@ -1989,6 +2068,7 @@ def build_parser() -> argparse.ArgumentParser:
     survey_claim_review.add_argument('--review-queue', required=True, help='Path to review_queue.json from run-public-source-workflow')
     survey_claim_review.add_argument('--decisions', required=True, help='JSON file containing reviewed claim decisions')
     survey_claim_review.add_argument('--out', required=True, help='Output directory for reviewed_claims.json')
+    survey_claim_review.add_argument('--human-attestation-receipt', help='Validated M22 human receipt for a V4 human decision envelope')
     survey_claim_review.add_argument('--force', action='store_true')
     survey_claim_review.set_defaults(func=cmd_survey)
     survey_source_safety_review = survey_sub.add_parser(
@@ -1999,6 +2079,7 @@ def build_parser() -> argparse.ArgumentParser:
     survey_source_safety_review.add_argument('--review-queue', required=True, help='Path to review_queue.json from run-public-source-workflow')
     survey_source_safety_review.add_argument('--decisions', required=True, help='JSON file containing reviewed source-safety decisions')
     survey_source_safety_review.add_argument('--out', required=True, help='Output directory for reviewed_source_safety.json')
+    survey_source_safety_review.add_argument('--human-attestation-receipt', help='Validated M22 human receipt for a V4 human decision envelope')
     survey_source_safety_review.add_argument('--force', action='store_true')
     survey_source_safety_review.set_defaults(func=cmd_survey)
     survey_omission_review = survey_sub.add_parser(
@@ -2034,6 +2115,39 @@ def build_parser() -> argparse.ArgumentParser:
     survey_merge_reviewed.add_argument('--out', required=True, help='Output directory for reviewed_evidence_status.json')
     survey_merge_reviewed.add_argument('--force', action='store_true')
     survey_merge_reviewed.set_defaults(func=cmd_survey)
+    survey_prepare_human = survey_sub.add_parser(
+        "prepare-human-review",
+        help="Prepare an exact non-attesting operator packet for the selected review queue",
+        description="Write the exact machine review packet, an explicitly incomplete self-attestation template, and plain-language Markdown/CSV review materials. This performs no review, makes no network call, and cannot mark evidence or prose ready.",
+    )
+    survey_prepare_human.add_argument("--review-queue", required=True, help="Current selected review_queue.json")
+    survey_prepare_human.add_argument("--out", required=True, help="Fresh output directory for the packet and unattested template")
+    survey_prepare_human.add_argument("--force", action="store_true")
+    survey_prepare_human.set_defaults(func=cmd_survey)
+    survey_validate_human = survey_sub.add_parser(
+        "validate-human-attestation",
+        help="Bind a completed human self-attestation to four exact decision files",
+        description="Validate a real person's self-attestation, current queue lineage, exact four-type decision coverage, reviewer consistency, privacy/conflict declarations, and file hashes. Decision semantics remain subject to the existing import commands; this is not identity proof or prose readiness.",
+    )
+    survey_validate_human.add_argument("--review-queue", required=True)
+    survey_validate_human.add_argument("--packet", required=True)
+    survey_validate_human.add_argument("--attestation", required=True)
+    survey_validate_human.add_argument("--claim-decisions", required=True)
+    survey_validate_human.add_argument("--source-safety-decisions", required=True)
+    survey_validate_human.add_argument("--omission-decisions", required=True)
+    survey_validate_human.add_argument("--workflow-blocker-decisions", required=True)
+    survey_validate_human.add_argument("--out", required=True)
+    survey_validate_human.add_argument("--force", action="store_true")
+    survey_validate_human.set_defaults(func=cmd_survey)
+    survey_render_human = survey_sub.add_parser(
+        "render-human-review",
+        help="Render plain-language worksheets for an existing exact review packet",
+        description="Render reviewer-facing Markdown/CSV materials from the current packet without changing packet JSON, queue lineage, or packet hashes.",
+    )
+    survey_render_human.add_argument("--packet", required=True, help="Existing human_review_packet.json")
+    survey_render_human.add_argument("--out", help="Output directory; defaults to the packet directory")
+    survey_render_human.add_argument("--force", action="store_true")
+    survey_render_human.set_defaults(func=cmd_survey)
 
     surveybench = sub.add_parser('surveybench', help='Run offline synthetic and online-replay SurveyBench fixtures')
     surveybench_sub = surveybench.add_subparsers(dest='surveybench_action', required=True)
@@ -2173,6 +2287,8 @@ def build_parser() -> argparse.ArgumentParser:
     arxiv_batch_run.add_argument('--plan-hash', required=True)
     arxiv_batch_run.add_argument('--ids')
     arxiv_batch_run.add_argument('--candidate-file')
+    arxiv_batch_run.add_argument('--plan-file')
+    arxiv_batch_run.add_argument('--plan-file-sha256')
     arxiv_batch_run.set_defaults(func=cmd_arxiv_batch)
     arxiv_batch_pdf_run = arxiv_batch_sub.add_parser('pdf-run')
     arxiv_batch_pdf_run.add_argument('--grant-id', required=True)

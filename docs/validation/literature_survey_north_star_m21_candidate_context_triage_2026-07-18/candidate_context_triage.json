@@ -1,0 +1,1174 @@
+{
+  "candidate_count": 62,
+  "input_hashes": {
+    "candidate_classifications_sha256": "39a4850462ad943f742149ce0f1a9ab7ea3221df005c5ae351a5d5eb2979e3dd",
+    "combined_evidence_sha256": "251aa23321fc879dc12049355425e2d442a922b650a82832d7c595d478aa8e05",
+    "flattened_source_sha256": "98cdaa28b168c86bb0f1a7696d428d4c94615f2fd82c2f48edb0599c3f727b68",
+    "record_original_source_sha256": "2eb686b1f5dd9b2fa95ed5185cfe5da4d8e93a2b7d8a294902962e9dac66bd0f",
+    "retained_source_sha256": "2eb686b1f5dd9b2fa95ed5185cfe5da4d8e93a2b7d8a294902962e9dac66bd0f",
+    "structured_record_sha256": "e79d60abe446f089e49e2962021929a9ea3a5eb62d493baed1c2bc0fa01e60a1"
+  },
+  "nonclaims": [
+    "scholarly_classification",
+    "candidate_relevance",
+    "technical_claim_support",
+    "citation_importance",
+    "literature_completeness",
+    "scientific_correctness"
+  ],
+  "raw_source_included": false,
+  "rows": [
+    {
+      "bibliography_key": "simonyan2014very",
+      "candidate_id": "arxiv:1409.1556",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1409.1556"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Very deep convolutional networks for large-scale image recognition"
+    },
+    {
+      "bibliography_key": "mirza2014conditional",
+      "candidate_id": "arxiv:1411.1784",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1411.1784"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Conditional generative adversarial nets"
+    },
+    {
+      "bibliography_key": "kingma2014adam",
+      "candidate_id": "arxiv:1412.6980",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL",
+            "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL"
+          ],
+          "line": 1165,
+          "matched_signal_tokens": [
+            "algorithm",
+            "experiment",
+            "translation"
+          ],
+          "section_labels": [
+            "sec-exp-details"
+          ],
+          "section_title": "Experimental Details"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "CITED_CONTEXT_AMBIGUOUS",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1412.6980"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "rezende2015variational",
+      "candidate_id": "arxiv:1505.05770",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1505.05770"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Variational inference with normalizing flows"
+    },
+    {
+      "bibliography_key": "yu2015lsun",
+      "candidate_id": "arxiv:1506.03365",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL"
+          ],
+          "line": 512,
+          "matched_signal_tokens": [
+            "evaluation"
+          ],
+          "section_labels": [
+            "sec-evaluation"
+          ],
+          "section_title": "Evaluation"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1506.03365"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "radford2015unsupervised",
+      "candidate_id": "arxiv:1511.06434",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1511.06434"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Unsupervised representation learning with deep convolutional generative adversarial networks"
+    },
+    {
+      "bibliography_key": "reed2016generative",
+      "candidate_id": "arxiv:1605.05396",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1605.05396"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Generative adversarial text to image synthesis"
+    },
+    {
+      "bibliography_key": "liu2016stein",
+      "candidate_id": "arxiv:1608.04471",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1608.04471"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Stein variational gradient descent: A general purpose bayesian inference algorithm"
+    },
+    {
+      "bibliography_key": "sonderby2016amortised",
+      "candidate_id": "arxiv:1610.04490",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1610.04490"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Amortised map inference for image super-resolution"
+    },
+    {
+      "bibliography_key": "metz2016unrolled",
+      "candidate_id": "arxiv:1611.02163",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1611.02163"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Unrolled generative adversarial networks"
+    },
+    {
+      "bibliography_key": "arora2017generalization",
+      "candidate_id": "arxiv:1703.00573",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1703.00573"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Generalization and equilibrium in generative adversarial nets ({GAN"
+    },
+    {
+      "bibliography_key": "barron2017continuously",
+      "candidate_id": "arxiv:1704.07483",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1704.07483"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Continuously differentiable exponential linear units"
+    },
+    {
+      "bibliography_key": "yadav2017stabilizing",
+      "candidate_id": "arxiv:1705.07364",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1705.07364"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Stabilizing adversarial nets with prediction methods"
+    },
+    {
+      "bibliography_key": "roth2017stabilizing",
+      "candidate_id": "arxiv:1705.09367",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1705.09367"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Stabilizing training of generative adversarial networks through regularization"
+    },
+    {
+      "bibliography_key": "mroueh2017fisher",
+      "candidate_id": "arxiv:1705.09675",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1705.09675"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Fisher gan"
+    },
+    {
+      "bibliography_key": "bellemare2017cramer",
+      "candidate_id": "arxiv:1705.10743",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1705.10743"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "The cramer distance as a solution to biased {W"
+    },
+    {
+      "bibliography_key": "grnarova2017online",
+      "candidate_id": "arxiv:1706.03269",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1706.03269"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "An online learning approach to generative adversarial networks"
+    },
+    {
+      "bibliography_key": "xiao2017fashion",
+      "candidate_id": "arxiv:1708.07747",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1708.07747"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Fashion-mnist: a novel image dataset for benchmarking machine learning algorithms"
+    },
+    {
+      "bibliography_key": "petzka2017regularization",
+      "candidate_id": "arxiv:1709.08894",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL",
+            "SEED_CONTEXT_THEORY_OR_BACKGROUND_SIGNAL",
+            "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL"
+          ],
+          "line": 149,
+          "matched_signal_tokens": [
+            "compute",
+            "method",
+            "optimal transport",
+            "performance",
+            "wasserstein"
+          ],
+          "section_labels": [
+            "sec-intro"
+          ],
+          "section_title": "Introduction"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "CITED_CONTEXT_AMBIGUOUS",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1709.08894"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "karras2017progressive",
+      "candidate_id": "arxiv:1710.10196",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1710.10196"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Progressive growing of {GAN"
+    },
+    {
+      "bibliography_key": "daskalakis2017training",
+      "candidate_id": "arxiv:1711.00141",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1711.00141"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Training {GAN"
+    },
+    {
+      "bibliography_key": "mroueh2017sobolev",
+      "candidate_id": "arxiv:1711.04894",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1711.04894"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Sobolev gan"
+    },
+    {
+      "bibliography_key": "murecsan2017fruit",
+      "candidate_id": "arxiv:1712.00580",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1712.00580"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Fruit recognition from images using deep learning"
+    },
+    {
+      "bibliography_key": "liang2017well",
+      "candidate_id": "arxiv:1712.08244",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1712.08244"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "How Well Can Generative Adversarial Networks ({GAN"
+    },
+    {
+      "bibliography_key": "liang2018interaction",
+      "candidate_id": "arxiv:1802.06132",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1802.06132"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Interaction matters: A note on non-asymptotic local convergence of generative adversarial networks"
+    },
+    {
+      "bibliography_key": "jacobsen2018revnet",
+      "candidate_id": "arxiv:1802.07088",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1802.07088"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "i-revnet: Deep invertible networks"
+    },
+    {
+      "bibliography_key": "redko2018optimal",
+      "candidate_id": "arxiv:1803.04899",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1803.04899"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Optimal transport for multi-source domain adaptation under target shift"
+    },
+    {
+      "bibliography_key": "zhang2018xogan",
+      "candidate_id": "arxiv:1805.07277",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL",
+            "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL",
+            "SEED_CONTEXT_SURVEY_SIGNAL"
+          ],
+          "line": 640,
+          "matched_signal_tokens": [
+            "method",
+            "translation",
+            "we refer"
+          ],
+          "section_labels": [
+            "sec-one-to-many-translation"
+          ],
+          "section_title": "One-to-many Translation with Optimal Plans"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "CITED_CONTEXT_AMBIGUOUS",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1805.07277"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "singh2018nonparametric",
+      "candidate_id": "arxiv:1805.08836",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1805.08836"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Nonparametric Density Estimation under Adversarial Losses"
+    },
+    {
+      "bibliography_key": "chen2018optimal",
+      "candidate_id": "arxiv:1805.11835",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1805.11835"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Optimal control via neural networks: A convex approach"
+    },
+    {
+      "bibliography_key": "luise2018differential",
+      "candidate_id": "arxiv:1805.11897",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1805.11897"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Differential Properties of Sinkhorn Approximation for Learning with {W"
+    },
+    {
+      "bibliography_key": "liang2018well",
+      "candidate_id": "arxiv:1811.03179",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1811.03179"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "On How Well Generative Adversarial Networks Learn Densities: Nonparametric and Parametric Results"
+    },
+    {
+      "bibliography_key": "lei2019mode",
+      "candidate_id": "arxiv:1902.02934",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1902.02934"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Mode collapse and regularity of optimal transportation Maps"
+    },
+    {
+      "bibliography_key": "mallasto2019q",
+      "candidate_id": "arxiv:1902.03642",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1902.03642"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "(q, p)-{W"
+    },
+    {
+      "bibliography_key": "dognin2019wasserstein",
+      "candidate_id": "arxiv:1902.04999",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1902.04999"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Wasserstein barycenter model ensembling"
+    },
+    {
+      "bibliography_key": "taghvaei20192",
+      "candidate_id": "arxiv:1902.07197",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL",
+            "SEED_CONTEXT_THEORY_OR_BACKGROUND_SIGNAL",
+            "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL"
+          ],
+          "line": 256,
+          "matched_signal_tokens": [
+            "compute",
+            "convex",
+            "method",
+            "performance",
+            "recover",
+            "wasserstein"
+          ],
+          "section_labels": [
+            "sec-related-work"
+          ],
+          "section_title": "Related Work"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "CITED_CONTEXT_AMBIGUOUS",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1902.07197"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "paty2019regularity",
+      "candidate_id": "arxiv:1905.10812",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1905.10812"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Regularity as Regularization: Smooth and Strongly Convex Brenier Potentials in Optimal Transport"
+    },
+    {
+      "bibliography_key": "mroueh2019wasserstein",
+      "candidate_id": "arxiv:1905.12828",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1905.12828"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Wasserstein style transfer"
+    },
+    {
+      "bibliography_key": "leygonie2019adversarial",
+      "candidate_id": "arxiv:1906.09691",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1906.09691"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Adversarial computation of optimal transport maps"
+    },
+    {
+      "bibliography_key": "mallasto2019well",
+      "candidate_id": "arxiv:1910.03875",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1910.03875"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "How Well Do {WGAN"
+    },
+    {
+      "bibliography_key": "cao2019multi",
+      "candidate_id": "arxiv:1911.00888",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:1911.00888"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Multi-marginal {W"
+    },
+    {
+      "bibliography_key": "lu2020large",
+      "candidate_id": "arxiv:2003.06635",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL",
+            "SEED_CONTEXT_THEORY_OR_BACKGROUND_SIGNAL"
+          ],
+          "line": 251,
+          "matched_signal_tokens": [
+            "approach",
+            "compute",
+            "formulation",
+            "method"
+          ],
+          "section_labels": [
+            "sec-related-work"
+          ],
+          "section_title": "Related Work"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "CITED_CONTEXT_AMBIGUOUS",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2003.06635"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "liu2020gmm",
+      "candidate_id": "arxiv:2003.06788",
+      "citation_locations": [
+        {
+          "citation_command": "citep",
+          "context_role_signals": [
+            "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL",
+            "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL"
+          ],
+          "line": 954,
+          "matched_signal_tokens": [
+            "method",
+            "translation"
+          ],
+          "section_labels": [
+            "sec-exp-comparison",
+            "table-fid",
+            "table-methods-hyperparameters",
+            "fig:bags2shoes-ot-strong-64",
+            "fig:bags2shoes-discogan-64",
+            "fig:bags2shoes-cyclegan-64",
+            "fig:bags2shoes-ours-64",
+            "fig:bags2shoes-munit-64",
+            "fig:bags2shoes-augcyclegan-64",
+            "fig:comparison-handbags-shoes",
+            "fig:male2female-ot-strong-64",
+            "fig:male2female-discogan-64",
+            "fig:male2female-cyclegan-64",
+            "fig:male2female-ours-64",
+            "fig:male2female-munit-64",
+            "fig:male2female-augcyclegan-64",
+            "fig:comparison-male-female",
+            "fig:outdoor-church-comparison"
+          ],
+          "section_title": "Comparison with Principal Unpaired Translation Methods"
+        }
+      ],
+      "citation_occurrence_count": 1,
+      "heuristic_context_state": "CITED_CONTEXT_AMBIGUOUS",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2003.06788"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "main.bbl",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": null
+    },
+    {
+      "bibliography_key": "fan2020scalable",
+      "candidate_id": "arxiv:2007.04462",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2007.04462"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Scalable Computations of {W"
+    },
+    {
+      "bibliography_key": "cohen2020estimating",
+      "candidate_id": "arxiv:2007.07105",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2007.07105"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Estimating Barycenters of Measures in High Dimensions"
+    },
+    {
+      "bibliography_key": "li2020continuous",
+      "candidate_id": "arxiv:2008.12534",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2008.12534"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Continuous Regularized {W"
+    },
+    {
+      "bibliography_key": "huang2020convex",
+      "candidate_id": "arxiv:2012.05942",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2012.05942"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Convex Potential Flows: Universal Probability Distributions with Optimal Transport and Convex Optimization"
+    },
+    {
+      "bibliography_key": "liu2021learning",
+      "candidate_id": "arxiv:2102.02992",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2102.02992"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Learning High Dimensional {W"
+    },
+    {
+      "bibliography_key": "lacombe2021learning",
+      "candidate_id": "arxiv:2102.12178",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2102.12178"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Learning to Generate Wasserstein Barycenters"
+    },
+    {
+      "bibliography_key": "stanczuk2021wasserstein",
+      "candidate_id": "arxiv:2103.01678",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2103.01678"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Wasserstein {GAN"
+    },
+    {
+      "bibliography_key": "paris2021online",
+      "candidate_id": "arxiv:2103.14389",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2103.14389"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Online learning with exponential weights in metric spaces"
+    },
+    {
+      "bibliography_key": "bespalov2021data",
+      "candidate_id": "arxiv:2104.00925",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2104.00925"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Data Augmentation with Manifold Barycenters"
+    },
+    {
+      "bibliography_key": "inouye2021iterative",
+      "candidate_id": "arxiv:2104.07232",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2104.07232"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Iterative Barycenter Flows"
+    },
+    {
+      "bibliography_key": "alvarez2021optimizing",
+      "candidate_id": "arxiv:2106.00774",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2106.00774"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Optimizing Functionals on the Space of Probabilities with Input Convex Neural Networks"
+    },
+    {
+      "bibliography_key": "altschuler2021averaging",
+      "candidate_id": "arxiv:2106.08502",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2106.08502"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Averaging on the Bures-Wasserstein manifold: dimension-free convergence of gradient descent"
+    },
+    {
+      "bibliography_key": "korotin2022neural",
+      "candidate_id": "arxiv:2201.12220",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2201.12220"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Neural optimal transport"
+    },
+    {
+      "bibliography_key": "korotin2022kernel",
+      "candidate_id": "arxiv:2205.15269",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "arxiv:2205.15269"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Kernel Neural Optimal Transport"
+    },
+    {
+      "bibliography_key": "PouliR11",
+      "candidate_id": "doi:10.1016/j.cag.2010.11.003",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "doi:10.1016/j.cag.2010.11.003"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Progressive color transfer for images of arbitrary dynamic range"
+    },
+    {
+      "bibliography_key": "ReinhardAGS01",
+      "candidate_id": "doi:10.1109/38.946629",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "doi:10.1109/38.946629"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Color Transfer between Images"
+    },
+    {
+      "bibliography_key": "PapadakisPC11",
+      "candidate_id": "doi:10.1109/tip.2010.2095869",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "doi:10.1109/tip.2010.2095869"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "A Variational Model for Histogram Transfer of Color Images"
+    },
+    {
+      "bibliography_key": "HeLCYS19",
+      "candidate_id": "doi:10.1145/3292482",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "doi:10.1145/3292482"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Progressive Color Transfer With Dense Semantic Correspondences"
+    },
+    {
+      "bibliography_key": "NeumannN05",
+      "candidate_id": "doi:10.2312/compaesth/compaesth05/111-122",
+      "citation_locations": [],
+      "citation_occurrence_count": 0,
+      "heuristic_context_state": "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT",
+      "heuristic_only": true,
+      "identifiers": [
+        "doi:10.2312/compaesth/compaesth05/111-122"
+      ],
+      "next_action": "inspect_primary_source_if_nominated_else_retain_omission_risk",
+      "scholarly_classification": "NOT_CHECKED",
+      "source_member": "references.bib",
+      "support_status": "SOURCE_GAP_BLOCKER",
+      "title": "Color Style Transfer Techniques using Hue, Lightness and Saturation Histogram Matching"
+    }
+  ],
+  "schema_version": "ra-literature-survey-m21-candidate-context-v1-triage",
+  "seed": "arxiv:2201.12220v3",
+  "state_counts": {
+    "BIBLIOGRAPHY_ENTRY_NOT_LOCATED_IN_SEED_TEXT": 55,
+    "CITED_CONTEXT_AMBIGUOUS": 6,
+    "SEED_CONTEXT_DIRECT_OR_COMPETING_SIGNAL": 0,
+    "SEED_CONTEXT_EMPIRICAL_OR_IMPLEMENTATION_SIGNAL": 1,
+    "SEED_CONTEXT_OTHER_SIGNAL": 0,
+    "SEED_CONTEXT_SURVEY_SIGNAL": 0,
+    "SEED_CONTEXT_THEORY_OR_BACKGROUND_SIGNAL": 0
+  },
+  "status": "complete_heuristic_seed_context_accounting"
+}

@@ -1,7 +1,7 @@
 # Literature Survey North-Star Gap-Closure Master Program
 
 Date: `2026-07-13`
-Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
+Status: `M22B0_PASSED_M22B_READY_FOR_GENUINE_HUMAN_PARTICIPATION`
 
 ## North-Star Mission
 
@@ -39,6 +39,46 @@ production operation, or permission for credentials, private, paid, or
 unbounded sources.
 
 ## Current Authority
+
+The active M20/G3 authority is the user override recorded on `2026-07-18` and
+the migration at
+`docs/plans/literature_survey_north_star_m20_arxiv_only_governance_migration_2026-07-18.md`.
+G3 now means live source-grounded backward discovery from exact arXiv source
+bytes. Credentialed citation services and the earlier provider-dependent
+M20A/M20B promotion predicates are permanently out of scope and retained only
+as history. Forward-citation coverage must be recorded as
+`unavailable_out_of_scope`, is non-blocking, and cannot be represented as zero
+or complete. The active executable plan is
+`docs/plans/literature_survey_north_star_m20_arxiv_only_500mb_attempt_plan_2026-07-18.md`.
+The user has authorized one invocation with a `500,000,000` byte source cap
+and a `500,000,000` byte evidence-root cap, with no retry or rerun. The older
+authority narrative below remains provenance and does not override this
+paragraph.
+
+That invocation has now passed. The close authority is
+`docs/plans/literature_survey_north_star_m20_arxiv_only_close_result_2026-07-18.md`
+and the immutable evidence root is
+`docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000/`.
+Revised M20/G3 and bounded M21/G4 are complete. M22 is the active planning
+milestone and remains non-executable until its genuine-human, privacy,
+frozen-matrix, execution-byte, and participation boundaries are satisfied.
+
+M21 has completed its bounded source/anchor milestone. Exact retained
+seed source/anchor replay and all-`62` candidate context triage. The first
+yielded `53` machine anchor candidates with zero supported claims. The second
+proved only `7/62` identifier-bearing bibliography candidates are cited in the
+seed text; `55` are unused bundled BibTeX entries and remain omission risks.
+The user then authorized and completed exactly one seven-source public arXiv
+campaign: seven requests, zero retries, seven retained packages, six parsed
+sources, `288` machine anchors, and one explicit
+`SOURCE_AVAILABLE_TEXT_PARSE_GAP_PDF_FALLBACK_OUT_OF_SCOPE` outcome for
+`1412.6980`. The immutable root replay and repaired offline reconciliation pass
+under `docs/plans/literature_survey_north_star_m21_source_campaign_reconciliation_2026-07-18.md`.
+M21/G4 is closed within this bounded scope. M22A human-attestation engineering
+and M22B0 retained-evidence production reconciliation now pass locally. One
+production-selected `73`-item queue and a fresh unattested packet exist. M22B
+is ready for genuine human participation, but no genuine-human decision or
+representative mission replay has occurred.
 
 M18 passed as `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` at candidate
 `654e6e1a1213bc03b7693ff1a8aea945a5bf08ac`. It integrates the M17-passed
@@ -98,11 +138,11 @@ packet, and exact M20B4 human campaign authorization remain later gates. M19
 and M20B1 attempt authority cannot be reused.
 
 The five-round M20B3 blocker was subsequently repaired under one explicit
-extra human-authorized replay-integrity round. The repaired frozen bytes pass
-`54` focused and `227` cumulative tests, and the extra terminal read-only
-review returned `AGREE`. M20B3 local Git/clone/wheel/install/packet-freeze work
-is active again under its prior bounded authority. This does not authorize
-M20B4, a real credential, a provider call, source access, push, or release.
+extra human-authorized replay-integrity round. The repaired bytes then passed
+identified Git integration, isolated clone/offline wheel installation,
+installed synthetic validation, packet preflight, and exact packet review.
+M20B3 is closed as passed. This does not authorize M20B4, a real credential,
+a provider call, source access, push, or release.
 
 ## Visible Execution Artifact Index
 
@@ -112,13 +152,14 @@ only. No detached runner is authorized.
 
 | Role | Exact artifact | Current setup state |
 | --- | --- | --- |
-| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | Extra replay repair/review agreed; M20B3 bounded local integration resumed |
-| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Five-round blocker and extra-authorized repair/review transaction recorded; integration active |
-| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M20B3 local Git/clone/wheel/install/packet freeze active; M20B4 provider execution forbidden |
+| Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | Historical gated mechanics remain preserved; current policy and arXiv-only plan govern execution |
+| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Revised M20/G3 pass and offline validation recorded; M21 planning active |
+| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M20 closed; exact M21 planning inputs and execution boundary recorded |
 | M17 subplan | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | Passed local engineering |
 | M18 subplan | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | Passed local Git/install reproducibility |
 | M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | Passed; terminal review agreed; one attempt consumed |
-| M20 subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | M20A-M20B2 passed; extra M20B3 replay review agreed and bounded local integration resumed |
+| M20 active close authority | `docs/plans/literature_survey_north_star_m20_arxiv_only_close_result_2026-07-18.md` | Revised source-only G3 passed; one invocation consumed; no rerun |
+| M20 historical subplan | `docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md` | Provider-dependent exit criteria retired; retained as historical evidence only |
 | M20A historical blocker | `docs/plans/literature_survey_north_star_m20a_local_hardening_blocker_result_2026-07-14.md` | Superseded procedurally by current policy; retained as review history |
 | M20A route-independent result | `docs/plans/literature_survey_north_star_m20a_route_independent_hardening_result_2026-07-14.md` | `PASSED_ROUTE_INDEPENDENT_LOCAL_ENGINEERING_OFFICIAL_ROUTE_CONTRACT_PENDING` |
 | M20A route-specific result | `docs/plans/literature_survey_north_star_m20a_route_specific_openalex_adapter_result_2026-07-14.md` | `PASSED_LOCAL_NO_NETWORK_ENGINEERING_M20B_BOUNDARY_PENDING` |
@@ -126,19 +167,25 @@ only. No detached runner is authorized.
 | M20B boundary subplan | `docs/plans/literature_survey_north_star_m20b_credential_privacy_cost_decision_subplan_2026-07-14.md` | Planning-only; human credential/privacy/cost decisions required; no provider call authorized |
 | M20B1 result | `docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_result_2026-07-14.md` | Passed official documentation contract; `2/2` attempt consumed |
 | M20B2 subplan/result | `docs/plans/literature_survey_north_star_m20b2_synthetic_credential_redaction_cost_controls_result_2026-07-15.md` | Passed local synthetic-only engineering; terminal review agreed; no real key/network/Git action |
-| M20B3 subplan | `docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md` | Extra replay review agreed; bounded local integration active; M20B4 forbidden |
+| M20B3 subplan | `docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md` | Passed identified integration and packet review; its then-pending M20B4 gate is historical |
 | M20B3 blocker result | `docs/plans/literature_survey_north_star_m20b3_review_nonconvergence_blocker_result_2026-07-15.md` | Historical five-round stop superseded only by the explicit extra repair/review agreement |
-| M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
-| M22 subplan | `docs/plans/literature_survey_north_star_m22_human_attested_review_and_real_missions_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
+| M20B4 blocker result | `docs/plans/literature_survey_north_star_m20b4_review_nonconvergence_blocker_result_2026-07-16.md` | Historical five-round stop superseded by the exact extra signal repair and terminal `AGREE` |
+| M20B4 extra repair result | `docs/plans/literature_survey_north_star_m20b4_extra_signal_repair_result_2026-07-16.md` | Passed local repair/review; exact human live authorization required |
+| M20B4 extra repair verdict | `docs/reviews/literature_survey_north_star_m20b4_extra_signal_repair_terminal_review_verdict_2026-07-16.md` | Fresh Codex read-only fallback `AGREE`; no live authority |
+| M20B4 terminal result | `docs/plans/literature_survey_north_star_m20b4_one_exact_live_attempt_result_2026-07-15.md` | `BLOCKED_EARLY_SUPERVISOR_EXIT_NO_MANIFEST_ATTEMPT_CONSUMED_NO_RERUN` |
+| M20B4 terminal result review | `docs/reviews/literature_survey_north_star_m20b4_terminal_result_review_verdict_2026-07-15.md` | Fresh Codex read-only fallback review; advisory only |
+| M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `PASSED_G4_SIX_PARSED_ONE_EXPLICIT_GAP` |
+| M22B0 result | `docs/plans/literature_survey_north_star_m22b0_production_queue_reconciliation_result_2026-07-18.md` | `PASSED_READY_FOR_GENUINE_HUMAN_PARTICIPATION` |
+| M22B subplan | `docs/plans/literature_survey_north_star_m22b_genuine_human_review_subplan_2026-07-18.md` | `READY_FOR_GENUINE_HUMAN_PARTICIPATION` |
 | M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
 | Setup result | `docs/plans/literature_survey_north_star_program_setup_result_2026-07-13.md` | `PROGRAM_SETUP_PASSED_M17_READY_NOT_STARTED` |
 | Setup blocker history | `docs/plans/literature_survey_north_star_program_setup_review_nonconvergence_blocker_2026-07-13.md` | Resolved by user-authorized extra governance repair and `AGREE` |
 | Extra governance verdict | `docs/reviews/literature_survey_north_star_program_setup_governance_extra_authorized_review_verdict_2026-07-13.md` | `VERDICT: AGREE` |
 
 Declared milestone result paths are indexed in the visible runbook. M17-M19
-results and the intermediate M20A/M20B1/M20B2 results now exist. M20 has no completed
-live milestone result; M21-M23 result paths remain future outputs and must
-remain absent until the corresponding milestone runs.
+results and the intermediate M20A-M20B4 records now exist. Revised M20/G3 and
+M21/G4 have passed result artifacts. M22-M23 result paths remain future outputs
+and must remain absent until the corresponding milestone runs.
 At each M17-M22 handoff, the next subplan must be refreshed from actual
 predecessor artifacts and reviewed before execution. M23 instead closes through
 its terminal completion/blocker handoff. These initial M18-M23 shells do not
@@ -152,9 +199,9 @@ acceptance environments.
 | G0 Idea/topic bootstrap | Topic-only missions preserve empty original seeds, stable identity, confirmed bootstrap, exact five-way outcomes, and unchanged explicit-seed V2 behavior | Stable topic/idea input mode, confirmed bootstrap discovery, exact selected/empty/ambiguous authority, and unchanged explicit-seed behavior | Closed locally; live quality remains G2/G3 | M17 |
 | G1 Reproducible Git integration | Candidate `654e6e1...` contains the exact reviewed cumulative payload and passes isolated clone, offline wheel, origin, topic/seed, and local regression gates | A path-complete identified commit installs and reproduces all local-alpha runtime/test dependencies from an isolated clean checkout | Closed in observed environment; bare-machine/cross-platform remains M23 acceptance scope | M18 |
 | G2 Bounded live metadata | One exact four-request attempt at `f06ceb7` is boundary-valid, ledger-complete, replay-valid `14/14`, and terminally reviewed; budget consumed | Converged hardening and parent plan, fresh exact approval, then one boundary-valid metadata-only attempt with a closed request ledger | Closed for bounded engineering only; no provider-quality claim | M19 |
-| G3 Real citation discovery | M16 validates fixture metadata and recorded-relation projections; no production backward/forward frontier run is M16 authority | Reviewed production adapters with dated provider provenance, complete attempt dispositions, ambiguity handling, and bounded live evidence | Missing | M20 |
-| G4 Real source/status and anchors | `MissionSourceCapability` is a closed injectable fixture interface; existing general fetch commands are not yet the reviewed mission transport | Approved production source/status and capped source/PDF/full-text adapters, mission-local hashed records, quarantine, and checked anchor candidates | Missing | M21 |
-| G5 Genuine human review | Schemas carry reviewer fields and human-shaped authority; M16 decisions are fixtures and explicitly unauthenticated | Genuine human identity/attestation, correction and audit policy, exact decisions for claims, safety, omissions, and workflow blockers | Missing | M22 |
+| G3 Source-grounded backward discovery | One retained `26,842,514` byte exact seed source yielded `62` unique preliminary backward candidates; six scholarly ledgers, explicit `195` identifier-free-unit risk, non-blocking forward-unavailable state, and replay all validate | Exact retained arXiv seed source, safe archive inspection, canonical backward candidates, explicit preliminary classification and omission-risk ledgers, honest non-blocking forward-unavailable state, and deterministic replay | Closed under revised scope; no relevance/completeness claim | M20 |
+| G4 Real source/status and anchors | Seven bounded arXiv source packages are retained; six yield `288` machine anchors and one is an explicit PDF-wrapper text-parse gap; replay passes and supported claims remain zero | Approved bounded public-source intake, mission-local hashed records, honest parser/source gaps, and unpromoted anchor candidates | Closed within the seven-source credential-free scope; no claim/retraction/completeness conclusion | M21 |
+| G5 Genuine human review | V4 receipt engineering and a production-selected `73`-item packet pass; the packet is explicitly unattested | Genuine human identity/attestation and exact decisions for claims, safety, omissions, and workflow blockers | Human participation pending | M22 |
 | G6 Representative real missions | One fixture positive and ten fixture negatives validate engineering behavior | Predeclared real-mission matrix, at least one within-scope reviewed terminal, honest failures/stops, and independent evidence audit | Missing | M22 |
 | G7 Operational/usability closeout | Command exists but README/installation/operator path does not yet establish the north-star workflow from clean install | Independent clean-install operator acceptance, documentation, recovery, compatibility, known limitations, and reconciled capability claims | Missing | M23 |
 
@@ -554,3 +601,140 @@ all control projections demonstrate:
 
 A file containing an accomplished label, a pending generation, or a selector
 without its exact activation receipt is not completion evidence.
+
+## Current M20B4 Blocker - 2026-07-16
+
+M20B3 remains passed at commit `7283a00e...a25c`, with `99/99` installed
+member equality and frozen packet `c3e250b0...d77ce`. M20B4 did not pass its
+pre-launch plan/closeout gate: five material review rounds ended `REVISE`.
+Round 5 found that the credential-free closeout accepts producer-impossible
+TERM-bearing/two-KILL histories for `supervisor_lifecycle_error`, allowing a
+corrupt manifest to become affirmative process evidence.
+
+No M20B4 command ran, no credential was read, no provider/network call
+occurred, both roots remain absent, and the one-attempt budget is unconsumed.
+The exact next action is human direction for one additional local repair and
+one terminal review limited to that signal predicate and focused tests. The
+active blocker is
+`docs/plans/literature_survey_north_star_m20b4_review_nonconvergence_blocker_result_2026-07-16.md`.
+M20B4 authorization/launch and M21-M23 remain forbidden.
+
+## M20B4 Extra Repair Agreement - 2026-07-16
+
+The human authorized one extra local repair/review transaction limited to the
+signal predicate and tests. Closeout now accepts only no signal or one cleanup
+KILL for `supervisor_lifecycle_error`; `37` focused and `104` combined tests
+pass, and fresh terminal review returned `AGREE`. The five-round blocker is
+historical. Exact human authorization for the unchanged packet-bound live
+attempt is now the next boundary; no credential or network action has occurred.
+
+## M20B4 Terminal Consumed-Attempt Stop - 2026-07-16
+
+The human authorized exactly one invocation of packet
+`c3e250b0...d77ce` under contract `475b15f8...fda`. That invocation returned
+closed exit code `2` after `79.054856` seconds, created no live root, and
+published no `supervisor_manifest.json`. The terminal classification is
+`early_supervisor_exit_no_manifest`; the attempt is consumed and cannot be
+retried or rerun.
+
+The precise internal cause, credential lookup or validity, provider dispatch,
+network use, cost, privacy scan, request dispositions, and candidate outcomes
+are all `not_established`. This is an infrastructure/evidence-boundary stop,
+not a provider or scientific negative result. M20 does not close and M21 does
+not start. Further live M20 work requires human direction and a new reviewed
+plan, packet, budget, versioned output root, and explicit authority.
+
+## M20 Credential-Free Successor Terminal Checkpoint - 2026-07-18
+
+The old key-dependent campaign is invalidated as a planning error; no project
+OpenAlex API key exists or is required by the active successor. The user
+authorized one fresh credential-free invocation with at most one public arXiv
+source request and, only after safe non-empty parsing, one anonymous OpenAlex
+forward-citation request. The audited plan is
+`docs/plans/literature_survey_north_star_m20_credential_free_live_successor_plan_2026-07-18.md`.
+
+That invocation is terminal `TERMINAL_IMPLEMENTATION_FAILURE_NO_RETRY`. It
+dispatched the arXiv request once, retained no body, stopped on an over-strict
+redirect path predicate, and did not dispatch OpenAlex. Retry count is zero;
+OpenAlex usage cost incurred is USD `$0`. The result is
+`docs/plans/literature_survey_north_star_m20_credential_free_live_successor_result_2026-07-18.md`.
+
+The executed dirty-worktree source bytes are preserved under the validation
+root and match the run manifest. Future code now aligns the redirect rule with
+the plan's allowed-host boundary, retains no raw redirect query, and passes
+`28/28` focused plus `76/76` cumulative related CPU-only checks. That repair is
+local-only and has not been live validated.
+
+M20 still has no passed live milestone result, so G3 remains `Missing` and M21
+must not start. The exact next boundary is new plain-language authority for one
+fresh credential-free external attempt against the repaired runner. Legacy
+packet/key/hash ceremony is historical and is not required by current policy.
+No such new attempt is authorized by this checkpoint.
+
+## M20 Repaired Attempt Source-Cap Stop - 2026-07-18
+
+The user subsequently authorized one fresh credential-free invocation against
+the repaired runner. The exact plan is
+`docs/plans/literature_survey_north_star_m20_credential_free_repaired_attempt_plan_2026-07-18.md`.
+Local gates passed `28/28` focused and `76/76` cumulative related checks.
+
+The invocation dispatched the arXiv route once and terminally stopped on the
+predeclared `response_cap_exceeded` continuation veto. No response body was
+retained, OpenAlex was not contacted, retries were zero, and OpenAlex usage cost
+incurred was USD `$0`. The result is
+`docs/plans/literature_survey_north_star_m20_credential_free_repaired_attempt_result_2026-07-18.md`.
+
+This establishes that the configured 20 MB response boundary was exceeded. It
+does not establish source unavailability, archive unsafety, empty candidates,
+or provider/scientific failure. Whether the failure used declared
+`Content-Length` or streamed bytes is not established.
+
+M20 still has no passed live milestone result; G3 remains `Missing` and M21
+must not start. The smallest next planning decision is whether a higher arXiv
+source cap and retention budget are proportionate while keeping all archive,
+privacy, exact-edge, cost, and replay vetoes unchanged. Any higher-cap external
+attempt requires a revised plan and new plain-language authorization.
+
+## M20/G3 ArXiv-Only Override - 2026-07-18
+
+This section supersedes every earlier active M20 next-action or exit-criterion
+statement, while preserving the old text and artifacts as history. The project
+will not perform another credential/provider feasibility loop. G3 is now the
+bounded scientific question of whether exact arXiv seed source bytes can yield
+a safe, replayable backward-reference candidate set and an honest omission-risk
+record.
+
+M20 closes under the revised contract only if the single authorized attempt
+retains the exact seed source within both `500,000,000` byte caps, passes archive
+safety and bounded parsing, yields at least one canonical DOI/arXiv backward
+candidate, classifies every candidate as not yet technically checked with a
+next action, writes all six scholarly ledgers, confines raw source, and passes
+offline replay. Forward coverage must be `unavailable_out_of_scope` with
+`blocking=false`; it is a limitation, not a continuation veto. M20 closure will
+not imply relevance, primary technical support, completeness, retraction
+safety, scientific correctness, M21 completion, or north-star completion.
+
+Historical next action before execution: finish local launch-readiness checks against
+`docs/plans/literature_survey_north_star_m20_arxiv_only_500mb_attempt_plan_2026-07-18.md`,
+then execute the already authorized invocation once into a fresh versioned
+validation root. Any live outcome consumes the invocation; no retry or rerun was
+authorized. A pass closed revised M20/G3 and refreshed M21 planning only. A
+failure writes a terminal result and stops without reopening retired provider
+criteria.
+
+## M20/G3 ArXiv-Only Close - 2026-07-18
+
+The single authorized invocation passed. It dispatched one arXiv source
+request, retried zero times, retained `26,842,514` exact source bytes, and
+yielded `62` unique canonical candidates from `264` bibliography units. All
+candidates remain `NOT_CHECKED`/`SOURCE_GAP_BLOCKER`. The `195`
+identifier-free units, unavailable forward coverage, unchecked source status,
+and unchecked relevance remain explicit omission risks. Six scholarly ledgers,
+execution-source preservation, artifact inventory, raw confinement, and offline
+replay pass.
+
+Revised M20/G3 is closed by
+`docs/plans/literature_survey_north_star_m20_arxiv_only_close_result_2026-07-18.md`.
+This is not a provider, relevance, claim-support, completeness, scientific, or
+north-star completion result. M21 is refreshed for planning from the exact M20
+artifacts but is not executable under M20 authority.

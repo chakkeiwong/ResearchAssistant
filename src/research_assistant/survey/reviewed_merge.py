@@ -11,9 +11,11 @@ from research_assistant.survey.claim_review import (
     _validate_decision as _validate_claim_decision,
     claim_sidecar_expected_fields,
     resolve_current_reviewed_claims,
+    selected_claim_human_receipt_archive,
 )
 from research_assistant.survey.evidence_semantics import EvidenceContext, load_v2_evidence_context
 from research_assistant.survey.mission_state import MissionStateError, sha256_file
+from research_assistant.survey.human_attestation import human_receipt_archive_bound_input
 from research_assistant.survey.omission_review import (
     OMISSION_SIDECAR_KEYS,
     OmissionDecisionSetSnapshot,
@@ -36,6 +38,7 @@ from research_assistant.survey.source_safety_review import (
     SURVEY_REVIEWED_SOURCE_SAFETY_SCHEMA_VERSION,
     _validate_decision as _validate_source_decision,
     resolve_current_source_safety,
+    selected_source_human_receipt_archive,
     source_sidecar_expected_fields,
 )
 from research_assistant.survey.workflow_blocker_review import (
@@ -459,6 +462,38 @@ def _replay_v3_merge_inputs(
         validator=workflow_config["validator"],
         expected_fields=workflow_config["expected_fields"],
     )
+    claim_receipt = selected_claim_human_receipt_archive(claim_snapshot)
+    source_receipt = selected_source_human_receipt_archive(source_snapshot)
+    if (claim_receipt is None) != (source_receipt is None):
+        raise MissionStateError(
+            "mixed_human_review_authority",
+            "claim and source authority must use the same fixture or human-receipt mode",
+        )
+    if claim_receipt is not None:
+        if claim_receipt != source_receipt:
+            raise MissionStateError(
+                "mixed_human_review_receipt",
+                "claim and source authority embed different human receipts",
+            )
+        _, attested_omission_raw = human_receipt_archive_bound_input(
+            claim_receipt,
+            name="omission_risk_decisions.json",
+        )
+        _, attested_workflow_raw = human_receipt_archive_bound_input(
+            claim_receipt,
+            name="workflow_blocker_decisions.json",
+        )
+        if omission_selected.decisions_path.read_bytes() != attested_omission_raw:
+            raise MissionStateError(
+                "mixed_human_review_receipt",
+                "selected omission decisions differ from the human receipt transaction",
+            )
+        workflow_decisions_path = Path(workflow["decisions_path"])
+        if workflow_decisions_path.read_bytes() != attested_workflow_raw:
+            raise MissionStateError(
+                "mixed_human_review_receipt",
+                "selected workflow decisions differ from the human receipt transaction",
+            )
     sidecars = {
         "claim_candidate": claims,
         "source_safety": source_safety,

@@ -17,6 +17,12 @@ from research_assistant.survey.evidence_semantics import (
     require_sha256,
     strict_string_list,
 )
+from research_assistant.survey.human_attestation import (
+    SOURCE_V4_SCHEMA,
+    export_human_receipt_archive,
+    validate_human_receipt_archive,
+    validate_human_receipt_decision,
+)
 from research_assistant.survey.mission_state import MissionStateError
 from research_assistant.survey.review_decisions import (
     COMMON_SIDECAR_KEYS,
@@ -36,10 +42,13 @@ from research_assistant.survey.mission_state import canonical_json_bytes, pretty
 SURVEY_REVIEWED_SOURCE_SAFETY_RESULT_SCHEMA_VERSION = "ra-survey-reviewed-source-safety-import-result-v2"
 SURVEY_REVIEWED_SOURCE_SAFETY_SCHEMA_VERSION = "ra-survey-reviewed-source-safety-v2"
 SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA = "ra-survey-source-safety-review-v3"
+SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA = SOURCE_V4_SCHEMA
+SURVEY_SOURCE_SAFETY_AUTHORITY_V4_SCHEMA = "ra-survey-source-safety-review-authority-v4"
 SURVEY_SOURCE_OBSERVATION_SET_SCHEMA = "ra-survey-source-status-observation-set-v1"
 SURVEY_SOURCE_OBSERVATION_MANIFEST_SCHEMA = "ra-survey-source-observation-set-manifest-v1"
 SURVEY_SOURCE_OBSERVATION_CURRENT_SCHEMA = "ra-survey-source-observation-current-v1"
 SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA = "ra-survey-reviewed-source-safety-v3"
+SURVEY_REVIEWED_SOURCE_SAFETY_V4_SCHEMA = "ra-survey-reviewed-source-safety-v4"
 SURVEY_SOURCE_DECISION_MANIFEST_SCHEMA = "ra-survey-source-decision-set-manifest-v1"
 SURVEY_SOURCE_DECISION_CURRENT_SCHEMA = "ra-survey-source-decision-current-v1"
 
@@ -89,6 +98,11 @@ SOURCE_V3_ENVELOPE_KEYS = {
     "schema_version", "decision_type", "mission_id", "mission_fingerprint",
     "mission_anchor_generation_id", "artifact_set_id", "queue_semantic_sha256",
     "review_queue_sha256", "observation_set", "decisions",
+}
+SOURCE_V4_AUTHORITY_ENVELOPE_KEYS = {
+    "schema_version", "decision_type", "mission_id", "mission_fingerprint",
+    "mission_anchor_generation_id", "artifact_set_id", "queue_semantic_sha256",
+    "review_queue_sha256", "attested_decisions", "human_receipt_archive",
 }
 SOURCE_OBSERVATION_SET_KEYS = {
     "schema_version", "mission_id", "mission_fingerprint",
@@ -213,12 +227,16 @@ def import_reviewed_source_safety(
     now: Callable[[], str] = utc_now_iso,
     nonce_factory: Callable[[], str] = lambda: secrets.token_hex(16),
     crash_hook: Callable[[str], None] | None = None,
+    human_attestation_receipt_path: Path | None = None,
 ) -> dict[str, Any]:
     try:
         envelope, raw = read_json_object_strict(decisions_path, label="source-safety decisions")
     except MissionStateError as exc:
         return _blocked(exc.code, output_dir.absolute(), [str(exc)])
-    if envelope.get("schema_version") == SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA:
+    if envelope.get("schema_version") in {
+        SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA,
+        SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA,
+    }:
         return _import_v3_source_safety(
             review_queue_path=review_queue_path,
             decisions_path=decisions_path,
@@ -229,6 +247,7 @@ def import_reviewed_source_safety(
             now=now,
             nonce_factory=nonce_factory,
             crash_hook=crash_hook,
+            human_attestation_receipt_path=human_attestation_receipt_path,
         )
     try:
         load_v2_evidence_context(review_queue_path)
@@ -311,13 +330,20 @@ def _import_v3_source_safety(
     now: Callable[[], str],
     nonce_factory: Callable[[], str],
     crash_hook: Callable[[str], None] | None,
+    human_attestation_receipt_path: Path | None,
 ) -> dict[str, Any]:
     output_dir = output_dir.absolute()
     try:
         if decisions_raw != pretty_json_bytes(envelope):
             raise MissionStateError("noncanonical_source_review", "V3 source review must be canonical pretty JSON")
+        human_mode = envelope.get("schema_version") == SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA
+        if human_mode != (human_attestation_receipt_path is not None):
+            raise MissionStateError(
+                "missing_human_attestation_receipt" if human_mode else "receipt_not_allowed_for_fixture_authority",
+                "V4 human source review requires one receipt; V3 fixture review does not accept one",
+            )
         context = load_v2_evidence_context(review_queue_path)
-        require_exact_keys(envelope, SOURCE_V3_ENVELOPE_KEYS, "V3 source-safety envelope")
+        require_exact_keys(envelope, SOURCE_V3_ENVELOPE_KEYS, "V3/V4 source-safety envelope")
         if envelope.get("decision_type") != "source_safety":
             raise MissionStateError("wrong_decision_type", "V3 source review has the wrong decision type")
         _require_binding(envelope, context)
@@ -333,6 +359,7 @@ def _import_v3_source_safety(
             envelope.get("observation_set"),
             context=context,
             selected=selected_observation,
+            human_attested=human_mode,
         )
         observation_raw = pretty_json_bytes(observation_set)
         observation_identity = _observation_identity(observation_set, context)
@@ -347,7 +374,27 @@ def _import_v3_source_safety(
             observation_set=observation_set,
             observation_set_id=observation_set_id,
             observation_manifest_sha256=observation_manifest_sha256,
+            human_attested=human_mode,
         )
+        authority_envelope = envelope
+        if human_mode:
+            assert human_attestation_receipt_path is not None
+            archive = export_human_receipt_archive(human_attestation_receipt_path)
+            receipt = validate_human_receipt_archive(archive)
+            validate_human_receipt_decision(
+                receipt=receipt,
+                decision_type="source_safety",
+                decisions_raw=decisions_raw,
+                expected_binding=context.binding,
+            )
+            authority_envelope = {
+                "schema_version": SURVEY_SOURCE_SAFETY_AUTHORITY_V4_SCHEMA,
+                "decision_type": "source_safety",
+                **context.binding,
+                "attested_decisions": envelope,
+                "human_receipt_archive": archive,
+            }
+        authority_raw = pretty_json_bytes(authority_envelope)
         required_ids = sorted(context.source_identities)
         supplied_ids = sorted(row["queue_item_id"] for row in rows)
         semantic_payload = _source_semantic_payload(
@@ -371,8 +418,8 @@ def _import_v3_source_safety(
         exact_replay = selected_decision is not None and all([
             selected_decision.manifest.get("observation_set_id") == observation_set_id,
             selected_decision.manifest.get("observation_set_manifest_sha256") == observation_manifest_sha256,
-            selected_decision.manifest.get("decisions_sha256") == sha256_bytes(decisions_raw),
-            selected_decision.manifest.get("decisions_size_bytes") == len(decisions_raw),
+            selected_decision.manifest.get("decisions_sha256") == sha256_bytes(authority_raw),
+            selected_decision.manifest.get("decisions_size_bytes") == len(authority_raw),
             selected_decision.manifest.get("normalized_source_safety_sha256") == normalized_hash,
         ])
         predecessor_id = (
@@ -393,8 +440,8 @@ def _import_v3_source_safety(
             **context.binding,
             "observation_set_id": observation_set_id,
             "observation_set_manifest_sha256": observation_manifest_sha256,
-            "decisions_sha256": sha256_bytes(decisions_raw),
-            "decisions_size_bytes": len(decisions_raw),
+            "decisions_sha256": sha256_bytes(authority_raw),
+            "decisions_size_bytes": len(authority_raw),
             "normalized_source_safety_sha256": normalized_hash,
             "predecessor_decision_set_id": predecessor_id,
             "predecessor_decision_set_manifest_sha256": predecessor_hash,
@@ -402,12 +449,15 @@ def _import_v3_source_safety(
         decision_set_id, _ = decision_manager.preview(
             identity_fields=decision_identity,
             artifacts={
-                "reviewed_source_safety_decisions.json": decisions_raw,
+                "reviewed_source_safety_decisions.json": authority_raw,
                 "reviewed_source_safety.json": b"",
             },
         )
         sidecar_without_created_at = {
-            "schema_version": SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA,
+            "schema_version": (
+                SURVEY_REVIEWED_SOURCE_SAFETY_V4_SCHEMA
+                if human_mode else SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA
+            ),
             **context.binding,
             "decision_set_id": decision_set_id,
             "observation_set_id": observation_set_id,
@@ -415,8 +465,8 @@ def _import_v3_source_safety(
             "decisions_path": str(
                 decision_manager.sets_dir / decision_set_id / "reviewed_source_safety_decisions.json"
             ),
-            "decisions_sha256": sha256_bytes(decisions_raw),
-            "decisions_size_bytes": len(decisions_raw),
+            "decisions_sha256": sha256_bytes(authority_raw),
+            "decisions_size_bytes": len(authority_raw),
             **semantic_payload,
         }
         created_at = decision_manager.preserve_staged_created_at(
@@ -442,7 +492,7 @@ def _import_v3_source_safety(
         decision_snapshot = decision_manager.compose_and_select(
             identity_fields=decision_identity,
             artifacts={
-                "reviewed_source_safety_decisions.json": decisions_raw,
+                "reviewed_source_safety_decisions.json": authority_raw,
                 "reviewed_source_safety.json": sidecar_raw,
             },
             force=force,
@@ -511,6 +561,7 @@ def preview_source_observation_binding(
     review_queue_path: Path,
     observation_set: dict[str, Any],
     output_dir: Path,
+    human_attested: bool = False,
 ) -> dict[str, str]:
     context = load_v2_evidence_context(review_queue_path)
     manager = ImmutableAuthorityManager(root=output_dir.absolute(), config=SOURCE_OBSERVATION_CONFIG)
@@ -519,6 +570,7 @@ def preview_source_observation_binding(
         observation_set,
         context=context,
         selected=selected,
+        human_attested=human_attested,
     )
     raw = pretty_json_bytes(normalized)
     set_id, manifest = manager.preview(
@@ -544,6 +596,18 @@ def resolve_current_source_safety_sidecar_path(
     return decision.artifact_paths["reviewed_source_safety.json"]
 
 
+def selected_source_human_receipt_archive(snapshot: AuthoritySnapshot) -> dict[str, Any] | None:
+    envelope, _ = read_json_object_strict(
+        snapshot.artifact_paths["reviewed_source_safety_decisions.json"],
+        label="selected source review envelope",
+    )
+    if envelope.get("schema_version") == SURVEY_SOURCE_SAFETY_AUTHORITY_V4_SCHEMA:
+        archive = envelope.get("human_receipt_archive")
+        validate_human_receipt_archive(archive)
+        return archive
+    return None
+
+
 def _require_binding(value: dict[str, Any], context: EvidenceContext) -> None:
     for field, expected in context.binding.items():
         if value.get(field) != expected:
@@ -556,6 +620,7 @@ def _validate_observation_set(
     *,
     context: EvidenceContext,
     selected: AuthoritySnapshot | None,
+    human_attested: bool = False,
 ) -> dict[str, Any]:
     require_exact_keys(value, SOURCE_OBSERVATION_SET_KEYS, "source observation set")
     result = dict(value)
@@ -577,8 +642,11 @@ def _validate_observation_set(
     for field, expected in expected_source_binding.items():
         if result.get(field) != expected:
             raise MissionStateError("stale_source_observation", f"source observation set differs on {field}")
-    if result.get("fixture_only") is not True:
-        raise MissionStateError("invalid_source_observation", "Phase 9 source observations must disclose fixture_only=true")
+    if result.get("fixture_only") is not (not human_attested):
+        raise MissionStateError(
+            "invalid_source_observation",
+            "V3 observations require fixture_only=true and receipt-bound V4 observations require fixture_only=false",
+        )
     if result.get("what_is_not_concluded") != SOURCE_OBSERVATION_NONCLAIMS:
         raise MissionStateError("invalid_source_observation", "source observation nonclaims differ")
     predecessor_id = result.get("predecessor_observation_set_id")
@@ -592,7 +660,10 @@ def _validate_observation_set(
     rows = result.get("observations")
     if not isinstance(rows, list):
         raise MissionStateError("invalid_source_observations", "source observations must be a list")
-    normalized = [_validate_observation(row, context=context) for row in rows]
+    normalized = [
+        _validate_observation(row, context=context, human_attested=human_attested)
+        for row in rows
+    ]
     expected_ids = sorted(context.source_identities)
     supplied_ids = [row["queue_item_id"] for row in normalized]
     if normalized != sorted(normalized, key=lambda row: row["queue_item_id"]):
@@ -603,7 +674,9 @@ def _validate_observation_set(
     return result
 
 
-def _validate_observation(value: Any, *, context: EvidenceContext) -> dict[str, Any]:
+def _validate_observation(
+    value: Any, *, context: EvidenceContext, human_attested: bool = False,
+) -> dict[str, Any]:
     require_exact_keys(value, SOURCE_OBSERVATION_KEYS, "source observation")
     row = dict(value)
     item_id = normalize_required_text(row.get("queue_item_id"), field="queue_item_id")
@@ -633,7 +706,10 @@ def _validate_observation(value: Any, *, context: EvidenceContext) -> dict[str, 
             raise MissionStateError("invalid_checked_clear_observation", "checked-clear requires the exact check set and no notices")
     elif not notices:
         raise MissionStateError("missing_source_notice", "nonclear source outcome requires a matching notice")
-    if row.get("fixture_only") is not True or row.get("claim_support_allowed") is not False:
+    if (
+        row.get("fixture_only") is not (not human_attested)
+        or row.get("claim_support_allowed") is not False
+    ):
         raise MissionStateError("false_source_observation_authority", "source observation cannot itself authorize claim support")
     if row.get("what_is_not_concluded") != SOURCE_OBSERVATION_NONCLAIMS:
         raise MissionStateError("invalid_source_observation", "source observation nonclaims differ")
@@ -647,7 +723,7 @@ def _validate_observation(value: Any, *, context: EvidenceContext) -> dict[str, 
         "checks_performed": checks,
         "outcome": outcome,
         "notices": notices,
-        "fixture_only": True,
+        "fixture_only": not human_attested,
         "claim_support_allowed": False,
         "what_is_not_concluded": SOURCE_OBSERVATION_NONCLAIMS,
     }
@@ -703,7 +779,7 @@ def _observation_identity(value: dict[str, Any], context: EvidenceContext) -> di
         "source_outcome_ledger_size_bytes": value["source_outcome_ledger_size_bytes"],
         "source_record_digests": source_record_digests,
         "observations_sha256": sha256_bytes(canonical_semantic_bytes(value["observations"])),
-        "fixture_only": True,
+        "fixture_only": value["fixture_only"],
         "what_is_not_concluded": SOURCE_OBSERVATION_NONCLAIMS,
         "predecessor_observation_set_id": value["predecessor_observation_set_id"],
         "predecessor_observation_set_manifest_sha256": value["predecessor_observation_set_manifest_sha256"],
@@ -717,6 +793,7 @@ def _validate_v3_source_decisions(
     observation_set: dict[str, Any],
     observation_set_id: str,
     observation_manifest_sha256: str,
+    human_attested: bool = False,
 ) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         raise MissionStateError("invalid_source_decisions", "source decisions must be a list")
@@ -766,8 +843,11 @@ def _validate_v3_source_decisions(
         if reviewer_authority != "human_reviewed_status" and decision != "blocked":
             raise MissionStateError("unauthorized_source_promotion", "model, legacy, or rejected authority must remain blocked")
         fixture_only = raw.get("fixture_only")
-        if fixture_only is not True:
-            raise MissionStateError("invalid_source_decision", "synthetic Phase 9 decisions must disclose fixture_only=true")
+        if fixture_only is not (not human_attested):
+            raise MissionStateError(
+                "invalid_source_decision",
+                "V3 decisions require fixture_only=true and receipt-bound V4 decisions require fixture_only=false",
+            )
         normalized_row = {
             "queue_item_id": item_id,
             **exact,
@@ -777,7 +857,7 @@ def _validate_v3_source_decisions(
             "reviewed_at": normalize_reviewed_at(raw.get("reviewed_at")),
             "reason": normalize_required_text(raw.get("reason"), field="reason"),
             **({"next_action": normalize_required_text(raw.get("next_action"), field="next_action")} if decision == "blocked" else {}),
-            "fixture_only": True,
+            "fixture_only": not human_attested,
             "observation_outcome": observation_outcome,
             "safety_checked_clear": decision == "checked_clear",
             "claim_support_allowed": decision == "checked_clear",
@@ -830,7 +910,11 @@ def _source_normalized_projection(
     *, context: EvidenceContext, semantic: dict[str, Any],
 ) -> dict[str, Any]:
     return {
-        "schema_version": SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA,
+        "schema_version": (
+            SURVEY_REVIEWED_SOURCE_SAFETY_V4_SCHEMA
+            if any(row.get("fixture_only") is False for row in semantic.get("source_safety", []))
+            else SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA
+        ),
         **context.binding,
         **semantic,
     }
@@ -848,10 +932,45 @@ def _validate_v3_selected_source_authority(
     )
     if observation_raw != pretty_json_bytes(observation_payload):
         raise MissionStateError("noncanonical_source_observations", "selected source observations are noncanonical")
+    envelope, envelope_raw = read_json_object_strict(
+        decision_snapshot.artifact_paths["reviewed_source_safety_decisions.json"],
+        label="selected source review envelope",
+    )
+    if envelope_raw != pretty_json_bytes(envelope):
+        raise MissionStateError("noncanonical_source_review", "selected source review envelope is noncanonical")
+    human_mode = envelope.get("schema_version") == SURVEY_SOURCE_SAFETY_AUTHORITY_V4_SCHEMA
+    if human_mode:
+        require_exact_keys(envelope, SOURCE_V4_AUTHORITY_ENVELOPE_KEYS, "selected human source authority")
+        _require_binding(envelope, context)
+        attested = envelope.get("attested_decisions")
+        if not isinstance(attested, dict):
+            raise MissionStateError("invalid_human_source_authority", "attested source decisions are missing")
+        attested_raw = pretty_json_bytes(attested)
+        require_exact_keys(attested, SOURCE_V3_ENVELOPE_KEYS, "attested V4 source-review envelope")
+        if attested.get("schema_version") != SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA:
+            raise MissionStateError("invalid_source_review_schema", "attested source review schema is unsupported")
+        _require_binding(attested, context)
+        receipt = validate_human_receipt_archive(envelope.get("human_receipt_archive"))
+        validate_human_receipt_decision(
+            receipt=receipt,
+            decision_type="source_safety",
+            decisions_raw=attested_raw,
+            expected_binding=context.binding,
+        )
+        review_envelope = attested
+    else:
+        require_exact_keys(envelope, SOURCE_V3_ENVELOPE_KEYS, "selected source review envelope")
+        if envelope.get("schema_version") != SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA:
+            raise MissionStateError("invalid_source_review_schema", "selected source review schema is unsupported")
+        _require_binding(envelope, context)
+        review_envelope = envelope
+    if envelope.get("decision_type") != "source_safety":
+        raise MissionStateError("invalid_source_review_schema", "selected source review has the wrong type")
     replayed_observation = _validate_observation_set(
         observation_payload,
         context=context,
         selected=observation_snapshot,
+        human_attested=human_mode,
     )
     observation_identity = _observation_identity(replayed_observation, context)
     observation_manager = ImmutableAuthorityManager(
@@ -867,23 +986,16 @@ def _validate_v3_selected_source_authority(
         or expected_observation_manifest != observation_snapshot.manifest
     ):
         raise MissionStateError("invalid_source_observation_replay", "selected observation authority does not replay")
-    envelope, envelope_raw = read_json_object_strict(
-        decision_snapshot.artifact_paths["reviewed_source_safety_decisions.json"],
-        label="selected source review envelope",
-    )
-    if envelope_raw != pretty_json_bytes(envelope):
-        raise MissionStateError("noncanonical_source_review", "selected source review envelope is noncanonical")
-    require_exact_keys(envelope, SOURCE_V3_ENVELOPE_KEYS, "selected source review envelope")
-    _require_binding(envelope, context)
-    if envelope.get("observation_set") != replayed_observation:
+    if review_envelope.get("observation_set") != replayed_observation:
         raise MissionStateError("mixed_source_authority", "selected decision envelope embeds another observation set")
     observation_manifest_hash = sha256_file(observation_snapshot.set_dir / SOURCE_OBSERVATION_CONFIG.manifest_name)
     rows = _validate_v3_source_decisions(
-        envelope.get("decisions"),
+        review_envelope.get("decisions"),
         context=context,
         observation_set=replayed_observation,
         observation_set_id=observation_snapshot.set_id,
         observation_manifest_sha256=observation_manifest_hash,
+        human_attested=human_mode,
     )
     sidecar, sidecar_raw = read_json_object_strict(
         decision_snapshot.artifact_paths["reviewed_source_safety.json"],
@@ -901,7 +1013,10 @@ def _validate_v3_selected_source_authority(
         supplied_ids=sorted(row["queue_item_id"] for row in rows),
     )
     expected_sidecar = {
-        "schema_version": SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA,
+        "schema_version": (
+            SURVEY_REVIEWED_SOURCE_SAFETY_V4_SCHEMA
+            if human_mode else SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA
+        ),
         **context.binding,
         "decision_set_id": decision_snapshot.set_id,
         "observation_set_id": observation_snapshot.set_id,
@@ -1036,13 +1151,16 @@ __all__ = [
     "SOURCE_OBSERVATION_CONFIG",
     "SOURCE_SIDECAR_KEYS",
     "SURVEY_REVIEWED_SOURCE_SAFETY_V3_SCHEMA",
+    "SURVEY_REVIEWED_SOURCE_SAFETY_V4_SCHEMA",
     "SURVEY_REVIEWED_SOURCE_SAFETY_SCHEMA_VERSION",
     "SURVEY_SOURCE_OBSERVATION_SET_SCHEMA",
     "SURVEY_SOURCE_SAFETY_REVIEW_V3_SCHEMA",
+    "SURVEY_SOURCE_SAFETY_REVIEW_V4_SCHEMA",
     "_validate_decision",
     "import_reviewed_source_safety",
     "preview_source_observation_binding",
     "resolve_current_source_safety",
     "resolve_current_source_safety_sidecar_path",
+    "selected_source_human_receipt_archive",
     "source_sidecar_expected_fields",
 ]

@@ -7,6 +7,7 @@ venv/
 .env
 
 # Local research artifacts
+local_research/
 local_research/papers/raw/
 local_research/papers/extracted/
 local_research/metadata/
@@ -15,12 +16,16 @@ local_research/links/
 local_research/reviews/
 local_research/indices/
 local_research/caches/
+local_research/inbox/
+local_research/papers/source/
+local_research/governance/
 hoffman.json
 
 # Build artifacts
 build/
 dist/
 *.egg-info/
+*.whl
 proposal/*.aux
 proposal/*.log
 proposal/*.out
@@ -33,5 +38,29 @@ tests/fixtures/benchmark_papers/synthetic/*.log
 .codex
 .codex/
 .claude/
+.claude_reviews/
 out.txt
-docs/plans/
+
+# Generated validation and run output. Promotion/claim evidence is kept as
+# explicitly force-added compact records; raw payloads and replay transcripts
+# remain local and reproducible.
+docs/validation/*
+!docs/validation/.gitkeep
+
+# New planning/review notes are generated session artifacts. Existing tracked
+# history remains tracked; current promotion/claim records are force-added by
+# the closeout commit when they are selected as durable evidence.
+docs/plans/*
+docs/reviews/*
+
+# Test, coverage, and tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.sqlite
+*.sqlite3
+*.db

@@ -1,7 +1,7 @@
 # M20B0 Credential, Privacy, And Cost Decision-Setup Subplan
 
 Date: `2026-07-14`
-Status: `M20B0_CLOSED_SUCCESSORS_M20B1_M20B2_PASSED_M20B3_GIT_AUTHORITY_REQUIRED`
+Status: `M20B0_CLOSED_M20B1_M20B2_M20B3_PASSED_M20B4_EXTRA_REPAIR_AGREED_EXACT_AUTHORIZATION_REQUIRED`
 Milestone: `M20_live_discovery_and_citation_frontier`
 
 ## Phase Objective
@@ -170,11 +170,20 @@ before the frozen M20B1 command requests trusted platform/network permission.
 
 ## Successor Checkpoint - 2026-07-15
 
-M20B1 and M20B2 subsequently passed in their bounded scopes. The human selected
+M20B1 through M20B3 subsequently passed in their bounded scopes. The human selected
 `OPENALEX_API_KEY`, approved the enumerated privacy/two-occurrence canary
 contract, and set the USD `$0.01` total campaign cap. M20B2 terminal review
-agreed after material repair. The next phase is M20B3, which remains
-non-executable until new explicit human authority for its exact bounded Git
-payload, stage/commit, isolated clone, and offline wheel operation. No current
-artifact authorizes a real key, provider call, M20B4, source access, push, or
-release.
+agreed after material repair. M20B3 closed with identified commit/install
+equality and an exact reviewed packet. The next phase is M20B4, which remains
+non-executable until exact human authorization for its one packet-bound live
+attempt. No current artifact authorizes a real key, provider call, source
+access, push, or release.
+
+M20B4 pre-launch review later exhausted five material rounds with one local
+closeout signal-state defect. The packet remains unexecuted and the attempt
+unconsumed. Human direction is required before one additional narrow repair
+and terminal review; exact live authorization is not yet the next gate.
+
+The human-authorized extra local repair and terminal review subsequently
+returned `AGREE`. Exact live authorization is now the next gate again. The
+packet remains unexecuted and no credential/network action has occurred.

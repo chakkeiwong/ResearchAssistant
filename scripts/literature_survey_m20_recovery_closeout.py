@@ -461,7 +461,7 @@ def _completed_cost(root: Path) -> tuple[str, bool, str, str | None]:
         or (state == "blocked" and not isinstance(block_code, str))
     ):
         raise RecoveryCloseoutError("cost_evidence_invalid")
-    return reconciled_raw, reserved == reconciled, state, block_code
+    return reconciled_raw, state == "open" and reserved == reconciled, state, block_code
 
 
 def _validate_campaign_state(packet: dict[str, Any]) -> tuple[dict[str, Any], str]:

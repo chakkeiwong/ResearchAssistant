@@ -424,7 +424,7 @@ def test_completed_closeout_integrates_replay_cost_privacy_and_promotion(
     ("evidence", "reconciled"),
     [
         ({"reserved_cost_usd": "0.0011", "reconciled_cost_usd": "0.0011", "cost_state": "open", "cost_block_code": None}, True),
-        ({"reserved_cost_usd": "0", "reconciled_cost_usd": "0", "cost_state": "blocked", "cost_block_code": "invalid_cost_state"}, True),
+        ({"reserved_cost_usd": "0", "reconciled_cost_usd": "0", "cost_state": "blocked", "cost_block_code": "invalid_cost_state"}, False),
         ({"reserved_cost_usd": "0.001", "reconciled_cost_usd": "0", "cost_state": "blocked", "cost_block_code": "dispatch_cost_unreconciled"}, False),
     ],
 )

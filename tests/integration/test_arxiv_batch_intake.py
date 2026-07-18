@@ -250,6 +250,87 @@ def test_granted_arxiv_batch_run_accepts_candidate_file(tmp_path: Path, monkeypa
     assert result["fetched_count"] == 2
 
 
+def test_granted_arxiv_batch_run_accepts_approved_plan_file_binding(tmp_path: Path, monkeypatch) -> None:
+    candidate_file = tmp_path / "candidates.json"
+    candidate_file.write_text(FIXTURE_CANDIDATE_FILE.read_text())
+    plan = plan_arxiv_batch_intake(candidate_file=candidate_file, max_papers=2, root=tmp_path)
+    approved_plan_hash = "approved_full_plan_hash"
+    plan_file = tmp_path / "approved_plan.json"
+    plan["plan_hash"] = approved_plan_hash
+    plan["manifest_path"] = str(tmp_path / "local_research" / "governance" / "mcp" / "batch_manifests" / f"{approved_plan_hash}.manifest.json")
+    plan_file.write_text(json.dumps(plan, indent=2, sort_keys=True))
+    import hashlib
+
+    plan_file_sha256 = hashlib.sha256(plan_file.read_bytes()).hexdigest()
+    grant = create_arxiv_batch_grant(
+        plan_hash=approved_plan_hash,
+        max_papers=2,
+        root=tmp_path,
+        arxiv_ids=plan["arxiv_ids"],
+    )["grant"]
+
+    def fake_fetch(arxiv_id: str, *, root: Path | None = None, paper_id: str | None = None):
+        from research_assistant.source.structured_source import StructuredSourceRecord, source_record_path
+        from research_assistant.storage.file_store import FileStore
+        from research_assistant.config import get_paths
+
+        paths = get_paths(root)
+        record = StructuredSourceRecord(
+            paper_id=paper_id or f"paper_{arxiv_id.replace('.', '_')}",
+            source_type="arxiv_latex",
+            status="available",
+            primary_for_audit=True,
+            provenance={"arxiv_id": arxiv_id},
+        )
+        FileStore(paths.local_research).write_json(source_record_path(paths.papers_source, record.paper_id), record.to_dict())
+        return record
+
+    monkeypatch.setattr("research_assistant.ingest.arxiv_batch.fetch_arxiv_structured_source", fake_fetch)
+    result = run_arxiv_batch_intake(
+        grant_id=grant["grant_id"],
+        plan_hash=approved_plan_hash,
+        candidate_file=candidate_file,
+        plan_file=plan_file,
+        plan_file_sha256=plan_file_sha256,
+        root=tmp_path,
+    )
+
+    assert result["status"] == "completed"
+    assert result["attempted_count"] == 2
+    assert result["fetched_count"] == 2
+    manifest = json.loads(Path(result["manifest_path"]).read_text())
+    assert manifest["approved_plan_file"]["plan_hash"] == approved_plan_hash
+    assert manifest["runtime_plan_hash"] != approved_plan_hash
+
+
+def test_granted_arxiv_batch_run_blocks_plan_file_checksum_mismatch(tmp_path: Path) -> None:
+    candidate_file = tmp_path / "candidates.json"
+    candidate_file.write_text(FIXTURE_CANDIDATE_FILE.read_text())
+    plan = plan_arxiv_batch_intake(candidate_file=candidate_file, max_papers=2, root=tmp_path)
+    approved_plan_hash = "approved_full_plan_hash"
+    plan["plan_hash"] = approved_plan_hash
+    plan_file = tmp_path / "approved_plan.json"
+    plan_file.write_text(json.dumps(plan, indent=2, sort_keys=True))
+    grant = create_arxiv_batch_grant(
+        plan_hash=approved_plan_hash,
+        max_papers=2,
+        root=tmp_path,
+        arxiv_ids=plan["arxiv_ids"],
+    )["grant"]
+
+    result = run_arxiv_batch_intake(
+        grant_id=grant["grant_id"],
+        plan_hash=approved_plan_hash,
+        candidate_file=candidate_file,
+        plan_file=plan_file,
+        plan_file_sha256="wrong_sha256",
+        root=tmp_path,
+    )
+
+    assert result["status"] == "blocked"
+    assert any(issue["code"] == "plan_file_sha256_mismatch" for issue in result["issues"])
+
+
 def test_arxiv_batch_candidate_file_inspect_cli(capsys) -> None:
     rc = main([
         "arxiv-batch", "candidate-file", "inspect",

@@ -1,9 +1,18 @@
 # M21 Live Source Status And Anchor Intake Subplan
 
-Date: `2026-07-13`
-Status: `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE`
+Date: `2026-07-18`
+Status: `PASSED_G4_SEVEN_SOURCES_RETAINED_SIX_PARSED_ONE_EXPLICIT_GAP`
 Milestone: `M21_live_source_status_and_anchor_intake`
 Closes: `G4_live_source_and_anchor_intake`
+
+Completed executable child plan:
+`docs/plans/literature_survey_north_star_m21_retained_seed_source_anchor_subplan_2026-07-18.md`.
+The broader retrieval/adapter material below is historical planning context.
+The executed bounded child campaign and terminal reconciliation define the
+actual M21 evidence scope; no further M21 retrieval is required for G4.
+
+Close authority:
+`docs/plans/literature_survey_north_star_m21_source_campaign_reconciliation_2026-07-18.md`.
 
 ## Phase Objective
 
@@ -17,18 +26,31 @@ Parser output and source availability are not claim correctness or support.
 
 ## Entry Conditions Inherited From M20
 
-- M20 supplies current lineage-valid selected real candidates and complete
-  request/attempt/omission ledgers.
-- Candidate identity ambiguity relevant to source selection is either resolved
-  under exact authority or remains a blocking disposition.
-- M20 result/review and the identified commit are frozen.
-- No source/status/PDF/full-text action is authorized by M20 approval.
+- M20/G3 passed its revised source-grounded backward-discovery contract in
+  `docs/plans/literature_survey_north_star_m20_arxiv_only_close_result_2026-07-18.md`.
+- The exact retained seed source is
+  `docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000/accepted_bodies/arxiv-source.body`,
+  `26,842,514` bytes with SHA-256
+  `2eb686b1f5dd9b2fa95ed5185cfe5da4d8e93a2b7d8a294902962e9dac66bd0f`.
+- `62` unique backward candidates exist only as preliminary
+  `NOT_CHECKED`/`SOURCE_GAP_BLOCKER` rows. `195` identifier-free bibliography
+  units, unavailable forward coverage, unchecked retraction/version state, and
+  unchecked relevance remain explicit omission risks.
+- M20's exact run, route, classification, six-ledger, inventory, and replay
+  artifacts are immutable predecessor evidence. The worktree is dirty; exact
+  executed M20 sources are retained in its `execution_sources/` directory.
+- No M21 source/status/PDF/full-text retrieval, Git integration, or human review
+  action is authorized by the M20 approval or this refreshed planning shell.
 
 ## Mandatory Refresh Gate
 
 Before implementation or retrieval, the refreshed plan must bind:
 
-- exact selected candidates and identity/version requirements;
+- a bounded triage rule for the exact `62` candidates and a separate recovery
+  action for the `195` identifier-free bibliography units; neither count is a
+  relevance or completeness ranking;
+- exact selected candidates and identity/version requirements; the plan must
+  not silently treat all `62` as in-scope or technically relevant;
 - allowed domains, routes, methods, artifact/MIME types, licenses/rights,
   robots/terms handling, request/redirect/retry/time/byte/file/source caps;
 - retention, privacy, quarantine, malware/content-safety, cache, and deletion
@@ -44,6 +66,12 @@ Before implementation or retrieval, the refreshed plan must bind:
   clean-install gate before source use; and
 - which claims/sections/equations/theorems are only anchor candidates for M22,
   never automatically supported.
+
+The M20-retained seed source may be inspected locally only after an executable
+M21 plan states the exact anchor question, file/section selection, parser and
+manual-inspection method, result artifact, and nonclaims. Any additional source
+retrieval remains a separate M21 boundary. Forward-citation metadata remains
+unavailable/non-blocking and must not reappear as an M21 entry prerequisite.
 
 The plan must receive rights/privacy/boundary audit and fresh read-only
 agreement. The user must then approve the exact frozen source action; ordinary
@@ -175,3 +203,25 @@ Run local replay/regressions; write M21 result; refresh M22 from actual source
 records, anchors, gaps, and human boundaries; review M22 for consistency,
 correctness, feasibility, artifact coverage, inherited conditions, privacy,
 identity, and boundary safety; update ledger and handoff.
+
+## Phase Result - 2026-07-18
+
+The exact-seven campaign ran once with seven credential-free arXiv requests and
+zero retries. It retained seven packages within the `500,000,000` byte root cap.
+Six packages yielded `288` replayable machine anchor candidates. `1412.6980`
+retained a source package whose 298-byte TeX wrapper embeds the paper only as a
+PDF; because PDF fallback was forbidden, its correct outcome is
+`SOURCE_AVAILABLE_TEXT_PARSE_GAP_PDF_FALLBACK_OUT_OF_SCOPE`.
+
+The live root remains immutable. A focused classifier/replay repair makes this
+gap explicit and passes `13/13` focused plus `45/45` related tests. Repaired
+offline replay accepts only the exact legacy misclassification and reports
+seven retained packages, six parsed sources, one parse gap, `288` anchors, and
+zero supported claims. Claude responded to a health probe but could not read
+the bounded review packet; reviewer unavailability was recorded and is not a
+material scientific veto under the active proportional-review policy.
+
+M21/G4 verdict: `PASS_WITH_ONE_EXPLICIT_SOURCE_FORMAT_GAP`. This closes the
+bounded source/status-and-anchor milestone. It does not establish relevance,
+claim truth, mathematical correctness, publication/retraction safety,
+completeness, human review, M22, or north-star completion.

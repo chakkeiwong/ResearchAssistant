@@ -1,7 +1,7 @@
 # Literature Survey North-Star Visible Execution Ledger
 
 Date: `2026-07-13`
-Status: `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`
+Status: `M21_G4_PASSED_M22_HUMAN_BOUNDARY_OPEN`
 
 ## Ledger Contract
 
@@ -856,3 +856,339 @@ release, and completion claims remain forbidden.
 
 Gate status:
 `M20B3_LOCAL_INTEGRATION_RESUMED_EXTRA_REVIEW_AGREED_M20B4_DO_NOT_EXECUTE`.
+
+### 2026-07-15 - M20B3 - IDENTIFIED INTEGRATION AND PACKET REVIEW PASSED
+
+- Integrated the exact 61-path payload as commit
+  `7283a00ea64da2435ffc4ea1987c474389b6a25c`, tree
+  `321ce60e88f7fe918a813aa0913f948f2d728b3d`, with zero protected overlap.
+- Reproduced the payload from an isolated clone and offline wheel; all `99/99`
+  installed members match byte-for-byte. Installed synthetic validation passed
+  11 scenarios with no network or real credential access and exact
+  `$0.0011/$0.01` cost closure.
+- Source/staged/isolated checks passed `54`, `227`, `232`, `288`, and `977`
+  tests in their declared suites. Three tooling/fixture/command-path mismatches
+  are preserved as non-evidence.
+- Installed packet preflight and exact packet review passed; the reviewer
+  returned `AGREE`. The live root remains absent and the packet was not run.
+- M20B4 requires exact human authorization for one packet-bound attempt. No
+  credential, provider, source, M21, push, release, retry/rerun, or completion
+  authority is implied.
+
+Gate status:
+`M20B3_PASSED_PACKET_REVIEW_AGREED_M20B4_EXACT_HUMAN_AUTHORIZATION_REQUIRED`.
+
+### 2026-07-16 - M20B4 - BLOCKED AFTER FIVE PRE-LAUNCH REVIEW ROUNDS
+
+- Five material subplan/closeout review rounds ended `REVISE`. Round 5 found
+  that `supervisor_lifecycle_error` incorrectly accepts TERM-bearing and
+  two-KILL histories that the installed producer cannot publish while retaining
+  that classification.
+- Round-4 repairs otherwise close malformed completed inventory and privacy
+  promotion, and the credential-free checks pass `33` closeout plus `100`
+  combined closeout/worker/supervisor tests.
+- Exact round-5 reviewed hashes are pre-blocker-status subplan
+  `7c975aa9...932b5`, utility `dad93fce...f1242`, tests
+  `597ad861...f513`, packet
+  `c3e250b0...d77ce`, and contract `475b15f8...fda`.
+- No live authorization was requested or used. The packet was not invoked, no
+  credential was read, no provider/network call occurred, both roots remain
+  absent, the Git index is empty, and the one-attempt budget is unconsumed.
+- Active blocker:
+  `docs/plans/literature_survey_north_star_m20b4_review_nonconvergence_blocker_result_2026-07-16.md`.
+
+Gate status:
+`BLOCKED_M20B4_REVIEW_NONCONVERGENCE_AFTER_FIVE_ROUNDS_NO_LIVE_ACTION`.
+
+Next action: obtain human direction for one additional local repair and one
+terminal review round limited to the `supervisor_lifecycle_error` signal set
+and focused tests. Do not launch M20B4 or cross any external boundary.
+
+### 2026-07-16 - M20B4 - EXTRA LOCAL SIGNAL-PREDICATE REPAIR COMPLETE
+
+- The human authorized exactly one extra local repair and one terminal review
+  limited to `supervisor_lifecycle_error` signal validation and focused tests.
+- Closeout now permits only no signal or one cleanup KILL while retaining that
+  classification. TERM-bearing, two-KILL, and TERM/KILL histories fail closed
+  with no affirmative process or privacy claim.
+- Closeout tests pass `37/37`; combined closeout/worker/supervisor tests pass
+  `104/104`. Compile, JSON, diff, packet preflight, root, process, hash, and
+  empty-index checks pass with the credential removed and GPU hidden.
+- Repaired hashes are closeout `a486771c...ce42d7` and tests
+  `febedf71...52e1d`. The packet remains `c3e250b0...d77ce`, unexecuted, and
+  the one-attempt budget remains unconsumed.
+
+Gate status:
+`M20B4_EXTRA_LOCAL_REPAIR_COMPLETE_TERMINAL_REVIEW_REQUIRED_NO_LIVE_ACTION`.
+
+Next action: one fresh read-only terminal review of the exact repaired hashes.
+No credential, provider, M20B4 launch, source, M21, push, or release action is
+authorized.
+
+### 2026-07-16 - M20B4 - SINGLE LIVE ATTEMPT CONSUMED, TERMINAL STOP
+
+- The human authorized exactly one invocation bound to packet
+  `c3e250b0...d77ce`, contract `475b15f8...fda`, key-owner permission, and the
+  USD `$0.01` cap.
+- Pre-launch credential-free checks passed `104/104`; installed packet
+  preflight, hashes, root/process/index, JSON, compile, and diff checks passed.
+- The exact executable was invoked once and returned closed exit code `2`
+  after `79.054856` seconds. No live root or supervisor manifest exists.
+- Credential-free closeout wrote all five required result JSON artifacts. The
+  classification is `early_supervisor_exit_no_manifest`; all unsupported
+  credential, provider, network, cost, privacy, request, and candidate fields
+  remain `not_established`.
+- Post-closeout checks pass `104/104`; all result JSON parses, no matching
+  process exists, the live root remains absent, and the Git index remains
+  empty.
+- No retry or rerun is authorized. The result is an infrastructure/evidence
+  boundary stop, not a provider failure or scientific negative result.
+
+Result:
+`docs/plans/literature_survey_north_star_m20b4_one_exact_live_attempt_result_2026-07-15.md`.
+
+Gate status:
+`BLOCKED_M20B4_EARLY_SUPERVISOR_EXIT_NO_MANIFEST_ATTEMPT_CONSUMED_NO_RERUN_HUMAN_DIRECTION_REQUIRED`.
+
+Terminal review converged at round 3 after documentation-only repairs. The
+fresh Codex fallback returned `AGREE` on terminal-result SHA-256
+`a4170d0f...ac14`; no runtime, packet, result JSON, credential, provider,
+network, or live action changed.
+
+Next action: stop for human direction. Any future live M20 campaign requires a
+new plan, packet, budget, versioned output root, and explicit authority. Do not
+rerun, reacquire the credential, start M21, push, release, or claim completion.
+
+### 2026-07-18 - M20 CREDENTIAL-FREE SUCCESSOR - TERMINAL IMPLEMENTATION FAILURE
+
+- The previous key-dependent campaign is terminally invalidated because the
+  project has no OpenAlex API key. The active replacement uses no account,
+  credential, cookie, or authorization header.
+- A fresh audited two-request plan authorized at most one arXiv source request
+  and, only after safe non-empty parsing, one anonymous OpenAlex forward query,
+  with no retry or rerun.
+- Pre-launch checks passed `75/75` related CPU-only tests plus compile, JSON,
+  diff, retained-input, and credential-surface checks. Claude export was
+  platform-rejected as an untrusted destination; no workaround was attempted.
+- The single invocation dispatched only arXiv and stopped after `1.3193`
+  seconds on `response_redirect_forbidden`. It retained no body, did not
+  dispatch OpenAlex, used no retry, and incurred USD `$0` OpenAlex usage.
+- Terminal review classified the failure as implementation error: executed
+  code required an identical redirect path/query although the plan allowed
+  redirects within `arxiv.org`/`export.arxiv.org`. The exact rejected URL is
+  not established because it was not retained.
+- Executed source bytes are preserved under the validation root. Future code
+  repairs the predicate, persists only sanitized URL shape, passes `28/28`
+  focused and `76/76` cumulative related tests, and has not been live run.
+
+Result:
+`docs/plans/literature_survey_north_star_m20_credential_free_live_successor_result_2026-07-18.md`.
+
+Gate status:
+`M20_CREDENTIAL_FREE_LIVE_SUCCESSOR_TERMINAL_IMPLEMENTATION_FAILURE_ATTEMPT_CONSUMED_NO_RETRY_M21_BLOCKED`.
+
+Next action: stop. A new plain-language authorization is required for one fresh
+credential-free external attempt against the repaired runner. Do not reuse the
+consumed invocation, start M21, publish source, push, release, or claim M20 or
+north-star completion.
+
+### 2026-07-18 - M20 REPAIRED CREDENTIAL-FREE ATTEMPT - SOURCE CAP VETO
+
+- The user authorized one fresh invocation of the repaired credential-free
+  runner under a new plan and fresh validation root.
+- Pre-launch gates passed `28/28` focused and `76/76` cumulative related
+  CPU-only tests plus compile, diff, identity/crosswalk, fresh-root, plan, and
+  credential-surface checks.
+- The invocation dispatched arXiv once and closed after `1.684946` seconds on
+  `response_cap_exceeded`. It accepted no body, did not contact OpenAlex, made
+  no retry, and incurred USD `$0` OpenAlex usage.
+- Terminal artifacts parse and record one dispatch/zero retries. The exact
+  dirty-worktree plan, runner, and worker bytes are preserved under the
+  validation root with manifest-matching hashes.
+- The host UTC clock stepped backward during execution, so raw completion time
+  precedes raw start time. UTC ordering is unsupported; the positive monotonic
+  `1.684946`-second elapsed time remains valid.
+- This is an enforced resource-boundary veto, not evidence that arXiv is
+  unavailable/unsafe, candidates are absent, or the scientific direction
+  failed. Declared-length versus streamed overflow is not established.
+
+Result:
+`docs/plans/literature_survey_north_star_m20_credential_free_repaired_attempt_result_2026-07-18.md`.
+
+Gate status:
+`M20_REPAIRED_CREDENTIAL_FREE_ATTEMPT_TERMINAL_SOURCE_CAP_VETO_ATTEMPT_CONSUMED_M21_BLOCKED`.
+
+Next action: stop. Reassess the source cap and retention budget locally. A
+higher-cap live attempt requires a revised plan, numeric cap, and new
+plain-language authority. Do not start M21, publish source, push, release, or
+claim M20/north-star completion.
+
+### 2026-07-18 - M20/G3 ARXIV-ONLY GOVERNANCE MIGRATION - ACTIVE
+
+- The user replaced the provider-dependent G3 exit criteria with bounded arXiv
+  source intake, backward-reference extraction, preliminary candidate
+  classification, omission-risk analysis, and deterministic replay.
+- All earlier provider-dependent plans, packets, results, and roots remain
+  immutable historical evidence and are no longer active authority.
+- Forward-citation coverage is recorded as `unavailable_out_of_scope` with
+  `blocking=false`; it cannot be represented as zero or used as an M20
+  continuation veto.
+- The source-only worker and runner expose one arXiv route and no credential
+  interface. Focused checks pass `15/15`; the related M20 regression slice
+  passes `115/115`, deliberately CPU-only.
+- The user already authorized exactly one new invocation with a
+  `500,000,000` byte arXiv response cap and a `500,000,000` byte evidence-root
+  cap, with zero retries or reruns.
+
+Evidence contract: exact retained seed source, safe bounded archive parsing,
+non-empty canonical backward candidates, complete preliminary classifications
+and six scholarly ledgers, raw-source confinement, explicit omission risks,
+and exact offline replay. Forward coverage, relevance, technical support,
+completeness, retraction safety, scientific correctness, and north-star
+completion are nonclaims.
+
+Gate status: `LOCAL_IMPLEMENTATION_GREEN_BROADER_LAUNCH_READINESS_PENDING`.
+
+Next action: complete compile/static/JSON/diff and program-consistency checks,
+record the skeptical audit as `PASS`, then invoke the authorized arXiv-only
+runner exactly once in a fresh validation root. Do not add another provider
+probe, credential gate, approval token, retry, or rerun.
+
+### 2026-07-18 - M20/G3 ARXIV-ONLY ATTEMPT - PASSED
+
+- Local launch-readiness closed with `15/15` focused and `115/115` related
+  CPU-only tests, compile, JSON, route/interface, identity/fresh-root, and diff
+  checks. The skeptical plan audit was changed to `PASS` only after preserving
+  exact dirty-worktree execution sources.
+- The sole invocation dispatched exactly one public arXiv source request and
+  made zero retries. It retained `26,842,514` bytes with SHA-256
+  `2eb686b1f5dd9b2fa95ed5185cfe5da4d8e93a2b7d8a294902962e9dac66bd0f`.
+- Safe archive inspection observed `106` members and `27,857,376` declared
+  expanded bytes; `5` relevant members totaled `190,654` bytes.
+- `264` bibliography units yielded `62` unique canonical candidates. All stay
+  `NOT_CHECKED`/`SOURCE_GAP_BLOCKER`; `195` identifier-free units are an
+  explicit omission risk.
+- Six scholarly ledgers, raw-source confinement, four preserved execution
+  sources, all `17` inventory rows, and independent offline replay pass.
+- Forward coverage is `unavailable_out_of_scope`, `blocking=false`, and not
+  represented as zero.
+
+Result:
+`docs/plans/literature_survey_north_star_m20_arxiv_only_close_result_2026-07-18.md`.
+Evidence:
+`docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000/`.
+
+Gate status: `PASSED_REVISED_M20_G3_SOURCE_GROUNDED_BACKWARD_DISCOVERY`.
+
+Next action: do not rerun M20 and do not reopen provider feasibility. Refresh
+and review M21 around the exact retained source, `62` preliminary candidates,
+`195` identifier-free units, source-status/rights/version checks, and technical
+anchor questions. M21 execution is not authorized by this result.
+
+### 2026-07-18 - M21 LOCAL SOURCE/ANCHOR AND CONTEXT TRIAGE - PASSED
+
+- The exact M20 seed body matches the existing project-native source record by
+  size and SHA-256.
+- An inherited `24`-anchor convenience default initially selected sections
+  only. The preserved diagnostic triggered a target-specific repair to all `53`
+  eligible anchors: `24` sections, `18` labeled equations, and `11` labeled
+  theorem-like blocks.
+- Exact final anchor semantic replay passed with zero supported claims, zero
+  local source gaps, no raw source, retraction/version status not checked, and
+  `ready_for_prose=false`. Related tests passed `75`, with `122` deselected.
+- Local context triage accounted for all `62` M20 identifier-bearing
+  candidates. Only `7` are cited in the seed text; `55` are unused entries in
+  bundled BibTeX and remain deferred omission risks, not relevance rejections.
+- The corrected triage worker passed `10` focused and `104` related tests and
+  deterministically nominated exactly the seven source-located candidates.
+
+Results:
+`docs/plans/literature_survey_north_star_m21_retained_seed_source_anchor_result_2026-07-18.md`;
+`docs/plans/literature_survey_north_star_m21_candidate_context_triage_result_2026-07-18.md`.
+
+Gate status: `M21_LOCAL_SLICES_PASSED_G4_REMAINS_OPEN`.
+
+### 2026-07-18 - M21 SEVEN-SOURCE CAMPAIGN - AUTHORIZATION BOUNDARY
+
+- The exact seven-ID, credential-free, source-only campaign plan passed its
+  skeptical audit after `9` focused and `113` related tests, compile, static
+  boundary, JSON, fresh-root, free-space, diff, provenance, and replay gates.
+- The managed platform rejected the launch before process creation because
+  explicit M21 public-source authorization is required.
+- The campaign root is absent, no process exists, and zero requests/retries,
+  credentials, provider, PDF, Git, push, or release actions occurred.
+- The campaign invocation remains unconsumed. This is not a source/provider or
+  scientific result.
+
+Boundary result:
+`docs/plans/literature_survey_north_star_m21_seven_source_launch_boundary_result_2026-07-18.md`.
+
+Gate status: `EXPLICIT_M21_PUBLIC_SOURCE_AUTHORIZATION_REQUIRED`.
+
+Next action: obtain explicit authorization for exactly the reviewed seven
+arXiv source requests under the plan's caps and exclusions, refresh final local
+hash/fresh-root checks, and launch once. Do not reopen M20/provider feasibility
+or add token/hash approval ceremony.
+
+### 2026-07-18 - M21 PUBLIC SOURCE AUTHORIZATION RECEIVED
+
+The user explicitly approved M21. Scope is exactly the reviewed seven-source
+campaign: seven credential-free arXiv source requests, zero retries/reruns, no
+PDF fallback, `100 MB` per source, `500 MB` total root, no extra routes/IDs,
+and no M22/Git/push/release/completion action. Final local refresh and one
+campaign launch are now authorized.
+
+### 2026-07-18 - M21 SEVEN-SOURCE CAMPAIGN - PASSED WITH EXPLICIT PARSER GAP
+
+- The authorized invocation ran once and dispatched exactly seven public arXiv
+  source requests. Retries were zero, seven source packages were retained, and
+  the immutable root remains below its `500,000,000` byte cap.
+- Six source packages yielded `288` machine anchor candidates. The exact
+  retained `1412.6980` package contains a 298-byte `\\includepdf` TeX wrapper;
+  PDF fallback is forbidden, so its corrected outcome is
+  `SOURCE_AVAILABLE_TEXT_PARSE_GAP_PDF_FALLBACK_OUT_OF_SCOPE`.
+- The original root was not edited. Preserved-source replay passes. The active
+  classifier/replay repair passes `13/13` focused tests and `45/45` related
+  M20/M21/arXiv tests, and repaired offline reconciliation reports six parsed,
+  one parse gap, seven retained packages, and zero supported claims.
+- Claude returned a health probe but did not complete the bounded packet read;
+  this advisory reviewer limitation does not override the local evidence.
+
+Result:
+`docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_result_2026-07-13.md`.
+Detailed reconciliation:
+`docs/plans/literature_survey_north_star_m21_source_campaign_reconciliation_2026-07-18.md`.
+
+Gate status: `PASSED_G4_SIX_PARSED_ONE_EXPLICIT_SOURCE_GAP`.
+
+Next action: refresh M22 planning from the exact source/gap/anchor handoff.
+M22 remains non-executable until genuine human attestation/privacy policy,
+frozen mission matrix, identified execution bytes, and actual human
+participation are satisfied. Do not retry M21, use PDF fallback, reopen
+provider feasibility, or claim north-star completion.
+
+### 2026-07-18 - M22B0 PRODUCTION QUEUE RECONCILIATION - PASSED
+
+- A dedicated retained-evidence schema preserves the ordinary fixture-only V2
+  source-intake route unchanged.
+- The production root replays all `62` M20 candidates, `195` identifier-free
+  units, seven source-backed papers, one explicit `1412.6980` parse gap, `341`
+  machine anchor rows, zero supported claims, and unavailable nonblocking
+  forward coverage.
+- The selected queue has `73` items: `7` claim, `7` source-safety, `58`
+  omission, and `1` workflow-blocker item.
+- Focused tests pass `3/3`; the related artifact/review/M22 regression slice
+  passes `270/270`; compile, JSON, static boundary, replay, and diff checks pass.
+- The human packet is fresh and explicitly unattested. Its SHA-256 is
+  `0e2fe0a04a93a7dc418434cbe8fd87d20b3a8df65fd127beba0e95bf09b9a7e0`.
+
+Result:
+`docs/plans/literature_survey_north_star_m22b0_production_queue_reconciliation_result_2026-07-18.md`.
+
+Gate status: `M22B_READY_FOR_GENUINE_HUMAN_PARTICIPATION`.
+
+Next action: a genuine human reviews the exact four-family packet and supplies
+the attestation and decisions. Codex, Claude, fixtures, and automation must not
+fill them. This explicit-seed queue does not replace the still-required frozen
+idea/topic-start representative mission replay. M22, M23, and the north-star
+mission remain incomplete.
