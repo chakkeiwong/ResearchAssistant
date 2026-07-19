@@ -1,7 +1,7 @@
 # Literature Survey North-Star Gap-Closure Master Program
 
-Date: `2026-07-13`
-Status: `M22B0_PASSED_M22B_READY_FOR_GENUINE_HUMAN_PARTICIPATION`
+Date: `2026-07-19`
+Status: `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE`
 
 ## North-Star Mission
 
@@ -26,10 +26,11 @@ establishes identified local Git/install reproducibility in the observed
 environment. Live bootstrap quality remains outside M17/M18.
 
 The workflow asks once for bounded public discovery, persists that decision,
-executes every permitted local and public discovery step, exposes genuine human
-review boundaries rather than hiding them, and produces either:
+executes every permitted local and public discovery step, exposes source,
+scientific-uncertainty, and external-action boundaries rather than hiding them,
+and produces either:
 
-- a lineage-valid, human-reviewed packet ready for reviewed prose within its
+- a lineage-valid, source-grounded qualitative assessed terminal within its
   recorded scope; or
 - an honest terminal or boundary stop with the exact smallest next action.
 
@@ -59,9 +60,10 @@ That invocation has now passed. The close authority is
 `docs/plans/literature_survey_north_star_m20_arxiv_only_close_result_2026-07-18.md`
 and the immutable evidence root is
 `docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000/`.
-Revised M20/G3 and bounded M21/G4 are complete. M22 is the active planning
-milestone and remains non-executable until its genuine-human, privacy,
-frozen-matrix, execution-byte, and participation boundaries are satisfied.
+Revised M20/G3, bounded M21/G4, qualitative M22/G5-G6, and operational M23/G7
+are complete within their recorded local scopes. Retired binary-human,
+numeric-score, credential-provider, and custom terminal-control gates are not
+continuation prerequisites.
 
 M21 has completed its bounded source/anchor milestone. Exact retained
 seed source/anchor replay and all-`62` candidate context triage. The first
@@ -75,10 +77,38 @@ sources, `288` machine anchors, and one explicit
 `1412.6980`. The immutable root replay and repaired offline reconciliation pass
 under `docs/plans/literature_survey_north_star_m21_source_campaign_reconciliation_2026-07-18.md`.
 M21/G4 is closed within this bounded scope. M22A human-attestation engineering
-and M22B0 retained-evidence production reconciliation now pass locally. One
-production-selected `73`-item queue and a fresh unattested packet exist. M22B
-is ready for genuine human participation, but no genuine-human decision or
-representative mission replay has occurred.
+and M22B0 retained-evidence production reconciliation pass locally as
+historical engineering work. The active M22 scientific interface has since
+been simplified: the `73`-item binary review and numeric-score experiments are
+retired as active requirements. M22 now produces source-grounded qualitative
+assessments of merits, concerns, uncertainties, evidence references, and next
+actions. Researcher correction remains useful, but generic human attestation is
+not scientific evidence or an M22 continuation veto.
+
+The first material M22 omission-risk expansion has now passed. The exact `55`
+deferred identifier-bearing rows replay from retained BibTeX, including `13`
+corrected nested-brace titles, and remain grouped as provisional title context.
+Exactly five predeclared high-risk papers received one credential-free arXiv
+source request each, zero retries, five parsed technical sources, offline
+replay, and method/theory/evaluation/limitation inspection. Their scoped roles
+are one failure-analysis source, one regularized direct method, and three
+direct methods. The refreshed qualitative bundle has `16` assessments and no
+claim/prose promotion. Fifty identifier-bearing rows and `195` identifier-free
+units remain explicit omission risks.
+
+M22 representative real missions have now passed. The active V2 matrix froze
+exactly nine local cases and the repaired `_r2` evidence root replays all nine.
+Both topic-start and explicit-seed paths reach
+`ASSESSED_TERMINAL_WITHIN_RECORDED_SCOPE`; source, forward-coverage, and
+omission limitations remain visible; correction and adversarial-boundary cases
+behave as declared; and no claim or prose promotion occurs. The topic case is
+`retained_production_topic_replay`, joining the M17 deterministic topic-only
+selection fixture to retained production evidence. It is not live topic-
+discovery validation. M22 is closed within recorded scope. M23 then passed the
+offline clean-install, external-working-directory command, replay, tamper,
+documentation, and limitation-consistency matrix from the dirty working tree.
+Versioned clean-checkout reproduction remains pending; all scientific
+nonclaims below remain active.
 
 M18 passed as `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` at candidate
 `654e6e1a1213bc03b7693ff1a8aea945a5bf08ac`. It integrates the M17-passed
@@ -177,15 +207,21 @@ only. No detached runner is authorized.
 | M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `PASSED_G4_SIX_PARSED_ONE_EXPLICIT_GAP` |
 | M22B0 result | `docs/plans/literature_survey_north_star_m22b0_production_queue_reconciliation_result_2026-07-18.md` | `PASSED_READY_FOR_GENUINE_HUMAN_PARTICIPATION` |
 | M22B subplan | `docs/plans/literature_survey_north_star_m22b_genuine_human_review_subplan_2026-07-18.md` | `READY_FOR_GENUINE_HUMAN_PARTICIPATION` |
-| M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE` |
+| M22 active matrix/result | `docs/plans/literature_survey_north_star_m22_representative_real_missions_result_2026-07-19.md` | `M22_PASSED_WITHIN_RECORDED_QUALITATIVE_SCOPE` |
+| M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `M23_DIRTY_WORKTREE_OPERATIONAL_PASS_VERSIONED_CLOSE_PENDING` |
+| M23 result | `docs/plans/literature_survey_north_star_m23_operational_acceptance_result_2026-07-19.md` | `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE` |
 | Setup result | `docs/plans/literature_survey_north_star_program_setup_result_2026-07-13.md` | `PROGRAM_SETUP_PASSED_M17_READY_NOT_STARTED` |
 | Setup blocker history | `docs/plans/literature_survey_north_star_program_setup_review_nonconvergence_blocker_2026-07-13.md` | Resolved by user-authorized extra governance repair and `AGREE` |
 | Extra governance verdict | `docs/reviews/literature_survey_north_star_program_setup_governance_extra_authorized_review_verdict_2026-07-13.md` | `VERDICT: AGREE` |
 
 Declared milestone result paths are indexed in the visible runbook. M17-M19
 results and the intermediate M20A-M20B4 records now exist. Revised M20/G3 and
-M21/G4 have passed result artifacts. M22-M23 result paths remain future outputs
-and must remain absent until the corresponding milestone runs.
+M21/G4 and M22/G5-G6 have passed result artifacts. M23 has a dirty-worktree
+operational pass, but terminal Review Round 3 found that the current commit does
+not contain the supporting implementation, tests, scripts, and compact evidence.
+The versioned clean-checkout close is pending, and the accomplished label is
+withdrawn until the exact integration candidate is committed and reproduced
+from a clean checkout.
 At each M17-M22 handoff, the next subplan must be refreshed from actual
 predecessor artifacts and reviewed before execution. M23 instead closes through
 its terminal completion/blocker handoff. These initial M18-M23 shells do not
@@ -201,9 +237,9 @@ acceptance environments.
 | G2 Bounded live metadata | One exact four-request attempt at `f06ceb7` is boundary-valid, ledger-complete, replay-valid `14/14`, and terminally reviewed; budget consumed | Converged hardening and parent plan, fresh exact approval, then one boundary-valid metadata-only attempt with a closed request ledger | Closed for bounded engineering only; no provider-quality claim | M19 |
 | G3 Source-grounded backward discovery | One retained `26,842,514` byte exact seed source yielded `62` unique preliminary backward candidates; six scholarly ledgers, explicit `195` identifier-free-unit risk, non-blocking forward-unavailable state, and replay all validate | Exact retained arXiv seed source, safe archive inspection, canonical backward candidates, explicit preliminary classification and omission-risk ledgers, honest non-blocking forward-unavailable state, and deterministic replay | Closed under revised scope; no relevance/completeness claim | M20 |
 | G4 Real source/status and anchors | Seven bounded arXiv source packages are retained; six yield `288` machine anchors and one is an explicit PDF-wrapper text-parse gap; replay passes and supported claims remain zero | Approved bounded public-source intake, mission-local hashed records, honest parser/source gaps, and unpromoted anchor candidates | Closed within the seven-source credential-free scope; no claim/retraction/completeness conclusion | M21 |
-| G5 Genuine human review | V4 receipt engineering and a production-selected `73`-item packet pass; the packet is explicitly unattested | Genuine human identity/attestation and exact decisions for claims, safety, omissions, and workflow blockers | Human participation pending | M22 |
-| G6 Representative real missions | One fixture positive and ten fixture negatives validate engineering behavior | Predeclared real-mission matrix, at least one within-scope reviewed terminal, honest failures/stops, and independent evidence audit | Missing | M22 |
-| G7 Operational/usability closeout | Command exists but README/installation/operator path does not yet establish the north-star workflow from clean install | Independent clean-install operator acceptance, documentation, recovery, compatibility, known limitations, and reconciled capability claims | Missing | M23 |
+| G5 Qualitative scholarly assessment | Legacy V4 receipt engineering and a 73-item packet remain historical; the active interface has 16 source-grounded qualitative assessments, a replayed 55-row frontier, and five inspected omission-risk papers | Readable merits/concerns/uncertainties with exact source anchors, deterministic source gates, explicit nonclaims, and no generic-human or numeric prerequisite | Active interface passed within current source scope | M22 |
+| G6 Representative real missions | Active V2 matrix has nine replay-valid cases; topic and explicit-seed paths reach assessed terminals; limitations and adversarial rejects remain explicit | Predeclared local real-mission matrix, at least one within-scope assessed terminal, honest failures/stops, and independent evidence audit | Closed within recorded M22 scope; no live topic-quality or completeness claim | M22 |
+| G7 Operational/usability closeout | Dirty-worktree offline wheel installs; installed commands run from an external cwd; topic/seed stops, resume, qualitative assessment, generated M22 replay, tamper rejection, and documentation consistency pass | The same behavior reproduced from an identified clean checkout containing all runtime, test, document, and compact-evidence dependencies | Pending versioned clean-checkout close; no human-usability, cross-platform, live-topic, product, or release claim | M23 |
 
 ## Skeptical Plan Audit
 
@@ -222,23 +258,24 @@ Findings and corrections:
    Phase 10 surfaces but cannot by itself prove all Phase 1-9 product/runtime
    dependencies are committed. M18 must regenerate a transitive include set.
 4. A Phase 11 metadata smoke is a boundary/integration diagnostic only. It
-   cannot close citation recall, source retrieval, human review, or product
+   cannot close citation recall, source retrieval, scientific assessment, or product
    usability gaps.
 5. Existing `source-fetch`, PDF, and download commands are not automatically
    approved production transports for the one-command mission. M21 must adapt
    or wrap them under the exact mission capability, lineage, caps, rights, and
    write-root contract.
-6. A string such as `human_reviewed_passed` is not authentication. M22 requires
-   genuine attestation and an operator audit trail; model or fixture output may
-   remain advisory only.
+6. A string such as `human_reviewed_passed` is not scientific evidence. The
+   active M22 interface requires source-grounded qualitative interpretation,
+   exact nonclaims, and an evidence audit; legacy receipt mechanics are not
+   continuation authority.
 7. One successful topic cannot establish reliability or completeness. M22 uses
    a small predeclared mission matrix and interprets provider/result counts as
    descriptive only.
 8. `ready_for_prose` is a within-recorded-scope workflow terminal, not a
    scientific or product-readiness certificate.
-9. Git integration, network access, source/PDF retrieval, and genuine human
-   decisions are separate authority boundaries. No milestone may infer one
-   authorization from another.
+9. Git integration, network access, source/PDF retrieval, scientific claim
+   promotion, and external human decisions are separate authority boundaries.
+   No milestone may infer one authorization from another.
 
 With these corrections, the program's artifacts answer their stated questions
 without treating proxies as promotion evidence.
@@ -247,13 +284,13 @@ without treating proxies as promotion evidence.
 
 | Field | Contract |
 | --- | --- |
-| Engineering/product question | Can a clean-installed RA take a real topic or paper through one-confirmation bounded discovery, real source evidence, genuine human review, and exact terminal packet/stop behavior using documented operations? |
+| Engineering/product question | Can a clean-installed RA take a real topic or paper through one-confirmation bounded discovery, real source evidence, qualitative scholarly assessment, and exact terminal packet/stop behavior using documented operations? |
 | Baseline | M16 local integrated alpha on the preserved dirty worktree. |
-| Primary completion criterion | M17-M23 pass in order; an independent operator reproduces the documented clean-install workflow; at least one predeclared real mission reaches `terminal_ready_for_reviewed_prose_within_recorded_scope`; all other missions and failures preserve honest exact boundaries. |
+| Primary completion criterion | M17-M23 pass in order; an independent operator reproduces the documented clean-install workflow; at least one predeclared real mission reaches an assessed terminal within recorded scope; all other missions and failures preserve honest exact boundaries. |
 | Hard vetoes | Untracked runtime dependency; unapproved Git/network/source action; outside write; stale/foreign authority; false human attribution; technical claim without checked source/derivation; hidden review or omission blocker; false readiness; undocumented manual reconstruction. |
 | Explanatory diagnostics | Provider counts, citation counts, candidate volume, latency, bytes, parser yield, review duration, and user task time. |
-| Not concluded | Literature completeness, universal claim truth, scientific correctness across domains, provider exhaustiveness/reliability at scale, autonomous human review, unattended production readiness, or authority for private/paid/unbounded sources. |
-| Preserving artifacts | Per-milestone subplans/results/manifests, request and source ledgers, human attestation receipts, real-mission packets, independent reviews, operator acceptance record, final closeout. |
+| Not concluded | Literature completeness, universal claim truth, scientific correctness across domains, provider exhaustiveness/reliability at scale, autonomous expert judgment, unattended production readiness, or authority for private/paid/unbounded sources. |
+| Preserving artifacts | Per-milestone subplans/results/manifests, request and source ledgers, qualitative assessments, historical compatibility receipts, real-mission packets, independent audits, operator acceptance record, final closeout. |
 
 ## Research Intent Ledger
 
@@ -381,60 +418,64 @@ Required work:
    quarantine/retraction/erratum signals.
 4. Preserve unavailable, inaccessible, ambiguous-version, parser-failed, and
    source-gap outcomes.
-5. Validate anchors against exact source bytes; leave correctness and support
-   decisions to M22 human review.
+5. Validate anchors against exact source bytes; leave scoped interpretation to
+   M22 qualitative assessment and reserve final scientific claim promotion for
+   evidence that actually supports it.
 
 Exit evidence: source/status records, observations, anchor inventories,
 quarantine/gap ledgers, boundary logs, and independent review.
 
-### M22 - Human-Attested Review And Real Missions
+### M22 - Qualitative Scholarly Assessment And Real Missions
 
-Objective: demonstrate the actual evidence workflow with genuine human
-decisions rather than fixture-shaped authority.
+Objective: demonstrate the actual evidence workflow through readable,
+source-grounded scholarly assessments and representative real missions.
 
 Required work:
 
-1. Define reviewer identity/attestation, role, conflict, timestamp, correction,
-   supersession, audit-log, and privacy policy.
-2. Provide an operator-facing UI or documented form/CLI that renders exact
-   source anchors and queue context and emits immutable decision receipts.
+1. Generate concise paper/claim/omission assessments with summary, merits,
+   concerns, unresolved uncertainties, exact source references, and next action.
+2. Provide a researcher-facing report/CLI that renders exact source anchors and
+   allows direct corrections without numeric scoring or identity ceremony.
 3. Predeclare a small mission matrix covering a real idea/topic start,
    identifier seed, title seed, sparse sources, provider partial/unavailable,
-   open omission, and successful reviewed path. Do not choose cases after
-   seeing outcomes. At least one successful reviewed terminal must begin from
+   open omission, and successful assessed path. Do not choose cases after
+   seeing outcomes. At least one successful assessed terminal must begin from
    the production idea/topic bootstrap route.
-4. Collect genuine claim, source-safety, omission, and workflow decisions.
-5. Run merge, reviewed packet, hostile review, resume, and terminal behavior.
+4. Preserve deterministic provenance/source-safety checks and record qualitative
+   scientific interpretations separately.
+5. Run representative mission, resume, and terminal behavior with honest
+   limitations; do not require a receipt transaction merely to express an
+   uncertain scholarly judgment.
 6. Separate harness/boundary invalidity from a candidate mission failure; a
    failed candidate triggers the planned repair/next case unless a continuation
    veto fires.
 
-Exit evidence: at least one within-scope reviewed terminal, honest outcomes for
-the complete matrix, human attestation receipts, exact source links, and an
-independent evidence audit.
+Exit evidence: at least one within-scope assessed terminal, honest outcomes for
+the complete matrix, exact source links, readable qualitative assessments, and
+an independent evidence audit. Human attestation receipts are compatibility
+artifacts, not an active scientific exit criterion.
+
+M22 close status: the readable assessment interface, exact source links,
+55-row omission triage, bounded five-paper source inspection, refreshed
+qualitative bundle, nine-case representative matrix, assessed topic/seed
+terminals, and terminal evidence audit all pass within recorded scope.
 
 ### M23 - North-Star Acceptance And Operational Closeout
 
 Objective: ensure another operator can use and recover the workflow from a
 clean install without hidden reconstruction.
 
-Required work:
+Close status: passed through an offline wheel installed with `PYTHONPATH`
+unset, package-index access disabled, and installed commands executed from an
+external temporary working directory. The nine-case matrix covers command
+discovery, topic confirmation and unavailable terminals, explicit-seed local
+skeleton and unchanged resume, qualitative nonpromotion, M22 replay, copied
+artifact tamper rejection, and documentation/capability consistency.
 
-1. Update README, installation, quickstart, review operator guide,
-   troubleshooting, privacy, recovery, and known-limitations documents.
-2. Run an independent documentation-only clean-install acceptance session from
-   an idea/topic through production bootstrap to
-   `terminal_ready_for_reviewed_prose_within_recorded_scope`.
-3. In separate acceptance cases, demonstrate honest boundary stops plus
-   interruption/resume, provider partial, source gap, stale
-   artifact, corrected review, and terminal handoff behavior.
-4. Reconcile mission control, machine milestones, reset memo, capability
-   statement, compatibility matrix, and release manifest.
-5. Conduct final hostile code/evidence/documentation review and repair until
-   agreement or the declared cap.
-
-Exit evidence: operator acceptance record, final capability/limitation matrix,
-release manifest, independent review, and north-star close record.
+Exit evidence: final fresh-process acceptance root, capability/limitation
+matrix, command ledger, deterministic replay, affected regression gate,
+terminal read-only audit, and the ordinary north-star close record. This is not
+a human usability study and does not authorize publication or release.
 
 ## Cross-Milestone Repair Loop
 
@@ -469,15 +510,11 @@ At the end of every milestone, the supervisor must:
    before any next execution.
 
 M23 is the terminal exception: it has no successor subplan. After the M23
-result/review repair loop converges, the supervisor writes one immutable
-non-accomplished `PENDING_FINAL_PREDICATE` control generation, verifies the
-frozen pre-seal predicate against it, deterministically builds an accomplished
-or exact-blocker terminal generation, atomically selects that generation, runs
-a post-selection consistency replay, and writes a matching activation receipt
-last. Only selector plus receipt and a successful canonical replay make the
-selected controls authoritative. It then terminates with exact accomplished,
-blocker, or indeterminate status. It must not invent or review an automatic
-post-M23 milestone.
+result/audit repair loop converges, the supervisor writes one ordinary close
+record, refreshes the master program and reset memo, and records the exact Git,
+wheel, command-ledger, replay, capability, and limitation evidence. It then
+terminates with accomplished-within-scope or an exact blocker. It must not
+invent or review an automatic post-M23 milestone.
 
 Every milestone then uses this visible loop:
 
@@ -502,41 +539,18 @@ REVIEW
 HANDOFF
   write current result
   if M17-M22: refresh and review the next dedicated milestone subplan
-  if M23: write pending controls; pre-seal; build/select terminal generation; replay; activate; resolve
+  if M23: write the result, reconcile controls, run terminal replay/audit, and close or block
 ```
 
-### M23 Terminal-Control Authority
+### M23 Close Authority
 
-Multi-file controls are never called atomic. M23 uses immutable pending and
-terminal generations plus one manifest-bound selector. Every pending control is
-non-accomplished. `M23_PRESEAL_PREDICATE` checks substantive completion evidence
-and pending-control agreement without requiring its future selector or receipt.
-Its immutable receipt determines whether the terminal generation carries
-`ACCOMPLISHED_WITHIN_RECORDED_EXPLORATORY_SCOPE` or an exact blocker.
-Transaction identity is deterministic from frozen pre-control inputs; the
-pending proposal is accomplishment-only, while the first failed criterion in a
-predeclared hard-veto order deterministically chooses any blocker.
-
-After the complete terminal manifest validates, one no-replace selector is
-published under the mission lock by atomic same-filesystem hard-link creation
-from fully written/fsynced bytes; `EEXIST` fails closed and the directory is
-fsynced. Selection alone is non-authoritative. A disk reread must reproduce the
-full predicate and all selected control hashes before an activation receipt
-binding the exact selector, manifest, and replay record is published once at a
-deterministic selector-hash path through the same no-replace protocol. Canonical readers
-accept only that complete selector/receipt authority pair. Missing, stale,
-foreign, mixed, corrupt, or partial state resolves
-`terminal_blocked_final_control_selection_indeterminate`; loose top-level
-controls and mirrors never establish completion. Ordinary resume may finish
-replay/activation only for the exact already-selected valid bytes and performs
-no new external, source, or human action.
-
-Selected controls bind the transaction and pre-seal authority, while the
-downstream selector/replay/activation envelope binds those controls; neither
-side hash-binds itself through the other. Optional mirrors are derived only:
-stale/missing mirrors receive an exact repair status, contradictory mirror
-claims are ignored, and no mirror can establish or invalidate terminal
-authority.
+The active M23 close authority is proportionate local research evidence: an
+offline-installed wheel, isolated-process command ledger, fresh versioned
+validation root, ordinary SHA-256 inventory, deterministic replay, focused
+tests, reconciled capability/limitations documents, Git commit/tree identity,
+and one terminal skeptical audit. Historical pending-generation, selector,
+activation-receipt, one-use approval, and custom cryptographic-control plans
+remain preserved but are retired and must not be completed or regenerated.
 
 Claude may be used only as a read-only reviewer when policy permits. If export
 is rejected, do not route around it; use a fresh Codex read-only fallback and
@@ -551,17 +565,17 @@ network/source action, human decisions, scientific claims, or release.
 | One metadata-only live attempt | M19 | Fresh exact endpoint/query/cap/hash/output approval after plan convergence |
 | Broader live citation routes or rerun | M20 | Separate reviewed plan and fresh bounded approval |
 | Source/status or source/PDF/full-text retrieval | M21 | Separate reviewed rights/domain/type/cap/retention approval |
-| Genuine review decisions | M22 | Identified human reviewer action under the approved attestation policy |
+| External expert decisions, when a future claim actually requires them | M22 or later | Separate explicit human action at that scientific boundary; not a generic prerequisite |
 | Credentials, private databases, paid sources/models, hidden data, unbounded crawl, new defaults, or release | None implicit | Separate explicit human decision and new scoped plan |
 
 The M19-M21 approvals in this table are development/supervisor authority for
 predeclared validation runs against frozen routes, caps, hashes, and output
 roots. They are not additional production end-user prompts. In a production
-mission, the one persisted public-discovery confirmation must cover all
-implemented in-scope ordinary public metadata, citation, archive,
-source-status, and capped public source/PDF/full-text steps without asking
-again. Credentials, private/paid sources, unbounded crawling, outside writes,
-genuine human decisions, new defaults, and release remain separate boundaries.
+mission, the one persisted public-discovery confirmation covers implemented
+credential-free arXiv metadata, archive, source-status, and capped source-
+package steps. Forward citations, credentials, private/paid sources, PDF
+fallback, unbounded crawling, outside writes, external expert decisions, new
+defaults, and release remain separate boundaries.
 
 ## Program Stop Conditions
 
@@ -572,7 +586,8 @@ Stop and write a blocker/handoff only when:
 - a clean checkout cannot reproduce M16 because dependencies or semantics are
   missing and the repair scope is unclear;
 - a network/source/privacy/rights boundary cannot be enforced or represented;
-- genuine human review is required but unavailable;
+- an external expert decision is materially required for a specific claim but
+  unavailable;
 - the harness, artifacts, or exact source bytes are invalid/corrupt;
 - pass criteria would need to change after results; or
 - the same material blocker fails to converge after five review rounds.
@@ -586,23 +601,32 @@ continuation veto fired.
 
 The north-star mission is not complete at M16, after Git integration, after a
 metadata smoke, or after a fixture/model review. It may be marked accomplished
-only after M23's pre-seal predicate passes, the accomplished terminal generation
-is selected, its post-selection replay passes, the matching activation receipt
-is durable, and the canonical resolver proves that the selected final close and
-all control projections demonstrate:
+only after the M23 offline acceptance matrix, deterministic replay, focused
+regressions, documentation/capability reconciliation, and terminal audit pass
+and the ordinary close record demonstrates:
 
 - reproducible clean-install authority;
 - one-confirmation bounded real discovery/source execution;
-- genuine human-reviewed evidence;
+- source-grounded qualitative assessed evidence with exact nonclaims;
 - at least one successful within-scope real mission plus honest representative
   boundary cases;
 - documented operator usability and recovery; and
 - exact nonclaims and known limitations.
 
-A file containing an accomplished label, a pending generation, or a selector
-without its exact activation receipt is not completion evidence.
+A label alone is not completion evidence; the M23 result must bind the wheel,
+installed command ledger, replay, inventory, tests, and remaining limitations.
 
-## Current M20B4 Blocker - 2026-07-16
+Current completion status: `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE`.
+The terminal label may return to
+`ACCOMPLISHED_WITHIN_RECORDED_LOCAL_EXPLORATORY_SCOPE` only after the exact
+integration candidate is committed, a clean checkout passes the affected gate
+and fresh M23 acceptance, and terminal review agrees.
+Future live topic-quality validation, broader source inspection, forward
+citation coverage, claim promotion, publication work, cross-platform support,
+and release are separate programs or human boundaries, not unfinished M23
+gates.
+
+## Historical M20B4 Blocker - 2026-07-16
 
 M20B3 remains passed at commit `7283a00e...a25c`, with `99/99` installed
 member equality and frozen packet `c3e250b0...d77ce`. M20B4 did not pass its
@@ -617,7 +641,8 @@ The exact next action is human direction for one additional local repair and
 one terminal review limited to that signal predicate and focused tests. The
 active blocker is
 `docs/plans/literature_survey_north_star_m20b4_review_nonconvergence_blocker_result_2026-07-16.md`.
-M20B4 authorization/launch and M21-M23 remain forbidden.
+This stop was later superseded by the credential-free arXiv-only override and
+does not block M21-M23. It remains historical evidence only.
 
 ## M20B4 Extra Repair Agreement - 2026-07-16
 

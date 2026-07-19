@@ -1,0 +1,103 @@
+%In the past three years,
+High capacity supervised learning algorithms, such as deep
+convolutional neural networks \cite{lecun1998gradient,AlexNet},
+%have enabled significant progress 
+have led to a discontinuity in visual recognition over the past four
+years and continue to push the state-of-the-art performance (e.g. \cite{MSRA,wu2015deep,GoogleNorm}). These models
+usually have millions of parameters, resulting in two consequences.
+On the one hand, the many degrees of freedom of the models allow for extremely impressive description power; they can learn to represent complex functions and transformations automatically from the
+data. On the other hand, to search for the optimal settings for a
+large number of parameters, these data-hungry algorithms require
+a massive amount of training data with humainitiallced labels
+\cite{deng2009imagenet,fei2007learning,xiao2010sun,zhou2014learning}.
+
+Although there has been remarkable progress in improving deep
+learning algorithms (e.g. \cite{MSRA,GoogLeNet}) and developing high
+performance training systems (e.g. \cite{wu2015deep}), advancements
+are lacking in dataset construction.  The ImageNet dataset
+\cite{deng2009imagenet}, used by most of these algorithms, is
+7 years old and has been heavily over-fitted \cite{BaiduScandal}.  The 
+recently released Places \cite{zhou2014learning} dataset is not much larger.
+The number of parameters in
+many deep models now exceeds the number of images in these datasets.
+%stretching the performance under the risk of the lack of bounded
+%constraints \cite{Intriguing,Fooled,AdversarialExamples}.  % Clarify...
+While the models are getting deeper
+(e.g. \cite{VGGnet,GoogLeNet}) and the accessible computation power is
+increasing, the size of the datasets for training and evaluation is
+not increasing by much, but rather lagging behind and hindering further
+progress in large-scale visual recognition.
+
+Moreover, the density of examples in current datasets
+is quite low.  Although they have several million images,
+they are spread across many categories, and so there
+are not very many images in each category (e.g., 1000 in ImageNet). As a result,
+deep networks trained on them often learn features that are noisy
+and/or unstable~\cite{Intriguing,Fooled}. To address this problem,
+researchers have used techniques that augment the training sets with
+perturbations of the original images~\cite{wu2015deep}.  Those methods
+add to the stability and generalizability to trained models, but without
+increasing the actual density of novel examples.  We propose an
+alternative: an image dataset with high density. %but few categories. - why would we advertise few categories?
+We aim for a dataset with $\sim10^6$ images per category, which
+is around 10 times denser than
+PLACES~\cite{zhou2014learning} and 100 times denser than
+ImageNet~\cite{deng2009imagenet}.
+
+Although the amount of available image data on the Internet is
+increasing constantly, it is nontrivial to build a supervised dataset that
+dense because of the high costs of manual labeling.  Clever methods
+have been proposed to improve the efficiency of human-in-the-loop
+annotation (e.g., \cite{branson2010visual,deng2014scalable,russakovsky2015best,vijayanarasimhan2008multi,wah2011multclass}).
+However, manual effort is still the bottleneck -- the
+construction of ImageNet and Places both required more than a year of
+human effort via Amazon Mechanical Turk (AMT), the largest
+crowd-sourcing platform available on the Internet. If we desire a
+$N$-times bigger/denser dataset, it will require more than $N$ years of
+human annotation. This will not scale quickly enough to support
+advancements in deep visual learning. Clearly, we must
+introduce a certain amount of automation into this process in order to
+let data annotation maintain pace with the growth of deep models.
+
+%However,
+%we need to be extremely cautious in ensuring the accuracy of labels
+%obtained (semi-)automatically. In addition, humans make mistakes
+%quite often, especially when performing repetitive and tedious jobs
+%such as data labeling.
+% figure to point out errors in places annotation.
+% Thus, a systematic way to check human labeling accuracy is a
+% necessity. %hopefully even to surpass human accuracy by combining
+%automatic algorithms and human annotation. - Not sure %about this
+
+In this paper, we introduce an integrated framework using deep
+learning with humans in the loop
+%combining deep learning and AMT crowd sourcing 
+to annotate a large-scale image dataset. The key new idea is a labeling propagation
+system that automatically amplifies manual human effort.  We study strategies for
+selecting images for people to label, interfaces for acquiring labels quickly,
+procedures for verifying the labels acquired, and methods for amplifying the labels by
+propagating them to other images in the dataset.  We have used the system to
+construct a large scale image database, ``LSUN'', with 10 million labeled images
+in 10 scene categories and 59 million labeled images in 20 object categories.\footnote{We are continuing to collect and
+annotate data through our platform at a rate of 5 million images and 2 categories
+per week}.
+
+One of the main challenges for a semi-automatic approach
+is achieving high precision in the final labeled dataset.  
+Our procedure uses statistical tests to ensure labeling quality,
+providing more than 90\% precision on average according to
+verification tests.  This is slightly lower than manual annotation,
+but still good enough to train
+high performance classification models.  During experiments with
+popular deep learning models, we observe
+substantial classifier performance gains when using our larger training
+set.  Although the LSUN training labels may contain some noise, it
+seems that training on a larger, noisy dataset 
+produces better models than training on smaller, noise-free datasets.
+
+% Training vs. test set precision?
+
+%objects too
+%    LSUN for scene classification with more than 10 millions images.
+
+

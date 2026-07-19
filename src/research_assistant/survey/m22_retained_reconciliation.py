@@ -39,6 +39,9 @@ M20_ROOT = REPOSITORY_ROOT / "docs/validation/literature_survey_m20_arxiv_only_l
 M21_ROOT = REPOSITORY_ROOT / "docs/validation/literature_survey_north_star_m21_seven_candidate_sources_2026-07-18"
 M21_TRIAGE_ROOT = REPOSITORY_ROOT / "docs/validation/literature_survey_north_star_m21_candidate_context_triage_2026-07-18"
 M21_SEED_ROOT = REPOSITORY_ROOT / "docs/validation/literature_survey_north_star_m21_retained_seed_anchors_v2_2026-07-18"
+RETAINED_SEED_RECORD = Path(
+    "docs/validation/literature_survey_north_star_m22b0_production_reconciliation_2026-07-18/retained_evidence/sources/2201_12220v3.json"
+)
 PARSED_IDS = ("1506.03365", "1709.08894", "1805.07277", "1902.07197", "2003.06635", "2003.06788")
 ALL_SOURCE_IDS = ("2201.12220v3", *PARSED_IDS)
 SOURCE_TITLES = {
@@ -73,23 +76,31 @@ def _sha(path: Path) -> str:
     return sha256_file(path)
 
 
-def _retained_paths() -> dict[str, Path]:
+def _retained_paths(repository_root: Path | None = None) -> dict[str, Path]:
+    root = REPOSITORY_ROOT if repository_root is None else repository_root.resolve(strict=True)
+    m20_root = root / "docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000"
+    m21_root = root / "docs/validation/literature_survey_north_star_m21_seven_candidate_sources_2026-07-18"
+    m21_triage_root = root / "docs/validation/literature_survey_north_star_m21_candidate_context_triage_2026-07-18"
+    m21_seed_root = root / "docs/validation/literature_survey_north_star_m21_retained_seed_anchors_v2_2026-07-18"
     return {
-        "m20_candidates": M20_ROOT / "candidate_classifications.json",
-        "m20_backward": M20_ROOT / "backward_snowball.json",
-        "m20_forward": M20_ROOT / "forward_snowball.json",
-        "m20_omissions": M20_ROOT / "omitted_paper_risks.json",
-        "m20_metadata": M20_ROOT / "citation_venue_metadata.json",
-        "m20_claims": M20_ROOT / "claim_support.json",
-        "m21_status": M21_ROOT / "source_status.json",
-        "m21_selection": M21_TRIAGE_ROOT / "primary_source_selection.json",
-        "m21_identifier_free": M21_TRIAGE_ROOT / "identifier_free_risk.json",
-        "m21_seed_anchors": M21_SEED_ROOT / "source_anchor_inventory.json",
+        "m20_candidates": m20_root / "candidate_classifications.json",
+        "m20_backward": m20_root / "backward_snowball.json",
+        "m20_forward": m20_root / "forward_snowball.json",
+        "m20_omissions": m20_root / "omitted_paper_risks.json",
+        "m20_metadata": m20_root / "citation_venue_metadata.json",
+        "m20_claims": m20_root / "claim_support.json",
+        "m21_status": m21_root / "source_status.json",
+        "m21_selection": m21_triage_root / "primary_source_selection.json",
+        "m21_identifier_free": m21_triage_root / "identifier_free_risk.json",
+        "m21_seed_anchors": m21_seed_root / "source_anchor_inventory.json",
     }
 
 
-def _retained_input_hashes() -> dict[str, str]:
-    return {name: _sha(path) for name, path in sorted(_retained_paths().items())}
+def _retained_input_hashes(repository_root: Path | None = None) -> dict[str, str]:
+    return {
+        name: _sha(path)
+        for name, path in sorted(_retained_paths(repository_root).items())
+    }
 
 
 def _anchor_rows() -> dict[str, list[dict[str, Any]]]:
@@ -104,20 +115,25 @@ def _anchor_rows() -> dict[str, list[dict[str, Any]]]:
 
 def _source_record_path(mission_root: Path, arxiv_id: str) -> tuple[Path, str]:
     if arxiv_id == "2201.12220v3":
-        source = REPOSITORY_ROOT / "local_research/papers/source/records/paper_arxiv_2201_1a5af737.json"
-        return source, str(source)
+        source = REPOSITORY_ROOT / RETAINED_SEED_RECORD
+        return source, RETAINED_SEED_RECORD.as_posix()
     source = M21_ROOT / f"candidates/{arxiv_id.replace('.', '_')}/structured_source.json"
-    relative = Path("retained_evidence/sources") / f"{arxiv_id.replace('.', '_')}.json"
-    return source, str(relative)
+    return source, source.relative_to(REPOSITORY_ROOT).as_posix()
 
 
 def _source_paper_id(arxiv_id: str) -> str:
     return "paper_arxiv_2201_1a5af737" if arxiv_id == "2201.12220v3" else f"candidate_arxiv_{arxiv_id.replace('.', '_')}"
 
 
-def _normalized_source_record(mission_root: Path, arxiv_id: str, *, source_path: Path) -> dict[str, Any]:
+def _normalized_source_record(
+    mission_root: Path,
+    arxiv_id: str,
+    *,
+    source_path: Path,
+    original_record_path: str,
+) -> dict[str, Any]:
     if arxiv_id == "2201.12220v3":
-        payload, _ = _read(REPOSITORY_ROOT, str(source_path))
+        payload, _ = _read(REPOSITORY_ROOT, original_record_path)
         return {
             "schema_version": "ra-survey-retained-source-record-v1",
             "canonical_identifier": f"arxiv:{arxiv_id}",
@@ -125,9 +141,9 @@ def _normalized_source_record(mission_root: Path, arxiv_id: str, *, source_path:
             "title": SOURCE_TITLES[arxiv_id],
             "source_type": payload.get("source_type"),
             "status": payload.get("status"),
-            "source_package_sha256": payload.get("provenance", {}).get("source_package_sha256"),
+            "source_package_sha256": payload.get("source_package_sha256"),
             "original_record_sha256": _sha(source_path),
-            "original_record_path": str(source_path),
+            "original_record_path": original_record_path,
             "technical_claim_support": "not_supported_until_claim_mapping_review",
         }
     payload, _ = _read(M21_ROOT, f"candidates/{arxiv_id.replace('.', '_')}/structured_source.json")
@@ -140,7 +156,7 @@ def _normalized_source_record(mission_root: Path, arxiv_id: str, *, source_path:
         "status": payload.get("status"),
         "source_package_sha256": payload.get("source_package_sha256"),
         "original_record_sha256": _sha(source_path),
-        "original_record_path": str(source_path),
+        "original_record_path": original_record_path,
         "technical_claim_support": "not_supported_until_claim_mapping_review",
     }
 
@@ -203,8 +219,13 @@ def compose_retained_packet_inputs(*, output_dir: Path) -> dict[str, Any]:
     for arxiv_id in ALL_SOURCE_IDS:
         if arxiv_id != "2201.12220v3" and status_rows[arxiv_id]["outcome"] != "accepted_and_parsed":
             raise MissionStateError("retained_source_outcome_mismatch", f"unexpected parsed outcome for {arxiv_id}")
-        source_path, _ = _source_record_path(output_dir, arxiv_id)
-        normalized = _normalized_source_record(output_dir, arxiv_id, source_path=source_path)
+        source_path, original_record_path = _source_record_path(output_dir, arxiv_id)
+        normalized = _normalized_source_record(
+            output_dir,
+            arxiv_id,
+            source_path=source_path,
+            original_record_path=original_record_path,
+        )
         normalized["anchor_ids"] = [row["anchor_id"] for row in normalized_anchors[arxiv_id]]
         normalized["anchor_count"] = len(normalized_anchors[arxiv_id])
         source_rows.append(normalized)
@@ -655,16 +676,25 @@ def build_retained_review_queue(*, packet: dict[str, Any], coverage: dict[str, A
     }
 
 
-def validate_retained_selected_coverage(*, mission_root: Path, mission_id: str, mission_fingerprint: str, mission_anchor_generation_id: str, coverage_payloads: dict[str, dict[str, Any]]) -> None:
+def validate_retained_selected_coverage(
+    *,
+    mission_root: Path,
+    mission_id: str,
+    mission_fingerprint: str,
+    mission_anchor_generation_id: str,
+    coverage_payloads: dict[str, dict[str, Any]],
+    repository_root: Path | None = None,
+) -> None:
     if set(coverage_payloads) != {"backward_snowball.json", "forward_snowball.json", "omitted_paper_risks.json", "paper_classifications.json", "citation_venue_metadata.json"}:
         raise MissionStateError("invalid_retained_coverage", "retained coverage file set is incomplete")
     if any(payload.get("reconciliation_schema_version") != RECONCILIATION_SCHEMA for payload in coverage_payloads.values()):
         raise MissionStateError("invalid_retained_coverage", "retained coverage schema marker is missing")
-    expected_hashes = _retained_input_hashes()
+    paths = _retained_paths(repository_root)
+    expected_hashes = _retained_input_hashes(repository_root)
     if any(payload.get("retained_input_hashes") != expected_hashes for payload in coverage_payloads.values()):
         raise MissionStateError("retained_input_hash_mismatch", "retained coverage does not bind the current M20/M21 evidence")
-    candidates, _ = _read(M20_ROOT, "candidate_classifications.json")
-    selection, _ = _read(M21_TRIAGE_ROOT, "primary_source_selection.json")
+    candidates, _ = _read(paths["m20_candidates"].parent, paths["m20_candidates"].name)
+    selection, _ = _read(paths["m21_selection"].parent, paths["m21_selection"].name)
     candidate_ids = sorted(str(row["candidate_id"]) for row in candidates.get("rows") or [])
     if coverage_payloads["backward_snowball.json"].get("candidate_ids") != candidate_ids:
         raise MissionStateError("retained_candidate_replay_mismatch", "retained backward candidate identities differ")

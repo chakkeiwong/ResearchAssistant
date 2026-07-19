@@ -195,6 +195,7 @@ from research_assistant.survey.packet import compose_public_source_evidence_pack
 from research_assistant.survey.reviewed_merge import merge_reviewed_evidence
 from research_assistant.survey.reviewed_packet import compose_reviewed_final_packet
 from research_assistant.survey.source_safety_review import import_reviewed_source_safety
+from research_assistant.survey.qualitative_assessment import build_assessment, write_assessment
 from research_assistant.survey.workflow_blocker_review import import_reviewed_workflow_blockers
 from research_assistant.survey.mission_state import MissionStateError
 
@@ -215,6 +216,7 @@ SURVEY_WRITE_OUTPUT_FIELDS = {
     "prepare-human-review": ("out",),
     "render-human-review": ("out",),
     "validate-human-attestation": ("out",),
+    "qualitative-assessment": ("out",),
 }
 
 
@@ -850,6 +852,24 @@ def cmd_survey(args: argparse.Namespace) -> int:
             report = _human_attestation_blocked(exc)
         _print_json(report)
         return 0 if report["status"] == "human_self_attestation_validated" else 1
+    if args.survey_action == "qualitative-assessment":
+        assessment = build_assessment(
+            subject_id=args.subject_id,
+            assessment_type=args.assessment_type,
+            summary=args.summary,
+            merits=args.merit,
+            concerns=args.concern,
+            uncertainties=args.uncertainty,
+            evidence_refs=args.evidence_ref,
+            next_action=args.next_action,
+        )
+        report = write_assessment(
+            assessment=assessment,
+            output_path=Path(args.out),
+            force=args.force,
+        )
+        _print_json({**report, "assessment": assessment})
+        return 0
     raise SystemExit(f"unknown survey action {args.survey_action}")
 
 
@@ -2148,6 +2168,22 @@ def build_parser() -> argparse.ArgumentParser:
     survey_render_human.add_argument("--out", help="Output directory; defaults to the packet directory")
     survey_render_human.add_argument("--force", action="store_true")
     survey_render_human.set_defaults(func=cmd_survey)
+    survey_qualitative = survey_sub.add_parser(
+        "qualitative-assessment",
+        help="Write a concise source-grounded merits/concerns/uncertainties assessment",
+        description="Record a bounded qualitative assessment. This is the active M22 scholarly review representation; it never clears provenance, source-safety, claim-support, or prose gates.",
+    )
+    survey_qualitative.add_argument("--subject-id", required=True)
+    survey_qualitative.add_argument("--assessment-type", required=True, choices=["paper", "claim", "omission"])
+    survey_qualitative.add_argument("--summary", required=True)
+    survey_qualitative.add_argument("--merit", action="append", required=True)
+    survey_qualitative.add_argument("--concern", action="append", required=True)
+    survey_qualitative.add_argument("--uncertainty", action="append", required=True)
+    survey_qualitative.add_argument("--evidence-ref", action="append", required=True)
+    survey_qualitative.add_argument("--next-action", required=True)
+    survey_qualitative.add_argument("--out", required=True, help="Output JSON assessment path")
+    survey_qualitative.add_argument("--force", action="store_true")
+    survey_qualitative.set_defaults(func=cmd_survey)
 
     surveybench = sub.add_parser('surveybench', help='Run offline synthetic and online-replay SurveyBench fixtures')
     surveybench_sub = surveybench.add_subparsers(dest='surveybench_action', required=True)

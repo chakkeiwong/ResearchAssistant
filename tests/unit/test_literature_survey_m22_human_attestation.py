@@ -248,14 +248,23 @@ def test_prepare_packet_is_exact_and_explicitly_unattested(tmp_path: Path) -> No
     claim_rows = (output / "claim_review_worksheet.csv").read_text().splitlines()
     safety_rows = (output / "source_safety_worksheet.csv").read_text().splitlines()
     omission_rows = (output / "omission_review_worksheet.csv").read_text().splitlines()
-    assert "machine interchange artifacts" in guide
-    assert "It is valid to reject every claim candidate" in guide
+    qualitative_rows = (output / "qualitative_assessment_worksheet.csv").read_text().splitlines()
+    assert "machine-compatibility artifacts" in guide
+    assert "system-generated qualitative assessment" in guide
+    assert "not expected to fill 73 binary rows" in guide
     assert "Forward-citation coverage is permanently unavailable" in guide
     assert "The packet SHA-256 is" in guide
     assert hashlib.sha256((output / "human_review_packet.json").read_bytes()).hexdigest() in guide
     assert len(claim_rows) == 2
     assert len(safety_rows) == 2
     assert len(omission_rows) == 2
+    assert len(qualitative_rows) >= 2
+    assert "merits" in qualitative_rows[0]
+    assert "concerns" in qualitative_rows[0]
+    assert "uncertainties" in qualitative_rows[0]
+    assert "evidence_refs" in qualitative_rows[0]
+    assert "overstatement_probability" not in qualitative_rows[0]
+    assert not (output / "scored_assessment_worksheet.csv").exists()
     assert (output / "workflow_blocker_worksheet.md").is_file()
     assert (output / "human_attestation_worksheet.md").is_file()
 

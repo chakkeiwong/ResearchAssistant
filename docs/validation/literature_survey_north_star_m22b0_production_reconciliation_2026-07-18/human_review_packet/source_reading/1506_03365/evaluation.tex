@@ -1,0 +1,297 @@
+We are running this labeling pipeline continuously and have now
+collected enough data to evaluate how well it is performing and
+study its potential impact on visual recognition.
+
+%We have constructed an initial version of LSUN with
+%millions of labeled images in each scene category.
+%We experiment with popular convolutional networks using our dataset, and obtain a
+%significant performance gain with the same model but trained using our
+%bigger training set.
+
+% Given the our pipeline, we want to know the quantity and quality of
+% the
+% resulting dataset. In addition, we investigate how effectively our
+% pipeline is and how the current computer vision models work on our
+% dataset.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\vspace{-2mm}
+%\subsection{Dataset Statistics}
+%\vspace*{-0.05in}
+
+\vspace*{2mm}
+\noindent{\bf Dataset Statistics:}
+So far, we have collected 59 million images for 20 object categories
+selected from PASCAL VOC 2012 and 10 million images for 10 scene
+categories selected from the SUN database.
+Figure~\ref{fig:numbers} shows the
+statistics of object categories. The number of images used in ImageNet
+classification challenge is about 1.4 million, which is used to train
+recent convolutional networks. Most of our object
+categories have more images than the whole challenge. Even if we only
+consider the basic level categories in ImageNet such as putting all
+the dogs together, our dataset is still much denser.
+
+%% For most of the categories, of which we have far
+%% fewer, our dataset is more than 10 times denser (e.g., XXX vs. XXX for
+%% bedroom). Similarly, our object categories are approximately 1000 times
+%% fewer and denser than ImageNet (e.g., density is XXX vs. XXX for chair).
+
+\begin{figure}[t]
+  \centering
+    \includegraphics[width=\textwidth]{img/image_numbers.pdf}
+   \caption{Number of images in our object categories. Compared to
+    ImageNet dataset, we have more images in each category, even
+    comparing only basic level categories.}
+\label{fig:numbers}
+        \end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\vspace{-2mm}
+%\subsubsection{Label Precision}
+%\vspace*{-0.05in}
+
+\vspace*{2mm}
+\noindent{\bf Label Precision:}
+We have run a series of experiments 
+to test the labeling precision of this dataset.
+We sampled 2000 images from 
+11 object categories and label them with 
+completely manual pipeline using trained experts (AMT labeling
+is not reliable enough for this test).  The final
+precision of those categories is shown in
+Figure~\ref{fig:pr_precision}a. We observe that normally, the precision
+is around 90\%, but it varies across different categories. The major
+mistakes in our labels are caused by toys, computer rendered images,
+photo collages, and human edited photos.  The inclusion of
+computer-rendered images is the most serious for the person
+category. Although we have tests for classifier confidence, there are
+lots of confusing cases for human labelers on these images,
+which subsequently confuse the statistical tests.
+
+\begin{figure}[hbtp]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{img/precision.pdf}    
+    \caption{Precision of our labels}
+    \label{fig:pr_precision}
+  \end{subfigure}
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{img/reduction.pdf}
+    \caption{Amplification of human labels}
+    \label{fig:pr_reduction}
+  \end{subfigure}
+\caption{Labeling precision and reduced labeling efforts of our
+  pipeline. (a) shows the precision of labels from 11 object
+  categories. The precision is normally around 90\%. (b) shows how
+  much labeling effort is saved with our
+  pipeline.  On average the ratio between all images 
+  and the number of human-provided labels is around 40:1.}
+\label{fig:precision_reduction}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\vspace{-2mm}
+%\subsubsection{Effort Amplification}
+%\vspace*{-0.05in}
+
+\vspace*{2mm}
+\noindent{\bf Effort Amplification:}
+We next checked how much our pipeline
+amplifies human labeling effort -- i.e., the ratio between the number
+of images put into a positive or negative set versus the number of images
+labeled by people. The result is
+shown in Figure~\ref{fig:pr_reduction}. It shows that our pipeline
+amplifies human efforts by 40 times on average. In the case of the train
+category, people labeled less than 1/60th of the images.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\vspace{-2mm}
+%\subsection{Model Performance}
+%\vspace*{-0.05in}
+
+\vspace*{2mm}
+\noindent{\bf Impact on Model Performance:}
+We next investigate whether the new dataset can
+help current models achieve better classification performance.
+As a first test, we
+use the standard AlexNet \cite{AlexNet} trained on PLACES and compare the model fine-tuned
+by the PLACES data \cite{zhou2014learning} with the same model fine-tuned
+by both PLACES and LSUN, in both cases fine-tuning on only the 10
+categories in LSUN.
+As a simple measure to balance the dataset,
+we only take at most 200 thousand images from each LSUN category.
+% \footnote{We didn't ultilize all data that may enable better
+% results, due to limited computation resource we have.}. 
+Then we test the classification results on
+this 10 categories in PLACES testing set. The error percentage comparison is shown in Figure
+~\ref{fig:comp_places_error}. The overall detection error percentage
+is 28.6\% with only PLACES and 22.2\% with both PLACES and LSUN, 
+which yields a 22.37\% improvement on testing error. Although the
+testing is unfavorable to LSUN due to potential dataset bias issues
+\cite{datasetBias}, we
+can see that the additional of more data can improve the classification
+accuracy on PLACES testing set for 8 of the 10 categories.
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=\textwidth]{img/places_error}
+\caption{Comparison of classification error by training AlexNet with PLACES
+vs. LSUN and PLACES.  Lower errors are better.}
+\label{fig:comp_places_error}
+\end{figure}
+
+We then use the pre-trained model to fine-tune on
+PASCAL VOC 2012 classification training images with Hinge loss and
+evaluate the learned representation. We use two pre-trained models for
+comparison. One is AlexNet trained by our object data from
+scratch. The other is VGG trained by our object data but initialized
+by ImageNet. We sample 300 thousand images
+from each of the 20 object categories and use them as training data
+from LSUN. To get classification score for
+testing images, we sample 10
+crops from each testing image at center and four corners with mirroring
+and take the average. The results are evaluated on the validation
+set for each ablation study. As a comparison, we go through the
+same procedure with model pre-trained on ImageNet. The results are
+shown in Table~\ref{tab:pascal_val}. The table shows that the model
+pre-trained on our data performs significantly better. It indicates
+that it is better to have more images in relevant categories than more
+categories.
+
+Together with the results on scene categories, it is
+interesting to observe that although AlexNet is small compared to
+other image classification models developed in recent years, even it
+can benefit from more training data.
+
+\newcommand\ver[1]{\rotatebox[origin=c]{90}{#1}}
+\begin{table}[hbtp]
+%\vspace{-2mm}
+\begingroup
+\setlength{\tabcolsep}{1.5pt}
+\scriptsize
+\begin{center}
+\begin{tabular}{c|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c||c}
+Model & Pre-train  & \ver{aero} & \ver{bike} & \ver{bird} & \ver{boat} & \ver{bottle} &
+   \ver{bus} & \ver{car} & \ver{cat} & \ver{chair} & \ver{cow} &
+     \ver{table} & \ver{dog} & \ver{horse} & \ver{mbike}
+   & \ver{person} &
+     \ver{plant} & \ver{sheep} & \ver{sofa} & \ver{train} & \ver{tv} &
+       \ver{\,mAP} \\ \hline
+AlexNet & ImageNet & 0.96 & 0.86 & 0.88 & 0.85 & 0.49 & 0.94 & 0.75 & 0.89 & 0.62 & 0.86 &
+   0.65 & 0.87 & 0.92 & 0.9 & 0.85 & 0.53 & 0.91 & 0.68 & 0.92 &
+   0.77 & 0.8 \\ 
+AlexNet & LSUN &  0.98 & 0.93 & 0.94 & 0.9 & 0.64 & 0.95 & 0.78 & 0.97 & 0.74 & 0.96
+   & 0.72 & 0.96 & 0.98 & 0.94 & 0.85 & 0.59 & 0.96 & 0.76 & 0.97 &
+   0.82 & 0.87 \\ 
+VGG & ImageNet &   0.95 & 0.85 & 0.92 & 0.86 & 0.65 & 0.92 & 0.8 & 0.93 & 0.68 & 0.77
+   & 0.66 & 0.9 & 0.85 & 0.86 & 0.94 & 0.56 & 0.89 & 0.6 & 0.94 &
+   0.85 & 0.82 \\ 
+VGG & LSUN & 0.98 & 0.92 & 0.94 & 0.9 & 0.69 & 0.96 & 0.82 & 0.96 & 0.75 & 0.97
+   & 0.78 & 0.93 & 0.97 & 0.92 & 0.95 & 0.67 & 0.96 & 0.73 & 0.97 &
+   0.84 & 0.88 \\ \hline
+\end{tabular}
+\end{center}
+\endgroup
+\caption{Comparison of pre-training on ImageNet and LSUN. We pre-train
+   AlexNet and VGGnet with ImageNet and our data to compare the
+   learned representation. We fine tune the networks after removing
+   the last layer on PASCAL VOC 2012 images and compare the
+   results. The table shows that pre-training with more images in
+   related categories is better than that with more categories.}
+\label{tab:pascal_val}
+\end{table}
+
+
+
+%\vspace{-2mm}
+%\subsection{Learned Image Representation}
+%\vspace*{-0.05in}
+
+\vspace*{2mm}
+\noindent{\bf Learned Image Representation:}
+As a final test, we study the image representation learned by our object
+categories and compare it to ImageNet to understand the tradeoff
+between number of images and categories. We compare AlexNet trained by
+ImageNet and our training data used in the last section. Then we check the
+response in the first layer. As shown in
+Figure~\ref{fig:filter}, we find that the
+filters in the first level present cleaner patterns than those learned
+on ImageNet data.
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=\textwidth]{img/filter.pdf}
+\caption{Comparison of learned filters. We train AlexNet with our
+object images and compare the first level filter with ImageNet. We
+observe that the filter pattern learned with our data is cleaner,
+while the filters from ImageNet are noisier, as highlighted in (b).}
+\label{fig:filter}
+\end{figure}
+
+
+%\begin{figure}[hbtp]
+%  \centering
+%  \begin{subfigure}[b]{\textwidth}
+%    \includegraphics[width=\textwidth]{img/places_size}
+%    
+%    \caption{Comparison of image number for each category. The higher
+%      the better.}
+%    \label{fig:comp_places_size}
+%  \end{subfigure}
+%    \begin{subfigure}[b]{\textwidth}
+%    \includegraphics[width=\textwidth]{img/places_error}
+%    
+%    \caption{Comparison of classification error by training
+%      AlexNet. The
+%      lower the better.}
+%    \label{fig:comp_places_error}
+%  \end{subfigure}
+%\caption{Comparison of LSUN and PLACES. (a) For most of the
+%  categories, we
+%are more than 10 times bigger than PLACES. Please note that the scale
+%of y axis is log. (b) We train AlexNet with PLACES and putting PLACES
+%and LSUN together. With addition of LSUN data, the trained model has
+%better
+%performance evaluated by PLACES test set.}
+%\label{fig:comp_places}
+%\end{figure}
+
+
+
+%% \begin{table}[t]
+%% \small
+%%   \centering
+%%   \begin{tabular}{ c | c | c | c | c | c }
+%%     \hline
+%%     Iteration & Method & Positive images & Precision & Positive labels
+%%     & Label Ratio \\ \hline
+%%     0 & Clustering & 941,981 & 96.9\% & 9,515 & 1\%\\ \hline
+%%     1 & ConvNet Feature + SVM & 1,918,913 & 96.4\% & 41,785 & 2.1\%
+%%     \\ \hline
+%%     2 & ConvNet Feature + SVM & 2,011,332 & 96.2\% & 88,259 & 4.4\%
+%%     \\ \hline
+%%     3 & ConvNet Fine Tuning & 2,140,763 & 96.1\% & 88,259 & 4.1\%
+%%     \\ \hline
+%%     4 & ConvNet Fine Tuning & 2,215,244 & 95.9\% & 147,453 & 6.6\%
+%%     \\ \hline
+%%   \end{tabular}
+  
+%%   \vspace{-2mm}
+%%   \caption{Algorithm statistics of kitchen. The third column shows
+%%     the cumulative number of positive images in each iteration. The
+%%     fifth column shows the cumulative number of positive labels
+%%     provided by human. The last column shows the ratio of human
+%%     labeled images compared to all the positive images we
+%%     obtained. See the main text for more details.}
+%%   \vspace{-3mm}
+%%   \label{tab:alg_stat}
+%% \end{table}
+

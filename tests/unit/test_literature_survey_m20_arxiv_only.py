@@ -167,6 +167,37 @@ def test_worker_path_and_bytes_inputs_are_replay_equivalent(tmp_path: Path) -> N
     assert build_arxiv_backward_evidence(source) == build_arxiv_backward_evidence(path)
 
 
+@pytest.mark.parametrize(
+    ("title_field", "expected"),
+    [
+        (
+            "title={Learning High Dimensional {W}asserstein Geodesics}",
+            "Learning High Dimensional Wasserstein Geodesics",
+        ),
+        ('title="A quoted optimal transport title"', "A quoted optimal transport title"),
+        (
+            "title={A multiline {Nested {Optimal}}\n  Transport Title}",
+            "A multiline Nested Optimal Transport Title",
+        ),
+    ],
+)
+def test_worker_reads_complete_balanced_bibtex_titles(
+    title_field: str, expected: str
+) -> None:
+    source = _tar({
+        "references.bib": (
+            "@article{candidate,\n"
+            f"  {title_field},\n"
+            "  doi={10.1234/backward.2026}\n"
+            "}\n"
+        ).encode("utf-8")
+    })
+
+    result = extract_backward_reference_candidates(source)
+
+    assert result["candidates"][0]["title"] == expected
+
+
 def test_empty_backward_layer_is_a_veto() -> None:
     with pytest.raises(M20ArxivBackwardError, match="backward_candidates_empty"):
         build_arxiv_backward_evidence(_source(with_candidate=False))

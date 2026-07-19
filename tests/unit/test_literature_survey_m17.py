@@ -171,12 +171,12 @@ class FixtureCapability:
         return self.outcome
 
 
-def test_topic_input_is_explicit_and_v2_fingerprint_vector_is_unchanged(tmp_path: Path) -> None:
+def test_topic_input_is_explicit_and_uses_arxiv_only_fingerprint_vector(tmp_path: Path) -> None:
     topic = normalize_text(TOPIC, field="topic")
     seeds = normalize_seeds([SEED])
     budget = discovery_budget(Path("/tmp/m16 mission"))
     assert mission_fingerprint(topic, seeds, budget) == (
-        "3e0454920753d0da938c14014a24bbd7cb616d8285e2cafcc6a2d7bd729f2433"
+        "a7a417b556bb6ade8f2b0cbf7a8602e13ac6c7de56cf0231a1d3c80bd836af00"
     )
     assert topic_mission_fingerprint(topic, discovery_budget(tmp_path / "topic")) != mission_fingerprint(
         topic,
@@ -406,15 +406,15 @@ def test_topic_contract_canonical_bytes_exclude_selected_candidates_from_identit
         "discovery_budget": budget,
     }
     expected_bytes = (
-        b'{"discovery_budget":{"allowed_domains":["api.openalex.org","arxiv.org","export.arxiv.org"],'
+        b'{"discovery_budget":{"allowed_domains":["arxiv.org","export.arxiv.org"],'
         b'"max_bytes_per_source":52428800,"max_metadata_records":25,"max_source_records":5,'
-        b'"providers":["arxiv","openalex"],"write_root":"/tmp/m17 topic mission"},'
+        b'"providers":["arxiv"],"write_root":"/tmp/m17 topic mission"},'
         b'"input_mode":"idea_or_topic_without_initial_paper_seed","normalized_initial_seed_keys":[],'
         b'"normalized_topic_key":"neural optimal transport",'
         b'"schema_version":"ra-survey-public-source-mission-fingerprint-v3"}'
     )
     assert canonical_json_bytes(payload) == expected_bytes
-    assert fingerprint == "8bfe3a7ec028e187e729a26efc5f1712e501707cface201d331271bc7e4fafc1"
+    assert fingerprint == "c6932843fa5c625cbfac72f1dae69a6f8da42a05c8cb21ef0f7dd2dc2b483379"
     assert hashlib.sha256(expected_bytes).hexdigest() == fingerprint
     assert b"selected" not in expected_bytes
 

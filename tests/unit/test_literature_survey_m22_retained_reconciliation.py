@@ -41,6 +41,16 @@ def test_retained_reconciliation_preserves_accounting_and_prepares_unattested_pa
     assert forward["status"] == "unavailable_out_of_scope"
     assert forward["blocking"] is False
     assert len(json.loads((queue_path.parent.parent.parent.parent / "retained_evidence/anchor_inventory.json").read_text())["anchors"]) == 341
+    source_root = queue_path.parent.parent.parent.parent / "retained_evidence" / "sources"
+    source_records = [json.loads(path.read_text()) for path in source_root.glob("*.json")]
+    assert source_records
+    assert all(not Path(row["original_record_path"]).is_absolute() for row in source_records)
+    seed = next(
+        row for row in source_records if row["canonical_identifier"] == "arxiv:2201.12220v3"
+    )
+    assert seed["original_record_path"].endswith(
+        "retained_evidence/sources/2201_12220v3.json"
+    )
     packet = prepare_human_review_packet(review_queue_path=queue_path, output_dir=tmp_path / "packet")
     assert packet["status"] == "human_review_packet_prepared_unattested"
     assert packet["human_attested"] is False

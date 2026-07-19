@@ -51,8 +51,8 @@ TOPIC_BOOTSTRAP_OUTCOMES = {"selected", "empty", "ambiguous", "unavailable", "ca
 
 MIGRATION_NAMESPACE = uuid.UUID("e1fda32d-7a7f-5cd0-880d-4a92c6b12f51")
 LOCK_STALE_SECONDS = 300
-DEFAULT_PROVIDERS = ("arxiv", "openalex")
-DEFAULT_ALLOWED_DOMAINS = ("api.openalex.org", "arxiv.org", "export.arxiv.org")
+DEFAULT_PROVIDERS = ("arxiv",)
+DEFAULT_ALLOWED_DOMAINS = ("arxiv.org", "export.arxiv.org")
 MAX_METADATA_RECORDS = 25
 MAX_SOURCE_RECORDS = 5
 MAX_BYTES_PER_SOURCE = 52_428_800

@@ -177,18 +177,18 @@ def test_published_fingerprint_generation_and_migration_vectors(tmp_path: Path) 
     budget = discovery_budget(output)
 
     assert mission_fingerprint(topic, seeds, budget) == (
-        "3e0454920753d0da938c14014a24bbd7cb616d8285e2cafcc6a2d7bd729f2433"
+        "a7a417b556bb6ade8f2b0cbf7a8602e13ac6c7de56cf0231a1d3c80bd836af00"
     )
     generation_id, digest = generation_identity(
         mission_id=MISSION_ID,
-        fingerprint="3e0454920753d0da938c14014a24bbd7cb616d8285e2cafcc6a2d7bd729f2433",
+        fingerprint="a7a417b556bb6ade8f2b0cbf7a8602e13ac6c7de56cf0231a1d3c80bd836af00",
         generation=1,
         parent_generation_id=None,
         transaction_nonce=NONCE_1,
     )
-    assert digest == "fe75fa3a7d15b86160bf552f4d436d7a036845d109edba2f3c5ef934eecab0b0"
-    assert generation_id == "g00000001-fe75fa3a7d15b861"
-    assert migrated_mission_id(topic, seeds, budget) == "401652b1-5343-5024-8392-5f1ec3e1703b"
+    assert digest == "43b0fe5832e44f1c05eb8593a3e7e3880e233a4e1618ecaadcee7baa5021421e"
+    assert generation_id == "g00000001-43b0fe5832e44f1c"
+    assert migrated_mission_id(topic, seeds, budget) == "e040e33e-bed3-5425-982b-2c1672083bd6"
 
 
 def test_normalization_and_budget_validation_are_strict(tmp_path: Path) -> None:

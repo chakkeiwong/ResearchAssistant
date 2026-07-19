@@ -121,8 +121,8 @@ ORCHESTRATION_NONCLAIMS = [
     "scientific correctness",
 ]
 
-PUBLIC_DISCOVERY_DEFAULT_PROVIDERS = ["openalex", "arxiv"]
-PUBLIC_DISCOVERY_ALLOWED_DOMAINS = ["api.openalex.org", "export.arxiv.org", "arxiv.org"]
+PUBLIC_DISCOVERY_DEFAULT_PROVIDERS = ["arxiv"]
+PUBLIC_DISCOVERY_ALLOWED_DOMAINS = ["arxiv.org", "export.arxiv.org"]
 PUBLIC_DISCOVERY_MAX_METADATA_RECORDS = 25
 
 
@@ -2008,13 +2008,13 @@ def _public_discovery_confirmation(*, output_dir: Path, confirmation: dict[str, 
         "confirmation_source": confirmation["confirmation_source"],
         "question": "Do you want RA to search public web/archive sources for this idea or paper?",
         "scope": {
-            "allowed_actions": [
-                "local_cache_lookup",
-                "bounded_public_web_api_metadata",
-                "public_archive_search",
-                "public_source_status_lookup",
-                "capped_public_source_pdf_full_text_retrieval",
-            ],
+        "allowed_actions": [
+            "local_cache_lookup",
+            "bounded_public_arxiv_metadata",
+            "public_arxiv_archive_search",
+            "public_arxiv_source_status_lookup",
+            "capped_public_arxiv_source_package_retrieval",
+        ],
             "providers": PUBLIC_DISCOVERY_DEFAULT_PROVIDERS,
             "allowed_domains": PUBLIC_DISCOVERY_ALLOWED_DOMAINS,
             "caps": {
@@ -3024,7 +3024,7 @@ def _safe_next_commands(
                 "If yes, rerun this workflow with --confirm-public-discovery. "
                 f"Planned bounded metadata command: ra survey build --topic {quoted_topic} --seed {first_seed} "
                 f"--out {output_dir / 'public_metadata'} --mode public-metadata "
-                f"--public-metadata-provider openalex --public-metadata-provider arxiv --max-records {PUBLIC_DISCOVERY_MAX_METADATA_RECORDS}"
+                f"--public-metadata-provider arxiv --max-records {PUBLIC_DISCOVERY_MAX_METADATA_RECORDS}"
             )
         ]
     if gate["gate_id"] == "public_metadata_resolution":

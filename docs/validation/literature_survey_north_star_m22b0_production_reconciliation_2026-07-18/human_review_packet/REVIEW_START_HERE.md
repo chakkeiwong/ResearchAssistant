@@ -1,27 +1,26 @@
-# M22B Human Review: Start Here
+# M22 Scholarly Assessment: Start Here
 
-This is the reviewer-facing guide for the selected Neural Optimal Transport evidence. The adjacent JSON files are machine interchange artifacts; you do not need to understand their schema to perform the review.
+This is the researcher-facing guide for the selected Neural Optimal Transport evidence. The adjacent packet, decision, and attestation files are retained machine-compatibility artifacts; they are not the active scholarly review interface.
 
-## What this review is
+## Active assessment
 
 The packet contains 7 paper-level claim decisions, 7 source-safety decisions, 58 omission-risk decisions, and one workflow-blocker decision. The packet SHA-256 is `0e2fe0a04a93a7dc418434cbe8fd87d20b3a8df65fd127beba0e95bf09b9a7e0`; the selected queue SHA-256 is `dfac76952f156ca082a7d332f95e1c03623c40dc150f5a4c52dba9a423a608d9`. Neither is changed by this guide.
 
-Your task is to record what the retained evidence actually supports. You are not being asked to prove that the survey is complete, rank methods, or approve final prose. It is valid to reject every claim candidate and leave the workflow blocker open.
+The active output is a system-generated qualitative assessment: a short summary of each paper's role, merits, concerns, unresolved uncertainties, exact local evidence references, and next action. Researchers may correct or qualify that analysis directly. They are not expected to fill 73 binary rows, assign numeric scores, or attest that uncertain scholarly judgments are simply true or false.
 
-## Review order
+## Reading order
 
-1. Read `claim_review_worksheet.csv`. For each paper, open the generated `source_reading/.../README.md` named in `local_source_to_inspect`, then inspect its listed local text files and section/line pointers. Decide whether one precise technical claim is supportable. Use `rejected_or_blocked` when it is not. Do not turn an anchor title, citation count, abstract, or machine parser output into a claim.
-2. Read `source_safety_worksheet.csv`. For each source, check the five listed status/version questions. Choose `checked_clear` only when the checks are actually documented; otherwise choose `blocked` or `quarantined` and explain why.
-3. Read `omission_review_worksheet.csv`. These are not 58 separate demands to find more papers. They are risks retained so that unused bibliography entries, identifier-free references, the 1412.6980 parse gap, and unavailable forward citations cannot disappear. Choose whether each risk stays open, is omitted for this recorded scope, or requires expansion.
-4. Read `workflow_blocker_worksheet.md`. This is derived from the seven claim decisions; it is not a new paper review. Leave it open if no reviewed supported technical claim exists.
-5. Complete `human_attestation_worksheet.md` and the supplied `human_attestation_template.json`. The attestation says that the decisions are yours and that you understand the limitations; it is not legal identity proof.
+1. Read the generated `QUALITATIVE_ASSESSMENTS.md` in the M22 qualitative-assessment validation root.
+2. Follow its evidence references into `source_reading/...` and inspect any passage material to the intended survey wording.
+3. Correct the summary, merits, concerns, uncertainties, or next action where the retained source supports a better interpretation. Preserve genuine disagreement explicitly.
+4. Treat the aggregate omission frontiers as prioritization questions. Do not perform 55 or 195 independent binary reviews.
+5. Use the legacy CSV/JSON worksheets only when testing the old import/receipt machinery. They are not required for the active trusted-research workflow.
 
-## Decision vocabulary
+## Interpretation boundaries
 
-- Claim support: `human_reviewed_passed` only for a precise claim tied to checked technical text and exact retained anchor IDs. Otherwise use `rejected_or_blocked` with a reason and next action.
-- Source safety: `checked_clear` means all five checks were performed and no notice remains. `blocked` means the checks could not be completed. `quarantined` means a retraction, withdrawal, version conflict, erratum, or other explicit safety concern was found.
-- Omission risk: `acceptable_omission` closes only the current bounded scope; `out_of_scope` records a deliberate scope exclusion; `must_inspect`, `expand_scope`, and `blocked_pending_source` keep work open. None means literature completeness.
-- Workflow blocker: `resolved_by_reviewed_evidence` is allowed only when the required claim rows genuinely provide supported claims. Otherwise use `remains_open`.
+- Qualitative assessment: summarize merits, concerns, and uncertainty from inspected text. This is evidence-oriented review, not a truth label, calibrated probability, claim-support authorization, or prose-readiness decision.
+- Hard checks: source provenance, version/retraction notices, source availability, and exact evidence references remain deterministic checks where evidence exists.
+- Research correction: an expert correction should state the source passage and reasoning. It needs no approval token, identity ceremony, or all-or-nothing decision.
 
 ## Important limitations
 
@@ -29,10 +28,10 @@ Your task is to record what the retained evidence actually supports. You are not
 - The 55 unused identifier-bearing bibliography entries and 195 identifier-free units are visible omission risks, not relevance rejections.
 - `1412.6980` has a source-format parse gap. Do not infer its contents from metadata.
 - The seven source rows were selected because they were source-located in the seed, not because the machine proved relevance or quality.
-- A completed receipt can establish that a human made decisions; it cannot establish claim truth, source safety in fact, scientific correctness, or north-star completion.
+- A generated or corrected assessment cannot by itself establish claim truth, source safety in fact, scientific correctness, or north-star completion.
 
-## Return
+## Production artifact
 
-Fill the CSV/Markdown worksheets and return them with the completed JSON attestation template. Codex may mechanically transcribe your stated choices into the exact decision envelopes, but you must inspect the transcription before attesting. Do not edit `human_review_packet.json` or change its packet hash.
+The production qualitative report is generated by `scripts/build_m22_qualitative_assessment_bundle.py`. It preserves the packet and queue hashes while producing readable JSON and Markdown assessments. Do not edit `human_review_packet.json` or change its packet hash.
 
 Machine queue path (for conversion only): `/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m22b0_production_reconciliation_2026-07-18/.artifact_state/sets/s-2312a9bc0cbef0574c4746426ea3473d6c853db64db6723b24d8e9bbd958dd25/review_queue.json`

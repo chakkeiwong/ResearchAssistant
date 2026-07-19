@@ -4,6 +4,26 @@
 - Git sharing is repository/snapshot based. The tool does not provide live multi-user editing, shared database writes, SSO/RBAC, hosted UI, or server-side locking.
 - Workspace merge/import is conservative: conflicts involving accepted audit facts require human resolution.
 - Live LLM/provider calls are disabled by default and are not part of the individual release workflow.
+- New literature-survey missions are credential-free and arXiv-only by
+  default. OpenAlex and other credentialed citation providers are out of the
+  active mission scope.
+- Topic-only mission identity and confirmation are implemented, but the
+  installed default has no live topic-bootstrap adapter. After confirmation it
+  stops honestly as `terminal_blocked_bootstrap_unavailable`.
+- The successful M22 topic case is a retained deterministic topic-selection
+  replay joined to production source/omission evidence. It is not live topic-
+  discovery validation.
+- Forward-citation coverage is unavailable and non-blocking. It must not be
+  represented as zero citations or complete coverage.
+- M22 retains 50 identifier-bearing source-uninspected omission risks and 195
+  identifier-free bibliography units with unresolved identity/count meaning.
+- Qualitative assessments record merits, concerns, uncertainties, evidence
+  references, and next actions. They do not authorize claim truth, prose
+  readiness, completeness, publication safety, or expert consensus.
+- PDF fallback is outside the active literature-survey workflow. A retained
+  includepdf wrapper is reported as a technical source gap.
+- Official code and publication/retraction status are not checked for all
+  assessed sources.
 - Generated derivations, experiments, synthesis, traceability, and readiness reports are review material, not mathematical approval.
 - Parser quality depends on local optional tools and source/PDF quality.
 - Parser-tool availability/degradation checks run, but parser scientific accuracy is not certified.
@@ -14,6 +34,9 @@
 - Shell scripts target Linux, macOS, and WSL-style POSIX environments.
 - macOS and colleague-machine onboarding remain pilot-release validation items until completed on real machines.
 - Native Windows is unvalidated; use WSL for Windows colleagues.
+- Older mission roots created under historical OpenAlex-containing discovery
+  budgets are preserved evidence but are not resumed under the active arXiv-
+  only contract. Start a fresh versioned mission root instead.
 - Local installs may generate `*.egg-info/` metadata in the checkout. These
   files are ignored and should not be committed.
 - MCP support is local stdio and read-only by default. Write-capable arXiv

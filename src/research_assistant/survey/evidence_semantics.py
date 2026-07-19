@@ -142,8 +142,12 @@ def strict_string_list(value: Any, *, field: str, allow_empty: bool = False) -> 
     return result
 
 
-def load_v2_evidence_context(review_queue_path: Path) -> EvidenceContext:
-    selected = validate_selected_review_queue(review_queue_path)
+def load_v2_evidence_context(
+    review_queue_path: Path, *, repository_root: Path | None = None
+) -> EvidenceContext:
+    selected = validate_selected_review_queue(
+        review_queue_path, repository_root=repository_root
+    )
     queue, queue_raw = read_json_object_strict(selected.review_queue_path, label="selected review queue")
     if queue_raw != canonical_pretty_bytes(queue):
         raise MissionStateError("noncanonical_review_queue", "selected review queue is not canonical pretty JSON")

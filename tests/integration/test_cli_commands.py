@@ -852,10 +852,10 @@ def test_cli_survey_run_public_source_workflow_stops_at_public_metadata_gate(tmp
     confirmation = payload['public_discovery_confirmation']
     assert confirmation['confirmed'] is False
     assert confirmation['question'] == 'Do you want RA to search public web/archive sources for this idea or paper?'
-    assert confirmation['scope']['providers'] == ['openalex', 'arxiv']
-    assert confirmation['scope']['allowed_domains'] == ['api.openalex.org', 'export.arxiv.org', 'arxiv.org']
+    assert confirmation['scope']['providers'] == ['arxiv']
+    assert confirmation['scope']['allowed_domains'] == ['arxiv.org', 'export.arxiv.org']
     assert confirmation['scope']['caps']['max_metadata_records'] == 25
-    assert 'capped_public_source_pdf_full_text_retrieval' in confirmation['scope']['allowed_actions']
+    assert 'capped_public_arxiv_source_package_retrieval' in confirmation['scope']['allowed_actions']
     assert 'technical_claim_support_from_metadata_or_source_availability' in confirmation['forbidden_actions']
     assert (output / 'mission_control.json').exists()
     mission = json.loads((output / 'mission_control.json').read_text())
@@ -863,6 +863,8 @@ def test_cli_survey_run_public_source_workflow_stops_at_public_metadata_gate(tmp
     assert mission['phase_statuses']['public_metadata']['exists'] is False
     assert mission['public_discovery_confirmation'] == confirmation
     assert any('ask once: Do you want RA to search public web/archive sources' in command for command in mission['safe_next_commands'])
+    assert all('openalex' not in command.casefold() for command in mission['safe_next_commands'])
+    assert any('--public-metadata-provider arxiv' in command for command in mission['safe_next_commands'])
     assert any('do not run public discovery before public_discovery_confirmation.confirmed is true' in action for action in mission['forbidden_actions'])
     assert 'scientific correctness' in mission['what_is_not_concluded']
 
@@ -905,7 +907,7 @@ def test_cli_survey_run_public_source_workflow_confirmed_discovery_runs_metadata
     def fake_collect_public_metadata(*, topic: str, seeds: list[str], providers: list[str], max_records: int, fetched_at: str) -> dict:
         assert topic == 'Neural Optimal Transport for generative modeling and inference'
         assert seeds == ['arxiv:2201.12220v3']
-        assert providers == ['arxiv', 'openalex']
+        assert providers == ['arxiv']
         assert max_records == 25
         return {
             'status': 'metadata_collected',
@@ -919,18 +921,6 @@ def test_cli_survey_run_public_source_workflow_confirmed_discovery_runs_metadata
                 },
                 {
                     'provider': 'arxiv', 'query_kind': 'topic_search',
-                    'normalized_seed_key': None, 'topic_query': True,
-                    'query_cap': 12, 'status': 'available', 'record_count': 0,
-                    'raw_response_saved': False,
-                },
-                {
-                    'provider': 'openalex', 'query_kind': 'seed_resolution',
-                    'normalized_seed_key': 'arxiv:2201.12220v3', 'topic_query': False,
-                    'query_cap': 5, 'status': 'available', 'record_count': 1,
-                    'raw_response_saved': False,
-                },
-                {
-                    'provider': 'openalex', 'query_kind': 'topic_search',
                     'normalized_seed_key': None, 'topic_query': True,
                     'query_cap': 12, 'status': 'available', 'record_count': 0,
                     'raw_response_saved': False,
@@ -949,10 +939,10 @@ def test_cli_survey_run_public_source_workflow_confirmed_discovery_runs_metadata
                     'year': 2022,
                     'doi': None,
                     'arxiv_id': '2201.12220v3',
-                    'openalex_id': 'https://openalex.org/W123',
+                    'openalex_id': None,
                     'landing_page_url': 'https://arxiv.org/abs/2201.12220v3',
-                    'citation_count': 42,
-                    'providers': ['openalex', 'arxiv'],
+                    'citation_count': None,
+                    'providers': ['arxiv'],
                     'roles': [],
                     'provider_records': [
                         {
@@ -960,21 +950,11 @@ def test_cli_survey_run_public_source_workflow_confirmed_discovery_runs_metadata
                             'source_id': '2201.12220v3', 'primary_category': 'cs.LG',
                             'published': '2022-01-01',
                         },
-                        {
-                            'provider': 'openalex', 'query_kind': 'seed_resolution',
-                            'source_id': 'https://openalex.org/W123', 'citation_count': 42,
-                            'publication_date': '2022-01-01', 'work_type': 'article',
-                        },
                     ],
                     'referenced_works': [],
                     'query_provenance': [
                         {
                             'provider': 'arxiv', 'query_kind': 'seed_resolution',
-                            'normalized_seed_key': 'arxiv:2201.12220v3',
-                            'topic_query': False,
-                        },
-                        {
-                            'provider': 'openalex', 'query_kind': 'seed_resolution',
                             'normalized_seed_key': 'arxiv:2201.12220v3',
                             'topic_query': False,
                         },
@@ -2664,10 +2644,10 @@ def _canonical_cli_metadata_collection(
 ) -> dict:
     assert topic == _CANONICAL_CLI_TOPIC
     assert seeds == [_CANONICAL_CLI_SEED]
-    assert set(providers) == {'arxiv', 'openalex'}
+    assert providers == ['arxiv']
     assert max_records == 25
     provider_statuses = []
-    for provider in ('arxiv', 'openalex'):
+    for provider in ('arxiv',):
         provider_statuses.extend([
             {
                 'provider': provider,
@@ -2706,10 +2686,10 @@ def _canonical_cli_metadata_collection(
             'year': 2022,
             'doi': None,
             'arxiv_id': '2201.12220v3',
-            'openalex_id': 'https://openalex.org/W123',
+            'openalex_id': None,
             'landing_page_url': 'https://arxiv.org/abs/2201.12220v3',
-            'citation_count': 42,
-            'providers': ['openalex', 'arxiv'],
+            'citation_count': None,
+            'providers': ['arxiv'],
             'roles': [],
             'provider_records': [
                 {
@@ -2719,25 +2699,11 @@ def _canonical_cli_metadata_collection(
                     'primary_category': 'cs.LG',
                     'published': '2022-01-01',
                 },
-                {
-                    'provider': 'openalex',
-                    'query_kind': 'seed_resolution',
-                    'source_id': 'https://openalex.org/W123',
-                    'citation_count': 42,
-                    'publication_date': '2022-01-01',
-                    'work_type': 'article',
-                },
             ],
             'referenced_works': [],
             'query_provenance': [
                 {
                     'provider': 'arxiv',
-                    'query_kind': 'seed_resolution',
-                    'normalized_seed_key': _CANONICAL_CLI_SEED,
-                    'topic_query': False,
-                },
-                {
-                    'provider': 'openalex',
                     'query_kind': 'seed_resolution',
                     'normalized_seed_key': _CANONICAL_CLI_SEED,
                     'topic_query': False,
@@ -2999,7 +2965,7 @@ def _write_reviewed_sidecar_fixture(
             seeds=[_CANONICAL_CLI_SEED],
             output_dir=mission_dir / 'public_metadata',
             mode='public-metadata',
-            public_metadata_providers=['arxiv', 'openalex'],
+            public_metadata_providers=['arxiv'],
             max_records=25,
         )
     finally:

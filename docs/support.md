@@ -34,6 +34,18 @@ ra parser-tool-matrix
 ra parser-benchmark-smoke
 ```
 
+For literature-survey mission problems, add:
+
+```bash
+ra survey run-public-source-workflow --help
+ra survey qualitative-assessment --help
+```
+
+Report the exact `status`, `blocked_reason`, `next_action.action_id`, and
+`mission_id` from the JSON output. Do not replace an honest
+`terminal_blocked_bootstrap_unavailable` or source-gap status with guessed
+provider output.
+
 For backup or restore problems, add:
 
 ```bash
@@ -82,6 +94,8 @@ Include:
 - whether the demo workflow works in `/tmp/research-assistant-support-demo`;
 - whether the issue involves install, parser tools, workspace validation, backup/restore, or performance.
 - whether the issue involves Git sharing, repository hygiene, merge/import, validation evidence, or release gating.
+- whether the survey input was topic-only or explicit-seed, whether this was a
+  fresh root or `--resume`, and the exact mission terminal/action ID.
 
 Keep examples synthetic whenever possible. If a real paper triggers a failure, report the command shape and issue code first, then arrange a private review path before sharing any content.
 
@@ -100,3 +114,6 @@ Not supported in this release:
 - live LLM/provider workflows by default;
 - native Windows shell-script workflow;
 - parser accuracy certification for arbitrary PDFs.
+- live topic-bootstrap discovery, forward-citation coverage, OpenAlex or other
+  credentialed citation providers, PDF fallback, automatic claim promotion,
+  and publication-ready survey prose.

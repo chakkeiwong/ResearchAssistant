@@ -1,455 +1,372 @@
 # M23 North-Star Acceptance And Operational Closeout Subplan
 
-Date: `2026-07-13`
-Status: `REFRESH_AND_REVIEW_REQUIRED_DO_NOT_EXECUTE`
+Date: `2026-07-19`
+Status: `READY_FOR_PROPORTIONATE_LOCAL_ACCEPTANCE`
 Milestone: `M23_north_star_acceptance_and_operational_closeout`
 Closes: `G7_operational_closeout`
 
 ## Phase Objective
 
-Make the bounded exploratory workflow discoverable, usable, recoverable, and
-honestly described for another operator from a clean install. Independently
-verify a documentation-only idea/topic path to the exact reviewed terminal,
-verify separate honest boundary/recovery cases, reconcile all control-plane
-claims, and close the north-star mission only within its recorded scope.
+Show that a fresh local operator process can install the current package from
+an offline wheel, discover the literature-survey command, follow current
+documentation, create topic-only and explicit-seed missions with honest local
+terminals, resume unchanged state, observe a source/forward/omission limitation
+report, and reject stale/corrupt evidence without hidden source-worktree
+imports.
+
+This phase validates local operational usability and claim consistency. It does
+not validate live topic discovery, provider reliability, literature
+completeness, publication-ready prose, autonomous expertise, public release,
+or broad platform support.
 
 ## Entry Conditions Inherited From M22
 
-- M22 has a complete predeclared real-mission matrix with honest outcomes.
-- At least one production idea/topic-start mission reached
-  `terminal_ready_for_reviewed_prose_within_recorded_scope` with genuine
-  decisions and no bypass.
-- Exact clean commit/install authority, source/review privacy policy, recovery
-  records, known limitations, and final M22 review are frozen.
-- All known high-severity correctness/boundary defects are resolved or remain
-  explicit completion blockers; they cannot be relabeled limitations merely to
-  close the program.
+- M22 closed as `M22_PASSED_WITHIN_RECORDED_QUALITATIVE_SCOPE`.
+- The active nine-case matrix and repaired `_r2` root replay all cases.
+- Topic and explicit-seed cases reach
+  `ASSESSED_TERMINAL_WITHIN_RECORDED_SCOPE` without claim or prose promotion.
+- Forward citations remain unavailable and non-blocking.
+- Fifty identifier-bearing rows and 195 identifier-free units remain explicit
+  omission risks.
+- Official code and publication/retraction status remain unchecked.
+- The topic route is a retained deterministic M17 selection fixture joined to
+  production evidence, not live topic-discovery validation.
 
-## Mandatory Refresh Gate
+## Governance Migration
 
-The execution-ready plan must bind actual M22 artifacts and define:
+The 2026-07-13 shell required genuine-human reviewed-prose acceptance and a
+custom two-stage cryptographic terminal-control transaction. Those mechanics
+are retired by the current `AGENTS.md` policy and by the active qualitative
+scientific interface. They did not answer the operational question and would
+recreate superseded identity, approval-token, and manifest ceremony.
 
-- exact README/install/quickstart/operator-review/troubleshooting/privacy/
-  recovery/limitations/capability/compatibility documents to edit;
-- clean environment/checkout/install commands and proof no source-worktree or
-  hidden state is used;
-- an independent operator who did not implement the candidate and receives
-  documentation plus ordinary product prompts only;
-- one documentation-only idea/topic acceptance case to the reviewed terminal;
-- separate predeclared confirmation-denied, provider partial/unavailable,
-  source gap, interruption/resume, stale/corrupt artifact, corrected review,
-  and terminal-handoff cases;
-- usability observation protocol, artifact/log/privacy handling, exact pass
-  predicates, repair loop, time/cost bounds, and nonclaims; and
-- final control-plane/release-manifest reconciliation and hostile review scope.
+Historical artifacts remain preserved. Active M23 uses ordinary Git identity,
+an offline wheel, fresh versioned output roots, SHA-256 inventories,
+deterministic replay, focused tests, and one terminal audit. Public release,
+credentials, paid services, destructive operations, and materially expanded
+scientific scope remain explicit human boundaries.
 
-The refreshed acceptance plan must pass skeptical and fresh read-only review.
-Any new network/source/human/Git/release action requires its exact remaining
-authority; M22 evidence does not imply public release.
-
-## Research Intent Ledger
-
-| Field | M23 contract |
-| --- | --- |
-| Main question | Can another operator use and recover the bounded workflow from documentation and a clean install without hidden reconstruction? |
-| Candidate/mechanism | Reconciled operator documentation, clean-install acceptance, and explicit recovery/limitation surfaces. |
-| Expected failure mode | The operator succeeds only with implementer help, stale local state, hidden credentials, or a bypass not documented as authority. |
-| Promotion criterion | Independent documentation-only idea/topic run reaches exact reviewed terminal and separate boundary/recovery cases behave honestly. |
-| Promotion veto | Hidden manual reconstruction; dirty-tree dependency; extra ordinary discovery prompt; hidden genuine review boundary; false capability claim; unresolved high-severity correctness/boundary defect. |
-| Continuation veto | Independent acceptance cannot be validly run, required authority absent, privacy/release boundary invalid, artifact corrupt, or five-round nonconvergence. |
-| Repair trigger | Operator confusion, install/import failure, recovery mismatch, stale documentation, capability drift, or hostile-review `REVISE`. |
-| Explanatory only | Task time, clicks/commands, help requests, logs, counts, and subjective comments unless a refreshed criterion validly predeclares otherwise. |
-| Must not be concluded | Literature completeness, universal scientific correctness, autonomous review, broad provider reliability, unbounded/private/paid access, unattended production readiness. |
-
-## Evidence Contract
+## Research Intent And Evidence Contract
 
 | Field | Contract |
 | --- | --- |
-| Question | Is the north-star exploratory workflow reproducible, usable, recoverable, and honestly bounded for an independent operator? |
-| Baseline/comparator | M22 engineering/real-mission evidence without independent documentation-only acceptance or reconciled operational claims. |
-| Primary pass criterion | Independent clean-install documentation-only idea/topic run reaches the exact within-scope reviewed terminal; separate boundary and recovery cases match predeclared behavior; all capability/control artifacts agree. |
-| Hard vetoes | Dirty/hidden dependency; implementer reconstruction; false readiness/capability; missing ordinary one-confirmation behavior; hidden human boundary; recovery corrupts lineage; high-severity unresolved defect; unauthorized release/action. |
-| Explanatory diagnostics | Operator time, command count, clarification count, log size, provider/source counts, and subjective feedback. |
-| Not concluded | Completeness, universal correctness, provider reliability at scale, autonomous review, private/paid/unbounded capability, production/release readiness beyond recorded acceptance scope. |
-| Preserving artifacts | Frozen docs, clean-install manifest, operator transcript/attestation, per-case results, compatibility/limitations/release manifests, hostile review, final close record, reconciled control plane. |
+| Question | Can the documented local literature-survey workflow be installed, discovered, run, resumed, and diagnosed from an isolated environment without hidden worktree imports or false capability claims? |
+| Baseline | M22 scientific workflow evidence plus current README/installation/quickstart/known-limitations/support documents, which do not yet present a coherent north-star operator path. |
+| Primary criterion | Offline wheel installs into a fresh virtual environment; installed `ra` exposes the documented survey commands; all predeclared local acceptance cases produce exact outcomes; documentation and capability claims agree with M22 evidence. |
+| Promotion criterion | Every acceptance case passes and a fresh installed-process replay confirms no source-worktree import, no network dispatch, no credential access, and no false terminal promotion. |
+| Promotion veto | Wheel/install/import failure; undocumented command; source-worktree import; live/network action; stale or corrupt evidence accepted; topic stop misrepresented as live validation; claim/prose/completeness promotion; contradictory capability statements. |
+| Continuation veto | Package cannot be built or installed offline with the current toolchain; required local command cannot be represented honestly; M22 evidence is corrupt; privacy/destructive/release boundary appears. |
+| Repair trigger | Documentation mismatch, installed-command mismatch, wrong exit/status contract, replay/tamper gap, missing artifact, or focused regression failure. |
+| Explanatory only | Wall time, output size, command count, Python version, and platform string. |
+| Not concluded | Literature completeness, scientific truth, live topic quality, provider reliability, publication safety, autonomous expert judgment, public release readiness, macOS/native-Windows support, or general product readiness. |
 
-## Exact Edit And Write Allowlist
+## Predeclared Local Acceptance Matrix
 
-This shell authorizes no edit, acceptance run, release, or external action. The
-refreshed plan must list every documentation, packaging, compatibility,
-capability, milestone/control, test, validation, review, and closeout path. It
-must name exact clean-checkout/environment/output roots and prohibit source
-worktree, hidden cache, credentials, unrelated user paths, and private reviewer
-data. Any product code repair discovered in acceptance requires a visible scope
-delta, catching test, integration update, rereview, and exact Git authority.
+| Case | Installed command or evidence | Expected result |
+| --- | --- | --- |
+| `install_and_command_discovery` | Offline wheel in fresh virtual environment; `ra version`; `ra survey run-public-source-workflow --help`; `ra survey qualitative-assessment --help` | Commands exist and help names the active boundaries. |
+| `topic_confirmation_stop` | Topic-only mission without confirmation | Exit `0`, `status=blocked_at_gate`, `input_mode=idea_or_topic_without_initial_paper_seed`, next action `confirm_public_discovery`; no provider call. |
+| `topic_unavailable_stop` | Same topic mission resumed with confirmation under the built-in credential-free unavailable bootstrap capability | Honest `terminal_blocked_bootstrap_unavailable`; no selected seed or live-quality claim. |
+| `explicit_seed_local_skeleton` | Explicit seed with `--run-safe-local` and no confirmation | Offline skeleton exists and mission stops at the public-discovery gate; no provider/source dispatch. |
+| `unchanged_resume` | Repeat explicit-seed command with `--resume --run-safe-local` | Same mission identity, valid generation lineage, and no false advancement. |
+| `qualitative_assessment_command` | Installed CLI writes one synthetic local assessment | Exact non-promoting schema with `claim_support_allowed=false` and `ready_for_prose=false`. |
+| `m22_report_replay` | Installed acceptance helper verifies the repaired M22 case ledger/report/terminal hashes and open limitations | All nine cases remain visible; forward, 50-row, and 195-unit limitations remain explicit. |
+| `stale_or_corrupt_rejection` | Mutated copied M22 case ledger or terminal result in acceptance scratch space | Deterministic replay rejects the mutation; canonical M22 evidence is not edited. |
+| `documentation_capability_consistency` | Mechanical scan of README, installation, quickstart, known limitations, support, master, reset, and M22/M23 result paths | No claim of live topic validation, completeness, prose readiness, credentialed OpenAlex requirement, generic human prerequisite, or accomplished M23 before terminal close. |
+
+All cases are local. No case may dispatch network requests, inspect credentials,
+use PDF fallback, mutate a global environment, push, release, or message a
+third party.
+
+## Default And Assumption Audit
+
+| Choice | Provenance/status | Failure mode | Early diagnostic |
+| --- | --- | --- | --- |
+| Offline wheel is the clean-install vehicle | Existing release scripts and dependency-free `pyproject.toml`; reviewed baseline | Wheel omits new survey modules or imports from source checkout | Run from a non-repository cwd with `PYTHONPATH` unset and record module paths |
+| Fresh subprocesses represent an operator | Local operational acceptance, not a human usability study | Automation is mislabeled independent human acceptance | Call it fresh-process acceptance and forbid human-usability claims |
+| Built-in topic capability ends unavailable | Current installed product behavior | Honest unavailable stop is mistaken for successful live bootstrap | Require exact unavailable terminal and explicit nonclaim |
+| Existing M22 `_r2` evidence is scientific baseline | Closed M22 result | Acceptance silently changes scientific evidence | Read-only hash/replay checks; no writes under M22 roots |
+| Linux/WSL environment is sufficient for this run | Current host and existing release target | Result is generalized to macOS/native Windows | Record observed platform and keep other platforms unvalidated |
+
+## Pre-Mortem
+
+- The wheel could install but import modules from the source checkout through
+  `PYTHONPATH` or current directory. Diagnostic: unset `PYTHONPATH`, run from a
+  temporary directory, and record imported module paths under the virtualenv.
+- A nonzero honest boundary stop could be mislabeled failure, or an unexpected
+  error mislabeled a valid stop. Diagnostic: predeclare exact exit codes and
+  JSON fields for every command.
+- Documentation could describe the historical reviewed-prose pipeline as the
+  active route. Diagnostic: mechanical phrase and command checks plus terminal
+  audit.
+- An M22 artifact could be accidentally overwritten during tamper testing.
+  Diagnostic: mutate only copied scratch artifacts and rehash canonical roots
+  before and after acceptance.
 
 ## Required Artifacts
 
-- Refreshed reviewed M23 acceptance/closeout plan and exact allowlist.
-- Updated operator documentation and known-limitations/capability statements.
-- Clean-install environment and run manifest tied to identified commit.
-- Independent operator role/attestation and bounded transcript that omits
-  sensitive data.
-- Documentation-only idea/topic terminal acceptance result.
-- Separate boundary/recovery case results.
-- Installation/command discovery, compatibility, privacy, and recovery checks.
-- Release/integration manifest and exact included/excluded paths; this does not
-  itself authorize public release.
-- Reconciled milestone JSON, mission control, reset memo, master program,
-  capability matrix, and stop/handoff.
-- Decision/inference-status tables, post-run red team, final hostile
-  code/evidence/documentation review, and north-star close record.
-- Immutable pending and terminal control generations, their exact-key
-  manifests, pre-seal predicate receipt, atomic selector, post-selection replay
-  record, and activation receipt defined by the terminal-control contract below.
+1. Updated `README.md`, `docs/installation.md`, `docs/quickstart.md`,
+   `docs/known_limitations.md`, and `docs/support.md`.
+2. `docs/literature_survey_operator_guide.md` with the active local workflow,
+   output interpretation, recovery, correction, privacy, and nonclaims.
+3. A local M23 acceptance runner and focused tests.
+4. One fresh versioned validation root containing:
+   - run manifest;
+   - wheel and isolated-environment identity;
+   - exact command ledger and captured JSON outputs;
+   - documentation consistency report;
+   - M22 read-only replay/tamper result;
+   - capability/limitations matrix;
+   - offline replay;
+   - terminal result and artifact inventory.
+5. Updated master program and reset memo.
+6. M23 result/north-star close record if all gates pass.
 
-## Required Checks, Tests, And Reviews
+## Required Checks, Tests, And Review
 
-1. Audit baseline, independent-operator definition, hidden help/state,
-   authority, proxy roles, stop logic, environment, privacy, and artifact
-   fitness.
-2. Validate documentation commands mechanically against the identified commit
-   and clean environment.
-3. Run install/import/command-discovery and cumulative local regression/static
-   gates with `CUDA_VISIBLE_DEVICES=-1`.
-4. Freeze acceptance cases, documentation, commit, commands, outputs, and
-   authority; obtain fresh review and any exact external/Git/human approval.
-5. Have the independent operator use documentation and ordinary product prompts
-   only for the idea/topic terminal case. Record any implementer intervention
-   as a failure/repair, not hidden assistance.
-6. Run separate predeclared boundary/recovery cases; preserve failures and
-   repair until gates pass or a continuation veto fires.
-7. Reconcile every capability claim with exact code/evidence and mark absent
-   support `unsupported` or `not checked`.
-8. Run hostile code/evidence/documentation review and repair visibly for at
-   most five rounds on the same material blocker.
-9. Verify exactly one active/completed topology, all required artifacts, frozen
-   manifests, no stale milestone language, diff hygiene, and final nonclaims.
-10. Run terminal-control schema/fixed-vector, regular-file/non-symlink,
-    manifest-last, stale/foreign/missing/extra/hash-mismatch, selector, receipt,
-    and canonical-resolver tests.
-11. Run a crash matrix before/during/after every pending-generation write,
-    pre-seal receipt, terminal-generation write, selector no-replace
-    link/fsync/unlink/fsync publication,
-    post-selection replay record, and activation-receipt write/fsync. Every
-    incomplete interval must resolve to non-accomplished pending, an exact
-    blocker, or `terminal_blocked_final_control_selection_indeterminate`.
-12. Test JSON `null` first-selector lineage, rejection of every non-null
-    predecessor for a new transaction, deterministic first-failed-criterion
-    blocker selection, append-only replay-attempt lineage, and one-shot
-    rejection of selector replacement/rollback/fork.
+- Compile the M23 runner and changed CLI/documentation support code.
+- Focused unit tests for command matrix, exact statuses, no-network source
+  surface, source-worktree isolation, evidence tamper rejection, and
+  documentation phrase/command consistency.
+- Build one wheel locally, create one fresh virtual environment, and install
+  with `--no-index --no-deps`.
+- Run all nine predeclared cases from outside the repository with
+  `PYTHONPATH` unset and `CUDA_VISIBLE_DEVICES=-1`.
+- Run the affected M17/M22/CLI integration slice and `git diff --check`.
+- Perform one terminal skeptical code/evidence/documentation audit. A reviewer
+  is advisory; unavailability or procedural disagreement does not block valid
+  local evidence.
 
-## Fail-Closed Two-Stage Terminal Control Transaction
+## Evidence Contract
 
-M23 must not rewrite several repository or mission-control files and call that
-operation atomic. The refreshed M23 plan must freeze one mission-local terminal
-control root and implement the following manifest-bound transaction. Every file
-must be regular, non-symlink, and write-once; every directory and path component
-must be a real directory, never a symlink. Use atomic temporary-file writes,
-file and directory fsync, manifest-last finalization, exact-key validation, and
-path-containment checks.
-
-### Logical Control Set
-
-Each generation contains canonical projections of exactly these logical
-controls: final close record, milestone JSON, mission control, reset memo,
-master program, capability/limitations matrix, release manifest, visible
-ledger, and stop/handoff. The M23 result and final hostile-review verdict are
-immutable predicate inputs rather than self-modifying controls. Any convenient
-top-level copies are mirrors only; they cannot establish completion and must
-identify their selected projection plus the terminal selector and activation
-receipt. Selected projections bind the transaction, pending manifest, and
-pre-seal receipt, but must not hash-bind the downstream selector, replay, or
-activation receipt that already hash-bind those projections; that would be
-circular. The selector/receipt authority envelope supplies that binding.
-
-Missing or stale mirrors are reported as `terminal_control_mirror_stale` with an
-exact local mirror-refresh action, but do not invalidate a complete selected
-authority envelope. A mirror that claims a different terminal status or
-authority is ignored and repaired from the selected generation. Mirrors can
-never upgrade, override, or block the canonical selector/receipt resolver.
-
-### Stage 1: Pending Candidate And Pre-Seal Predicate
-
-1. Write one immutable candidate generation whose every logical control says
-   `PENDING_FINAL_PREDICATE`, carries the same transaction ID and
-   `proposed_terminal_status`, and makes no accomplished claim.
-   The M23 result is already frozen separately with exact nonterminal status
-   `PASSED_ACCEPTANCE_PENDING_FINAL_PREDICATE`; neither it nor its review claims
-   mission accomplishment.
-2. Write its manifest last. Pending manifest V1 has exactly:
-
-```text
-schema_version
-transaction_id
-status
-proposed_terminal_status
-created_at
-m23_result_sha256
-final_review_sha256
-predecessor_selector_sha256
-predicate_input_rows
-predicate_input_digest
-control_rows
-```
-
-`status` is exactly `PENDING_FINAL_PREDICATE`; rows are canonical-key-sorted and
-bind logical name, relative path, native schema/version, size, and SHA-256.
-`proposed_terminal_status` is exactly
-`ACCOMPLISHED_WITHIN_RECORDED_EXPLORATORY_SCOPE`, but it is a proposal only; a
-failed criterion, not the proposal, determines the exact blocker.
-`predicate_input_digest` is computed over the frozen substantive inputs only,
-excluding candidate controls, manifests, selector, replay, and receipt. The
-transaction ID is exactly `tc-` plus the SHA-256 of canonical V1 identity bytes
-containing the M23 result hash, final-review hash, predicate-input digest, and
-predecessor-selector value. `predecessor_selector_sha256` is JSON `null` when no
-selector exists; otherwise it is the SHA-256 of the exact selector already
-resolved before this transaction. M23 permits a new terminal transaction only
-when this field is `null`. If any selector already exists, ordinary execution
-must resolve or recover that exact transaction and must not replace it.
-`created_at` is copied from the frozen M23 result's recorded completion
-timestamp; it is not sampled while building or rebuilding the pending
-generation.
-3. Run `M23_PRESEAL_PREDICATE` against frozen M17-M23 results/reviews,
-   acceptance evidence, and the pending generation. It checks all substantive
-   completion criteria plus pending-control agreement, but deliberately does
-   not require a terminal selector, activation receipt, or already-accomplished
-   control.
-4. Persist a pre-seal predicate receipt with exactly:
-
-```text
-schema_version
-transaction_id
-pending_manifest_sha256
-predicate_version
-predicate_input_digest
-criterion_rows
-verdict
-blocker_code
-checked_at
-```
-
-The verdict is `eligible_accomplished` only when every frozen criterion passes;
-otherwise it is `must_block` with a nonempty exact blocker code. This local
-receipt is mechanical evidence, not a reviewer or human authorization. Before
-execution, the refreshed M23 plan freezes an ordered criterion-ID table and one
-exact blocker code per criterion. `criterion_rows` contains every criterion in
-that order with pass/fail and evidence digests; `must_block` uses the blocker
-mapped to the first failed hard-veto criterion. No post-result priority or code
-choice is allowed. `blocker_code` is JSON `null` for `eligible_accomplished` and
-the selected exact code for `must_block`.
-
-`checked_at` is copied from the pending manifest's `created_at`. Actual wall
-time may appear only in a non-authoritative execution log. Because all predicate
-inputs are immutable, recomputing an absent receipt from the same pending bytes
-must reproduce identical receipt bytes.
-
-The receipt path is keyed by pending-manifest SHA-256 and is published once
-under the mission lock with the no-replace hard-link/fsync protocol. If the path
-exists, its regular bytes must validate and bind the same transaction; it is
-reused rather than recomputed. An absent receipt may be recomputed from the
-unchanged pending generation, but no valid receipt may be overwritten.
-
-### Stage 2: Terminal Generation, Selection, Replay, And Activation
-
-1. Deterministically build a second immutable generation. Its terminal status
-   is `ACCOMPLISHED_WITHIN_RECORDED_EXPLORATORY_SCOPE` only for an
-   `eligible_accomplished` pre-seal receipt; otherwise it is that receipt's exact
-   blocker. Its controls all carry the same final status, transaction ID,
-   pending-manifest digest, and pre-seal-receipt digest.
-   Every terminal projection is a schema-defined deterministic transformation
-   of its pending projection plus the frozen pre-seal receipt: final status and
-   authority fields change exactly as declared, timestamps are copied from
-   frozen inputs, and no new evidence, claim, criterion, or wall-clock value is
-   introduced. Fixed-vector tests bind both accomplished and blocker transforms.
-2. Write terminal manifest V1 last with exactly:
-
-```text
-schema_version
-transaction_id
-terminal_status
-created_at
-pending_manifest_sha256
-preseal_receipt_sha256
-prior_selector_sha256
-control_rows
-```
-
-`prior_selector_sha256` must equal the pending manifest's
-`predecessor_selector_sha256`; for the only permitted first selection both are
-JSON `null`. The terminal manifest `created_at` is copied from the durable
-pre-seal receipt's `checked_at`, so rebuilding an unselected partial terminal
-generation cannot change canonical bytes by consulting the wall clock.
-
-3. Validate the complete terminal generation under the existing mission lock,
-   verify the selector path is absent, then publish one selector with exactly:
-
-```text
-schema_version
-transaction_id
-terminal_manifest_path
-terminal_manifest_sha256
-prior_selector_sha256
-selected_at
-```
-
-`selected_at` is copied from the pre-seal receipt's `checked_at`; it is not a
-fresh wall-clock input.
-
-The selector is a one-shot, no-replace publication, not ordinary overwriting
-`rename()`. Write and fsync a regular same-directory temporary selector, use an
-atomic same-filesystem hard-link create from that file to the absent canonical
-selector path, require `EEXIST` to fail closed, fsync the selector directory,
-remove the temporary name, and fsync the directory again. If regular-file hard
-links or the required filesystem durability are unavailable, stop before
-selection; do not weaken this to an overwriting rename or check-then-write. The
-published selector atomically chooses one complete generation, but it does not
-by itself activate or publish its proposed terminal status.
-4. Read the selector and selected generation back from disk and run the full
-   post-selection consistency replay: exact keys, paths, hashes, manifest,
-   transaction/lineage, pre-seal proof, all M17-M23 predicate inputs, native
-   control semantics, common final status, and nonclaims. Persist each replay as
-   a new immutable attempt. Replay record V1 has exactly:
-
-```text
-schema_version
-replay_id
-attempt_index
-transaction_id
-selector_sha256
-terminal_manifest_sha256
-pending_manifest_sha256
-preseal_receipt_sha256
-predicate_input_digest
-control_set_digest
-prior_replay_record_sha256
-criterion_rows
-replay_status
-replayed_at
-```
-
-`attempt_index` is `0` for the first attempt and exactly one greater than the
-latest valid attempt for the selector. `prior_replay_record_sha256` is JSON
-`null` at index `0` and otherwise binds that immediately prior record.
-`replay_id` is `rp-` plus the SHA-256 of canonical V1 identity bytes containing
-the selector SHA-256, attempt index, and prior replay digest. `replay_status` is
-exactly `pass` or `fail`. A failed replay writes no activation receipt. Ordinary
-resume may append a new replay attempt only for unchanged
-selector/manifest/control bytes; an activation receipt binds exactly one passing
-replay record.
-5. Only after a passing replay, publish an activation receipt with exactly:
-
-```text
-schema_version
-selector_sha256
-terminal_manifest_sha256
-replay_record_sha256
-activated_terminal_status
-activated_at
-```
-
-The receipt path is deterministically keyed by the selector SHA-256 and may be
-created only once. `activated_at` is copied from the bound passing replay's
-`replayed_at`. Under the mission lock, write/fsync a regular same-directory
-temporary receipt and use the same no-replace hard-link/fsync protocol as the
-selector. `EEXIST` is acceptable only when the existing regular receipt bytes
-are exactly identical and validate; otherwise fail closed. A later replay may
-not replace or redirect an existing valid activation receipt.
-
-6. Invoke the canonical resolver once more after receipt creation. It recognizes
-   a terminal status only when selector, selected manifest, replay record,
-   activation receipt, and every selected control validate together. Only this
-   resolved pair may expose accomplishment or the selected blocker.
-
-Before any selector exists, a valid pending generation resolves only
-`PENDING_FINAL_PREDICATE`; partial pending/pre-seal/terminal files resolve an
-exact non-accomplished preparation blocker and are never terminal authority.
-Once a selector exists, it is one-shot: a valid activation receipt makes its
-generation permanently terminal for this program, while a missing receipt may
-only be completed by replaying those exact selected bytes. No ordinary path may
-replace, roll back, or fork the selector, including to change accomplished into
-blocked or blocked into accomplished.
-
-A selector with no matching valid activation receipt, a receipt for different
-selector bytes, a failed replay, or any corrupt/partial selected generation
-resolves exactly
-`terminal_blocked_final_control_selection_indeterminate`; it never falls back to
-loose controls and never exposes accomplishment. Ordinary resume may rerun the
-post-selection replay and create the missing receipt only when the already
-selected bytes validate exactly; it makes no external/source/human calls and
-does not rebuild or replace an accomplished candidate. An invalid selected
-generation is preserved and stops for an explicitly reviewed recovery.
+For every case preserve command argv, cwd, environment boundary, exit code,
+stdout/stderr hashes, parsed status, pass/fail interpretation, and exact
+artifact paths. The run manifest records Git commit/tree, dirty state, wheel
+hash, Python/platform, CPU-only choice, wall time, plan/result paths, and
+versioned output root.
 
 ## Forbidden Claims And Actions
 
-- Do not execute this shell, select an implementer as the independent operator,
-  or provide hidden reconstruction/help during acceptance.
-- Do not reuse a dirty environment, source checkout import, hidden cache,
-  undeclared credentials, or prebuilt mission state.
-- Do not hide extra ordinary discovery prompts, genuine human review, provider
-  partials, source gaps, stale artifacts, or recovery failures.
-- Do not mark a high-severity correctness/boundary defect a limitation to pass.
-- Do not infer literature completeness, universal scientific correctness,
-  autonomous review, provider reliability, or broad production readiness from
-  one terminal mission.
-- Do not publish/release, change defaults, mutate Git, or cross any network,
-  source, privacy, credential, funding, or human boundary without exact
-  authority.
-- Do not treat a pending candidate, terminal-generation presence, selector
-  presence, mirror status, pre-seal receipt, or replay record without its exact
-  activation receipt as accomplishment.
+- No live provider or source dispatch, credential access, PDF fallback,
+  package-index access, global environment mutation, Git integration, push,
+  release, or public message.
+- No human identity, independence, competence, or usability-study claim from
+  automated fresh-process acceptance.
+- No claim that the built-in unavailable topic bootstrap validates live topic
+  discovery.
+- No claim that M22 assessed terminals mean truth, completeness, reviewed
+  prose, publication safety, or expert consensus.
+- No recreation of generic human-attestation, numeric scoring, launch tokens,
+  one-use authority, or custom terminal-control prerequisites.
 
-## Exact Next-Phase Handoff Conditions
+## Exact Terminal Handoff Conditions
 
-There is no automatic next milestone. `M23_PRESEAL_PREDICATE` may return
-`eligible_accomplished` only if:
+The north-star mission may close as
+`ACCOMPLISHED_WITHIN_RECORDED_LOCAL_EXPLORATORY_SCOPE` only when:
 
-1. All M17-M23 result artifacts pass in order and their manifests/reviews
-   replay.
-2. An identified clean commit installs and exposes the documented command.
-3. The independent documentation-only idea/topic run reaches
-   `terminal_ready_for_reviewed_prose_within_recorded_scope` without hidden
-   reconstruction.
-4. Separate confirmation, provider, source-gap, interruption/resume,
-   stale/corrupt, correction, and handoff cases preserve exact honest behavior.
-5. Genuine human review and checked technical anchors are present for the
-   successful packet; all other boundaries remain visible.
-6. The pending milestone JSON, mission control, reset memo, master,
-   capability/limitations matrix, release manifest, ledger, handoff, and final
-   close projection agree on `PENDING_FINAL_PREDICATE`, the transaction ID,
-   proposed terminal status, frozen evidence, scope, and nonclaims.
-7. Final hostile review is `AGREE` and no high-severity completion veto remains.
+1. the offline wheel installs and imports only from the isolated environment;
+2. all nine acceptance cases pass with exact outcomes;
+3. M22 repaired evidence replays and tamper copies are rejected;
+4. documentation and capability/limitation statements agree;
+5. no network, credential, PDF, release, or external action occurs;
+6. focused and affected regression checks pass; and
+7. terminal audit finds no material correctness, privacy, scientific-boundary,
+   or operator-documentation defect.
 
-The north-star mission may then be marked
-`ACCOMPLISHED_WITHIN_RECORDED_EXPLORATORY_SCOPE` only after the two-stage
-terminal-control transaction selects the deterministically derived accomplished
-generation, its post-selection replay passes, a matching activation receipt is
-durable, and the canonical resolver replays the full selected authority. A
-failed pre-seal criterion instead selects and activates an exact blocker
-generation. No control is authoritative merely because it contains final
-words.
-
-Any public release, new default, expanded provider/source scope, credentials,
-private/paid access, or unattended operation becomes a separate future program.
+The close record must carry all remaining limitations and must not convert them
+to completed scientific claims.
 
 ## Stop Conditions
 
-Stop with an exact blocker/handoff if independent acceptance cannot be run
-validly; required authority is absent; hidden reconstruction or dirty
-dependency cannot be repaired safely; privacy/release boundary is unresolved;
-lineage/recovery corrupts evidence; a high-severity correctness/boundary defect
-remains; criteria would need post-result change; or five review rounds do not
-converge. Operator confusion or a failing acceptance case is a repair trigger,
-not an automatic mission abandonment, while a safe declared repair remains. A
-selector without a matching valid activation receipt is an exact indeterminate
-terminal-control blocker, never partial accomplishment.
+Stop for inability to build/install offline, source-worktree leakage, network
+or credential access, canonical evidence mutation, an unrepresentable command
+terminal, privacy/destructive/release boundary, corrupted M22 evidence, or a
+material documentation/capability contradiction that cannot be repaired
+locally. Repair focused documentation, harness, serialization, or packaging
+failures under this same phase when the scientific scope and local budget do
+not change.
 
-## End-Of-Phase Sequence
+## Skeptical Audit
 
-Run all local and independent acceptance checks; write and review the M23
-result; run final hostile review and repairs; build and validate the immutable
-`PENDING_FINAL_PREDICATE` generation; persist the pre-seal receipt; build and
-validate the derived terminal generation; atomically select it; run and persist
-the post-selection replay; write the activation receipt last; resolve and
-replay the final authority; then terminate with exact accomplished, blocker, or
-indeterminate status. Do not infer or perform public release.
+The baseline is M22's closed qualitative workflow, not the historical binary
+human-review terminal. The primary criterion is installed operational behavior,
+not a proxy count or a live scientific claim. Honest topic unavailability is a
+required acceptance outcome, not a failure to be bypassed. The wheel/isolation
+checks answer hidden-dependency risk; the M22 replay answers evidence drift;
+the documentation scan answers capability drift; and the exact status matrix
+distinguishes valid stops from crashes.
+
+Audit verdict: `PASS_FOR_PROPORTIONATE_LOCAL_IMPLEMENTATION_AND_ACCEPTANCE`.
+
+## Pre-Execution Implementation Audit
+
+The implemented harness builds one wheel with the local build frontend,
+installs it into a fresh virtual environment with `--no-index --no-deps`, runs
+from outside the repository with `PYTHONPATH` unset and
+`CUDA_VISIBLE_DEVICES=-1`, and records imported module paths. It invokes
+`--confirm-public-discovery` only for the topic-only case, whose installed
+capability is the deterministic local `UnavailableBootstrapCapability`; no
+network client or provider adapter is called. Explicit-seed cases remain
+unconfirmed and stop after local skeleton construction.
+
+The audit found and repaired stale OpenAlex defaults in new mission budgets,
+confirmation scope, public-metadata defaults, and generated safe-next commands.
+New missions now advertise only arXiv metadata and source-package scope, with
+no PDF fallback. Historical provider-bound roots remain preserved evidence and
+must be restarted under the active contract rather than silently resumed.
+
+Focused M16/M17/M22/M23 and CLI checks passed after the repair. The harness
+preserves exact subprocess bytes and exit codes, replays canonical M22 evidence,
+mutates only a copied M22 root for rejection testing, and labels the result as
+fresh-process operational acceptance, not human usability or scientific
+validation.
+
+Pre-execution verdict: `PASS_FOR_FRESH_OFFLINE_WHEEL_ACCEPTANCE_RUN`.
+
+## Attempt 1 Infrastructure Repair
+
+The first acceptance root preserved at
+`docs/validation/literature_survey_north_star_m23_operational_acceptance_2026-07-19/`
+failed before the acceptance matrix because its virtual environment contained
+neither the package nor the `ra` console script. The wheel itself contained the
+declared console entry points. The harness had removed `PYTHONPATH` from later
+installed-command execution but had inherited `PYTHONPATH=src:.` while building
+and installing, so the install boundary did not satisfy this plan's own clean
+environment contract.
+
+This is an infrastructure repair trigger, not a scientific continuation veto.
+The repaired harness removes `PYTHONPATH` and hides CUDA for build, environment
+creation, installation, and installed commands; forces the wheel installation
+with `--no-index --no-deps --force-reinstall`; performs installation from a
+temporary directory outside the repository; and fails immediately if the
+installed `ra` script is absent. A focused regression checks that inherited
+`PYTHONPATH` is absent from the shared subprocess environment. The failed root
+remains immutable evidence and the repaired run must use a fresh `_r2` root.
+
+## Attempt 2 Validation Repair
+
+The clean installation and installed commands succeeded in the preserved `_r2`
+root, but three acceptance predicates failed. The import-origin predicate
+incorrectly rejected the valid wheel import because the isolated virtual
+environment is itself stored under the repository validation directory; the
+actual leakage path to exclude is `src/research_assistant`, while the observed
+module correctly came from `_r2/venv/.../site-packages`.
+
+The installed M22 replay and copied-artifact tamper case also exposed a real
+relocatability defect: retained M20/M21 evidence paths were derived from the
+installed module's `__file__`, causing lookup beneath
+`venv/lib/python3.11/docs/validation`. The replay already receives an explicit
+repository root, so the localized repair carries that root through selected
+artifact validation and retained-evidence hash replay. Ordinary mission-local
+artifact callers retain their previous behavior. A catching test poisons the
+module-derived repository root and verifies that explicit-root M22 replay still
+passes.
+
+These are validation and packaging-replay repair triggers, not changes to the
+scientific contract. Compile, 17 focused retained/M22/M23 tests, and 32 shared
+artifact-lineage tests pass. Preserve `_r2` unchanged and launch `_r3` under the
+same nine-case matrix.
+
+## Attempt 3 Working-Directory Repair
+
+The `_r3` root passed all nine encoded predicates and offline replay, but the
+terminal skeptical audit found that its installed commands used
+`_r3/operator_workspace` as their current working directory. That directory is
+beneath the repository, while the predeclared acceptance contract requires
+installed command execution from outside the repository. The wheel import did
+come from the isolated virtual environment, so `_r3` is a near-pass rather than
+source-leak evidence, but it does not satisfy the exact environment contract.
+
+The localized repair keeps mission outputs in the versioned validation root but
+runs every installed command from a temporary external directory. The
+install-and-discovery case now requires every command-ledger `cwd` to be outside
+the repository, the run manifest records the external cwd, and a focused test
+checks acceptance and rejection examples. Preserve `_r3` unchanged and launch
+`_r4` under the same nine-case matrix.
+
+## Attempt 4 Regression And Close-State Repair
+
+The `_r4` root passed all nine exact cases, used one external command cwd, had
+empty stderr streams, and replayed. The affected regression gate then exposed
+14 failures sharing one stale integration fixture: it built a synthetic
+`['arxiv', 'openalex']` metadata authority for a new mission whose active budget
+is arXiv-only. The workflow correctly rejected that mismatch as
+`terminal_blocked_invalid_artifact`.
+
+The fixture was narrowed to arXiv-only for the active workflow while separate
+explicit-provider tests continue to cover optional historical OpenAlex
+plumbing. The exact 14 failures then passed, followed by the complete affected
+gate: `258 passed, 77 deselected`.
+
+Master and reset documents are part of the acceptance documentation hash
+surface. They must therefore be reconciled to completed-state language before
+the authoritative final acceptance root is created. `_r4` remains preserved as
+the pre-close-state pass. Launch one final fresh root after reconciliation so
+its documentation report and replay bind the completed program state.
+
+## Attempt 5 Authoritative Completed-State Replay
+
+The fresh `_r5` root passed all nine cases and offline replay against the
+completed master/reset state. Every command ledger row records the same
+external `/tmp` cwd, the installed module resolves under the fresh virtualenv,
+stderr is empty, copied M22 tampering is rejected, and the capability matrix
+preserves arXiv-only scope plus all open scientific limitations.
+
+Authoritative hashes and the affected regression evidence are recorded in
+`docs/plans/literature_survey_north_star_m23_operational_acceptance_result_2026-07-19.md`.
+Claude export was rejected by the environment's external-data policy and was
+not retried or routed around. The terminal review therefore uses the declared
+fresh Codex read-only fallback on the compact `_r5` packet.
+
+## Attempt 6 Derived Replay Repair
+
+The fresh fallback reviewer returned `REVISE` because `_r5`'s wheel verified
+captured command hashes but trusted stored parsed JSON, aggregate case results,
+and terminal pass projections. This was a material mismatch with the plan's
+deterministic replay claim.
+
+Replay now requires the exact 11 command identities, argv, common external cwd,
+CPU-only/unset-`PYTHONPATH` environment, output paths, zero exits, output hashes,
+and parsed JSON reconstructed from stdout. It reruns all nine case predicates,
+recomputes completed-state documentation and capabilities, and compares exact
+case, terminal, offline-replay, and inventory projections. Focused tests reject
+rehashed argv, parsed-output, and case-result rewrites. The focused M23 suite
+passed `9` tests and the complete affected gate passed
+`260 passed, 77 deselected`.
+
+Fresh `_r6` then passed. The source and wheel-embedded M23 module hashes are
+identical, and the `_r6` installed interpreter replayed `_r6` successfully from
+`/tmp` with `PYTHONPATH` unset. `_r6` supersedes `_r5` as the authoritative
+candidate for fresh fallback Review Round 2.
+
+## Attempt 7 Build-Scratch Isolation Repair
+
+Fallback Review Round 2 returned `REVISE` because command discovery did not
+prove the installed package/version and help-boundary text, unchanged resume
+did not prove valid ancestry plus zero state advancement, and M22 replay did
+not expose the unavailable forward-citation surface or the 50 identifier-bearing
+and 195 identifier-free open omission units. The runner and focused false-pass
+tests were strengthened for all three material findings.
+
+Before those assertions completed, the expanded suite exposed an independent
+packaging-harness defect: setuptools reused the repository-local
+`build/bdist.linux-x86_64/wheel` directory, whose inherited permissions made a
+later acceptance build fail. This is a localized infrastructure repair trigger,
+not a candidate, scientific, or continuation veto. Reusing mutable repository
+scratch is also a hidden baseline because build success can depend on stale
+state that is outside the evidence root.
+
+The repair stages the declared wheel inputs (`pyproject.toml`, `README.md`, and
+`src/`) byte-for-byte in a fresh external temporary directory for every build,
+excludes generated Python and egg-info caches, and runs the offline wheel build
+there. It does not read, chmod, delete, or otherwise mutate the contaminated
+repository `build/` directory. A focused regression invokes the build helper
+twice, proves distinct external staging directories, compares staged input
+bytes, and preserves a repository-build sentinel.
+
+Skeptical audit verdict: `PASS_AFTER_EXTERNAL_BUILD_STAGING_REPAIR`. The exact
+baseline remains the current dirty source tree copied into isolated staging;
+the promotion criterion remains nine installed-command cases plus derived
+replay, not wheel-build success alone. The repair changes no provider, data,
+scientific, privacy, release, or completion boundary. Launch a fresh `_r7` only
+after focused and affected checks pass.

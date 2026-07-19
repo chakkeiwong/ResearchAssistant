@@ -1,0 +1,1424 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2023_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+% \input{math_commands.tex}
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+% \usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2021} with \usepackage[nohyperref]{icml2021} above.
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{wasysym}
+% \usepackage[dvipsnames]{xcolor}
+% \usepackage[ruled,vlined]{algorithm2e}
+\usepackage{multirow}
+
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{units}
+
+\usepackage[ruled,vlined]{algorithm2e}
+
+
+\usepackage{amsmath,amssymb,amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{example}{Example}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert} 
+
+\usepackage{enumitem}
+\setlist{leftmargin=*,itemsep=0pt}
+
+% \usepackage{lineno}
+% \linenumbers
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argsup}{arg\,sup}
+\DeclareMathOperator*{\arginf}{arg\,inf}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\xmark}{\ding{55}}%
+
+
+\title{Neural Optimal Transport}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Alexander Korotin \\
+Skolkovo Institute of Science and Technology\\
+Artificial Intelligence Research Institute\\
+Moscow, Russia \\
+\texttt{a.korotin@skoltech.ru} \\
+\And
+Daniil Selikhanovych \\
+Skolkovo Institute of Science and Technology \\
+Moscow, Russia \\
+\texttt{selikhanovychdaniil@gmail.com} \\
+\AND
+Evgeny Burnaev \\
+Skolkovo Institute of Science and Technology\\
+Artificial Intelligence Research Institute\\
+Moscow, Russia \\
+\texttt{e.burnaev@skoltech.ru}
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\vspace{-6mm}\begin{abstract}
+We present a novel neural-networks-based algorithm to compute optimal transport maps and plans for strong and weak transport costs. To justify the usage of neural networks, we prove that they are universal approximators of transport plans between probability distributions. We evaluate the performance of our optimal transport algorithm on toy examples and on the unpaired image-to-image translation.
+\end{abstract}
+
+\begin{figure}[!h]
+\vspace{-2mm}
+% \vspace{-3mm}
+\hspace{-9mm}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/teaser_merged.png}
+\caption{\centering Celeba (female) $\rightarrow$ anime, outdoor $\rightarrow$ church,\protect\linebreak deterministic (one-to-one, $\mathbb{W}_{2}$).}
+\label{fig:celeba-female-anime-128-1}
+\end{subfigure}
+\hspace{2mm}\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_128_1_weak.png}
+\caption{\centering Handbags $\rightarrow$ shoes,\protect\linebreak stochastic (one-to-many, $\mathcal{W}_{2,1}$).}
+\label{fig:handbag-shoes-128-weak-1}
+\end{subfigure}\vspace{-1mm}
+\caption{Unpaired translation with our Neural Optimal Transport (NOT) Algorithm \ref{algorithm-not}.}\vspace{-3mm}
+\end{figure}
+
+\vspace{-2mm}\section{Introduction}
+\label{sec-intro}
+
+\vspace{-2.5mm}Solving optimal transport (OT) problems with neural networks has become widespread in machine learning tentatively starting with the introduction of the large-scale OT \citep{seguy2017large} and Wasserstein GANs \citep{arjovsky2017wasserstein}. The majority of existing methods compute the \textbf{OT cost} and use it as the loss function to update the generator in generative models \citep{gulrajani2017improved,liu2019wasserstein,sanjabi2018convergence,petzka2017regularization}. Recently, \citep{rout2022generative,daniels2021score} have demonstrated that the \textbf{OT plan} itself can be used as a~generative model providing comparable performance in practical tasks.
+
+\vspace{-1mm}In this paper, we focus on the methods which compute the OT plan. Most recent methods \citep{korotin2021neural,rout2022generative} consider OT for the quadratic transport cost (the Wasserstein-2 distance, $\mathbb{W}_{2}$) and recover a \textit{nonstochastic} OT plan, i.e., a \textit{deterministic} \textbf{OT map}. In general, it may not exist. \citep{daniels2021score} recover the entropy-regularized stochastic plan, but the procedures for learning the plan and sampling from it are extremely time-consuming due to using score-based models and the Langevin dynamics \citep[\wasyparagraph 6]{daniels2021score}.
+ 
+\vspace{-1mm}\textbf{Contributions.} We propose a novel algorithm to compute deterministic and stochastic OT plans with deep neural networks (\wasyparagraph\ref{sec-derivation}, \wasyparagraph\ref{sec-optimization}). Our algorithm is designed for weak and strong optimal transport costs (\wasyparagraph\ref{sec-preliminaries}) and generalizes previously known scalable approaches (\wasyparagraph\ref{sec-related-work}, \wasyparagraph\ref{sec-relation-to-prior}). To reinforce the usage of neural nets, we prove that they are universal approximators of transport plans (\wasyparagraph\ref{sec-universal-approx}). We show that our algorithm can be applied to large-scale computer vision tasks (\wasyparagraph\ref{sec-evaluation}).
+
+\textbf{Notations.} We use $\mathcal{X},\mathcal{Y},\mathcal{Z}$ to denote Polish spaces and $\mathcal{P}(\mathcal{X}), \mathcal{P}(\mathcal{Y}),\mathcal{P}(\mathcal{Z})$ to denote the respective sets of probability distributions on them. We denote the set of probability distributions on $\mathcal{X} \times \mathcal{Y}$ with marginals $\mathbb{P}$ and $\mathbb{Q}$ by $\Pi(\mathbb{P},\mathbb{Q})$.
+For a measurable map $T:  \mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$ (or $T:\mathcal{X}\rightarrow\mathcal{Y}$), we denote the associated push-forward operator by $T_{\#}$.
+
+\vspace{-2.5mm}\section{Preliminaries}
+\label{sec-preliminaries}
+
+\vspace{-1mm}In this section, we provide key concepts of the OT theory \citep{villani2008optimal,santambrogio2015optimal,gozlan2017kantorovich,backhoff2019existence} that we use in our paper.
+% For a detailed overview, we refer to .
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+  \vspace{-6mm}\begin{center}
+    \includegraphics[width=\linewidth]{pics/OT_map_def_orange.png}
+  \end{center}
+  \caption{\centering Monge's OT formulation.}
+  \label{fig:ot-map-def}\vspace{-4mm}
+\end{wrapfigure}\textbf{Strong OT formulation}. For ${\mathbb{P}\in\mathcal{P}(\mathcal{X})}$, $\mathbb{Q}\in \mathcal{P}(\mathcal{Y})$ and a cost function ${c:\mathcal{X}\times\mathcal{Y}\rightarrow\mathbb{R}}$, Monge's primal formulation of the OT cost is
+\begin{equation}
+\text{Cost}(\mathbb{P},\mathbb{Q})\stackrel{\text{def}}{=}\inf_{T_{\#}\mathbb{P}=\mathbb{Q}}\ \int_{\mathcal{X}} c\big(x,T(x)\big) d\mathbb{P}(x),
+\label{ot-primal-form-monge}
+\end{equation}
+where the minimum is taken over measurable functions (transport maps) $T:\mathcal{X}\rightarrow\mathcal{Y}$ that map  $\mathbb{P}$ to $\mathbb{Q}$ (Figure \ref{fig:ot-map-def}). 
+The optimal $T^{*}$ is called the OT \textit{map}.
+
+Note that \eqref{ot-primal-form-monge} is not symmetric and  does not allow mass splitting, i.e., for some
+${\mathbb{P},\mathbb{Q}\in\mathcal{P}(\mathcal{X}),\mathcal{P}(\mathcal{Y})}$, there may be no $T$ satisfying $T_{\#}\mathbb{P}=\mathbb{Q}$. Thus, \citep{kantorovitch1958translocation} proposed the following relaxation:
+\begin{equation}\text{Cost}(\mathbb{P},\mathbb{Q})\stackrel{\text{def}}{=}\inf_{\pi\in\Pi(\mathbb{P},\mathbb{Q})}\int_{\mathcal{X}\times\mathcal{Y}}c(x,y)d\pi(x,y),
+\label{ot-primal-form}
+\vspace{-1mm}
+\end{equation}
+where the minimum is taken over all transport plans $\pi$  (Figure \ref{fig:ot-plan-def}), i.e., distributions on $\mathcal{X}\times\mathcal{Y}$ whose marginals are $\mathbb{P}$ and $\mathbb{Q}$. The optimal $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ is called the optimal transport \textit{plan}. 
+If $\pi^{*}$ is of the form $[\text{id} , T^{*}]_{\#} \mathbb{P}\in\Pi(\mathbb{P},\mathbb{Q})$ for some $T^*$, then
+$T^{*}$ minimizes \eqref{ot-primal-form-monge}. In this case, the plan is called \textit{deterministic}. Otherwise, it is called \textit{stochastic} (nondeterministic).
+
+\begin{figure}[!h]
+\begin{subfigure}[b]{0.49\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{pics/OT_plan_def_orange.png}
+\caption{\centering Strong OT formulation \eqref{ot-primal-form}.}
+\label{fig:ot-plan-def}
+\end{subfigure}
+% \hspace{2mm}
+\begin{subfigure}[b]{0.49\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{pics/OT_plan_weak_orange_def.png}
+\caption{\centering Weak OT formulation \eqref{ot-primal-form-weak}.}
+\label{fig:ot-plan-weak-def}
+\end{subfigure}
+\caption{Strong (Kantorovich's) and weak \citep{gozlan2017kantorovich} optimal transport fomulations.}\vspace{-2mm}
+\end{figure}
+
+An example of OT cost for $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$ is the ($p$-th power of) Wasserstein-$p$ distance $\mathbb{W}_{p}$, i.e., formulation \eqref{ot-primal-form} with $c(x,y)=\|x-y\|^{p}$. Two its most popular cases are $p=1,2$ ($\mathbb{W}_{1},\mathbb{W}_{2}^{2}$).
+
+\vspace{-0.5mm}\textbf{Weak OT formulation} \citep{gozlan2017kantorovich}. Let ${C:\mathcal{X}\times\mathcal{P}(\mathcal{Y})\rightarrow\mathbb{R}}$ be a \textit{weak} cost, i.e., a function which takes a point $x\in\mathcal{X}$ and a distribution of $y\in\mathcal{Y}$  as input. The weak OT cost between $\mathbb{P},\mathbb{Q}$ is
+\begin{equation}\text{Cost}(\mathbb{P},\mathbb{Q})\stackrel{\text{def}}{=}\inf_{\pi\in\Pi(\mathbb{P},\mathbb{Q})}\int_{\mathcal{X}}C\big(x,\pi(\cdot|x)\big)d\pi(x),
+\label{ot-primal-form-weak}
+\vspace{-1mm}
+\end{equation}
+where $\pi(\cdot|x)$ denotes the conditional distribution (Figure \ref{fig:ot-plan-weak-def}).
+Note that  \eqref{ot-primal-form-weak} is a generalization of \eqref{ot-primal-form}. Indeed, for cost
+$C\big(x,\mu\big)=\int_{\mathcal{Y}}c(x,y)d\mu(y)$, the weak formulation \eqref{ot-primal-form-weak} becomes strong \eqref{ot-primal-form}. An example of a weak OT cost for $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$ is the $\gamma$-weak ($\gamma\!\geq\! 0$) Wasserstein-2 ($\mathcal{W}_{2,\gamma}$):
+\begin{eqnarray}
+    C\big(x,\mu\big)=  \int_{\mathcal{Y}}\frac{1}{2}\|x-y\|^{2}d\mu(y)-\frac{\gamma}{2}\text{Var}(\mu)
+    \label{weak-w2-cost}
+    \vspace{-1mm}
+\end{eqnarray}
+% For $\gamma=0$, the transport cost \eqref{weak-w2-cost} is strong, i.e., $\mathbb{W}_{2}=\mathcal{W}_{2,0}$.
+
+\vspace{-1.5mm}\textbf{Existence and duality.} Throughout the paper,  we consider weak costs $C(x,\mu)$ which are lower bounded, convex in $\mu$ and jointly lower semicontinuous in an appropriate
+sense. Under these assumptions, \citep{backhoff2019existence} prove that the minimizer $\pi^{*}$ of \eqref{ot-primal-form-weak} always exists.\footnote{\cite{backhoff2019existence} work with the subset ${\mathcal{P}_{p}(\mathcal{Y})\subset \mathcal{P}(\mathcal{Y})}$ whose $p$-th moment is finite. Henceforth, we also work in $\mathcal{P}_{p}(\mathcal{Y})$ equipped with the Wasserstein-$p$ topology. Since this detail is not principal for our subsequent analysis, to keep the exposition simple, we still write $\mathcal{P}(\mathcal{Y})$ but actually mean $\mathcal{P}_{p}(\mathcal{Y})$.} With mild assumptions on $c$, strong costs satisfy these assumptions. In particular, they are linear w.r.t. $\mu$, and, consequently, convex. The $\gamma$-weak quadratic cost \eqref{weak-w2-cost} is lower-bounded (for $\gamma\leq 1$) and is also convex since the functional $\text{Var}(\mu)$ is concave in $\mu$.
+For the costs in view, the \textit{dual form} of \eqref{ot-primal-form-weak} is
+\begin{equation}
+    \text{Cost}(\mathbb{P},\mathbb{Q})=\sup_{f}\int_{\mathcal{X}}f^{C}(x)d\mathbb{P}(x)+\int_{\mathcal{Y}}f(y)d\mathbb{Q}(y),
+    \label{ot-weak-dual}
+    \vspace{-1mm}
+\end{equation}
+where $f$ are the upper-bounded continuous functions with not very rapid growth \citep[Equation 1.2]{backhoff2019existence} and $f^{C}$ is the weak $C$-transform of $f$, i.e.
+\begin{equation}f^{C}(x)\stackrel{\text{def}}{=}\inf_{\mu\in\mathcal{P}(\mathcal{Y})}\left\lbrace C(x,\mu)-\int_{\mathcal{Y}}f(y)d\mu(y)\right\rbrace.
+\label{weak-c-transform}
+\vspace{-2mm}
+\end{equation}
+
+\vspace{-0.5mm}Note that for strong costs $C$, the infimum is attained at any ${\mu\in\mathcal{P}(\mathcal{Y})}$ supported on the $\arginf_{y\in\mathcal{Y}}\lbrace c(x,y)-f(y)\rbrace$ set. Therefore, it suffices  to use the strong $c$-transform:
+\begin{equation}f^{C}(x)= f^{c}(x)\stackrel{\text{def}}{=}\inf_{y\in\mathcal{Y}}\left\lbrace c(x,y)-f(y)\right\rbrace.
+\label{strong-c-transform}
+\end{equation}
+For strong costs \eqref{ot-primal-form}, formula \eqref{ot-weak-dual} with \eqref{strong-c-transform} is the well known Kantorovich duality \citep[\wasyparagraph 5]{villani2008optimal}.
+
+\vspace{-1mm}\textbf{Nonuniqueness.} In general, an OT plan $\pi^{*}$ is not unique, e.g., see \citep[Remark 2.3]{peyre2019computational}.
+% \ds{PLACE EXAMPLE HERE} 
+
+\vspace{-3mm}\section{Related Work}
+\label{sec-related-work}
+\vspace{-2.6mm}In large-scale machine learning, \textbf{OT costs} are primarily used as the loss to learn generative models. Wasserstein GANs introduced by \citep{arjovsky2017wasserstein,gulrajani2017improved} are the most popular examples of this approach. We refer to \citep{korotin2022kantorovich,korotin2021neural} for recent surveys of principles of WGANs. However, these models are \underline{\textit{out of scope}} of our paper since they only compute the OT cost but not OT plans or maps (\wasyparagraph\ref{sec-relation-to-prior}). To compute  \textbf{OT plans} (or maps) is a more challenging problem, and only a limited number of scalable methods to solve it have been developed.
+
+\vspace{-0.7mm}We overview  methods to compute OT plans (or maps) below. We emphasize that existing methods are designed only for \textit{strong} OT formulation \eqref{ot-primal-form}. Most of them search for a deterministic solution \eqref{ot-primal-form-monge}, i.e., for a~map $T^{*}$ rather than a~stochastic plan $\pi^{*}$, although $T^{*}$ might not always exist.
+
+\vspace{-0.7mm}To compute the OT plan (map), \citep{lu2020large,xie2019scalable} approach the \textbf{primal} formulation \eqref{ot-primal-form-monge} or \eqref{ot-primal-form}. Their methods imply using generative models and yield complex optimization objectives with several adversarial regularizers, e.g., they are used to enforce the boundary condition ($T_{\#}\mathbb{P}=\mathbb{Q}$). As a~result, the methods are hard to setup  since they require careful selection of hyperparameters.
+
+\vspace{-0.7mm}In contrast, methods based on the \textbf{dual} formulation \eqref{ot-weak-dual} have simpler optimization procedures. Most of such methods are designed for OT with the quadratic cost, i.e., the Wasserstein-2 distance ($\mathbb{W}_{2}^{2}$). An evaluation of these methods is provided in \citep{korotin2021neural}. Below we mention their issues.
+% the authors discuss.
+
+\vspace{-0.7mm}Methods by \citep{taghvaei20192,makkuva2019optimal,korotin2019wasserstein,korotin2021continuous} based on input-convex neural networks (ICNNs, see \citep{amos2017input}) have solid theoretical justification, but do not provide sufficient performance in practical large-scale problems. Methods based on entropy regularized OT \citep{genevay2016stochastic,seguy2017large,daniels2021score} recover regularized OT plan that is \textit{biased} from the true one, it is hard to sample from it or compute its density.
+
+\vspace{-0.7mm}According to \citep{korotin2021neural}, the best performing approach is $\lceil \text{MM:R}\rfloor$, which is based on the maximin reformulation of \eqref{ot-weak-dual}. It recovers OT maps fairly well and has a good generative performance. The follow-up papers \citep{rout2022generative,fan2022scalable} test extensions of this approach for more general strong transport costs $c(\cdot,\cdot)$ and apply it to compute $\mathbb{W}_{2}$ barycenters \citep{korotin2022wasserstein}. Their key limitation is that it aims to recover a~\textit{deterministic} OT map $T^{*}$ which might not exist.
+
+\vspace{-2mm}\section{Algorithm for Learning OT Plans}
+
+\vspace{-1mm}In this section, we develop a novel neural algorithm to recover a~solution $\pi^{*}$ of OT problem \eqref{ot-primal-form-weak}. The following lemma will play an important role in our derivations.
+
+\begin{lemma}[Existence of transport maps.] Let $\mu$ and $\nu$ be probability distributions on $\mathbb{R}^{M}$ and $\mathbb{R}^{N}$. Assume that $\mu$ is atomless. Then there  exists a~measurable $t\!:\!\mathbb{R}^{M}\!\rightarrow\!\mathbb{R}^{N}$ satisfying $t_{\#}\mu=\nu$.
+\label{lemma-existence-transport}
+\end{lemma}
+
+\vspace{-3.7mm}\begin{proof}
+\citep[Cor. 1.29]{santambrogio2015optimal} proves the fact for $M\!=\!N$. The proof works for $M\!\neq\!N$.\hspace{-3mm}
+\end{proof}
+
+\vspace{-3mm}Throughout the paper we assume that $\mathbb{P},\mathbb{Q}$ are supported on subsets $\mathcal{X}\subset\mathbb{R}^{P}$, $\mathcal{Y}\subset\mathbb{R}^{Q}$, respectively.
+
+
+\vspace{-1.5mm}\subsection{Reformulation of the Dual Problem}
+\label{sec-derivation}
+
+\vspace{-1.5mm}First, we reformulate the optimization in $C$-transform \eqref{weak-c-transform}. For this, we introduce a subset $\mathcal{Z}\subset\mathbb{R}^{S}$ with an atomless distribution $\mathbb{S}$ on it, e.g., $\mathbb{S}=\text{Uniform}
+\big([0,1]\big)$ or $\mathcal{N}(0,1)$.
+
+\begin{lemma}[Reformulation of the $C$-transform] The following equality holds:\vspace{-1.4mm}
+\begin{equation}
+    f^{C}(x)\!=\! \inf_{t}\!\left\lbrace C(x,t_{\#}\mathbb{S})\!-\!\int_{\mathcal{Z}}f\big(t(z)\big)d\mathbb{S}(z)\!\right\rbrace,
+    \label{reform-c-lower-eq}
+\end{equation}
+
+\vspace{-2mm}where the infimum is taken over all measurable ${t:\mathcal{Z}\rightarrow\mathcal{Y}}$.
+\label{lemma-t}
+\end{lemma}
+
+\vspace{-3mm}\begin{proof}For all $x\in\mathcal{X}$ and $t:\mathcal{Z}\rightarrow\mathcal{Y}$ we have $f^{C}(x)\!\leq\!  C(x,t_{\#}\mathbb{S})-\int_{\mathcal{Z}}f\big(t(z)\big)d\mathbb{S}(z).$
+The inequality is straightforward: we substitute $\mu=t_{\#}\mathbb{S}$ to \eqref{weak-c-transform} to upper bound $f^{C}(x)$ and use the change of variables. Taking the infimum over $t$, we obtain\vspace{-1.5mm}
+\begin{equation}
+    f^{C}(x)\!\leq\! \inf_{t}\left\lbrace C(x,t_{\#}\mathbb{S})-\int_{\mathcal{Z}}f\big(t(z)\big)d\mathbb{S}(z)\right\rbrace.
+    \label{reform-c-lower-final}
+\end{equation}
+
+\vspace{-2.5mm}Now let us turn \eqref{reform-c-lower-final} to an equality. We need to show that $\forall\epsilon>0$ there exists $ t^{\epsilon}:\mathcal{Z}\rightarrow\mathcal{Y}$ satisfying
+\begin{equation}
+f^{C}(x)\!+\!\epsilon \; \geq\; C(x,t^{\epsilon}_{\#}\mathbb{S})\!-\!\int_{\mathcal{Z}}f\big(t^{\epsilon}(z)\big)d\mathbb{S}(z).
+\label{eps-bound-t}
+\end{equation}
+By \eqref{weak-c-transform} and the definition of $\inf$, $\exists\mu^{\epsilon}\!\in\!\mathcal{P}(\mathcal{Y})$  such that 
+% \begin{equation}
+$f^{C}(x)+\epsilon\geq  C(x,\mu^{\epsilon})-\int_{\mathcal{Y}}f(y)d\mu^{\epsilon}(y)$.
+% \label{eps-bound-mu}
+% \end{equation}
+Thanks to Lemma \ref{lemma-existence-transport}, there exists $t^{\epsilon}:\mathcal{Z}\rightarrow\mathcal{Y}$ such that $\mu^{\epsilon}=t^{\epsilon}_{\#}\mathbb{S}$, i.e., \eqref{eps-bound-t} holds true.
+\end{proof}
+
+
+\vspace{-2mm}Now we use Lemma \ref{lemma-t} to get an analogous reformulation of the integral of  $f^{C}$ in the dual form \eqref{ot-weak-dual}.
+
+\begin{lemma}[Reformulation of the integrated $C$-transform] The following equality holds:
+\begin{eqnarray}
+    \int_{\mathcal{X}}f^{C}(x)d\mathbb{P}(x)=
+    \inf_{T}\int_{\mathcal{X}}\!\left(\! C\big(x,T(x,\cdot)_{\#}\mathbb{S}\big)\!-\!\int_{\mathcal{Z}}f\big(T(x,z)\big) d\mathbb{S}(z)\!\right)\! d\mathbb{P}(x),
+    \label{rockafellar-strikes-back}
+\end{eqnarray}
+where the inner minimization is performed over all measurable functions $T:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$.
+\label{lemma-T}
+\end{lemma}
+
+\vspace{-2mm}
+\begin{proof}
+The lemma follows from the interchange between the infimum and integral provided by the Rockafellar's interchange theorem \citep[Theorem 3A]{rockafellar1976integral}.
+
+The theorem states that for a function $F:\mathcal{A}\times\mathcal{B}\rightarrow\mathbb{R}$ and a distribution $\nu$ on $\mathcal{A}$, 
+\begin{equation}
+    \int_{\mathcal{A}}\inf_{b\in\mathcal{B}}F(a,b)d\nu(a)\!=\!\inf_{H:\mathcal{A}\rightarrow\mathcal{B}}\!\int_{\mathcal{A}}F(a,H(a))d\nu(a)
+    \label{rockafellar-interchange-theorem}
+\end{equation}
+We apply \eqref{rockafellar-interchange-theorem}, use $\mathcal{A}=\mathcal{X}$, $\nu=\mathbb{P}$, 
+and put $\mathcal{B}$ to be the space of measurable functions $\mathcal{Z}\rightarrow\mathcal{Y}$, and
+$F(a,b)=C(a,b_{\#}\mathbb{S})\!-\!\int_{\mathcal{Y}}f\big(y\big)d\big[b_{\#}\mathbb{S}\big](y).$ Consequently, we obtain that $\int_{\mathcal{X}}f^{C}(x)d\mathbb{P}(x)$ equals
+\begin{eqnarray}
+    \inf_{H}\!\int_{\mathcal{X}}\!\left(\! C\big(x,H(x)_{\#}\mathbb{S}\big)\!-\!\int_{\mathcal{Y}}f(y) d\big[H(x)_{\#}\mathbb{S}](y)\!\right)\! d\mathbb{P}(x)
+    \label{interchange-applied}
+\end{eqnarray}
+
+\vspace{-1.5mm}Finally, we note that the optimization over functions
+$H:\mathcal{X}\rightarrow\{t:\mathcal{Z}\rightarrow\mathcal{Y}\}$ equals the optimization over functions ${T:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}}$. We put $T(x,z)\!=\![H(x)](z)$, use the change of variables for $y=T(x,z)$ and derive \eqref{rockafellar-strikes-back} from \eqref{interchange-applied}.
+\end{proof}
+
+\vspace{-1mm}Lemma \ref{lemma-T} provides the way to represent the dual form \eqref{ot-weak-dual} as a~saddle point optimization problem. 
+% Namely, we have
+
+\begin{corollary}[Maximin reformulation of the dual problem]The following holds:\vspace{-1mm}
+\begin{eqnarray} 
+    \text{\normalfont Cost}(\mathbb{P},\mathbb{Q})=\sup_{f}\inf_{T}\mathcal{L}(f,T),
+    \label{main-objective}
+\end{eqnarray}
+
+\vspace{-3mm}where the functional $\mathcal{L}$ is defined by\vspace{-1mm}
+\begin{eqnarray}
+    \mathcal{L}(f,T)\stackrel{def}{=}\int_{\mathcal{Y}}f(y)d\mathbb{Q}(y)+
+    \int_{\mathcal{X}}\!\left(\! C\big(x,T(x,\cdot)_{\#}\mathbb{S}\big)\!-\!\int_{\mathcal{Z}}f\big(T(x,z)\big) d\mathbb{S}(z)\!\right)\! d\mathbb{P}(x).
+    \label{L-def}
+\end{eqnarray}
+\end{corollary}
+
+\vspace{-5mm}\begin{proof}
+It suffices to  substitute \eqref{rockafellar-strikes-back} into \eqref{ot-weak-dual}.
+\end{proof}
+
+\vspace{-2mm}We say that functions $T:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$ are \textit{stochastic maps}. If a map $T$ is independent of $z$, i.e., for all $(x,z)\in\mathcal{X}\times\mathcal{Z}$ we have $T(x,z)\equiv T(x)$,  we say the map is \textit{deterministic}.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+  \vspace{-6mm}\begin{center}
+    \includegraphics[width=\linewidth]{pics/stochastic_OT_map.png}
+  \end{center}
+  \caption{\centering Stochastic function $T(x,z)$ representing a transport plan. The function's input is $x\in\mathcal{X}$ and $z\sim\mathbb{S}$.}
+  \label{fig:stochastic-map}\vspace{-6mm}
+\end{wrapfigure}The idea behind the introduced notation is the following. An optimal transport plan $\pi^{*}$ might be nondeterministic, i.e., there might not exist a deterministic function $T:\mathcal{X}\rightarrow\mathcal{Y}$ which satisfies $\pi^{*}=[\text{id}_{\mathcal{X}}, T]_{\#}\mathbb{P}$. However, each transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ can be represented implicitly through a stochastic function ${T:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}}$. This fact is known as \textbf{noise outsourcing} \citep[Theorem 5.10]{kallenberg1997foundations} for $\mathcal{Z}=[0,1]\subset \mathbb{R}^{1}$ and ${\mathbb{S}=\text{Uniform}([0,1])}$. Combined with Lemma \ref{lemma-existence-transport}, the noise outsourcing also holds for a~general $\mathcal{Z}\subset\mathbb{R}^{S}$ and atomless $\mathbb{S}\in\mathcal{P}(\mathcal{Z})$.
+We visualize the idea in Figure \ref{fig:stochastic-map}. For a plan~$\pi$, there might exist multiple maps $T$ which represent it.
+
+For a pair of probability distributions $\mathbb{P},\mathbb{Q}$, we say that $T^{*}$ is a \textit{stochastic optimal transport map} if it realizes some optimal transport plan $\pi^{*}$. Such maps solve the inner problem in \eqref{main-objective} for optimal $f^{*}$.
+
+\begin{lemma}[Optimal maps solve the maximin problem] 
+% Assume that there exists at least one potential $f^{*}$ which maximizes dual form \eqref{ot-weak-dual}. 
+For any maximizer $f^{*}$ of \eqref{ot-weak-dual} and for any stochastic map $T^{*}$ which realizes some optimal transport plan $\pi^{*}$, it holds that\vspace{-2mm}
+\begin{equation}
+T^{*}\in\arginf_{T}\mathcal{L}(f^{*},T).
+\label{T-in}
+\end{equation}
+\label{arginf-lemma}
+\vspace{-3mm}
+\end{lemma}
+
+\vspace{-4mm}\begin{proof}Let $\pi^{*}$ be the OT plan realized by $T^{*}$. We derive
+\begin{eqnarray}\int_{\mathcal{X}}\int_{\mathcal{Z}}f^{*}\big(T^{*}(x,z)\big) d\mathbb{S}(z) d\mathbb{P}(x)=
+\int_{\mathcal{X}}\int_{\mathcal{Y}}f^{*}(y) d\pi^{*}(y|x) d\pi^{*}(x)=
+\nonumber
+\\
+\int_{\mathcal{X}\times\mathcal{Y}}f^{*}(y) d\pi^{*}(x,y)=\int_{\mathcal{Y}}f^{*}(y) d\mathbb{Q}(y),
+\label{vanishing-integral}
+\end{eqnarray}
+where we change the variables for $y=T^{*}(x,z)$ and use the property $d\pi^{*}(x)=d\mathbb{P}(x)$. Now assume that
+$T^{*}\notin\arginf_{T}\mathcal{L}(f^{*},T)$. In this case, from the definition \eqref{L-def} we conclude that $\mathcal{L}(f^{*},T^{*})>\text{Cost}(\mathbb{P},\mathbb{Q})$. However, we derive substituting \eqref{vanishing-integral} into \eqref{L-def}, we see that 
+% \begin{eqnarray}
+$\mathcal{L}(f^{*},T^{*})=\int_{\mathcal{X}} C\big(x,\underbrace{T^{*}(x,\cdot)_{\#}\mathbb{S}}_{\pi^{*}(y|x)}\big)\underbrace{d\mathbb{P}(x)}_{d\pi^{*}(x)}\!=\!\text{Cost}(\mathbb{P},\mathbb{Q}),$
+% \nonumber
+% \end{eqnarray}
+which is a contradiction. Thus, \eqref{T-in} holds true.
+\end{proof}
+
+\vspace{-3mm}For the $\gamma$-weak quadratic cost \eqref{weak-w2-cost} which we use in the experiments (\wasyparagraph\ref{sec-evaluation}), a maximizer $f^{*}$ of \eqref{ot-weak-dual} indeed exists, see \citep[\wasyparagraph 5.22]{alibert2019new} or \citep{gozlan2020mixture}. Thanks to our Lemma \ref{arginf-lemma},  one may solve the saddle point problem \eqref{main-objective} and extract an  optimal stochastic transport map $T^{*}$ from its solution $(f^{*},T^{*})$. In general, the $\arginf$ set for $f^{*}$ may contain not only the optimal stochastic transport maps but other stochastic functions as well. In Appendix \ref{sec-strictly-convex}, we show that for \underline{strictly convex} (in $\mu$) costs $C(x,\mu)$, all the solutions of \eqref{main-objective} provide stochastic OT maps.
+% However, in practice, we observe that such optimization leads to the optimal stochastic map.
+
+\vspace{-3mm}\subsection{Practical Optimization Procedure}
+\label{sec-optimization}
+
+\vspace{-1.5mm}To approach the problem \eqref{main-objective} in practice, we use neural networks $T_{\theta}:\mathbb{R}^{P}\times\mathbb{R}^{S}\rightarrow\mathbb{R}^{Q}$ and $f_{\omega}:\mathbb{R}^{Q}\rightarrow\mathbb{R}$ to parameterize $T$ and $f$, respectively. We train their parameters with the stochastic gradient ascent-descent (SGAD) by using random batches from $\mathbb{P},\mathbb{Q},\mathbb{S}$, see Algorithm \ref{algorithm-not}.
+
+\clearpage
+\begin{algorithm}[!t]
+\SetInd{0.5em}{0.3em}
+    {
+        \SetAlgorithmName{Algorithm}{empty}{Empty}
+        \SetKwInOut{Input}{Input}
+        \SetKwInOut{Output}{Output}
+        \Input{distributions $\mathbb{P},\mathbb{Q},\mathbb{S}$ accessible by samples;
+        mapping network $T_{\theta}:\mathbb{R}^{P}\times\mathbb{R}^{S}\rightarrow\mathbb{R}^{Q}$;\\ potential network $f_{\omega}:\mathbb{R}^{Q}\rightarrow\mathbb{R}$;
+        number of inner iterations $K_{T}$;\\
+        (weak) cost $C:\mathcal{X}\!\times\!\mathcal{P}(\mathcal{Y})\!\rightarrow\!\mathbb{R}$;
+        empirical estimator $\widehat{C}\big(x,T(x,Z)\big)$ for the cost;
+        }
+        \Output{learned stochastic OT map $T_{\theta}$ representing an OT plan between distributions $\mathbb{P},\mathbb{Q}$\;
+        }
+        
+        \Repeat{not converged}{
+            Sample batches $Y\!\sim\! \mathbb{Q}$, $X\sim \mathbb{P}$; for each $x\in X$ sample batch $Z_{x} \sim\mathbb{S}$\;
+            ${\mathcal{L}_{f}\leftarrow \frac{1}{|X|}\!\sum_{x\in X}\frac{1}{|Z_{x}|}\sum_{z\in Z_{x}}f_{\omega}\!\big(T_{\theta}(x,z)\big)\!-\!\frac{1}{|Y|}\!\sum_{y\in Y}\!f_{\omega}\!(y)}$\;
+            
+            Update $\omega$ by using $\frac{\partial \mathcal{L}_{f}}{\partial \omega}$\;
+            
+            \For{$k_{T} = 1,2, \dots, K_{T}$}{
+                Sample batch $X\sim \mathbb{P}$; for each $x\in X$ sample batch $Z_{x}\sim\mathbb{S}$\; ${\mathcal{L}_{T}\leftarrow\frac{1}{|X|}\sum_{x\in X}\big[\widehat{C}\big(x,T_{\theta}(x,Z_{x})\big)-\frac{1}{|Z_{x}|}\sum_{z\in Z_{x}}f_{\omega}\big(T_{\theta}(x,z)\big)\!\big]}$\;
+            Update $\theta$ by using $\frac{\partial \mathcal{L}_{T}}{\partial \theta}$\;
+            }
+        }
+        
+        \caption{Neural optimal transport (NOT)}
+        \label{algorithm-not}
+    }
+\end{algorithm}
+
+{\color{white}duct tape}
+\vspace{-12mm}
+
+Our Algorithm \ref{algorithm-not} requires an empirical estimator $\widehat{C}$ for $C\big(x,T(x,\cdot)_{\#}\mathbb{S}\big)$. If the cost is strong, it is straightforward to use the following \textit{unbiased} Monte-Carlo estimator from a random batch $Z\sim\mathbb{S}$: 
+\begin{eqnarray}
+C\big(x,T(x,\cdot)_{\#}\mathbb{S}\big)=\int_{\mathcal{Z}}c(x,T(x,z))d\mathbb{S}(z)\approx
+\frac{1}{|Z|}\sum_{z\in Z}c\big(x,T(x,z)\big)\stackrel{def}{=}\widehat{C}\big(x,T(x,Z)\big).
+\label{strong-cost-estimator}
+\end{eqnarray}
+
+\vspace{-3.5mm}For general costs $C$, providing an estimator might be nontrivial. For the $\gamma$-weak quadratic cost \eqref{weak-w2-cost}, such an \textit{unbiased} Monte-Carlo estimator is straightforward to derive:
+\begin{equation}
+\widehat{C}\big(x,T(x,Z)\big)\stackrel{def}{=}\frac{1}{2|Z|}\sum_{z\in Z}\|x-T(x,z)\|^{2}-\frac{\gamma}{2}\hat{\sigma}^{2},
+\label{unbiased-estimator-quadratic}
+\end{equation}
+
+\vspace{-3mm}where $\hat{\sigma}^{2}$ is the (corrected) batch variance  $\hat{\sigma}^{2}=\frac{1}{|Z|-1}\sum_{z\in Z}\|T(x,z)-\frac{1}{|Z|}\sum_{z\in Z}T(x,z)\|^{2}.$
+To estimate strong costs \eqref{strong-cost-estimator}, it is enough to sample a single noise vector ($|Z|=1$). To estimate the $\gamma$-weak quadratic cost \eqref{unbiased-estimator-quadratic}, one needs $|Z|\geq 2$ since the estimation of the variance $\hat{\sigma}^{2}$ is needed.
+
+\vspace{-2.5mm}
+\subsection{Relation to Prior Works}
+\label{sec-relation-to-prior}
+
+\vspace{-1.5mm}\textbf{Generative adversarial learning}. Our algorithm \ref{algorithm-not} is a novel approach to learn stochastic OT plans; \underline{it is not a GAN or WGAN-based solution}  endowed with additional losses such as the OT cost.
+% Our optimization problem is indeed a saddle point problem, but it is completely different from the one of GANs.
+WGANs \citep{arjovsky2017wasserstein} do not learn an OT plan but use the (strong) OT cost as the loss to learn the generator network. Their problem is $\inf_{T}\sup_{f}\mathcal{V}(T,f)$. The generator $T^{*}$ solves the \textit{outer} $\inf_{T}$ problem and is the \textit{first} coordinate of an optimal saddle point $(T^{*},f^{*})$. In our algorithm \ref{algorithm-not}, problem \eqref{L-def} is $\sup_{f}\inf_{T}\mathcal{L}(f,T)$, the generator (transport map) $T^{*}$ solves of the \textit{inner} $\inf_{T}$ problem and is the \textit{second} coordinate of an optimal saddle point $(f^{*},T^{*})$. Intuitively, in our case the generator $T$ is adversarial to potential $f$ (discriminator), not vise-versa as in GANs. Theoretically, the problem is also \textit{significantly} different -- swapping $\inf_{T}$ and $\sup_{f}$, in general, yields a different problem with different solutions, e.g., $1\!=\!\inf_x \sup_y \sin(x\!+\!y)\!\neq\! \sup_y \inf_x \sin(x\!+\!y)\!=\!-\!1$. Practically, we do $K_{T}>1$ updates of $T$ per one step of $f$, which again differs from common GAN practices, where multiple updates of $f$ are done per a step of $T$. Finally, in contrast to WGANs, we do not need to enforce any constraints on $f$, e.g., the $1$-Lipschitz continuity. 
+
+\textbf{Stochastic generator parameterization.} We add an additional noise input $z$ to transport map $T(x,z)$ to make it stochastic. This approach is a common technical instrument to parameterize one-to-many mappings in generative modeling, see \citep[\wasyparagraph 3.1]{almahairi2018augmented} or \citep[\wasyparagraph 3]{zhu2017toward}. In the context of OT, \citep{yang2018scalable} employ a stochastic generator to learn a transport plan $\pi$ in the unbalanced OT problem \citep{chizat2017unbalanced}. Due to this, their optimization objective slightly resembles ours \eqref{L-def}. However, this similarity is deceptive, see Appendix \ref{sec-unbalanced-ot}. 
+
+\textbf{Dual OT solvers.} Our algorithm \ref{algorithm-not} recovers stochastic plans for weak costs \eqref{ot-primal-form-weak}. It subsumes previously known approaches which learn deterministic OT maps for strong costs \eqref{ot-primal-form}. When the cost is strong \eqref{ot-primal-form-weak} and transport map $T$ is restricted to be deterministic ${T(x,z)\equiv T(x)}$, our Algorithm \ref{algorithm-not} yields maximin method $\lceil \text{MM:R}\rfloor$, which was  discussed in \citep[\wasyparagraph 2]{korotin2021neural} for the quadratic cost ${\frac{1}{2}\|x-y\|^{2}}$ and further developed  by \citep{rout2022generative} for the $Q$-embedded cost ${-\langle Q(x),y\rangle}$ and by \citep{fan2022scalable} for other strong costs $c(x,y)$. These works are the most related to our study.
+
+\vspace{-1mm}
+\subsection{Universal Approximation with Neural Networks}
+\label{sec-universal-approx}
+\vspace{-1mm}
+
+In this section, we show that it is possible to approximate transport maps with neural nets.
+
+\begin{theorem}[Neural networks are universal approximators of stochastic transport maps] Assume that $\mathcal{X},\mathcal{Z}$ are compact and $\mathbb{Q}$ has finite second moment. Let $T$ be a stochastic map from $\mathbb{P}$ to $\mathbb{Q}$ (\underline{not necessarily optimal}). Then for any nonaffine continuous activation function which is continuously differentiable at at least one point (with nonzero derivative at that point) and for any $\epsilon>0$, there exists a neural network $T_{\theta}:\mathbb{R}^{P}\times\mathbb{R}^{S}\rightarrow\mathbb{R}^{Q}$ satisfying
+\begin{equation}
+\|T_{\theta}-T\|^{2}_{L^{2}}\leq \epsilon\qquad\text{and}\qquad \mathbb{W}_{2}^{2}\big((T_{\theta})_{\#}(\mathbb{P}\times\mathbb{S}),\mathbb{Q}\big)\leq \epsilon,
+\label{T-eps-close-net}
+\end{equation}
+where $L^{2}=L^{2}(\mathbb{P}\times\mathbb{S},\mathcal{X}\times\mathcal{Z}\rightarrow\mathbb{R}^{Q})$ is the space of quadratically integrable w.r.t. $\mathbb{P}\times\mathbb{S}$ functions $\mathcal{X}\times\mathcal{Z}\rightarrow\mathbb{R}^{Q}$. That is, the network $T_{\theta}$ generates a distribution which is $\epsilon$-close to $\mathbb{Q}$ in $\mathbb{W}_{2}^{2}$.
+\label{thm-universal}
+\end{theorem}
+
+\vspace{-3mm}
+\begin{proof}
+The squared norm $\|T\|_{L^{2}}^{2}$ is equal to the second moment of $\mathbb{Q}$ since $T$ pushes $\mathbb{P}\times\mathbb{S}$ to $\mathbb{Q}$. The distribution $\mathbb{Q}$ has finite second moment, and, consequently, $T\in L^{2}$. Thanks to \citep[Proposition 7.9]{folland1999real}, the continuous functions ${C^{0}(\mathcal{X}\times\mathcal{Z}\rightarrow\mathbb{R}^{Q})}$ are dense\footnote{The proposition considers scalar-valued functions ($Q=1$), but is analogous for vector-valued functions.} in $L^{2}$. According to  \citep[Theorem 3.2]{kidger2020universal}, the neural networks $\mathbb{R}^{P}\times\mathbb{R}^{S}\rightarrow\mathbb{R}^{Q}$ with the above-mentioned activations are dense in ${C^{0}(\mathcal{X}\times\mathcal{Z}\rightarrow\mathbb{R}^{Q})}$ w.r.t. $L^{\infty}$ norm and, consequently, w.r.t. $L^{2}$ norm. Combining these results yields that neural nets are dense in $L^{2}$, and for every $\epsilon>0$ there necessarily exists network $T_{\theta}$ satisfying the left inequality in \eqref{T-eps-close-net}. For $T_{\theta}$, the right inequality follows from \citep[Lemma A.2]{korotin2019wasserstein}.
+\end{proof}
+
+\vspace{-2mm}
+Our Theorem \ref{thm-universal} states that neural nets can approximate stochastic maps in $L^{2}$ norm. It should be taken into account that such continuous nets $T_{\theta}$ may be highly irregular and hard to learn in practice. 
+
+\vspace{-2.5mm}
+\section{Evaluation}
+\label{sec-evaluation}
+
+\vspace{-2mm}We perform \underline{\textit{comparison}} with the weak discrete OT (considered as the ground truth) on toy 2D, 1D distributions in Appendices \ref{sec-toy-experiments}, \ref{sec-exp-toy-1d}, respectively. In this section, we test our algorithm on an unpaired image-to-image translation task. We perform \underline{\textit{comparison}} with popular existing translation methods in Appendix \ref{sec-exp-comparison}. The code is written in \texttt{PyTorch} framework and is publicly available at\vspace{-1.5mm}
+\begin{center}
+\url{https://github.com/iamalexkorotin/NeuralOptimalTransport}
+\end{center}
+
+\vspace{-2mm}\textbf{Image datasets.} We use the following publicly available datasets as $\mathbb{P},\mathbb{Q}$: aligned anime faces\footnote{\url{kaggle.com/reitanaka/alignedanimefaces}}, celebrity faces \citep{liu2015faceattributes}, shoes \citep{yu2014fine}, Amazon handbags, churches from LSUN dataset \citep{yu2015lsun}, outdoor images from the MIT places database \citep{zhou2014learning}. The size of datasets varies from 50K to 500K images.
+
+\vspace{-0.5mm}\textbf{Train-test split.} We pick 90\% of each dataset for unpaired training. The rest 10\% are considered as the test set. All the results presented here are \underline{\textit{exclusively}} for test images, i.e., \textit{unseen data}.
+
+\vspace{-0.5mm}\textbf{Transport costs.} We experiment with the strong ($\gamma=0$) and $\gamma$-weak ($\gamma>0$) quadratic costs. Testing other costs, e.g., perceptual \citep{johnson2016perceptual} or semantic \citep{cherian2019sem}, might be interesting practically, but these two quadratic costs already provide promising performance.
+
+\vspace{-0.8mm}The other \textbf{training details} are given in Appendix \ref{sec-exp-details}.
+
+\vspace{-1.7mm}\subsection{Preliminary Evaluation}
+\label{sec-preliminary-experiments}
+
+\vspace{-1.7mm}In the preliminary experiments with   \textit{strong} cost ($\gamma=0$), we noted that $T(x,z)$ becomes independent of $z$. For a fixed potential $f$ and a point $x$, the map $T(x,\cdot)$ learns to be the map pushing distribution $\mathbb{S}$ to some $\arginf$ distribution $\mu$ of \eqref{weak-c-transform}. For strong costs, there are suitable degenerate distributions $\mu$, see the discussion around \eqref{strong-c-transform}. Thus, for $T$ it becomes unnecessary to keep any dependence on $z$; it simply learns a deterministic map ${T(x,z)=T(x)}$. We call this behavior   a~\textbf{conditional collapse}.
+
+Importantly, for the $\gamma$-\textit{weak} cost ($\gamma>0$), we noted a different behavior: the stochastic map $T(x,z)$ did not collapse conditionally.  To explain this, we substitute \eqref{weak-w2-cost} into \eqref{ot-primal-form-weak} to obtain\vspace{-0.5mm}
+ \begin{eqnarray}\mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\inf_{\pi\in\Pi(\mathbb{P},\mathbb{Q})}\bigg[\int_{\mathcal{X}\times\mathcal{Y}}\frac{1}{2}\|x-y\|^{2}d\pi(x,y)-
+ \gamma\cdot \int_{\mathcal{X}} \frac{1}{2}\text{Var}\big(\pi(y\vert x)\big)\underbrace{d\pi(x)}_{d\mathbb{P}(x)}\bigg].
+ \nonumber\vspace{-0.5mm}
+%  \label{weak-we-explained}
+ \end{eqnarray}
+ 
+\vspace{-3mm}The first term is analogous to the strong cost ($\mathbb{W}_{2}=\mathcal{W}_{2,0}$), while the additional second term stimulates the OT plan to be stochastic, i.e., to have high conditional variance.
+ 
+ \clearpage
+\begin{figure*}[!t]\vspace{-3mm}\hspace{-9mm}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/handbag_shoe_128_1.png}
+\caption{Handbags $\rightarrow$ shoes, $128\times 128$.}
+\label{fig:handbag-shoes-128}
+\end{subfigure}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/shoes_handbag_128_1.png}
+\caption{Shoes $\rightarrow$ handbags, $128\times 128$.}
+\label{fig:shoes-handbag-128}
+\end{subfigure}\vspace{1mm}
+
+\hspace{-9mm}\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/celeba_female_anime_64_1.png}
+\caption{Celeba (female) $\rightarrow$ anime, $64\times 64$.}
+\label{fig:celeba-female-anime-64}
+\end{subfigure}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/anime_celeba_female_64_1.png}
+\caption{Anime $\rightarrow$ celeba (female), $64\times 64$.}
+\label{fig:anime-celeba-female-64}
+\end{subfigure}\vspace{1mm}
+
+\hspace{-9mm}\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/celeba_male_celeba_female_64_1.png}
+\caption{Celeba (male) $\rightarrow$ celeba (female), $64\times 64$.}
+\label{fig:celeba-male-celeba-female-64}
+\end{subfigure}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/anime_shoe_64_1.png}
+\caption{Anime $\rightarrow$ shoes, $64\times 64$.}
+\label{fig:anime-shoes-64}
+\end{subfigure}
+\vspace{-2mm}
+\caption{\centering Unpaired translation with deterministic OT maps ($\mathbb{W}_{2}$).}
+\label{fig:style-translation-deterministic-all}
+\vspace{-6mm}
+\end{figure*}
+
+\vspace{-2mm}Taking into account our preliminary findings, we perform two types of experiments. In \S\ref{sec-one-to-one-translation}, we learn deterministic (one-to-one) translation maps $T(x)$ for the strong cost ($\gamma=0$), i.e., do not add $z$-channel.
+In \S\ref{sec-one-to-many-translation}, we learn stochastic (one-to-many) maps $T(x,z)$ for the $\gamma$-weak cost ($\gamma>0$). For completeness, in Appendix \ref{sec-diversity-similarity}, we study how varying $\gamma$ affects the \underline{\textit{diversity}} of samples.
+
+\vspace{-2.5mm}\subsection{One-to-one Translation with Optimal Maps}
+\label{sec-one-to-one-translation}
+
+\vspace{-2.5mm}We learn deterministic OT maps between various pairs of datasets. We provide the results in Figures \ref{fig:celeba-female-anime-128-1} and \ref{fig:style-translation-deterministic-all}. Extra results for all the dataset pairs that we consider are given in Appendix \ref{sec-additional-exp-results}.
+
+\vspace{-1.5mm}Being optimal, our translation map $\widehat{T}(x)$ tries to minimally change the image content $x$ in the $L^{2}$ pixel space. This results in preserving certain features during translation. In \textit{shoes} $\leftrightarrow$ \textit{handbags} (Figures \ref{fig:shoes-handbag-128}, \ref{fig:handbag-shoes-128}), the image color and texture of the pushforward samples reflects those of input samples. In \textit{celeba (female)} $\leftrightarrow$ \textit{anime} (Figures \ref{fig:celeba-female-anime-128-1}, \ref{fig:celeba-female-anime-64}, \ref{fig:anime-celeba-female-64}), head forms, hairstyles are mostly similar for input and output images. The hair in anime is usually bigger than that in celeba. Thus, when translating \textit{celeba (female)} $\leftrightarrow$ \textit{anime}, the anime hair inherits the color from the celebrity image background. In \textit{outdoor} $\rightarrow$ \textit{churches} (Figure \ref{fig:celeba-female-anime-128-1}), the ground and the sky are preserved, in \textit{celeba (male)} $\rightarrow$ \textit{celeba (female)} (Figure \ref{fig:celeba-male-celeba-female-64}) -- the face does not change. We also provide results for translation in the case when the input and output domains are significantly different, see \textit{anime} $\rightarrow$ \textit{shoes} (Figure \ref{fig:anime-shoes-64}).
+
+\begin{figure*}[!t]
+\vspace{-4mm}\hspace{-9mm}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/celeba_female_anime_128_1_weak.png}
+\caption{
+Celeba (female) $\rightarrow$ anime, $128\times 128$ ($\mathcal{W}_{2,\frac{2}{3}}$).
+}
+\label{fig:celeba-woman-anime-weak-128-1}
+\end{subfigure}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/outdoor_church_128_1_weak.png}
+\caption{Outdoor $\rightarrow$ church, $128\times 128$ ($\mathcal{W}_{2,\frac{2}{3}}$).}
+\label{fig:celeba-woman-anime-weak-128-1}
+\end{subfigure}\vspace{0.2mm}
+
+\hspace{-9mm}\begin{subfigure}[b]{0.35\linewidth}\vspace{0.5mm}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/anime_celeba_woman_64_1_weak.png}
+\caption{Anime  \hspace{-0.5mm}$\rightarrow$ \hspace{-0.5mm}celeba (f), $64\!\times\! 64$ ($\mathcal{W}_{2,\frac{2}{3}}$).}
+\label{fig:anime-celeba-woman-weak-64-1}
+\end{subfigure}\hspace{1.5mm}
+\begin{subfigure}[b]{0.35\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/shoes_handbag_64_weak_1.png}
+\caption{
+Shoes  $\rightarrow$ handbags, $64\times 64$ ($\mathcal{W}_{2,1}$).} 
+\label{fig:shoes-handbag-weak-64-1}
+\end{subfigure}\hspace{1.5mm}
+\begin{subfigure}[b]{0.35\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/anime_shoes_64_weak_1.png}
+\caption{Anime $\rightarrow$ shoes, $64\times 64$ ($\mathcal{W}_{2,1}$).} 
+\label{fig:anime-shoes-weak-64-1}
+\end{subfigure}\vspace{-1.5mm}
+\caption{\vspace{-1mm}\centering Unpaired translation with stochastic OT maps  ($\mathcal{W}_{2,\gamma}$).}
+\label{fig:style-translation-stochastic-all}
+\vspace{-6mm}
+\end{figure*}
+
+\vspace{-1mm}\textbf{Related work}. Existing unpaired translation models, e.g., CycleGAN \citep{zhu2017unpaired} or UNIT \citep{liu2017unsupervised}, typically have complex adversarial optimization objectives endowed with additional losses. These models require simultaneous optimization of several neural networks. Importantly, vanilla CycleGAN searches for a random translation map and is not capable of preserving certain attributes, e.g., the color, see \citep[Figure 5b]{lu2019guiding}. To handle this issue, imposing extra losses is required \citep{benaim2017one,kim2017learning}, which further complicates the hyperparameter selection. In contrast, our approach has a straightforward objective \eqref{main-objective}; we use only 2 networks (potential $f$, map $T$), see Table \ref{table-methods-hyperparameters} for the \underline{\textit{comparison of hyperparameters}}. While the majority of existing unpaired translation models are based on GANs, recent work \citep{su2023dual} proposes a diffusion model (DDIBs) and relates it to Schrödinger Bridge \citep{leonard2014survey}, i.e., entropic OT.
+
+\vspace{-2.5mm}\subsection{One-to-many Translation with Optimal Plans}
+\label{sec-one-to-many-translation}
+
+\vspace{-2mm}We learn stochastic OT maps between various pairs of datasets for the $\gamma$-weak quadratic cost. The parameter $\gamma$ equals $\frac{2}{3}$ or $1$ in the experiments. We provide the results in Figures \ref{fig:handbag-shoes-128-weak-1} and \ref{fig:style-translation-stochastic-all}.
+In all the cases, the random noise inputs $z\sim \mathbb{S}$ are not synchronized for different inputs $x$. The examples with the \underline{synchronized} noise inputs $z$ are given in Appendix \ref{sec-synchronized}.
+Extended results and examples of \underline{\textit{interpolation}} in the conditional latent space are given in Appendix \ref{sec-additional-exp-results}. The stochastic map $\widehat{T}(x,z)$ preserves the attributes of the input image and produces multiple outputs. 
+
+\vspace{-0.5mm}\textbf{Related work}. Transforming a one-to-one learning pipeline to one-to-many is nontrivial. Simply adding additional noise input leads to conditional collapse \citep{zhang2018xogan}. This is resolved by AugCycleGAN \citep{almahairi2018augmented} and M-UNIT \citep{huang2018multimodal}, but their optimization objectives are much more complicated then vanilla versions. Our method optimizes only $2$ nets $f,T$ in straightforward objective \eqref{main-objective}. It offers a \textit{single parameter} $\gamma$ to control the amount of variability in the learned maps. We refer to Table \ref{table-methods-hyperparameters} for the comparison of \underline{\textit{hyperparameters}} of the methods. 
+
+\vspace{-2.5mm}
+\section{Discussion}
+\label{sec-dicsussion}
+
+\vspace{-2mm}\textbf{Potential impact.} Our method is a novel generic tool to align probability distributions with deterministic and stochastic transport maps. Beside unpaired translation, we expect our approach to be applied to other one-to-one and one-to-many unpaired learning tasks as well (image restoration, domain adaptation, etc.) and improve existing models in those fields. Compared to the popular models based on GANs \citep{goodfellow2014generative} or diffusion models \citep{ho2020denoising}, our method provides better interpretability of the learned map and allows to control the amount of diversity in generated samples (Appendix \ref{sec-diversity-similarity}). It should be taken into account that OT maps we learn might be suitable not for all unpaired tasks. We mark designing task-specific transport costs as a promising research direction.
+
+% Potential \textit{societal impact} is discussed in Appendix \ref{sec-potential-societal-impact}.
+
+\vspace{-1mm}\textbf{Limitations.} Our method searches for a solution $(f^{*},T^{*})$ of a saddle point problem \eqref{main-objective} and extracts the stochastic OT map $T^{*}$ from it. We highlight after Lemma \ref{arginf-lemma} and in \wasyparagraph\ref{sec-preliminary-experiments} that not all $T^{*}$ are optimal stochastic OT maps. For strong costs, the issue leads to the conditional collapse. Studying saddle points of \eqref{main-objective} and $\arginf$ sets \eqref{T-in} is an important challenge to address in the further research.
+
+\textbf{Potential societal impact}. Our developed method is at the junction of optimal transport and generative learning. In practice, generative models and optimal transport are widely used in entertainment (image-manipulation applications like adding masks to images, hair coloring, etc.), design, computer graphics, rendering, etc. Our method is potentially applicable to many problems appearing in mentioned industries. While the mentioned applications allow making image processing methods publicly available, a potential negative is that they might transform some jobs in the graphics industry.
+
+\vspace{-0.5mm}\textbf{Reproducibility.} We provide the source code for all experiments and release the checkpoints for all models of \wasyparagraph\ref{sec-evaluation}. The details are given in \texttt{README.MD} in the official repository.
+
+\vspace{-0.5mm}\texttt{ACKNOWLEDGEMENTS.} The work was supported by the Analytical center under the RF Government (subsidy agreement 000000D730321P5Q0002, Grant No. 70-2021-00145 02.11.2021).
+
+\bibliography{references}
+\bibliographystyle{iclr2023_conference}
+
+\appendix
+
+
+\newpage
+\appendix
+
+
+\section{Variance-Similarity Trade-off}
+\label{sec-diversity-similarity}
+
+In this section, we study the effect of the parameter $\gamma$ on the structure of the learned stochastic map for the $\gamma$-weak quadratic cost. We consider \textit{handbags} $\rightarrow$ \textit{shoes} translation ($64\times 64$) and test $\gamma\in\{0,\frac{1}{3},\frac{2}{3},1\}$. The results are shown in Figure \ref{fig:variance-similarity}.
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.263\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/shoes_handbag_64_gamma=0.png}
+\caption{$\gamma=0$}
+\label{fig:diversity-gamma-0}
+\end{subfigure}
+\begin{subfigure}[b]{0.24\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/shoes_handbag_64_gamma=0.33.png}
+\caption{$\gamma=\frac{1}{3}$}
+\label{fig:diversity-gamma-13}
+\end{subfigure}
+\begin{subfigure}[b]{0.24\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/shoes_handbag_64_gamma=0.66.png}
+\caption{$\gamma=\frac{2}{3}$}
+\label{fig:diversity-gamma-23}
+\end{subfigure}
+\begin{subfigure}[b]{0.24\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/shoes_handbag_64_gamma=1.png}
+\caption{$\gamma=1$}
+\label{fig:diversity-gamma-1}
+\end{subfigure}
+\caption{Stochastic \textit{Handbags} $\rightarrow$ \textit{shoes} translation with the $\gamma$-weak quadratic cost for various $\gamma$.}
+\label{fig:variance-similarity}
+\end{figure*}
+
+\textbf{Discussion.} For $\gamma=0$ there is no variety in produced samples (Figure \ref{fig:diversity-gamma-0}), i.e., the conditional collapse happens. With the increase of $\gamma$ (Figures \ref{fig:diversity-gamma-13}, \ref{fig:diversity-gamma-23}), the variety of samples increases and the style of the input images is mostly preserved. For $\gamma=1$ (Figure \ref{fig:diversity-gamma-1}), the variety of samples is very high but many of them do not preserve the style of the input image. The parameter $\gamma$ can be viewed as the \textbf{trade-off} parameter \textit{balancing} the \textit{variance} of samples and their \textbf{similarity} to the input.
+
+\section{Toy 2D experiments}
+\label{sec-toy-experiments}
+
+In this section, we test our Algorithm \ref{algorithm-not} on toy 2D distributions $\mathbb{P},\mathbb{Q}$, i.e., $P=Q=2$. 
+
+\textbf{Strong quadratic cost} ($\gamma=0$). As we noted in \wasyparagraph\ref{sec-preliminary-experiments} and Appendix \ref{sec-diversity-similarity}, for the strong quadratic cost, our method tends to learn deterministic maps $T(x,z)=T(x)$ which are independent of the noise input $z$. For deterministic maps $T(x)$, our method yields  $\lfloor \text{MM:R}\rceil$ method which has been evaluated in the recent Wasserstein-2 benchmark by \citep{korotin2021neural}. The authors show that the method recovers OT maps well on synthetic high-dimensional pairs $\mathbb{P},\mathbb{Q}$ with known ground truth OT maps. Thus, for brevity, we do not include toy experiments with our method for the strong quadratic cost.
+
+\begin{figure*}[!t]
+\centering
+\begin{subfigure}[b]{0.3353\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_8_gaussians_in.png}
+\caption{
+Input distribution $\mathbb{P}$.
+}
+\label{fig:gaussian-mixture-in}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_8_gaussians_out.png}
+\caption{
+Target distribution $\mathbb{Q}$.
+}
+\label{fig:gaussian-mixture-out}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_8_gaussians_learned.png}\vspace{-1mm}
+\caption{
+Fitted $\widehat{T}_{\#}(\mathbb{P}\times\mathbb{S})\approx \mathbb{Q}$.
+}
+\label{fig:gaussian-mixture-learned}
+\end{subfigure}
+
+\vspace{1mm}
+
+\begin{subfigure}[b]{0.3353\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_8_gaussians_bar.png}
+\caption{
+Map $\overline{T}(x)=\int_{\mathcal{Z}}\widehat{T}(x,z)d\mathbb{S}(z)$.
+}
+\label{fig:gaussian-mixture-bar}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_8_gaussians_smap.png}
+\caption{
+Learned stochastic map $\widehat{T}(x,z)$.
+}
+\label{fig:gaussian-mixture-smap}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.99\linewidth]{pics/gaussian_8_gaussians_bar_dot.png}
+\caption{\hspace{-0mm}Map $x\!\mapsto\!\int_{\mathcal{Y}}yd\pi^{*}(y|x)$.\hspace{-3mm}
+}
+\label{fig:gaussian-mixture-dot}
+\end{subfigure}
+\caption{\textit{Gaussian} $\rightarrow$ \textit{Mixture of 8 Gaussians}, learned stochastic map for the $1$-weak quadratic cost.}
+\label{fig:gaussian-mixture}
+\end{figure*}
+
+\textbf{Weak quadratic cost ($\gamma>0$).} To our knowledge, \underline{our method is the first to solve weak OT}, i.e., \underline{there are no approaches to compare with}. The analysis of computed transport plans for weak costs is challenging due to the lack of nontrivial pairs $\mathbb{P},\mathbb{Q}$ with known ground truth OT plan $\pi^{*}$. The situation is even worsened by the \textbf{nonuniqueness} of $\pi^{*}$. To cope with this issue, we consider the weak quadratic cost with $\gamma=1$. For this cost, one may derive
+\begin{equation}
+    C\big(x,\mu\big)=
+    \int_{\mathcal{Y}}\frac{1}{2}\|x-y\|^{2}d\mu(y)-\frac{1}{2}\text{Var}(\mu)=\frac{1}{2}\|x-\int_{\mathcal{Y}}y\hspace{0.5mm}d\mu(y)\|^{2}.
+    \label{weak-w2-cost-to-mean}
+\end{equation}
+% i.e., the cost is the squared Euclidean distance between $x$ and the mean of distribution $\mu$.
+For cost \eqref{weak-w2-cost-to-mean} and a pair $\mathbb{P},\mathbb{Q}$, \citep[Theorem 1.2]{gozlan2020mixture} states that there exists a $\mathbb{P}$-unique (up to a constant) convex $\psi:\mathbb{R}^{P}\rightarrow\mathbb{R}$ such that every OT plan $\pi^{*}$ satisfies $\nabla\psi(x)=\int_{\mathcal{Y}}y \hspace{1mm} d\pi^{*}(y|x)$. Besides, $\nabla\psi:\mathbb{R}^{P}\rightarrow\mathbb{R}^{P}$ is $1$-Lipschitz. Let $\widehat{T}(x,z)$ be the stochastic map recovered by our Algorithm \ref{algorithm-not}, and let $\widehat{\pi}$ be the corresponding plan. Let \begin{equation}\overline{T}(x)\stackrel{def}{=}\int_{\mathcal{Y}}y\hspace{0.5mm}d\widehat{\pi}(y|x)=\int_{\mathcal{Z}}\widehat{T}(x,z)d\mathbb{S}(z).
+\label{barycenteric-projection}
+\end{equation}
+Due to the above mentioned characterization of OT plans, $\overline{T}(x)$ should look like a gradient $\nabla\psi(x)$ of some convex function $\psi(x)$ and should nearly be a contraction. Since here we work in the 2D space, we are able to get sufficiently many samples from $\mathbb{P}$ and $\mathbb{Q}$ and obtain a fine approximation of an OT plan $\pi^{*}$ and $\nabla\psi$ by a discrete weak OT solver. We may sample random batches from $X\sim\mathbb{P}$ and $Y\sim\mathbb{Q}$ of size $2^{10}$ and use \texttt{ot.weak} from POT library\footnote{https://pythonot.github.io/} to get some optimal $\pi^{*}$ and $\nabla\psi=\int_{\mathcal{Y}}y \hspace{1mm} d\pi^{*}(y|x)$. We are going to compare our recovered average map $\overline{T}$ with $\nabla\psi$.
+
+
+\textbf{Datasets.} We test 2 pairs $\mathbb{P},\mathbb{Q}$: \textit{Gaussian} $\rightarrow$ \textit{Mixture of 8 Gaussians}; \textit{Gaussian} $\rightarrow$ \textit{Swiss roll}.
+
+\textbf{Neural Networks.} We use multi-layer perceptrons as $f_{\omega}, T_{\theta}$ with 3 hidden layers of 100 neurons and ReLU nonlinearity. The input of the stochastic map $T_{\theta}(x,z)$ is $2+2=4$ dimensional. The two first dimensions represent the input $x\in\mathbb{R}^{2}$ while the other dimensions represent the noise $z\sim\mathbb{S}$. We employ a~Gaussian noise with $\sigma=0.1$
+
+\textbf{Discussion.} We provide qualitative results in Figures \ref{fig:gaussian-mixture} and \ref{fig:gaussian-swiss}. In both cases, the pushforward distribution $\widehat{T}_{\#}(\mathbb{P}\times\mathbb{S})$ matches the desired target distribution $\mathbb{Q}$ (Figures \ref{fig:gaussian-mixture-learned} and \ref{fig:gaussian-swiss-learned}). Figures \ref{fig:gaussian-mixture-smap} and \ref{fig:gaussian-swiss-smap} show how the mass of points $x\sim\mathbb{P}$ is split by the stochastic map.
+The average maps $\overline{T}(x)$  (Figures \ref{fig:gaussian-mixture-bar}, \ref{fig:gaussian-swiss-bar}) indeed nearly match the ground truth $\nabla\psi$ (Figures \ref{fig:gaussian-mixture-dot}, \ref{fig:gaussian-swiss-dot}) obtained by POT. To quantify them, we compute $\mathcal{L}^{2}$-UVP $(\overline{T})=100\%\cdot\|\overline{T}-\nabla\psi\|^{2}_{\mathbb{P}}/\mbox{Var}(\nabla\psi_{\#}\mathbb{P})$ metric \cite[\wasyparagraph 5.1]{korotin2019wasserstein}. Here we obtain small values $<1\%$ and $\approx 3\%$ for the Swiss Roll and 8 Gaussians examples which further indicates the similarity of the learned $\overline{T}$ and the ground truth $\nabla\psi(x)$.
+
+Note that $\overline{T}$ indeed roughly equals a gradient of a convex function. The gradients of convex functions are cycle monotone \citep{rockafellar1966characterization}. Cycle monotonicity yields that for $x_{1}\neq x_{2}$ the segments $[x_{1},\nabla\psi (x_{1})]$ and $[x_{2},\nabla\psi (x_{2})]$ do not intersect in the inner points \citep[\wasyparagraph 8]{villani2008optimal}.\footnote{For the sake of clarity, we slightly reformulated the property of the cycle monotone maps \citep{villani2008optimal}.} Visually, we see that in Figures \ref{fig:gaussian-mixture-bar} and \ref{fig:gaussian-swiss-bar} the segments $[x,\overline{T}(x)]$ do not intersect for different $x$, which is good. 
+
+\begin{figure*}[!t]
+\centering
+\begin{subfigure}[b]{0.3353\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_swiss_in.png}
+\caption{
+Input distribution $\mathbb{P}$.
+}
+\label{fig:gaussian-swiss-in}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_swiss_out.png}
+\caption{
+Target distribution $\mathbb{Q}$.
+}
+\label{fig:gaussian-swiss-out}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_swiss_learned.png}\vspace{-1mm}
+\caption{
+Fitted $\widehat{T}_{\#}(\mathbb{P}\times\mathbb{S})\approx \mathbb{Q}$.
+}
+\label{fig:gaussian-swiss-learned}
+\end{subfigure}
+
+\vspace{1mm}
+
+\begin{subfigure}[b]{0.3353\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_swiss_bar.png}
+\caption{
+Map $\overline{T}(x)=\int_{\mathcal{Z}}\widehat{T}(x,z)d\mathbb{S}(z)$.
+}
+\label{fig:gaussian-swiss-bar}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/gaussian_swiss_smap.png}
+\caption{
+Learned stochastic map $\widehat{T}(x,z)$.
+}
+\label{fig:gaussian-swiss-smap}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.99\linewidth]{pics/gaussian_swiss_bar_dot.png}
+\caption{\hspace{-0mm}Map $x\!\mapsto\!\int_{\mathcal{Y}}yd\pi^{*}(y|x)$.\hspace{-3mm}
+}
+\label{fig:gaussian-swiss-dot}
+\end{subfigure}
+\caption{\textit{Gaussian} $\rightarrow$ \textit{Swiss Roll}, learned stochastic OT map for the $1$-weak quadratic cost.}
+\label{fig:gaussian-swiss}
+\end{figure*}
+
+\section{Toy 1D Experiments}
+\label{sec-exp-toy-1d}
+
+In this section, we additionally test our Algorithm \ref{algorithm-not} on toy 1D distributions $\mathbb{P},\mathbb{Q}$, i.e., $P=Q=1$. In this case, transport plans are 2D distributions and can be conveniently visualized.
+
+We experiment with the $1$-weak quadratic cost \eqref{weak-w2-cost-to-mean}. Following the discussion in the previous section, we recall that an OT plan $\pi^{*}$ may be not unique. However, all OT plans satisfy ${\nabla\psi(x)=\int_{\mathcal{Y}}y \hspace{1mm} d\pi^{*}(y|x)}$ for some 1-smooth convex function $\psi:\mathbb{R}\rightarrow\mathbb{R}$. This simply means that $x\mapsto \nabla\psi(x)=\int_{\mathcal{Y}}y \hspace{1mm} d\pi^{*}(y|x)$ is a monotone increasing $1$-Lipschitz function $\nabla\psi:\mathbb{R}\rightarrow\mathbb{R}$. Below we check that this necessary condition holds for $\overline{T}$ \eqref{barycenteric-projection}, where $\hat{T}$ is our learned stochastic map.
+
+\textbf{Datasets.} We test 2 pairs $\mathbb{P},\mathbb{Q}$: \textit{Gaussian} $\rightarrow$ \textit{Mix of 2 Gaussians}; \textit{Gaussian} $\rightarrow$ \textit{Mix of 3 Gaussians}.
+
+\textbf{Neural Networks.} We use the same networks as in Appendix \ref{sec-toy-experiments}. This time, the input of the stochastic map $T_{\theta}(x,z)$ is $1+1=2$ dimensional, the input to $f_{\omega}$ -- 1-dimensional.
+
+\textbf{Discussion.} We provide qualitative results in Figures \ref{fig:toy-1d-1to2} and \ref{fig:toy-1d-1to3}. For each case, we plot the results of 3 random restarts of our method ($\hat{\pi}$ denotes our learned OT plan). Similarly to Appendix \ref{sec-toy-experiments}, we plot the results obtained by a discrete weak OT solver (\texttt{ot.weak} from POT library). Namely, in Figures \ref{fig:toy-1d-1to2-dot}, \ref{fig:toy-1d-1to3-dot} we show its results obtained for 4 restarts with differing seeds. Note that the average maps $\overline{T}$ computed by our algorithm in both cases nearly match those computed by the discrete weak OT. This indicates that the transport cost of our computed plan $\hat{\pi}$ is since $$[\text{Cost of } \hat{\pi}]=\int_{\mathcal{X}}\frac{1}{2}\|x-\underbrace{\overline{T}(x)}_{\approx \psi(x)}\|^{2}d\mathbb{P}(x)\approx \int_{\mathcal{X}}\frac{1}{2}\|x-\nabla\psi(x)\|^{2}d\mathbb{P}(x)=\text{Cost}(\mathbb{P},\mathbb{Q}),$$
+i.e., it nearly equals the optimal cost. Here we use $\overline{T}(x)\approx \nabla\psi(x)$ observed from the experiments. To conclude, wee see that the recovered plans are close to the DOT considered as the ground truth.
+
+
+\begin{figure}[!t]
+% \vspace{-3mm}
+\begin{subfigure}[b]{0.51\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_2_in_out.png}
+\caption{\vspace{-1mm}\centering  Input and output distributions.}
+\label{fig:toy-1d-1to2-inout}
+\end{subfigure}
+\begin{subfigure}[b]{0.50\linewidth}
+\vspace{1mm}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_2_v1.png}
+\caption{\vspace{-1mm}\centering Learned plan $\hat{\pi}$ and marginal $\hat{T}_{\#}(\mathbb{P}\times\mathbb{S})$, test 1.}
+\label{fig:toy-1d-1to2-test1}
+\end{subfigure}
+
+\vspace{3mm}
+\begin{subfigure}[b]{0.50\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_2_v2.png}
+\caption{\vspace{-1mm}\centering Learned plan $\hat{\pi}$ and marginal $\hat{T}_{\#}(\mathbb{P}\times\mathbb{S})$, test 2.}
+\label{fig:toy-1d-1to2-test2}
+\end{subfigure}
+\begin{subfigure}[b]{0.50\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_2_v3.png}
+\caption{\vspace{-1mm}\centering Learned plan $\hat{\pi}$ and marginal $\hat{T}_{\#}(\mathbb{P}\times\mathbb{S})$, test 3.}
+\label{fig:toy-1d-1to2-test3}
+\end{subfigure}
+
+\vspace{2mm}
+\begin{subfigure}[b]{1.02\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_2_DOT.png}
+\caption{\vspace{-1mm}\centering Various optimal plans $\pi^{*}$ learned by discrete OT (considered here as the ground truth).}
+\label{fig:toy-1d-1to2-dot}
+\end{subfigure}
+% \vspace{0mm}
+\caption{\centering Stochastic plans between toy 1D distributions (Figure \ref{fig:toy-1d-1to2-inout}) learned by NOT (Figures \ref{fig:toy-1d-1to2-test1}, \ref{fig:toy-1d-1to2-test2}, \ref{fig:toy-1d-1to2-test3}) and discrete OT (Figure \ref{fig:toy-1d-1to2-dot}) with the 1-weak quadratic cost. The figures with the 2D transport plans also demonstrate the average map $x\mapsto \int_{\mathcal{Y}}yd\hat{\pi}(y|x)$ (conditional expectation).}
+\label{fig:toy-1d-1to2}
+% \vspace{-12mm}
+\end{figure}
+
+
+\begin{figure}[!t]
+% \vspace{-3mm}
+\begin{subfigure}[b]{0.51\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_3_in_out.png}
+\caption{\vspace{-1mm}\centering  Input and output distributions.}
+\label{fig:toy-1d-1to3-inout}
+\end{subfigure}
+\begin{subfigure}[b]{0.50\linewidth}
+\vspace{1mm}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_3_v1.png}
+\caption{\vspace{-1mm}\centering Learned plan $\hat{\pi}$ and marginal $\hat{T}_{\#}(\mathbb{P}\times\mathbb{S})$, test 1.}
+\label{fig:toy-1d-1to3-test1}
+\end{subfigure}
+
+\vspace{3mm}
+\begin{subfigure}[b]{0.50\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_3_v2.png}
+\caption{\vspace{-1mm}\centering Learned plan $\hat{\pi}$ and marginal $\hat{T}_{\#}(\mathbb{P}\times\mathbb{S})$, test 2.}
+\label{fig:toy-1d-1to3-test2}
+\end{subfigure}
+\begin{subfigure}[b]{0.50\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_3_v3.png}
+\caption{\vspace{-1mm}\centering Learned plan $\hat{\pi}$ and marginal $\hat{T}_{\#}(\mathbb{P}\times\mathbb{S})$, test 3.}
+\label{fig:toy-1d-1to3-test3}
+\end{subfigure}
+
+\vspace{2mm}
+\begin{subfigure}[b]{1.02\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.99\linewidth]{pics/1d_gaussian_3_DOT.png}
+\caption{\vspace{-1mm}\centering Various optimal plans $\pi^{*}$ learned by discrete OT (considered here as the ground truth).}
+\label{fig:toy-1d-1to3-dot}
+\end{subfigure}
+% \vspace{0mm}
+\caption{\centering Stochastic plans between toy 1D distributions (Figure \ref{fig:toy-1d-1to3-inout}) learned by NOT (Figures \ref{fig:toy-1d-1to3-test1}, \ref{fig:toy-1d-1to3-test2}, \ref{fig:toy-1d-1to3-test3}) and discrete OT (Figure \ref{fig:toy-1d-1to3-dot}) with the 1-weak quadratic cost. The figures with the 2D transport plans also demonstrate the average map $x\mapsto \int_{\mathcal{Y}}yd\hat{\pi}(y|x)$ (conditional expectation).}
+\label{fig:toy-1d-1to3}
+% \vspace{-12mm}
+\end{figure}
+
+
+% \newpage
+\section{Comparison with Principal Unpaired Translation Methods}
+\label{sec-exp-comparison}
+
+We compare our Algorithm \ref{algorithm-not} with popular models for unpaired translation. We consider \textit{handbags} $\rightarrow$ \textit{shoes} ($64\times 64$), \textit{celeba male} $\rightarrow$ \textit{female} ($64\times 64$), \textit{outdoor} $\rightarrow$ \textit{church} ($128\times 128$) translation. For quantitative comparison, we compute Frechet Inception Distance\footnote{\url{github.com/mseitzer/pytorch-fid}} \citep[FID]{heusel2017gans} of the mapped \textbf{test} handbags subset w.r.t. the \textbf{test} shoes subset. The scores of our method and alternatives are given in Table \ref{table-fid}. The translated images are shown in Figures \ref{fig:comparison-handbags-shoes}, \ref{fig:comparison-male-female}, \ref{fig:outdoor-church-comparison}.
+
+\textbf{Methods.} We compare our method with one-to-one CycleGAN \footnote{\url{github.com/eriklindernoren/PyTorch-GAN/tree/master/implementations/cyclegan}}\citep{zhu2017unpaired}, DiscoGAN\footnote{\url{github.com/eriklindernoren/PyTorch-GAN/tree/master/implementations/discogan}} \citep{kim2017learning} and with one-to-many AugCycleGAN\footnote{\url{github.com/aalmah/augmented_cyclegan}} \citep{almahairi2018augmented} and MUNIT\footnote{\url{github.com/NVlabs/MUNIT}} \citep{huang2018multimodal}. We use the official or community implementations with the hyperparameters from the respective papers. We choose the above-mentioned methods for comparison because they are \textit{principal} methods for one-to-one and one-to-many translation. Recent methods (GMM-UNIT \citep{liu2020gmm}, COCO-FUNIT \citep{saito2020coco}, StarGAN \citep{choi2020stargan}) are based on them and focus on specific details/setups such as style/content separation, few-shot learning, disentanglement, multi-domain transfer, which are \textit{out of scope} of our paper. 
+
+
+\textbf{Discussion.} Existing one-to-one methods visually preserve the style during translation comparably to our method. Alternative one-to-many methods do not preserve the style at all. When the input and output domains are similar (\textit{handbags}$\rightarrow$\textit{shoes}, \textit{celeba male} $\rightarrow$ \textit{female}), the FID scores of all the models are comparable. However, most models are outperformed by NOT when the domains are distant (\textit{outdoor} $\rightarrow$ \textit{church}), see Figure \ref{fig:outdoor-church-comparison} and the last row in Table \ref{table-fid}. For completeness, in Table \ref{table-methods-hyperparameters} we compare the number of hyperparameters of the translation methods in view. Note that in contrast to the other methods, we optimize only $2$ neural networks -- transport map and potential.\let\thefootnote\relax\footnotetext{$^*$ For $128\times 128$ images.}
+
+\begin{table}[!h]
+\centering
+\small
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\toprule
+\textbf{Type} & \multicolumn{3}{c|}{\textbf{One-to-one}} & \multicolumn{3}{c|}{\textbf{One-to-many}} \\ \midrule
+\textbf{Method} & \makecell{Disco\\GAN} & \makecell{Cycle\\GAN} & \makecell{NOT\\(ours)} & \makecell{AugCycle\\GAN} & MUNIT & \makecell{NOT \\(ours)} \\ \midrule
+\makecell{Handbags $\rightarrow$ shoes\\(64$\times$ 64)} & 22.42 & 16.00 & \textbf{13.77} & \makecell{18.84\\$\pm$ 0.11} & \makecell{15.76\\$\pm$ 0.11} & \makecell{\textbf{13.44}\\$\pm$ 0.12} \\ \midrule
+\makecell{Celeba male $\rightarrow$ female\\(64$\times$ 64)} & 35.64  & 17.74  & \textbf{13.23} & \makecell{12.94\\$\pm$0.08}   & \makecell{17.07\\$\pm$0.11}   & \makecell{\textbf{11.96}\\$\pm$0.07} \\ \midrule
+\makecell{Outdoor $\rightarrow$ church\\(128$\times$ 128)} & 75.36 & 46.39 & \textbf{25.5} & \makecell{51.42 \\$\pm$0.12} &  \makecell{31.42 \\$\pm$0.16}  & \makecell{\textbf{25.97}\\$\pm$0.14} \\ \bottomrule
+\end{tabular}
+\vspace{2mm}
+\caption{\centering Test FID$\downarrow$ of the considered unpaired translation methods.}\label{table-fid}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\toprule
+\textbf{Type} & \multicolumn{3}{c|}{\textbf{One-to-one}} & \multicolumn{3}{c|}{\textbf{One-to-many}} \\ \midrule
+\textbf{Method} & \makecell{Disco\\GAN} & \makecell{Cycle\\GAN} & \makecell{NOT\\(ours)} & \makecell{AugCycle\\GAN} & MUNIT & \makecell{NOT \\(ours)} \\ \midrule
+\makecell{Hyperparameters \\
+of optimization\\ objectives} & None & \makecell{Weights of \\
+cycle and \\
+identity losses\\
+$\lambda_{cyc}, \lambda_{id}$}  & None & \makecell{Weights of \\cycle losses \\ $\gamma_{1}, \gamma_{2}$} & \makecell{Weights of \\
+reconstruction \\
+losses \\
+$\lambda_{x}, \lambda_{c}, \lambda_{s}$} & \makecell{Diversity\\control\\parameter $\gamma$} \\ \midrule
+\makecell{Total number of \\hyperparameters} & \textbf{0} & 2 & \textbf{0} & 2 & 3 & \textbf{1}
+\\
+\midrule
+Networks & \makecell{2 generators, \\ 2$\times$29.2M\\ \\ 2 discriminators \\ 2$\times$0.7M}  & \makecell{2 generators \\ 2$\times$11.4M \\ \\ 2 discriminators \\ 2$\times$2.8M} & \makecell{1 transport \\ 9.7M, \\ \\ 1 potential \\ 22.9M [32.4M$^{*}$]} & \makecell{2 generators \\ 2$\times$1.1M, \\ \\ 2 discriminators \\ 2$\times$2.8M, \\ \\ 2  encoders \\ 2$\times$1.4M} & \makecell{2  generators \\ 2$\times$15.0M, \\ \\ 2 discriminators \\ 2$\times$8.3M} & \makecell{1 transport map \\ 9.7M, \\ \\ 1 potential \\ 22.9M [32.4M$^{*}$]}  \\
+\midrule
+\makecell{Total number of \\networks and \\parameters} & \makecell{4 networks\\59.8M}  & \makecell{4 networks\\28.2M} & \makecell{\textbf{2 networks}\\32.6M [42.1M$^{*}$]} & \makecell{6 networks\\7.0M} & \makecell{4 networks\\46.6M} & \makecell{\textbf{2 networks}\\32.6M [42.1M$^{*}$]} \\
+\bottomrule
+\end{tabular}
+% \vspace{2mm}
+\caption{\centering Comparison of the number of hyperparameters of the optimization objectives, the number of networks and their parameters for the considered unpaired translation methods for 64$\times$64 images.}\label{table-methods-hyperparameters}
+\end{table}
+
+\newpage
+\begin{figure*}[!b]
+\vspace{-2mm}
+\begin{subfigure}[b]{1.\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/ot_strong_bags2shoes_test_recalculate.png}
+\caption{
+NOT (\underline{\textbf{ours}}, $\mathbb{W}_{2}$), one-to-one.
+}
+\label{fig:bags2shoes-ot-strong-64}
+\end{subfigure}
+\vspace{1mm}
+
+\begin{subfigure}[b]{1.\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/discogan_bags2shoes_test.png}
+\caption{
+DiscoGAN, one-to-one.
+}
+\label{fig:bags2shoes-discogan-64}
+\end{subfigure}
+\vspace{1mm}
+
+\begin{subfigure}[b]{1.\linewidth}
+\centering
+\includegraphics[width=0.98\linewidth]{cycle_bags2shoes_test_cut.png}
+\caption{CycleGAN, one-to-one.}
+\label{fig:bags2shoes-cyclegan-64}
+\end{subfigure}
+\vspace{1mm}
+
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/weak_ot_bags2shoes_test_2.png}
+\caption{
+NOT (\underline{\textbf{ours}}, $\mathcal{W}_{2,\frac{2}{3}}$), one-to-many.
+}
+\label{fig:bags2shoes-ours-64}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/munit_bags2shoes_test.png}
+\caption{
+MUNIT, one-to-many.
+}
+\label{fig:bags2shoes-munit-64}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/aug_cyclegan_test.png}
+\caption{AugCycleGAN}
+\label{fig:bags2shoes-augcyclegan-64}
+\end{subfigure}
+\caption{\textit{Handbags} $\rightarrow$ \textit{shoes} translation ($64\times 64$) by the methods in view.}
+\label{fig:comparison-handbags-shoes}
+\vspace{-3mm}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\vspace{-2mm}
+\begin{subfigure}[b]{1.\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/not_strong_male2female_test.png}
+\caption{
+NOT (\underline{\textbf{ours}}, $\mathbb{W}_{2}$), one-to-one.
+}
+\label{fig:male2female-ot-strong-64}
+\end{subfigure}
+\vspace{1mm}
+
+\begin{subfigure}[b]{1.\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/discogan_male2female_test.png}
+\caption{
+DiscoGAN, one-to-one.
+}
+\label{fig:male2female-discogan-64}
+\end{subfigure}
+\vspace{1mm}
+
+\begin{subfigure}[b]{1.\linewidth}
+\centering
+\includegraphics[width=0.98\linewidth]{pics/cycle_male2female_test.png}
+\caption{CycleGAN, one-to-one.}
+\label{fig:male2female-cyclegan-64}
+\end{subfigure}
+\vspace{1mm}
+
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/weak_ot_male2female_test.png}
+\caption{
+NOT (\underline{\textbf{ours}}, $\mathcal{W}_{2,\frac{2}{3}}$), one-to-many.
+}
+\label{fig:male2female-ours-64}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/munit_male2female_test.png}
+\caption{
+MUNIT, one-to-many.
+}
+\label{fig:male2female-munit-64}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/augcyclegan_male2female_test.png}
+\caption{AugCycleGAN}
+\label{fig:male2female-augcyclegan-64}
+\end{subfigure}
+\caption{\textit{Celeba (male)} $\rightarrow$ \textit{Celeba (female)} translation ($64\times 64$) by the methods in view.}
+\label{fig:comparison-male-female}
+\vspace{-3mm}
+\end{figure*}
+
+\begin{figure}[!h]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/not_discogan_outdoor2church_test.png}
+\caption{DiscoGAN, one-to-one.}
+\end{subfigure}\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/not_cycle_outdoors2church_test.png}
+\caption{CycleGAN, one-to-one.}
+\end{subfigure}\vspace{3mm}
+
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/not_strong_outdoor2church_test.png}
+\caption{NOT (\underline{\textbf{ours}}, $\mathbb{W}_{2}$), one-to-one.}
+\end{subfigure}\vspace{3mm}
+
+
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/not_augcyclegan_outdoor2church_test.png}
+\caption{AugCycleGAN, one-to-many.}
+\end{subfigure}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/not_munit_outdoor2church_test.png}
+\caption{MUNIT, one-to-many.}
+\end{subfigure}\vspace{3mm}
+
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/weak_ot_outdoor2church_test.png}
+\caption{NOT (\underline{\textbf{ours}}, $\mathcal{W}_{2,\frac{2}{3}}$), one-to-many.}
+\end{subfigure}
+\caption{\textit{Outdoor} $\rightarrow$ \textit{church} ($128\times 128$) translation with various methods.}
+\label{fig:outdoor-church-comparison}
+\end{figure}
+
+
+\clearpage
+\section{Experimental Details}
+\label{sec-exp-details}
+ 
+ \vspace{-0.5mm}\textbf{Pre-processing.} We beforehand rescale anime face images to $512\times 512$, and do $256\times 256$ crop with the center located $14$ pixels above the image center to get the face. Next, for all these datasets, we rescale RGB channels to $[-1,1]$ and resize images to the required size ($64\times 64$ or $128\times 128$). We do not apply any augmentations to data.
+ 
+\vspace{-0.5mm}\textbf{Neural networks.} We use WGAN-QC discriminator's ResNet architecture \citep{liu2019wasserstein} for potential $f$. We use UNet\footnote{\url{github.com/milesial/Pytorch-UNet}} \citep{ronneberger2015u} as the stochastic transport map $T(x,z)$. The noise $z$ is simply an additional $4$th input channel (RGBZ), i.e., the dimension of the noise equals the image size ($64\times 64$ or $128\times 128$). We use high-dimensional Gaussian noise with axis-wise $\sigma=0.1$.
+ 
+\textbf{Optimization.} We use the Adam optimizer \citep{kingma2014adam} with the default betas for both $T_{\theta}$ and $f_{\omega}$. The learning rate is $lr=1\cdot 10^{-4}$. The batch size is $|X|=64$. The number of inner iterations is $k_{T}=10$. When training with the weak cost \eqref{weak-w2-cost}, we sample $|Z_x|=4$ noise samples per each image $x$ in batch. In toy experiments, we do $10$K total iterations of $f_{\omega}$ update. In the experiments with unpaired translation, our Algorithm \ref{algorithm-not} converges in $\approx 40$K iterations for most datasets. 
+
+\textbf{Dynamic weak cost.} In \wasyparagraph\ref{sec-one-to-many-translation}, we train the algorithm with the gradually changing $\gamma$. Starting from $\gamma=0$, we linearly increase it to the desired value ($\frac{2}{3}$ or $1$) during 25K first iterations of $f_{\omega}$.
+
+% Other training hyperparameters are given in Table \ref{table-params}. 
+
+\textbf{Stability of training.} In several cases, we noted that the optimization fluctuates around the saddle points or diverges. An analogous behavior of saddle point methods for OT has been observed in \citep{korotin2021neural}. For the $\gamma$-weak quadratic cost ($\gamma>0$), we sometimes experienced instabilities when the input $\mathbb{P}$ is notably less disperse than $\mathbb{Q}$ or when the parameter $\gamma$ is high. Studying this behaviour and improving stability/convergence of the optimization is a promising research direction.
+
+\textbf{Computational complexity.} The time and memory complexity of training deterministic OT maps $T(x)$ is comparable to that of training usual generative models for unpaired translation. Our networks converge in 1-3 days on a Tesla V100 GPU (16 GB); wall-clock times depend on the datasets and the image sizes. Training stochastic $T(x,z)$ is harder since we sample multiple random $z$ per $x$ (we use $|Z|=4$). Thus, we learn stochastic maps on 4 $\times$ Tesla V100 GPUs.
+
+% \vspace{-0.5mm}
+
+\section{Optimality of Solutions for Strictly Convex Costs}
+\label{sec-strictly-convex}
+
+Our Lemma \ref{arginf-lemma} proves that optimal maps $T^{*}$ are contained in the $\arginf_{T}$ sets of optimal potentials $f^{*}$ but leaves the question what else may be contained in these $\arginf_{T}$ sets open. Our following result shows that for \textit{strictly} convex costs, nothing else beside OT maps is contained there.
+
+\begin{lemma}[Solutions of the maximin problem are OT maps] Let $C(x,\mu)$ be a weak cost which is \textit{strictly} convex in $\mu$. Assume that there exists at least one potential $f^{*}$ which maximizes dual form \eqref{ot-weak-dual}. Consider any such optimal potential $f^{*}\in\argsup_{f}\inf_{T}\mathcal{L}(f,T)$. It holds that $$\hat{T}\in\arginf_{T}\mathcal{L}(f^{*},T)\Rightarrow \hat{T}\mbox{ is a stochastic OT map}.$$
+\label{arginf-lemma-inverse}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \eqref{arginf-lemma-inverse}.] By the definition of $f^{*}$, we have $$\mathcal{L}(f^{*},\hat{T})=\sup_{f}\inf_{T}\mathcal{L}(f,T)=\mbox{Cost}(\mathbb{P},\mathbb{Q}),$$
+i.e., $\hat{T}$ attains the optimal cost. It remains to check that it satisfies $\hat{T}\sharp(\mathbb{P}\times\mathbb{S})=\mathbb{Q}$, i.e., $\hat{T}$ generates $\mathbb{Q}$ from $\mathbb{P}$. Let $T^{*}$ be any true stochastic OT map. We denote $\mu_x^{*}=T^{*}(x,\cdot)\sharp\mathbb{S}$ and $\hat{\mu}_x=\hat{T}(x,\cdot)\sharp\mathbb{S}$ for all $x\in\mathcal{X}$ and define $\mu^{1}_{x}= \frac{1}{2}(\mu^{*}_{x}+\hat{\mu}_{x})$. Let $T^{1}:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$ be any stochastic map which satisfies $T^{1}(x,\cdot)\sharp\mathbb{S}=\mu_{x}^{1}$ for all $x\in\mathcal{X}$ (\wasyparagraph\ref{sec-derivation}). By using the change of variables, we derive
+\begin{equation}\mbox{Cost}(\mathbb{P},\mathbb{Q})\geq  \mathcal{L}(f^{*},T^{1})=\int_{\mathcal{X}}C(x,\mu_{x}^{1})d\mathbb{P}(x)-\int_{\mathcal{X}}\big[\int_{\mathcal{Y}}f^{*}(y)d\mu_{x}^{1}(y)\big]d\mathbb{P}(x)+\int_{\mathcal{Y}}f^{*}(y)\mathbb{Q}(y).
+\label{lower-bound-saddle}
+\end{equation}
+Since $C$ is convex in the second argument, we have 
+\begin{equation}C(x,\mu_{1}^{x})=C\big(x,\frac{1}{2}(\mu^{*}_{x}+\hat{\mu}_{x})\big)\geq \frac{1}{2}C(x,\mu^{*}_{x})+\frac{1}{2}C(x,\hat{\mu}_{x}).
+\label{strict-convexity-weak}
+\end{equation}
+Since $C$ is strictly convex, the equality in \eqref{strict-convexity-weak} is possible only when $\mu_{x}^{*}=\hat{\mu}_{x}$. We also note that 
+$$\int_{\mathcal{Y}}f^{*}(y)d\mu_{x}^{1}(y)=\int_{\mathcal{Y}}f^{*}(y)d\frac{(\mu^{*}_{x}+\hat{\mu}_{x})}{2}(y)=\frac{1}{2}\int_{\mathcal{Y}}f^{*}(y)d\mu^{*}_{x}(y)+\frac{1}{2}\int_{\mathcal{Y}}f^{*}(y)d\hat{\mu}_{x}(y).$$
+We substitute these findings to $\mathcal{L}(f^{*},T^{1})$ and get
+\begin{equation}\mbox{Cost}(\mathbb{P},\mathbb{Q})\geq\mathcal{L}(f^{*},T^{1})\geq \frac{1}{2}\mathcal{L}(f^{*},T^{*})+\frac{1}{2}\mathcal{L}(f^{*},\hat{T})=
+\nonumber
+\\
+\frac{1}{2}\mbox{Cost}(\mathbb{P},\mathbb{Q})+\frac{1}{2}\mbox{Cost}(\mathbb{P},\mathbb{Q})=\mbox{Cost}(\mathbb{P},\mathbb{Q}).
+\nonumber
+\end{equation}
+Thus, \eqref{lower-bound-saddle} is an equality $\mathbb{P}$-almost surely for all $x\in\mathcal{X}$ and $\mu_{x}^{*}=\hat{\mu}_{x}$ holds $\mathbb{P}$-almost surely. This means that $T^{*}$ and $\hat{T}$ generate the same distribution from $\mathbb{P}\times\mathbb{S}$, i.e., $\hat{T}$ is a stochastic OT map.
+\end{proof}
+
+Our generic framework allows learning stochastic transport maps (Lemma \ref{arginf-lemma}). For strictly convex costs, all the solutions of our objective \eqref{main-objective} are guaranteed to be stochastic OT maps (Lemma \ref{arginf-lemma-inverse}). In the experiments, we focus on strong and weak \textit{quadratic} costs, which are not strictly convex but still provide promising performance in the downstream task of unpaired image-to-image translation (\wasyparagraph\ref{sec-evaluation}). Developing strictly convex costs is a promising research avenue for the future work.
+
+% \section{Potential Societal Impact}
+% \label{sec-potential-societal-impact}
+% Our developed method is at the junction of optimal transport and generative learning. In practice, generative models and optimal transport are widely used in entertainment (image-manipulation applications, like adding masks to images, hair coloring, etc.), design, computer graphics, rendering, etc. Our method is potentially applicable to many problems appearing in mentioned industries. While the mentioned applications allow making image processing methods publicly available, a potential negative is that they might transform some jobs in the computer graphics industry.
+
+\section{Relation to Prior Works in Unbalanced Optimal Transport}
+\label{sec-unbalanced-ot}
+
+In the context of OT, \citep{yang2018scalable} employ a stochastic generator to learn a transport plan $\pi$ in the unbalanced OT problem \citep{chizat2017unbalanced}. Due to this, their optimization objective slightly resembles our objective \eqref{L-def}. However, this similarity is deceptive. Unlike strong \eqref{ot-primal-form} or weak \eqref{ot-primal-form-weak} OT, the unbalanced OT is an \textbf{unconstrained} problem, i.e., there is no need to satisfy $\pi\in\Pi(\mathbb{P},\mathbb{Q})$. This makes unbalanced OT easier to handle: to optimize it one just has to parametrize the plan $\pi$ and backprop through the loss. The challenging part with which the authors deal is the estimation of the $\phi$-divergence terms in the unbalanced OT objective. These terms can be interpreted as a \textit{soft relaxation} of the constraints $\pi\in\Pi(\mathbb{P},\mathbb{Q})$, i.e., penalization for disobeying the constraints. The authors compute these terms by employing the variational (dual) formula from $f$-GAN \citep{nowozin2016f}. This yields a GAN-style optimization problem $\min_{T}\max_{f}$ which is \textbf{similar} to other problems in the generative adversarial framework. The problem we tackle is strong \eqref{ot-primal-form} and weak \eqref{ot-primal-form-weak} OT
+which requires enforcing of the constraint $\pi\in\Pi(\mathbb{P},\mathbb{Q})$. We reformulate the dual (weak) OT problem \eqref{ot-weak-dual} into maximin problem \eqref{L-def} which can be used to recover the OT plan (via the stochastic map $T$). Our approach can be viewed as a \textit{hard enforcement} of the constraints. Our $\max_{f}\min_{T}$ saddle point problem \eqref{L-def} is \textbf{atypical} for the traditional generative adversarial framework. 
+
+\clearpage
+\section{Additional Experimental Results}
+\label{sec-additional-exp-results}
+
+\begin{figure*}[!h]\vspace{-3mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_female_anime_128_ext.png}
+\caption{\centering Celeba (female) $\rightarrow$ anime translation, $128\times 128$.}
+\label{fig:celeba-female-anime-128-ext}
+\end{subfigure}\vspace{1mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_128_ext.png}
+\caption{\centering Outdoor $\rightarrow$ church, $128\times 128$.}
+\label{fig:outdoor-church-128-ext}
+\end{subfigure}\vspace{1mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_128_ext.png}
+\caption{\centering Handbags $\rightarrow$ shoes, $128\times 128$.}
+\label{fig:handbag-shoes-128-ext}
+\end{subfigure}\vspace{1mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/shoes_handbag_128_ext.png}
+\caption{\centering Shoes $\rightarrow$ handbags, $128\times 128$.}
+\label{fig:shoes-handbag-128-ext}
+\end{subfigure}
+\vspace{-2mm}
+\caption{\centering Unpaired translation with OT maps ($\mathbb{W}_{2}$). Additional examples (part 1).}
+\label{fig:style-translation-128-ext}
+\vspace{-20mm}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_female_anime_64_ext.png}
+\caption{\centering Celeba (female) $\rightarrow$ anime translation, $64\times 64$.}
+\label{fig:celeba-female-anime-64-ext}
+\end{subfigure}\vspace{2mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/anime_celeba_female_64_ext.png}
+\caption{\centering Anime $\rightarrow$ celeba (female) translation, $64\times 64$.}
+\label{fig:anime-celeba-female-64-ext}
+\end{subfigure}\vspace{2mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_male_celeba_female_64_ext.png}
+\caption{\centering Celeba (male) $\rightarrow$ celeba (female) translation, $64\times 64$.}
+\label{fig:celeba-male-celeba-female-64-ext}
+\end{subfigure}\vspace{2mm}
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/anime_shoe_64_ext.png}
+\caption{\centering Anime $\rightarrow$ shoes translation, $64\times 64$.}
+\label{fig:anime-shoes-64-ext}
+\end{subfigure}
+\caption{\centering Unpaired translation with OT maps ($\mathbb{W}_{2}$). Additional examples (part 2).}
+\label{fig:style-translation-64-ext}
+\end{figure*}
+
+\clearpage
+
+% \subsection{One-to-many Style Transfer (Weak Quadratic Cost)}
+% \label{sec-additional-exp-stochastic}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_female_anime_128_ext_weak.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.}
+\label{fig:celeba-anime-128-ext}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_female_anime_128_interp_weak.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\label{fig:celeba-anime-128-interpolation}
+\end{subfigure}
+\caption{\centering Celeba (female) $\rightarrow$ anime, $128\times 128$, stochastic. Additional examples.}
+\label{fig:celeba-anime-128-weak-interp}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_128_ext_weak.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.}
+\label{fig:outdoor-church-128-ext}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_128_interp_weak.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\label{fig:outdoor-church-128-interpolation}
+\end{subfigure}
+\caption{\centering Outdoor $\rightarrow$ church, $128\times 128$, stochastic. Additional examples.}
+\label{fig:outdoor-church-128-weak-interp}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_128_ext_weak.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.}
+\label{fig:handbag-shoe-128-ext}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_128_1_weak_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\label{fig:handbag-shoes-128-interpolation}
+\end{subfigure}
+\caption{\centering Handbags $\rightarrow$ shoes translation, $128\times 128$, stochastic. Additional examples.}
+\label{fig:style-translation-128-interp}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/anime_celeba_woman_64_ext_weak.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.}
+\label{fig:anime-celeba-woman-64-ext}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/anime_celeba_woman_64_interp_weak.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\label{fig:anime-celeba-64-interpolation}
+\end{subfigure}
+\caption{\centering Anime $\rightarrow$ celeba (female) translation, $64\times 64$, stochastic. Additional examples.}
+\label{fig:anime-celeba-woman-64-interp}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/anime_shoes_64_weak_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.}
+\label{fig:anime-shoes-64-ext}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/anime_shoes_64_weak_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\label{fig:anime-shoes-64-interpolation}
+\end{subfigure}
+\caption{\centering Anime $\rightarrow$ shoes translation, $64\times 64$, stochastic. Additional examples.}
+\label{fig:anime-shoes-64-interp}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/shoes_handbag_64_weak_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.}
+\label{fig:shoes-handbags-64-ext}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/shoes_handbag_64_weak_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\label{fig:shoes-handbags-64-interpolation}
+\end{subfigure}
+\caption{\centering Shoes $\rightarrow$ handbags, $64\times 64$, stochastic. Additional examples.}
+\label{fig:shoes-handbag-64-interp}
+\end{figure*}
+
+\clearpage
+
+\section{Examples with the Synchronized Noise}
+\label{sec-synchronized}
+
+In this section, for \textit{handbags}$\rightarrow$\textit{shoes} (64$\times$64) and \textit{outdoor}$\rightarrow$\textit{church} (128$\times$128) datasets, we pick a batch of input data $x_{1},\dots,x_{N}\sim\mathbb{P}$ and noise $z_{1},\dots,z_{K}\sim\mathbb{S}$ to plot the $N\times K$ matrix of generated images $T_{\theta}(x_n,z_k)$. Our goal is to assess whether using the same $z_k$ for different $x_n$ leads to some shared effects such as the same form a generated shoe or church.
+
+The images results are given in Figures \ref{fig:bags-shoes-64-synchronized} and \ref{fig:outdoor2church-128-synchronized}. Qualitatively, we do not find any close relation between images produced with the same noise vectors for different input images $x_{n}$.
+
+\begin{figure*}[!h]
+\centering
+\includegraphics[width=0.995\linewidth]{pics/weak_ot_bags2shoes_test_shared_z.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.\protect\linebreak In this example, noise inputs $z$ are synchronized between different input images $x$.}
+\label{fig:bags-shoes-64-synchronized}
+\end{figure*}
+
+
+\begin{figure*}[!h]
+\centering
+\includegraphics[width=0.995\linewidth]{pics/weak_ot_outdoor2church_test_z_shared.png}
+\caption{\centering Input images $x$ and random translated examples $T(x,z)$.\protect\linebreak In this example, noise inputs $z$ are synchronized between different input images $x$.}
+\label{fig:outdoor2church-128-synchronized}
+\end{figure*}
+
+
+\end{document}

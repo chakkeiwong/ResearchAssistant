@@ -198,6 +198,7 @@ class ArtifactStateManager:
         mission_id: str,
         mission_fingerprint: str,
         mission_anchor_generation_id: str,
+        repository_root: Path | None = None,
         nonce_factory: Callable[[], str] = lambda: secrets.token_hex(16),
         crash_hook: Callable[[str], None] | None = None,
     ) -> None:
@@ -207,6 +208,7 @@ class ArtifactStateManager:
         if GENERATION_ID_RE.fullmatch(mission_anchor_generation_id) is None:
             raise MissionStateError("invalid_anchor_generation", "mission anchor generation ID is invalid")
         self.mission_anchor_generation_id = mission_anchor_generation_id
+        self.repository_root = repository_root.resolve(strict=True) if repository_root is not None else None
         self.nonce_factory = nonce_factory
         self.crash_hook = crash_hook
         self.state_dir = self.mission_root / ".artifact_state"
@@ -269,6 +271,7 @@ class ArtifactStateManager:
             mission_fingerprint=self.mission_fingerprint,
             mission_anchor_generation_id=self.mission_anchor_generation_id,
             coverage_payloads=coverage_payloads,
+            repository_root=self.repository_root,
         )
         self.ensure_genesis()
         selected = self.load_current(required=False)
@@ -641,6 +644,7 @@ class ArtifactStateManager:
                 mission_fingerprint=self.mission_fingerprint,
                 mission_anchor_generation_id=self.mission_anchor_generation_id,
                 coverage_payloads=coverage_payloads,
+                repository_root=self.repository_root,
             )
         else:
             _validate_retained_v2_coverage_schemas(coverage_payloads)
@@ -860,7 +864,9 @@ def infer_mission_root_from_selected(path: Path) -> Path | None:
     return Path(*parts[:index]) if index else Path(resolved.anchor)
 
 
-def validate_selected_review_queue(path: Path) -> ArtifactSetSnapshot:
+def validate_selected_review_queue(
+    path: Path, *, repository_root: Path | None = None
+) -> ArtifactSetSnapshot:
     mission_root = infer_mission_root_from_selected(path)
     if mission_root is None:
         raise MissionStateError(
@@ -873,6 +879,7 @@ def validate_selected_review_queue(path: Path) -> ArtifactSetSnapshot:
         mission_id=genesis["mission_id"],
         mission_fingerprint=genesis["mission_fingerprint"],
         mission_anchor_generation_id=genesis["mission_anchor_generation_id"],
+        repository_root=repository_root,
     )
     snapshot = manager.validate_selected_path(path, role="review_queue")
     _validate_mission_binding(snapshot)
@@ -994,6 +1001,7 @@ def _validate_v2_coverage_replay(
     mission_fingerprint: str,
     mission_anchor_generation_id: str,
     coverage_payloads: dict[str, dict[str, Any]],
+    repository_root: Path | None = None,
 ) -> None:
     retained_schema = "ra-survey-retained-evidence-reconciliation-v1"
     if all(
@@ -1010,6 +1018,7 @@ def _validate_v2_coverage_replay(
             mission_fingerprint=mission_fingerprint,
             mission_anchor_generation_id=mission_anchor_generation_id,
             coverage_payloads=coverage_payloads,
+            repository_root=repository_root,
         )
         return
 

@@ -9,16 +9,42 @@ output is ignored and can be regenerated into a fresh validation root.
 
 ## Current State
 
-- Branch: `main`; the working branch contains the pending local implementation
-  and documentation changes and will be pushed after this cleanup commit.
+- Branch: `main`; the working tree contains a dirty-worktree operational
+  candidate whose exact versioned integration is pending. No push or release is
+  implied.
 - Active research boundary: M20 arXiv-only backward discovery is closed within
   its bounded source/anchor contract; M21 retained-source intake is closed with
-  one explicit text-parse gap; M22B0 is ready for genuine human review.
-- Forward citation coverage remains unavailable and non-blocking. No claim of
-  literature completeness, technical claim truth, product readiness, or
-  north-star completion is made.
-- The next meaningful action is the genuine human review described in
-  `docs/plans/literature_survey_north_star_m22b_genuine_human_review_subplan_2026-07-18.md`.
+  one explicit text-parse gap; M22 now uses system-generated qualitative
+  scholarly assessments rather than a 73-row binary human-attestation task.
+- M22 omission-frontier triage is now closed within its bounded scope. The
+  exact 55 deferred identifier-bearing rows replay from retained BibTeX with
+  13 corrected nested-brace titles and provisional group counts of 24 direct
+  OT/geometry, 4 foundational, 15 comparator/failure, 10 application/dataset,
+  and 2 peripheral/background.
+- One five-paper credential-free arXiv source campaign completed with exactly
+  5 requests, 0 retries, 5 parsed packages, passed replay, and a 61,925,753-byte
+  retained root. All five received method/theory/evaluation/limitation
+  inspection and scoped survey roles; no final prose or universal claim was
+  authorized.
+- The M22 active V2 representative matrix is complete. Nine local cases replay;
+  topic and explicit-seed paths reach assessed terminals within recorded scope;
+  source, forward-coverage, and omission limitations remain visible; and
+  correction plus adversarial-boundary cases pass without claim/prose
+  promotion.
+- The topic case is `retained_production_topic_replay`: M17 provides a
+  deterministic topic-only selected-seed fixture and M22 provides retained
+  production source/omission evidence. It is not live topic-discovery
+  validation.
+- M23 offline operational acceptance passes: the wheel installs without an
+  inherited source path or package-index access; installed commands run from
+  outside the repository; all nine cases and offline replay pass; copied M22
+  tampering is rejected; and documentation preserves active capabilities and
+  limitations.
+- Program state: `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE`. Forward citation
+  coverage remains unavailable and non-blocking; 50 identifier-bearing
+  rows and 195 identifier-free units remain open; final claim support and prose
+  readiness remain false; and no live topic-quality, completeness, product,
+  release, or broad-platform claim is made.
 
 ## Repository Boundary
 
@@ -51,9 +77,16 @@ tracked result note and its compact evidence record.
   quarantine status, offline replay, artifact inventory, and terminal result.
 - M21 candidate triage and retained anchors: compact inventories, triage/risk,
   anchor/source/claim records, and manifests.
-- M22B0: production reconciliation result, packet ledgers, retained-evidence
-  reconciliation/anchor records, source-intake status, and the human review
-  packet plus readable worksheets.
+- M22: production reconciliation result, packet ledgers, retained-evidence
+  reconciliation/anchor records, the exact 55-row omission triage and five-row
+  queue, five-source campaign result/replay, primary-source inspection record,
+  the refreshed qualitative merits/concerns/uncertainties bundle, the active
+  nine-case matrix, the repaired `_r2` replay/terminal result, and the M22 close
+  record. Legacy human-review packet files remain compatibility evidence only.
+- M23: the acceptance subplan and repair history, final fresh-process result,
+  wheel/command/replay hashes, capability and documentation reports, affected
+  regression summary, and terminal review provenance. Generated validation
+  roots remain local and reproducible.
 
 These records preserve outcomes and limitations, not raw paper content. The
 result notes remain the authoritative interpretation and explicitly separate
@@ -73,27 +106,35 @@ hard vetoes, descriptive diagnostics, and nonclaims.
 1. Start from a clean checkout of `main`.
 2. Create a fresh, versioned output root under `docs/validation/` or another
    explicitly local run directory; do not reuse an old root.
-3. Read the current M22B subplan and the M20/M21 result notes before any action.
-4. Obtain genuine human participation before importing human decisions. Agents,
-   fixtures, and generated worksheets must not fill the attestation.
+3. Read the M23 close record, M22 close record, repaired representative-mission
+   report, qualitative bundle, and the M20/M21 result notes before any action.
+4. Use the inspected technical passages for scoped survey roles. Do not
+   recreate numeric scoring or require a generic human worker to disposition
+   every queue row.
 5. Keep forward coverage unavailable unless a separately authorized method
    changes that boundary.
 
 ## Nonclaims And Blockers
 
-- No technical paper claim is promoted without checked source anchors and
-  genuine human disposition.
+- Checked technical text supports scoped source descriptions and the M22
+  workflow reaches assessed terminals, but final claim promotion and prose
+  readiness remain false.
 - No metadata, citation count, parser output, or source availability is treated
   as technical claim support.
-- No human review, legal identity proof, literature completeness, product
-  readiness, release, public message, or north-star completion follows from
-  this cleanup.
+- Within-scope program completion does not establish legal identity proof,
+  literature completeness, technical claim truth, human usability, product
+  readiness, release readiness, or public authority.
 - Raw/generated artifacts are intentionally absent from Git; their paths in
   result notes are historical references to local evidence roots.
 
 ## Handoff
 
-This memo is the clean restart boundary. The next safe step is to conduct the
-predeclared M22B human review against the tracked packet/worksheets, then record
-the receipt-bound result and refresh the M23 handoff. Do not reopen superseded
-provider, credential, approval-token, or PDF-fallback loops.
+This memo is the M23 versioned-close repair boundary. The next action is the
+exact Git integration and clean-checkout reproduction subplan; it is not a new
+scientific milestone. After that close, any work on live topic quality,
+additional paper/source
+inspection, forward citations, claim/prose promotion, cross-platform support,
+or release requires a separate scoped plan and the actual human approval at any
+external, credential, publication, or release boundary. Do not reopen
+superseded numeric scoring, generic human-attestation, credential-provider,
+approval-token, custom terminal-control, or PDF-fallback loops.

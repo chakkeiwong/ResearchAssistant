@@ -1,0 +1,567 @@
+\documentclass[conference]{IEEEtran}
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+%\usepackage{color}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+%\usepackage[lofdepth,lotdepth]{subfig}
+\usepackage{multirow}
+%\usepackage{float}
+\usepackage{subfigure}
+%\usepackage{cancel}
+\usepackage[normalem]{ulem}
+\usepackage{color}
+\usepackage{url}
+%\usepackage{tikz}
+
+
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
+\useunder{\uline}{\ul}{}
+
+% ----------------------------------------------------------------------
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline  \\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline \\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+\graphicspath{ {img/} }
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\def\bR{\mathbf{R}}
+\def\bO{\mathbf{O}}
+\def\bM{\mathbf{M}}
+\def\mbR{\mathbb{R}}
+\def\bu{\mathbf{u}}
+\def\bv{\mathbf{v}}
+\def\bD{\mathbf{D}}
+\def\bS{\mathbf{S}}
+\def\bL{\mathbf{L}}
+\def\bU{\mathbf{U}}
+\def\bQ{\mathbf{Q}}
+\def\bV{\mathbf{V}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+
+\def\etal{{\em et al.\;}}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+%\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\begin{document}
+
+\title{XOGAN: One-to-Many Unsupervised Image-to-Image Translation}
+
+%\author{\IEEEauthorblockN{Yongqi Zhang and  James T. Kwok }
+\author{\IEEEauthorblockN{Yongqi Zhang}
+\IEEEauthorblockA{Department of Computer Science and Engineering \\
+Hong Kong University of Science and Technology \\
+Clear Water Bay, Hong Kong\\
+		\{yzhangee\}@cse.ust.hk}
+}
+
+% make the title area
+\maketitle
+
+\begin{abstract}
+Unsupervised image-to-image translation aims at learning the relationship between samples from two image domains without supervised pair
+information. The relationship between two domain images can be one-to-one, one-to-many or many-to-many. In this paper, we study the one-to-many
+unsupervised image translation problem in which an input sample from one domain can correspond to multiple samples in the other domain. To learn the complex relationship between the two domains, we introduce an additional variable to control the variations in our one-to-many mapping. A
+generative model
+with an \textit{XO}-structure, called the XOGAN, is proposed to learn the cross domain relationship among the two domains and the additional
+variables. Not only can we learn to translate between the two image domains, we can also handle the translated images with additional variations.
+Experiments are performed on unpaired image generation tasks, including edges-to-objects translation and facial image translation. We show that
+the proposed XOGAN model can generate plausible images and control variations, such as color and texture, of the generated images. Moreover, 
+while state-of-the-art unpaired image generation algorithms tend to generate images with monotonous colors,
+XOGAN
+can generate more diverse results.
+\end{abstract}
+
+\vspace{5px}
+
+% \IEEEpeerreviewmaketitle
+
+\begin{IEEEkeywords}
+Unsupervised image translation, Image generation, Generative adversarial networks, One-to-many mapping
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec-intro}
+
+With the development of deep generative models, image generation has become popular in various applications. Among them, image-to-image translation, which learns a mapping from one domain to another, is a recent hot topic. Many computer vision tasks, including cross-domain image generation \cite{isola2016image, kim2017learning, taigman2016unsupervised, zhu2017unpaired, yi2017dualgan}, super-resolution \cite{ledig2017photo}, colorization \cite{yao2015color,zhang2016colorful}, image inpainting \cite{yeh2016semantic}, image style transfer \cite{gatys2016image, li2017universal, johnson2016perceptual}, can be considered as image translation. Based on the two domains of images (either paired or unpaired), a generative model is trained to learn their relationship. 
+
+Image translation can be defined as follows. Given an image $X_S$, we map it to a target domain image  $X_T$ that shares some similarity or has
+close relationship with $X_S$. The task is to learn the mapping $f: X_S\rightarrow X_T$ that transforms the source domain distribution $p(X_S)$
+to the target domain distribution $p(X_T)$. For example, $X_T$ can be a scaled-up version of $X_S$ in super-resolution, or $X_T$ is a colored
+version of a grayscale image $X_S$, or $X_T$ is a photo of its sketch $X_S$ (Figure \ref{fig-example}). In these tasks, we assume that there also
+exists an inverse mapping $g: X_T \rightarrow X_S$. With the help of the inverse mapping, we can understand better about the two domains by
+learning their joint relationship. 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{example}
+\caption{Example one-to-many translation. Here, the translation is between a set of edge images and a set of real shoes. The proposed model can learn the one-to-many generation of multiple colored shoes from one edge input.}
+\label{fig-example}
+\end{figure}
+
+Given a paired data set, early approaches learn the mapping by using the input-output pairs in a supervised manner \cite{isola2016image, ledig2017photo}. The main challenge is to learn and generalize the relationship between the given pairs. However, paired data sets are usually hard to collect, and the corresponding target domain image may not even exist in practice. For example, it is hard to connect the set of paired images between photos and artistic works. Another example is that if the two domains are male faces and female faces, then there does not exist paired data of a same person. In these cases, supervised models fail because of the lack of a ground truth mapping for training. Learning unpaired image translation is more practical and has received more attention recently \cite{kim2017learning, taigman2016unsupervised, zhu2017unpaired, yi2017dualgan}. Moreover, unsupervised (or unpaired) image generation is more practical since data collection is much easier. 
+
+%Generative Adversarial Networks (GANs) \cite{goodfellow2014generative, gulrajani2017improved, mirza2014conditional, salimans2016improved, arjovsky2017wasserstein}, which contain a discriminator $D$ that separates the real data distribution from the generated data distribution and a generator $G$ that tries to confuse the discriminator by generating plausible samples, show great potential in approximating target distributions especially when likelihood function is unavailable. When paired image is not available, GANs can work as a powerful tool to match the generated image to real image distribution. However, current image to image translation frameworks \cite{isola2016image, taigman2016unsupervised, zhu2017unpaired} deterministically generate one image. In practice, this is a stochastic generation process and there can be additional variations, like colors or textures, when transferring from one domain to the other as shown in Fig. \ref{fig-example}. 
+
+In this paper, we consider the task of unsupervised one-to-many image generation. Given two image domains $\mathcal A$ and $\mathcal B$, we learn
+to transfer images in domain $\mathcal A$ to domain $\mathcal B$, and vice versa. Different from previous works on unpaired image translation \cite{kim2017learning, taigman2016unsupervised, zhu2017unpaired}, we assume that there can be many possible target images in domain $\mathcal B$ given the same image in domain $\mathcal A$. For example, in the edge-to-shoe translation task in Figure 1, there can be different colors and textures when generating shoes. To model this variation, we propose to use an additional variable $Z$ to complement images in domain $\mathcal A$. Moreover, this variable $Z$ can be easily sampled from a prior distribution, such as the normal distribution. 
+
+To learn the relationship among $\mathcal A, \mathcal B$ and $Z$,
+we propose a novel generative model under the constraint of domain adversarial loss and cycle consistency loss, which is first defined in \cite{zhu2017unpaired}.
+The proposed model, which
+will be called XOGAN,
+is assembled in an ``XO''-structure, and is trained under the generative adversarial network (GAN) framework \cite{goodfellow2014generative, gulrajani2017improved, mirza2014conditional, salimans2016improved, arjovsky2017wasserstein}.
+
+%The whole model contains two image domains $\mathcal A$ and $\mathcal B$ and one additional variable $\bm Z$. Three generator networks are used to generate corresponding samples in image domains or encode the additional variables. Since there is no paired sample, three discriminators are used to match the generated distributions $P_{G_A}, P_{G_B}, P_{G_Z}$ with the empirical data distribution $P_{\mathcal A}, P_{\mathcal B}$ and a predefined prior distribution $P_{\bm Z}$ under the GAN's framework. To jointly train these generators and discriminators, we assemble them in an `XO' structure, which we call as XOGAN. Under the constraint of domain adversarial loss and cycle consistency loss, which is firstly defined in \cite{zhu2017unpaired}, our model is able to learn the relationship among $\mathcal A$, $\mathcal B$ and $\bm Z$ well. 
+
+In our experiments, we show results on generating shoes and handbags with diverse colors and textures given the edge images. Besides, when the
+additional variable is kept the same for different edge inputs, we can generate objects with the same colors. Moreover, we can alter the colors
+of different objects by substituting the variable $Z$. Hence,
+not only 
+can our model generate plausible images as in other generative models, it can also replace the color of a certain image with another. 
+
+Section \ref{sec-related} first reviews the related works. The proposed ``XO''-structure and the training procedure are introduced in Section \ref{sec-model}. Section \ref{sec-exp} presents experimental results on the {\sf edges2shoes}, {\sf edges2handbags} and {\sf CelebA} data sets.
+%and illustrates consistency in the ``XO''-structure. 
+Finally, Section \ref{sec-conclude} gives some concluding remarks and future directions.
+
+
+
+%To jointly train these generators and discriminators. We assemble them in an `\textit{XO}' structure as in Fig. \ref{fig-model-gen}. The X-path in left generates samples $\bar{B}$ in domain $\mathcal B$ and maintains cycle consistency for domain $\mathcal  A$ and additional variable $\bm Z$. Cycle consistency is first introduced in \cite{zhu2017unpaired} in the sense that if we have a function $G: X\rightarrow Y$ and another function $F: Y\rightarrow X$, then $G$ and $F$ should be bijective and it encourages $F(G(x))\approx X$ and $G(F(Y))\approx Y$. In our case, the cycle consistency metric constraint that generated samples $\bar{B}$ in domain $\mathcal  B$ contain essential information to reconstruct input $A$ and prior code $Z$. The O-path in the below of Fig. \ref{fig-model-gen} first generates fake samples $\bar{A}$ in domain $\mathcal A$ and code $\bar{Z}$ in $\bm Z$, and then reconstruct $B$ with the concatenation of $\bar{A}$ and $\bar{Z}$. As we have assumed previously, the variable $\bm Z$ fills in the lacked information when translating from domain $\mathcal A$ to domain $\mathcal B$. The three cycle consistency paths, $A\rightarrow \bar{B} \rightarrow \hat{A}$,   $Z\rightarrow \bar{B} \rightarrow \hat{Z}$ and  $B\rightarrow \bar{A}|| \bar{Z} \rightarrow \hat{B}$, where $||$ is a concatenation operator, make sure that information in our generated images and the additional variables are kept consistent during the whole generation process.
+
+
+\vspace{.1in}
+\noindent
+{\em Notations}.
+%We use the following notations in the sections below. 
+Samples from the two image domains are denoted by $A\in \mathbb R_{\mathcal A}^{h\times w\times c}$ and $B \in \mathbb R_{\mathcal B}^{h\times
+w\times c}$, where the subscripts $\mathcal A$ and $\mathcal B$ are the domain indicators,
+and $h, w, c$ 
+are the height, width, and channel,
+respectively. The empirical distributions of the image domains are denoted $P_{\mathcal A}$, and $P_{\mathcal B}$, respectively. The additional
+variable $Z\in \mathbb R_{Z}^d$ is sampled from a standard normal distribution $P_{Z}=\mathcal N(0, I)$, where $d$ is the dimensionality of $Z$. 
+
+The generator for image domain $\mathcal A$ is denoted $G_{A}: \mathbb R_{\mathcal B}^{h\times w\times c}\rightarrow \mathbb R_{\mathcal A}^{h\times w\times
+c}$, in which the subscripts denote the image domains. The generator for image domain $\mathcal B$ is denoted $G_{B}: (\mathbb R_{\mathcal A}^{h\times w\times c}, \mathbb R_{Z}^{d})\rightarrow \mathbb R_{\mathcal B}^{h\times w\times c}$. The input is a concatenation of the image from domain
+$\mathcal A$ and  a sample from the distribution $P_{Z}$. The generator (also called an encoder) for $Z$ is denoted $G_Z: \mathbb R_{\mathcal B}^{h\times w\times c}\rightarrow \mathbb R_{Z}^{d}$. 
+
+The first path generated fake samples in domain $\mathcal A$ and $\mathcal B$ are denoted $\bar{A}$ and $\bar{B}$, and the encoded variable is $\bar{Z}$. When 
+the fake samples $\bar{A}, \bar{B}, \bar{Z}$ 
+are forwarded
+once again through the generators, 
+the output variables in each domain 
+are denoted
+$\hat{A}, \hat{B}, \hat{Z}$ (Figure \ref{fig-model-gen}).
+
+The discriminator networks are denoted $D_A: \mathbb R_{\mathcal A}^{h\times w\times c}\rightarrow [0, 1]$, $D_B: \mathbb R_{\mathcal B}^{h\times
+w\times c}\rightarrow [0, 1]$ and $D_Z: \mathbb R_{Z}^{d}\rightarrow [0, 1]$, respectively.
+
+\section{Related Work}
+\label{sec-related}
+
+\subsection{Generative Adversarial Networks}
+
+The generative adversarial network (GAN) \cite{goodfellow2014generative} is a powerful generative model that can generate plausible images. The
+GAN contains two modules: a generator $G$ that generates samples and a discriminator $D$ that tries to distinguish whether the sample is from the
+real or generated distribution. The generator aims to confuse the discriminator by generating samples that are difficult to differentiate from
+the real ones. Training of GAN often suffers from issues such as vanishing gradient and mode collapse \cite{salimans2016improved}, in which the
+generator tends to collapse to points in a single mode. Very recently, a number of techniques have been introduced to stabilize training
+procedure \cite{gulrajani2017improved, salimans2016improved}. In cross-domain image generation \cite{isola2016image, kim2017learning,
+zhu2017unpaired, liu2017unsupervised}, GAN is a powerful tool to match the generated image to the real image distributions, especially when
+paired images are not available. 
+
+%Conditional GAN \cite{mirza2014conditional} is a variant of GANs that can generate samples under the condition of categories or other attributes. The conditional GAN gives standard GANs the ability to learn relationship between images and given conditions. 
+
+\subsection{Supervised Image-to-Image Translation}
+
+Isola \etal \cite{isola2016image} showed that cross-domain image translation can be learned and generalized  using a paired data set. By using the conditional GAN \cite{mirza2014conditional}, their model can generate plausible photographs from sketches or semantic layouts. Zhu \etal \cite{zhu2017toward} 
+%introduced 
+%an additional variable model similar as ours and 
+used bicycle consistency between the latent code and output images to generate multi-modal target domain images.  However, paired data sets are
+not always available, and unpaired data sets are more common in practice. 
+
+
+\subsection{Unsupervised Image-to-Image Translation}
+\label{sec-unpaired}
+
+Taigman \etal \cite{taigman2016unsupervised} introduced the domain transfer network (DTN) to generate emoji-style images from facial images in an
+unsupervised manner. In the DTN, image translation is a one-way mapping. If we train another model to map the emoji images back to real faces,
+the face identity may be changed. More recently, bidirectional mapping becomes more appealing, and has been studied in the DiscoGAN
+\cite{kim2017learning}, CycleGAN \cite{zhu2017unpaired} and DualGAN \cite{yi2017dualgan}. These models use one generator and one discriminator
+for each mapping, and the symmetric structure helps to learn the bidirectional mapping. 
+
+\begin{figure}[htbp]
+	\centering
+	\subfigure[Forward path. \label{fig:forward}] {\includegraphics[width=0.27\textwidth]{cycle-forward}}
+	
+	\subfigure[Backward path. \label{fig:back}]
+	{\includegraphics[width=0.26\textwidth]{cycle-backward}}
+	\caption{The CycleGAN \cite{zhu2017unpaired}.}
+	\label{fig-model-cycle}
+\end{figure}
+
+Figure~\ref{fig-model-cycle} shows the CycleGAN
+\cite{zhu2017unpaired}, which uses a generator $G$ for the mapping $X\rightarrow Y$ and another generator $F$ for $Y\rightarrow X$. Two associated adversarial
+discriminators, $D_X$ and $D_Y$, are used to measure the quality of generated samples in the corresponding domains. Figure~\ref{fig:forward}
+contains the forward cycle-consistency path: $x\rightarrow G(x) \rightarrow F(G(x)) \approx x$, and Figure~\ref{fig:back} is the
+backward cycle-consistency path: $y\rightarrow F(y)\rightarrow G(F(y))\approx y$. The cycle consistency loss captures the intuition that if
+we translate from one domain to the other and back again, we should be able to reconstruct the original input. 
+However, the generated image by CycleGAN
+is
+deterministic. As will be shown in Section \ref{sec-exp}, these models cannot model additional variations even by adding random noise to the
+inputs. 
+
+
+Another recent model is the UNIT \cite{liu2017unsupervised}, which performs image translation by using a shared latent space to encode
+the two domains. Although they can generate multiple images via the use of a stochastic variable, the variations generated are still limited.
+
+
+%In this work, we consider the one-to-many image generation problem in the unsupervised setting. 
+
+%\paragraph{Image Style Transfer}
+%Image Style Transfer is a kind of work similar as image translation. It combines the content of one image with the style of another image \cite{gatys2016image, johnson2016perceptual, li2017universal}. These works define the content and texture by using features in pretrained classification CNNs like VGG \cite{simonyan2014very} or ResNet \cite{he2016deep}. Early works like \cite{gatys2016image} transforms image to a target style by solving an optimization problem, which is computationally expensive, to approach the Gram matrices distance for the texture image. Feed forward approaches \cite{li2017universal, johnson2016perceptual} work more efficient for image transfer. \cite{johnson2016perceptual} minimized a style loss defined on the Frobenius norm between Gram matrices to match the style of given images. And \cite{li2017universal} defined a feature transform module to match the statistics of style features. In these works, style is the local texture and color feature of a single given image while our work cares about the distribution of two domains with apparent features. Besides, style transfer model usually transforms the image into a new domain that is different from the given input and style images. Our work does not only focus on image transfer, but also on generating plausible and variational image in a certain domain.
+
+
+\section{The Proposed Model}
+\label{sec-model}
+Let $\mathcal A$ and $\mathcal B$ be two image domains. In supervised image-to-image translation, a sample pair $(A, B)$ is drawn from the joint distribution $P_{\mathcal A, \mathcal B}$. In this paper, we focus on unsupervised image-to-image translation, in which samples are drawn from the marginal distributions $P_{\mathcal A}$ and $P_{\mathcal B}$. 
+
+%In many cases, $\mathcal A$ to $\mathcal B$ is one-to-many mapping, like image colorization \cite{zhang2016colorful}, edge to object generation, attribute transfer in our experiment, etc. Assume that the mapping from $P_{\mathcal A}$ to $P_{\mathcal B}$ is one-to-many such that we need to use an additional variable $\bm Z$ to model the variation. To sample $Z$ easily, we let the prior distribution of $\bm Z$ to be standard Gaussian $P_{\bm Z} = \mathcal N(0, I)$. 
+
+%In order to generate images and the additional variables, we use three generators $G_A, G_B, G_Z$ for $\mathcal A, \mathcal B, \bm Z$ respectively. Since images in domain $\mathcal B$ contains more information than that in $\mathcal A$, we concatenate $A$ with a variable $Z$ when translating $A$ to domain $\mathcal B$. To model the relationship among $\mathcal A$, $\mathcal B$ and $\bm Z$, the generators are trained under two kinds of constrains: domain adversarial loss and cycle consistency loss. 
+%
+%Considering that the data sets we used are unpaired, there is no corresponding image in domain $\mathcal B$ for a given image in domain $\mathcal A$ and vice versa. Thus, we use the GANs \cite{goodfellow2014generative} framework to ensure that the generated samples $\bar{A}, \bar{B}, \bar{Z}$ lie in the distributions $P_{\mathcal A}, P_{\mathcal B}, P_{\bm Z}$. To measure the quality of images $\bar{A}, \bar{B}$ and variables $\bar{Z}$, three corresponding discriminators $D_A, D_B, D_Z$ are introduced and they are optimized as in standard GANs. The discriminators give domain adversarial losses for three generators.
+%
+%In addition, to make sure that the generated samples $\bar{A}, \bar{B}, \bar{Z}$ have close relationship with input samples, we feed them into the generators again to obtain $\hat{A}, \hat{B}, \hat{Z}$ in corresponding domains as in Fig. \ref{fig-model-gen}. The cycle consistency losses compare the samples $\hat{A}, \hat{B}, \hat{Z}$ with their corresponding inputs $A, B, Z$. These losses make sure that when we generate fake samples $\bar{B}$ from $A, Z$, $\bar{A}$ from $B$ and $\bar{Z}$ from $B$, enough information is kept so that we can reconstruct the inputs under the paths $A\rightarrow \bar{B}\rightarrow\hat{A}$, $Z\rightarrow \bar{B}\rightarrow\hat{Z}$ and $B\rightarrow \bar{A}||\bar{Z}\rightarrow\hat{B}$, where $||$ means the concatenation operator. 
+
+
+\subsection{Generators and Cycle Consistency Loss} 
+
+The proposed XOGAN model contains three generators $G_A, G_B$ and $G_Z$ (with parameters $\theta_{G_A}$, $\theta_{G_B}$ and $\theta_{G_Z}$, respectively). In this paper, we propose to use an additional variable $Z$ to model the variation when translating from domain $\mathcal A$ to domain $\mathcal B$. Given a sample $A$ drawn from $P_{\mathcal A}$ and $Z$ from the prior distribution $P_{Z}$, a fake sample $\bar{B}$ in domain $\mathcal B$ is generated by $G_B$ as
+\[ \bar{B} = G_B(A, Z).\]
+Given $\bar{B}$, generator $G_A$ generates a reconstruction $\hat{A}$ of $A$ in domain $\mathcal A$, and generator $G_Z$ encodes a reconstruction $\hat{Z}$ of $Z$:
+\[\hat{A} = G_A(\bar{B}), \;\; \hat{Z}=G_Z(\bar B). \]
+Together, this forms the X-path in Figure~\ref{fig:x}. To ensure cycle consistency, the generated sample $\bar{B}$ should contain sufficient information to reconstruct $A$ (for the path $A\rightarrow\bar{B}\rightarrow\hat{A}$), and similarly $\hat Z$ should be similar to $Z$ (for the path $Z\rightarrow\bar{B}\rightarrow \hat{Z}$).
+
+On the other hand, given a sample $B$ in domain $\mathcal B$, generator $G_A$ can use it to generate a fake sample $\bar{A} = G_A(B)$ in domain $\mathcal A$; and generator $G_Z$ can use it to encode a fake $\bar{Z}=G_Z(B)$. Using both $\bar{A}$ and $\bar{Z}$, generator $G_B$ can recover a reconstruction of $B$ as $\hat{B}=G_B(\bar{A}, \bar{Z})$. This forms the O-path in Figure \ref{fig:o}. Again, for cycle consistency, $\hat B$ should be close to $B$.
+
+Combining the above, the cycle consistency loss can thus be written as:
+\begin{eqnarray}
+\lefteqn{\mathcal L_{cyc}(\theta_{G_A}, \theta_{G_B}, \theta_{D_Z})} \nonumber \\
+&=&||\hat{A} - A||_1 + ||\hat{B} - B||_1 + ||\hat{Z} - Z||_1. 
+\label{eq-loss-recon}
+\end{eqnarray}
+Here, we use the $\ell_1$ norm, though other norms can also be used.
+\begin{figure}[ht]
+	\centering
+	\subfigure[X path. \label{fig:x}]
+	{\includegraphics[width=0.4\textwidth]{X-}}
+	
+	
+	\subfigure[O path. \label{fig:o}]
+	{\includegraphics[width=0.4\textwidth]{O-}}
+	\caption{The three generators in the proposed XOGAN model. The path in blue is for domain $\mathcal A$, green is for $\mathcal B$, and yellow is for $Z$.}
+	\label{fig-model-gen}
+\end{figure}
+
+
+\begin{figure*}[ht]
+	\centering
+	\includegraphics[width=0.75\textwidth]{dis}
+\caption{The XOGAN discriminator. Label ``1" denotes true samples of $A, B, Z$, while label ``0" denotess the generated samples $\bar{A}, \bar{B}, \bar{Z}$.}
+	\label{fig-model-dis}
+\end{figure*}
+
+
+%As shown in Fig. \ref{fig-model-gen}, the `$X$' path is a cycle consistent path for both $A$ and $Z$. By concatenating $A$ and $Z$, the fake sample $\bar{B}$ is generated from $G_B(A, Z)$. To keep cycle consistent, the reconstructions of $\hat{A}$ to $A$ and $\hat{Z}$ to $Z$ are obtained with $G_A(\bar{B})$ and $G_Z(\bar{B})$ respectively. Here $Z$ is used to add additional variation when translating from domain $\mathcal A$ to domain $\mathcal B$. We use different colors in Fig. \ref{fig-model-gen} to indicate their relationship: yellow parts complement the information when generating from blue to green. 
+
+%The `$O$' path is an inverse cycle consistent path for domain $\mathcal B$. Fake samples $\bar{A}$ and $\bar{Z}$ are encoded from $B$ respectively. As in the assumption above, the one to many mapping from $\mathcal A$ to $\mathcal B$ means that $\bar{A}$ will miss some information of $B$, which should be compensated by $\bar{Z}$. Thus, we hope the concatenation of $\bar{A}$ and $\bar{Z}$ will reconstruct input $B$ by $\hat{B}=G_B(\bar{A}, \bar{Z})$. 
+
+%The forward propagation of XO paths can be represented as the following functions:
+%\begin{align}
+%\text{X-path:  } ~&\bar{B} = G_B\left(A, Z\right), ~ \hat{A} = G_A(\bar{B}), ~~ \hat{Z}=G_Z(\bar{B}); \label{eq-func-xpath}  \\ 
+%\text{O-path:  } ~&\bar{A}= G_A(B), ~~ \bar{Z}=G_Z(B), ~~  \hat{B} = G_B(\bar{A}, \bar{Z}).
+%\label{eq-func-opath}
+%\end{align}
+
+
+\subsection{Domain Adversarial Loss} 
+
+Minimizing (\ref{eq-loss-recon}) alone cannot guarantee that the generated fake samples $\bar{A}, \bar{B}$ and encoded variable $\bar{Z}$ follow the distributions of $P_{\mathcal A}, P_{\mathcal B}$ and $P_{Z}$. The GAN \cite{goodfellow2014generative}, which is known to be able to learn good generative models, can also be regarded as performing distribution matching. In the following, with the use of the adversarial loss, we will try to match the generated distributions $P_{G_A}$, $P_{G_B}$ and $P_{G_Z}$ with the corresponding $P_{\mathcal A}, P_{\mathcal B}$ and $P_{Z}$. 
+
+Figure \ref{fig-model-dis} shows the three discriminators $D_A$, $D_B$ and $D_Z$ (with parameters $\theta_{D_A}, \theta_{D_B}$ and $\theta_{D_Z}$, respectively) that are used to discriminate the generated $\bar{A}, \bar{B}, \bar{Z}$ from the true $A, B, Z$. As in DiscoGAN \cite{kim2017learning} and CycleGAN \cite{zhu2017unpaired}, the discriminators are binary classifiers, and the discriminator losses are:
+\begin{align}
+\mathcal L_{dis}(\theta_{D_A}) =& -\mathbb E_{A\in P_{\mathcal A}} \left[\log D_A( A)\right]  \nonumber \\
+&- \mathbb E_{\bar{A}\in P_{G_A}}\left[\log \left(1-D_A(\bar{ A})\right)\right]  \label{loss-dis-a}, \\
+\mathcal L_{dis}(\theta_{D_B}) =& -\mathbb E_{B\in P_{\mathcal B}} \left[\log D_B( B)\right]  \nonumber \\
+&- \mathbb E_{\bar{B}\in P_{G_B}}\left[\log \left(1-D_B(\bar{ B})\right)\right]  \label{loss-dis-b}, \\
+\mathcal L_{dis}(\theta_{D_Z}) =& -\mathbb E_{Z\in P_{Z}} \left[\log D_Z( Z)\right]  \nonumber \\
+&- \mathbb E_{\bar{Z}\in P_{G_Z}}\left[\log \left(1-D_Z(\bar{ Z})\right)\right]  \label{loss-dis-z}.
+\end{align}
+
+In GAN, the generators, besides trying to minimize the cycle consistency loss, also need to confuse their corresponding discriminators. The adversarial losses for the generators are 
+\begin{eqnarray*}
+\mathcal L_{adv}(\theta_{G_{A}}) &=& -\mathbb E_{A\in P_{\mathcal A}}\left[\log D_A(\bar{ A})\right],\\
+%\label{loss-adv-a} \\
+\mathcal L_{adv}(\theta_{G_{B}}) &=& -\mathbb E_{B\in P_{\mathcal B}}\left[\log D_B(\bar{ B})\right],\\
+%\label{loss-adv-b} \\
+\mathcal L_{adv}(\theta_{G_{Z}}) &=& -\mathbb E_{Z\in P_{Z}}\left[\log D_Z(\bar{ Z})\right].\\
+%\label{loss-adv-z} 
+\end{eqnarray*}
+
+%\subsection{Cycle Consistency Loss} Domain adversarial losses constrain that the generated images $\bar{A}, \bar{B}$ are plausible and the encoded variable $\bar{Z}$ obeys a standard normal distribution. However, it cannot guarantee that they have meaningful relationship with original inputs. To learn the relationship well, we use three cycle consistency losses, which is introduced in Section \ref{sec-unpaired}, for each domain. The first loss $\mathcal L_{cyc}^A$ in path $A\rightarrow\bar{B}\rightarrow\hat{A}$ means that generated sample $\bar{B}$ should contain necessary information to reconstruct $A$ well. Second loss $\mathcal L_{cyc}^Z$ for $Z$ in $Z\rightarrow\bar{B}\rightarrow\hat{Z}$ controls the additional variable to be consistent when generating fake sample $\bar{B}$. The last one $\mathcal L_{cyc}^B$ in $B\rightarrow \bar{A}||\bar{Z}\rightarrow \hat{B}$ in O-path means that the information in $B$ can be separated into two parts: a deterministic mapping in $\bar{A}$ and some additional variation in $\bar{Z}$.
+
+To ensure both cycle consistency and distribution matching, the total loss for the generators is a combination of the cycle consistency loss in (\ref{eq-loss-recon}) and the adversarial losses:
+\begin{align}
+\mathcal L_{gen}(\theta_{G_A}, \theta_{G_B}, \theta_{D_Z}) =& \mathcal L_{adv}(\theta_{G_{A}}) + \mathcal L_{adv}(\theta_{G_{B}}) + \mathcal L_{adv}(\theta_{G_{Z}}) \nonumber \\
++&\lambda \mathcal L_{cyc}(\theta_{G_A}, \theta_{G_B}, \theta_{G_Z}),
+\label{eq-loss-total}
+\end{align}
+where $\lambda$ controls the balance between the two types of losses. In the experiment, $\lambda$ is set to 10.
+
+
+\subsection{Training Procedure}
+
+In each iteration, we sample a mini-batch of images $A$'s and $B$'s from $P_{\mathcal A}$, $P_{\mathcal B}$, and variable $Z$ from prior distribution $P_{Z}$ (which is the standard normal distribution $\mathcal N(0, I)$). They are fed through the X- and O-paths in Figure \ref{fig-model-gen} to obtain the generated samples $\bar{A}$, $\bar{B}$, $\bar{Z}$, and the reconstructed samples $\hat{A}$, $\hat{B}$, $\hat{Z}$. The real and generated samples are then input to the three discriminators.
+
+As in GAN, we minimize the generators' objective (\ref{eq-loss-total}) for $k$ steps and the discriminators' objectives ((\ref{loss-dis-a}),
+(\ref{loss-dis-b}) and (\ref{loss-dis-z})) for one step. We use the ADAM optimizer \cite{kingma2014adam} with learning rate 0.0002.
+
+\section{Experiments}
+\label{sec-exp}
+In this section, experiments are performed on a number of commonly used data sets for image translation.
+%\subsection{Experiment Setup}
+%\label{sec-exp-setup}
+
+\begin{enumerate}
+\item 
+%Edges2Shoes and Edges2Handbags: We use 
+{\sf edges2shoes} and {\sf edges2handbags}:\footnote{\url{https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/data sets/}}
+These two data sets  
+have been used in \cite{isola2016image}.
+The {\sf edges2shoes} data set contains about 50k paired images, and the {\sf edges2handbags} data set contains about 140k paired images. In both data sets, domain $\mathcal A$ contains edge images and domain $\mathcal B$ contains real objects (shoes and bags). Note that one real object can be mapped to only one edge map, but an edge map can correspond to multiple objects. 
+	
+Although the two data sets contain paired images, we separate the paired sets by sampling domain $\mathcal A$ images in the first half pairs, and domain $\mathcal B$ images in the other half pairs. Hence, there is no paired data in the training set, and the task is unsupervised image-to-image translation.
+	
+\item {\sf CelebA}:\footnote{\url{http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html}} 
+This is a large-scale face attributes data set with more than 200K celebrity images, each with 40 attribute annotations
+\cite{liu2015deep}.
+In the experiment, we use the hair color attribute. Domain $\mathcal A$ contains faces with black hair, and domain $\mathcal B$ contains faces
+with other hair colors. As the hair in many male {\sf CelebA} faces is not apparent, we only use the female faces.	
+\end{enumerate}
+All the input images are rescaled to $128\times 128$.
+
+%\subsubsection{Network architectures} 
+In the proposed XOGAN, we use the U-Net \cite{ronneberger2015u}, which adds skip connections between mirrored layers of the 7 downsampling layers
+and the 7 upsampling layers, for the image generators $G_A$ and $G_B$. For $Z$, the generator (or encoder) $G_Z$ is a 7-layer strided
+convolutional network with residual blocks \cite{he2016deep}. We set its dimensionality to 8 for the {\sf edges2shoes} and {\sf edges2handbags} data sets,
+respectively, and 4 for the {\sf CelebA} data set. For the image discriminators $D_A$ and $D_B$, we use the patch-discriminator in \cite{li2016precomputed}, which only classifies input images at the scale of patches, with $70\times70$ overlapping patches. The discriminator $D_Z$ is a simple two-layer multi-layer-perception. As in \cite{zhu2017unpaired}, the hyperparameter $\lambda$ in (\ref{eq-loss-total}) is set to 10. In each training iteration, we update the generators twice and then update the discriminators once.
+
+Existing  unsupervised image-to-image translation models such as DiscoGAN \cite{kim2017learning} and CycleGAN \cite{zhu2017unpaired} can only generate one target image. Instead, we use the following setup as the baseline model:
+\begin{enumerate}
+	\item Noisy DiscoGAN: This is a variant of DiscoGAN. It uses the same generators as $G_A, G_B$ in XOGAN, but the generator from domain $\mathcal A$ to domain $\mathcal B$ is augmented with random Gaussian noise. This allows the generation of different images in domain $\mathcal B$ given the same image from domain $\mathcal A$. We do not compare with CycleGAN \cite{zhu2017unpaired} and DualGAN \cite{yi2017dualgan}, as they are very similar to DiscoGAN.
+	\item UNIT \cite{liu2017unsupervised}: The UNIT model uses two variational autoencoders \cite{kingma2013auto} with shared latent space as
+	cross-domain image translators.  It also uses cycle consistency for unpaired image-to-image translation. For each input image, we sample multiple latent codes $z$'s, and use them to generate different outputs.
+\end{enumerate}
+
+\subsection{Translating $\mathcal A$ to $\mathcal B$ with Random $Z$}
+\label{sec-AB}
+
+To show the consistency of the learned additional variables, we sample different random variables $Z_j$'s to generate different fake images
+$\bar{B}_{ij}=G_B(A_i, Z_j)$ for each input image $A_i$. We keep the random variable set $\{Z_j\}$ the same for different $A_i$'s, so that when
+$Z_j$ or $j$ is fixed, the generated samples $\bar{B}_{ij}$ should have some fixed attributes when $i$ is changing, such as the color as shown in
+Figures~\ref{fig-edges2objects} and \ref{fig-haircolor}. 
+
+In this experiment, we randomly sample 4 input images $\{A_i, i=1,\dots,4\}$  in domain $\mathcal A$ from the test set. For each $A_i$, we generate 4 images $\{\bar{B}_{ij} = G_B(A_i, Z_j), j=1,\dots,4\}$ using different $Z_j$'s sampled from the standard normal distribution. 
+
+\begin{figure}[ht]
+	\centering
+	\subfigure[Edges2Shoes.]
+	{\includegraphics[width=0.45\textwidth]{XOGAN-shoes-AtoB}}
+	
+	
+	\subfigure[Edges2Handbags.]
+	{\includegraphics[width=0.45\textwidth]{XOGAN-bags-AtoB}}
+	\caption{Edges to shoes and handbags experiment. The right 4 images in each row are translated from input image $A_i$ to $\bar{B}_i$ with
+	random variable $Z_j, j=1,\dots,4$. As can be seen, the colors are consistent in the right 4 columns.}
+	\label{fig-edges2objects}
+\end{figure}
+
+\subsubsection{{\sf edges2shoes} and {\sf edges2handbags} Data Sets}
+
+
+%Generating shoes or handbags from edge images is an interesting one to many mapping problem, where a single edge image is mapped to multiple colored objects of this item. 
+
+%The deterministic image generation works \cite{kim2017learning, zhu2017unpaired} generate one sample for each input edge. It obeys the fact that there are multiple objects corresponding to each edge item. As a comparison, we can use our model to generate multiple $\bar{B}_{ij}$ for each input edge image $A_i$ by controlling the variables $Z_j$. 
+
+Figure \ref{fig-edges2objects} shows that the proposed XOGAN can generate realistic photos of shoes and handbags. 
+%Different from DiscoGAN \cite{kim2017learning}, our generated samples show more diverse colors and textures. For different $Z_j$, the generated images $\bar{B}_{ij}$ from our model are quite different as shown in Fig. \ref{fig-edges2objects}. 
+With the help of the cycle consistency loss on variable $Z$, the generated objects have the same color for the same $Z_j$. This makes it possible
+to generate plausible and colorful objects by just drawing edges like those in domain $\mathcal A$. Besides, we can also control the color of
+generated images by $Z$. Note that our task is different from the drawing softwares in two ways. (i) We show that the end-to-end deep neural network is able to generate plausible and diverse objects given edges; (ii) The generated objects do not only fill in the colors, but also have smooth textures that make them look real. 
+
+\begin{figure}[ht]
+	\centering
+	\subfigure[Edges2Shoes.]
+	{\includegraphics[width=0.45\textwidth]{DiscoGAN-shoes-AtoB}}
+	
+	
+	\subfigure[Edges2Handbags.]
+	{\includegraphics[width=0.45\textwidth]{DiscoGAN-bags-AtoB}}
+	\caption{Edges to shoes and handbags experiment of noisy DiscoGAN. The right 4 images in each row are translated from input image $A_i$ to $\bar{B}_i$ with random variable $Z_j, j=1..4$.}
+	\label{fig-edges2objects-base}
+\end{figure}
+
+Figure \ref{fig-edges2objects-base} shows the results obtained by the noisy DiscoGAN. Although multiple images can be generated, they are
+inferior as compared to those obtained with the proposed model in the following ways. (i) The images $\{G_B(A_i, Z_j)\}$ generated by the noisy
+DiscoGAN are not as good as those of  XOGAN; (ii) The images generated by the noisy DiscoGAN are not as diverse as the proposed XOGAN, i.e.,
+$G_B(A_i, Z_j)$ has similar color for different $j$'s in each row. This may be due to the  mode collapse problem of GAN \cite{goodfellow2014generative}, which means that it tends to generate images from a single mode (in this case, color).
+
+\begin{figure}[ht]
+	\centering
+	\subfigure[Edges2Shoes.]
+	{\includegraphics[width=0.45\textwidth]{UNIT-shoes-AtoB}}
+	
+	
+	\subfigure[Edges2Handbags.]
+	{\includegraphics[width=0.45\textwidth]{UNIT-bags-AtoB}}
+	\caption{Edges to shoes and handbags experiment of \textit{UNIT} model. The right 4 images in each row are translated from input image $A_i$ to $\bar{B}_i$ with random variable $Z_j,  j=1,\dots,4$.}
+	\label{fig-edges2objects-unit}
+\end{figure}
+
+Figure \ref{fig-edges2objects-unit} shows the results obtained by UNIT. Similar to the noisy DiscoGAN, almost all the generated images tend to
+have the same color. From our observations, the generated samples of UNIT also suffer from mode collapse during training. The sampled latent
+variables do not produce diverse outputs in each row. 
+
+The above results show that the proposed XO-path is essential in both generating plausible and consistency target images. From the {\sf
+edges2shoes} and {\sf edges2handbags} data sets, we show that XOGAN is able to generate plausible images in the target domain $\mathcal B$.
+Different from the baseline models of noisy DiscoGAN and UNIT, we can sample mulitple and consistent output images with different $Z_j$'s.
+Besides, the results of XOGAN are more diverse with the help of $Z$. 
+
+\begin{figure}[ht]
+	\centering
+	{\includegraphics[width=0.45\textwidth]{XOGAN-hair-AtoB}}
+	\caption{CelebA hair color conversion experiment. We transfer the black hair faces to faces with other hair colors. The hair colors are
+	consistent for different $G_B(A_i, Z_j)$, when $j$ is fixed.}
+	\label{fig-haircolor}
+\end{figure}
+
+\subsubsection{{\sf CelebA} Data Set} 
+
+Figure \ref{fig-haircolor} shows the generated faces with different hair colors. 
+%Domain $\mathcal A$ contains faces with black hair and domain $\mathcal B$ contains other hair colors. 
+Variable $Z$ is used to model the different hair colors in domain $\mathcal B$. 
+Note that the other parts in the images are almost unchanged. Hence, the color change is focused on specific parts (hairs here).
+ 
+% Consider that domain $\mathcal B$ contains multiple hair colors, we hope to use the additional variable $\bm Z$ to control the generation of different hair colors. As shown in Fig. \ref{fig-haircolor}, the generated faces in the right 4 columns have dark brown, blond, brown, dark blond respectively. In these rows, the other parts of each image are almost unchanged. It shows that the color changes focus on specific features (hairs here) without impact on other parts of the whole image. 
+
+\subsection{Translating $\mathcal B$ to $\mathcal A$ to $\mathcal B$ with Substituted $Z$}
+\label{sec-BAB}
+%We studied to generate multiple different images from domain $\mathcal A$ to domain $\mathcal B$ through $G_B$ by controlling variable $\bm Z$ in section \ref{sec-AB}. 
+
+In this section, we study whether $Z$ can encode relevant information in domain $\mathcal B$ by substituting $\bar{Z}_j$ among different images in domain $\mathcal B$.
+
+In this experiment, we randomly sample 4 input images $\{B_i, i=1,\dots,4\}$ in domain $\mathcal B$ from the test set. For each $B_i$, we
+generate 4 corresponding images $\{\bar{A}_i=G_A(B_i), i=1,\dots,4\}$ in domain $\mathcal A$ and encode its additional variation in
+$\{\bar{Z}_i=G_Z(B_i)\}$. As in the previous {\sf edges2shoes} experiment, $B_i$ represents the colored shoes, $\bar{A}_i$ is its corresponding
+edge image and $\bar{Z}_i$ should encode content inside the edge. We concatenate $\bar{A}_i$ with different $\bar{Z}_j$'s to generate various images $\{\hat{B}_{ij}=G_B(\bar{A}_i, \bar{Z}_j), i=1,\dots,4, j=1,\dots,4$ in domain $\mathcal B$.
+
+%Given different images $B_i\in\mathcal B$, we generate the corresponding images $\bar{A}_i = G_A(B_i)$ in domain $\mathcal A$ and encode its additional variable $\bar{Z}_i=G_Z(B_i)$. As in our edges2shoes experiment, $B_i$ represents the colored shoes, $\bar{A}_i$ is its corresponding edge image and $\bar{Z}_i$ should encode the content inside the edge. Then we concatenate $\bar{A}_i$ with different $\bar{Z}_j$ to generate various images $\hat{B}_{ij}=G_B(\bar{A}_i, \bar{Z}_j)$ in domain $\mathcal B$.
+
+\subsubsection{{\sf edges2shoes} and {\sf edges2handbags} Data Sets} To see what the additional variable $Z$ encodes, we substitute different
+$Z_j$'s given different colored shoes and handbags. As shown in Figure \ref{fig-edges2objects-2}, we can modify images in domain $\mathcal B$. In
+these two pictures, we show the input shoes and handbags $B_i$ in the first column. We first generate the corresponding edge image  $\bar{A}_i$,
+shown in the second column of Figure \ref{fig-edges2objects-2}, of each $B_i$ using generator $G_A$. The generated edges describe the contour of
+the given inputs well. Considering that edge images ignore the content of the given shoes or handbags, we encode the content or color into the
+additional variable $\{\bar{Z}_i=G_Z(B_i), i=1,\dots,4\}$. As we assumed, $Z_i$ should contain the corresponding color information of input image
+$B_i$. In order to show the relevance between $Z_i$ and color of $B_i$, we concatenate each edge image $\bar{A}_i$ with different $\bar{Z}_j$'s
+to generate new images in domain $\mathcal B$ as $\hat{B}_{ij}=G_B(\bar{A}_i, \bar{Z}_j)$. In the first row of Figure \ref{fig-edges2objects-2},
+we show $B_1$ and $\bar{A}_1$ in nthe first two columns, and the last four columns show $\hat{B}_{1j}, j=1,\dots,4$. Since $\hat{B}_{1j}$ is
+generated from the concatenation of the edge image $\bar{A}_1$ and different codes $\bar{Z}_j$, $\hat{B}_{1j}$ should have the same shape as
+$B_1$ and the same color as $B_j, j=1,\dots,4$. 
+
+In the figure, we can see that the shape is consistent in each rows and colors are consistent in each of the four rightmost columns. More
+importantly, when $j\in[1,\dots,4]$ is fixed, all images $\hat{B}_{ij}$'s in that column have similar colors as the input image $B_j$. As for the
+{\sf edges2shoes} results in Figure~\ref{fig-edges2objects-2}, the shoes in the last column have similar colors as the last input shoe $B_4$. It
+verifies our assumption that $\bar{Z}$ encodes relevant information of its corresponding inputs $B$. This is interesting that, we can see what
+our object will look like by replacing its color with that of the other objects. In real-world applications like fitting in a clothes shop, the
+user does not need to try on over and over again, if they want to try the same clothes with different colors. 
+
+
+\begin{figure}[ht]
+	\centering
+	\subfigure[Edges2Shoes.]
+	{\includegraphics[width=0.45\textwidth]{XOGAN-shoes-BAB}}
+	
+	
+	\subfigure[Edges2Handbags.]
+	{\includegraphics[width=0.45\textwidth]{XOGAN-bags-BAB}}
+	\caption{Edges to shoes and handbags experiment with variable substitution. The edge image $\bar{A}_i$ is shown in the second column. The rightmost 4 images are translated with the concatenation of $\bar{A}_i$ with variation $\bar{Z}_j$ for each input image $B_j$. The color is replaced for different inputs.}
+	\label{fig-edges2objects-2}
+\end{figure}
+
+
+\subsubsection{{\sf CelebA} Hair Color Conversion} 
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.45\textwidth]{XOGAN-hair-BAB}
+	\caption{Hair color translation experiment. 
+		The second column
+		transfers non-black hair to black.
+		The hair color of each person $B_i$ is encoded in $\bar{Z}_i$. By concatenating $\bar{A}_i$ with different $\bar{Z}_j, j=1..4$, we can modify the hair color.}
+	\label{fig-haircolor-2}
+\end{figure}
+
+We perform the $\mathcal B$-to-$\mathcal A$-to-$\mathcal B$ path on the {\sf CelebA} data set again. Input faces are sampled from domain
+$\mathcal B$ where the hair colors are not black. If the user wants to change the hair color to black, we can easily transfer the photo from
+$B_i$ to $\bar{A}_i$. An interesting result is to replace the hair color with that of another person. Figure \ref{fig-haircolor-2} shows that we
+can replace the blond hair to gray or brown by substituting the code $\bar{Z}_i$ with that from a gray or brown person.
+
+In this section, we show that not only the proposed model can generate plausible and diverse images from domain $\mathcal A$ to domain $\mathcal
+B$ and vice versa, but also can modify the color of specific features in domain $\mathcal B$ by substituting the additional variable $Z$. The
+proposed cycle consistency constraints guarantee a good joint relationship between $\mathcal A$ and $\mathcal B$. They also encode consistent features in variable $Z$ for both random generation in Section~\ref{sec-AB} and color substitution in Section~\ref{sec-BAB}.
+
+
+\section{Conclusion}
+\label{sec-conclude}
+In this paper, we presented a generative model called XOGAN for unsupervised image-to-image translation with additional variations in the
+one-to-many translation setting. We showed that we can generate plausible images in both domains, and the generated samples are more diverse than
+the baseline models. Not only does the additional variable $Z$ learned lead to more diverse results, it also controls the colors in certain parts
+of the generated images. Experiments on the {\sf edges2shoes}, {\sf edges2handbags} and {\sf CelebA} data sets showed that the learned variable $Z$ is meaningful when generating images in domain $\mathcal B$.
+
+The proposed method can be extended in several ways. First, the prior distribution of $Z$ is a standard normal distribution, which may be too
+simple to model more complex variations. This can be improved with more complicated prior distributions introduced in VAE
+\cite{kingma2016improved, maaloe2016auxiliary}. Second, the variations in our model are mostly related to color. We hope that our model can be
+improved to change other attributes such as hair styles and ornaments.
+%so that this model can be applied to other interesting cases. 
+Besides, we can also consider a many-to-many mapping based on the one-to-many framework. Similar to the summer-to-winter task in
+\cite{zhu2017unpaired}, there exist many winter images corresponding to a single summer image and vice versa. Further, we can extend the proposed
+model to other domains such as text or speech.  The additional variation can be different voices when translating text to speech. 
+%We can explore and extend our model to many other interesting applications in the future.
+
+
+%\section*{Acknowledgment}
+%This research was supported in part by the Research Grants Council of the Hong Kong Special Administrative Region
+%(Grant 614513).
+
+%\cleardoublepage
+\bibliographystyle{IEEEtran}
+\bibliography{ref}
+
+
+
+
+\end{document}

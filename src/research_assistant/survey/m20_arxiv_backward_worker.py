@@ -8,6 +8,7 @@ import tarfile
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from research_assistant.survey.bibtex_fields import read_text_field
 from research_assistant.survey.discovery_quality import normalize_arxiv_id, normalize_doi
 
 
@@ -183,11 +184,7 @@ def _clean_identifier(value: str) -> str:
 
 
 def _title(entry: str) -> str | None:
-    match = re.search(r"(?is)\btitle\s*=\s*[\{\"]([^}\"]+)", entry)
-    if match is None:
-        return None
-    value = " ".join(match.group(1).replace("\n", " ").split())
-    return value[:500] or None
+    return read_text_field(entry, "title")
 
 
 def _candidate_units(text: str) -> list[tuple[str | None, str]]:

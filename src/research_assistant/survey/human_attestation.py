@@ -158,6 +158,7 @@ HUMAN_REVIEW_MATERIAL_NAMES = (
     "omission_review_worksheet.csv",
     "workflow_blocker_worksheet.md",
     "human_attestation_worksheet.md",
+    "qualitative_assessment_worksheet.csv",
 )
 
 
@@ -259,6 +260,9 @@ def _write_human_review_materials(
             raise MissionStateError("output_exists", f"review material already exists: {path}")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(raw)
+    deprecated_score_sheet = output_dir / "scored_assessment_worksheet.csv"
+    if deprecated_score_sheet.is_file() and not deprecated_score_sheet.is_symlink():
+        deprecated_score_sheet.unlink()
     return {
         "status": "human_review_materials_rendered",
         "output_dir": str(output_dir),
@@ -374,6 +378,7 @@ def _human_review_material_bytes(
         })
 
     workflow = next(iter(packet["items_by_type"]["workflow_blocker"]), {})
+    qualitative_rows = _qualitative_assessment_rows(claims=claims, omissions=omissions)
     workflow_md = _workflow_worksheet_markdown(workflow=workflow, claims=claims)
     attestation_md = _attestation_worksheet_markdown(packet=packet)
     guide_md = _review_start_markdown(
@@ -391,8 +396,70 @@ def _human_review_material_bytes(
         "omission_review_worksheet.csv": _csv_bytes(omission_rows),
         "workflow_blocker_worksheet.md": workflow_md.encode("utf-8"),
         "human_attestation_worksheet.md": attestation_md.encode("utf-8"),
+        "qualitative_assessment_worksheet.csv": _csv_bytes(qualitative_rows),
         **source_materials,
     }
+
+
+def _qualitative_assessment_rows(
+    *, claims: list[dict[str, Any]], omissions: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    """Render the active qualitative review surface."""
+    fields = {
+        "summary": "",
+        "merits": "",
+        "concerns": "",
+        "uncertainties": "",
+        "evidence_refs": "",
+        "next_action": "",
+    }
+    rows: list[dict[str, str]] = []
+    for item in claims:
+        subject_id = str((item.get("paper_ids") or [item.get("item_id", "")])[0])
+        rows.append({
+            "assessment_type": "paper",
+            "subject_id": subject_id,
+            "paper_or_frontier": str(item.get("title_or_anchor", "title unavailable")),
+            "machine_context": "source-located candidate; summarize only what inspected technical text supports",
+            **fields,
+        })
+    retained = [row for row in omissions if row.get("risk_source_type") == "retained_candidate"]
+    if retained:
+        rows.append({
+            "assessment_type": "omission",
+            "subject_id": "omission_frontier:unused_identifier_bearing",
+            "paper_or_frontier": f"{len(retained)} unused identifier-bearing bibliography entries",
+            "machine_context": "aggregate frontier; describe why it may matter and what would justify expanding it",
+            **fields,
+        })
+    for item in omissions:
+        kind = item.get("risk_source_type")
+        if kind == "identifier_free_aggregate":
+            rows.append({
+                "assessment_type": "omission",
+                "subject_id": "omission_frontier:identifier_free",
+                "paper_or_frontier": f"{item.get('unit_count', 'unknown count')} identifier-free bibliography units",
+                "machine_context": "aggregate frontier; identities were not recovered",
+                **fields,
+            })
+        elif kind == "retained_source_outcome":
+            source_id = str(item.get("risk_source_id", "unknown source"))
+            rows.append({
+                "assessment_type": "omission",
+                "subject_id": f"omission_frontier:source_parse_gap:{source_id}",
+                "paper_or_frontier": f"{source_id} source-format parse gap",
+                "machine_context": str(item.get("reason", "source parsing is incomplete")),
+                **fields,
+            })
+        elif kind == "forward_frontier":
+            rows.append({
+                "assessment_type": "omission",
+                "subject_id": "omission_frontier:forward_citations",
+                "paper_or_frontier": "forward-citation coverage unavailable",
+                "machine_context": "out of scope and non-blocking; not zero citations",
+                **fields,
+            })
+    return rows
 
 
 def _read_optional_json(path: Path) -> dict[str, Any]:
@@ -569,30 +636,29 @@ def _review_start_markdown(
     workflow: dict[str, Any],
 ) -> str:
     lines = [
-        "# M22B Human Review: Start Here",
+        "# M22 Scholarly Assessment: Start Here",
         "",
-        "This is the reviewer-facing guide for the selected Neural Optimal Transport evidence. The adjacent JSON files are machine interchange artifacts; you do not need to understand their schema to perform the review.",
+        "This is the researcher-facing guide for the selected Neural Optimal Transport evidence. The adjacent packet, decision, and attestation files are retained machine-compatibility artifacts; they are not the active scholarly review interface.",
         "",
-        "## What this review is",
+        "## Active assessment",
         "",
         f"The packet contains {len(claim_rows)} paper-level claim decisions, {len(safety_rows)} source-safety decisions, {len(omission_rows)} omission-risk decisions, and one workflow-blocker decision. The packet SHA-256 is `{_sha(pretty_json_bytes(packet))}`; the selected queue SHA-256 is `{packet['review_queue_sha256']}`. Neither is changed by this guide.",
         "",
-        "Your task is to record what the retained evidence actually supports. You are not being asked to prove that the survey is complete, rank methods, or approve final prose. It is valid to reject every claim candidate and leave the workflow blocker open.",
+        "The active output is a system-generated qualitative assessment: a short summary of each paper's role, merits, concerns, unresolved uncertainties, exact local evidence references, and next action. Researchers may correct or qualify that analysis directly. They are not expected to fill 73 binary rows, assign numeric scores, or attest that uncertain scholarly judgments are simply true or false.",
         "",
-        "## Review order",
+        "## Reading order",
         "",
-        "1. Read `claim_review_worksheet.csv`. For each paper, open the generated `source_reading/.../README.md` named in `local_source_to_inspect`, then inspect its listed local text files and section/line pointers. Decide whether one precise technical claim is supportable. Use `rejected_or_blocked` when it is not. Do not turn an anchor title, citation count, abstract, or machine parser output into a claim.",
-        "2. Read `source_safety_worksheet.csv`. For each source, check the five listed status/version questions. Choose `checked_clear` only when the checks are actually documented; otherwise choose `blocked` or `quarantined` and explain why.",
-        "3. Read `omission_review_worksheet.csv`. These are not 58 separate demands to find more papers. They are risks retained so that unused bibliography entries, identifier-free references, the 1412.6980 parse gap, and unavailable forward citations cannot disappear. Choose whether each risk stays open, is omitted for this recorded scope, or requires expansion.",
-        "4. Read `workflow_blocker_worksheet.md`. This is derived from the seven claim decisions; it is not a new paper review. Leave it open if no reviewed supported technical claim exists.",
-        "5. Complete `human_attestation_worksheet.md` and the supplied `human_attestation_template.json`. The attestation says that the decisions are yours and that you understand the limitations; it is not legal identity proof.",
+        "1. Read the generated `QUALITATIVE_ASSESSMENTS.md` in the M22 qualitative-assessment validation root.",
+        "2. Follow its evidence references into `source_reading/...` and inspect any passage material to the intended survey wording.",
+        "3. Correct the summary, merits, concerns, uncertainties, or next action where the retained source supports a better interpretation. Preserve genuine disagreement explicitly.",
+        "4. Treat the aggregate omission frontiers as prioritization questions. Do not perform 55 or 195 independent binary reviews.",
+        "5. Use the legacy CSV/JSON worksheets only when testing the old import/receipt machinery. They are not required for the active trusted-research workflow.",
         "",
-        "## Decision vocabulary",
+        "## Interpretation boundaries",
         "",
-        "- Claim support: `human_reviewed_passed` only for a precise claim tied to checked technical text and exact retained anchor IDs. Otherwise use `rejected_or_blocked` with a reason and next action.",
-        "- Source safety: `checked_clear` means all five checks were performed and no notice remains. `blocked` means the checks could not be completed. `quarantined` means a retraction, withdrawal, version conflict, erratum, or other explicit safety concern was found.",
-        "- Omission risk: `acceptable_omission` closes only the current bounded scope; `out_of_scope` records a deliberate scope exclusion; `must_inspect`, `expand_scope`, and `blocked_pending_source` keep work open. None means literature completeness.",
-        "- Workflow blocker: `resolved_by_reviewed_evidence` is allowed only when the required claim rows genuinely provide supported claims. Otherwise use `remains_open`.",
+        "- Qualitative assessment: summarize merits, concerns, and uncertainty from inspected text. This is evidence-oriented review, not a truth label, calibrated probability, claim-support authorization, or prose-readiness decision.",
+        "- Hard checks: source provenance, version/retraction notices, source availability, and exact evidence references remain deterministic checks where evidence exists.",
+        "- Research correction: an expert correction should state the source passage and reasoning. It needs no approval token, identity ceremony, or all-or-nothing decision.",
         "",
         "## Important limitations",
         "",
@@ -600,11 +666,11 @@ def _review_start_markdown(
         "- The 55 unused identifier-bearing bibliography entries and 195 identifier-free units are visible omission risks, not relevance rejections.",
         "- `1412.6980` has a source-format parse gap. Do not infer its contents from metadata.",
         "- The seven source rows were selected because they were source-located in the seed, not because the machine proved relevance or quality.",
-        "- A completed receipt can establish that a human made decisions; it cannot establish claim truth, source safety in fact, scientific correctness, or north-star completion.",
+        "- A generated or corrected assessment cannot by itself establish claim truth, source safety in fact, scientific correctness, or north-star completion.",
         "",
-        "## Return",
+        "## Production artifact",
         "",
-        "Fill the CSV/Markdown worksheets and return them with the completed JSON attestation template. Codex may mechanically transcribe your stated choices into the exact decision envelopes, but you must inspect the transcription before attesting. Do not edit `human_review_packet.json` or change its packet hash.",
+        "The production qualitative report is generated by `scripts/build_m22_qualitative_assessment_bundle.py`. It preserves the packet and queue hashes while producing readable JSON and Markdown assessments. Do not edit `human_review_packet.json` or change its packet hash.",
         "",
         f"Machine queue path (for conversion only): `{queue_path}`",
         "",
@@ -1086,6 +1152,11 @@ def _validate_reviewer(value: Any) -> None:
         raise MissionStateError("privacy_not_accepted", "both privacy declarations must be accepted")
 
 
+def validate_reviewer_declaration(value: Any) -> None:
+    """Validate a reviewer declaration without creating human authority."""
+    _validate_reviewer(value)
+
+
 def _validate_declarations(value: Any) -> None:
     require_exact_keys(value, DECLARATION_KEYS, "human attestation declarations")
     if any(value.get(key) is not True for key in DECLARATION_KEYS):
@@ -1307,6 +1378,7 @@ __all__ = [
     "render_human_review_materials",
     "validate_human_attestation",
     "validate_human_attestation_receipt",
+    "validate_reviewer_declaration",
     "export_human_receipt_archive",
     "validate_human_receipt_archive",
     "validate_human_receipt_decision",
