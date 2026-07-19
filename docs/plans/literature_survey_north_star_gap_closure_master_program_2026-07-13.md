@@ -1,7 +1,7 @@
 # Literature Survey North-Star Gap-Closure Master Program
 
 Date: `2026-07-19`
-Status: `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE`
+Status: `ACCOMPLISHED_WITHIN_RECORDED_LOCAL_EXPLORATORY_SCOPE`
 
 ## North-Star Mission
 
@@ -106,9 +106,13 @@ behave as declared; and no claim or prose promotion occurs. The topic case is
 selection fixture to retained production evidence. It is not live topic-
 discovery validation. M22 is closed within recorded scope. M23 then passed the
 offline clean-install, external-working-directory command, replay, tamper,
-documentation, and limitation-consistency matrix from the dirty working tree.
-Versioned clean-checkout reproduction remains pending; all scientific
-nonclaims below remain active.
+documentation, and limitation-consistency matrix. The exact 101-path closure
+was committed as `6149818ab25791ca01c9d84fbbbb580f1e121841`, tree
+`60467239d7ccfd5f035049f6ca6913a880d3ba23`, and reproduced from a detached
+clean checkout. The focused M22/M23 gate passed `23`, the exact affected gate
+passed `263` with `77` deselected, all nine M23 cases passed, installed replay
+passed from `/tmp`, and terminal fallback Review Round 4 returned `AGREE`.
+All scientific nonclaims below remain active.
 
 M18 passed as `PASSED_LOCAL_GIT_INSTALL_REPRODUCIBILITY` at candidate
 `654e6e1a1213bc03b7693ff1a8aea945a5bf08ac`. It integrates the M17-passed
@@ -183,8 +187,8 @@ only. No detached runner is authorized.
 | Role | Exact artifact | Current setup state |
 | --- | --- | --- |
 | Visible runbook | `docs/plans/literature_survey_north_star_visible_gated_execution_runbook_2026-07-13.md` | Historical gated mechanics remain preserved; current policy and arXiv-only plan govern execution |
-| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Revised M20/G3 pass and offline validation recorded; M21 planning active |
-| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | M20 closed; exact M21 planning inputs and execution boundary recorded |
+| Execution ledger | `docs/plans/literature_survey_north_star_visible_execution_ledger_2026-07-13.md` | Historical execution ledger; revised M20/G3 and completed M21-M23 outcomes are superseded by the active result/close records |
+| Stop/handoff | `docs/plans/literature_survey_north_star_visible_stop_handoff_2026-07-13.md` | Historical M20-to-M21 handoff; consumed by the completed M21-M23 phases |
 | M17 subplan | `docs/plans/literature_survey_north_star_m17_idea_topic_bootstrap_subplan_2026-07-13.md` | Passed local engineering |
 | M18 subplan | `docs/plans/literature_survey_north_star_m18_reproducible_git_integration_subplan_2026-07-13.md` | Passed local Git/install reproducibility |
 | M19 subplan | `docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md` | Passed; terminal review agreed; one attempt consumed |
@@ -193,35 +197,38 @@ only. No detached runner is authorized.
 | M20A historical blocker | `docs/plans/literature_survey_north_star_m20a_local_hardening_blocker_result_2026-07-14.md` | Superseded procedurally by current policy; retained as review history |
 | M20A route-independent result | `docs/plans/literature_survey_north_star_m20a_route_independent_hardening_result_2026-07-14.md` | `PASSED_ROUTE_INDEPENDENT_LOCAL_ENGINEERING_OFFICIAL_ROUTE_CONTRACT_PENDING` |
 | M20A route-specific result | `docs/plans/literature_survey_north_star_m20a_route_specific_openalex_adapter_result_2026-07-14.md` | `PASSED_LOCAL_NO_NETWORK_ENGINEERING_M20B_BOUNDARY_PENDING` |
-| M20A close record | `docs/plans/literature_survey_north_star_m20a_close_record_2026-07-14.md` | M20A closed locally; M20 milestone remains active |
-| M20B boundary subplan | `docs/plans/literature_survey_north_star_m20b_credential_privacy_cost_decision_subplan_2026-07-14.md` | Planning-only; human credential/privacy/cost decisions required; no provider call authorized |
+| M20A close record | `docs/plans/literature_survey_north_star_m20a_close_record_2026-07-14.md` | Historical local close; superseded by the revised arXiv-only M20/G3 close |
+| M20B boundary subplan | `docs/plans/literature_survey_north_star_m20b_credential_privacy_cost_decision_subplan_2026-07-14.md` | Historical credential-provider planning; permanently out of scope under the arXiv-only override |
 | M20B1 result | `docs/plans/literature_survey_north_star_m20b1_authentication_pricing_contract_result_2026-07-14.md` | Passed official documentation contract; `2/2` attempt consumed |
 | M20B2 subplan/result | `docs/plans/literature_survey_north_star_m20b2_synthetic_credential_redaction_cost_controls_result_2026-07-15.md` | Passed local synthetic-only engineering; terminal review agreed; no real key/network/Git action |
 | M20B3 subplan | `docs/plans/literature_survey_north_star_m20b3_identified_integration_and_live_packet_subplan_2026-07-15.md` | Passed identified integration and packet review; its then-pending M20B4 gate is historical |
 | M20B3 blocker result | `docs/plans/literature_survey_north_star_m20b3_review_nonconvergence_blocker_result_2026-07-15.md` | Historical five-round stop superseded only by the explicit extra repair/review agreement |
 | M20B4 blocker result | `docs/plans/literature_survey_north_star_m20b4_review_nonconvergence_blocker_result_2026-07-16.md` | Historical five-round stop superseded by the exact extra signal repair and terminal `AGREE` |
-| M20B4 extra repair result | `docs/plans/literature_survey_north_star_m20b4_extra_signal_repair_result_2026-07-16.md` | Passed local repair/review; exact human live authorization required |
+| M20B4 extra repair result | `docs/plans/literature_survey_north_star_m20b4_extra_signal_repair_result_2026-07-16.md` | Historical provider-path repair; its live-authorization boundary is retired and not a continuation requirement |
 | M20B4 extra repair verdict | `docs/reviews/literature_survey_north_star_m20b4_extra_signal_repair_terminal_review_verdict_2026-07-16.md` | Fresh Codex read-only fallback `AGREE`; no live authority |
 | M20B4 terminal result | `docs/plans/literature_survey_north_star_m20b4_one_exact_live_attempt_result_2026-07-15.md` | `BLOCKED_EARLY_SUPERVISOR_EXIT_NO_MANIFEST_ATTEMPT_CONSUMED_NO_RERUN` |
 | M20B4 terminal result review | `docs/reviews/literature_survey_north_star_m20b4_terminal_result_review_verdict_2026-07-15.md` | Fresh Codex read-only fallback review; advisory only |
 | M21 subplan | `docs/plans/literature_survey_north_star_m21_live_source_status_and_anchor_intake_subplan_2026-07-13.md` | `PASSED_G4_SIX_PARSED_ONE_EXPLICIT_GAP` |
-| M22B0 result | `docs/plans/literature_survey_north_star_m22b0_production_queue_reconciliation_result_2026-07-18.md` | `PASSED_READY_FOR_GENUINE_HUMAN_PARTICIPATION` |
-| M22B subplan | `docs/plans/literature_survey_north_star_m22b_genuine_human_review_subplan_2026-07-18.md` | `READY_FOR_GENUINE_HUMAN_PARTICIPATION` |
+| M22B0 result | `docs/plans/literature_survey_north_star_m22b0_production_queue_reconciliation_result_2026-07-18.md` | Historical binary-human interface engineering; superseded by qualitative M22 |
+| M22B subplan | `docs/plans/literature_survey_north_star_m22b_genuine_human_review_subplan_2026-07-18.md` | Historical and retired; generic human participation is not an active scientific gate |
 | M22 active matrix/result | `docs/plans/literature_survey_north_star_m22_representative_real_missions_result_2026-07-19.md` | `M22_PASSED_WITHIN_RECORDED_QUALITATIVE_SCOPE` |
-| M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `M23_DIRTY_WORKTREE_OPERATIONAL_PASS_VERSIONED_CLOSE_PENDING` |
-| M23 result | `docs/plans/literature_survey_north_star_m23_operational_acceptance_result_2026-07-19.md` | `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE` |
+| M23 subplan | `docs/plans/literature_survey_north_star_m23_acceptance_and_operational_closeout_subplan_2026-07-13.md` | `M23_OPERATIONAL_AND_VERSIONED_CLEAN_CHECKOUT_PASS` |
+| M23 result | `docs/plans/literature_survey_north_star_m23_operational_acceptance_result_2026-07-19.md` | `ACCOMPLISHED_WITHIN_RECORDED_LOCAL_EXPLORATORY_SCOPE` |
+| M23 versioned-close result | `docs/plans/literature_survey_north_star_m23_versioned_clean_checkout_close_result_2026-07-19.md` | `PASSED_CLEAN_COMMIT_AND_TERMINAL_REVIEW` |
+| M23 terminal Review Round 4 | `docs/reviews/literature_survey_m23_terminal_fallback_review_round4_2026-07-19.md` | `VERDICT: AGREE` |
+| M23 close-patch Review Round 5 | `docs/reviews/literature_survey_m23_terminal_fallback_review_round5_2026-07-19.md` | `VERDICT: REVISE`; three documentation findings repaired; review cap exhausted |
 | Setup result | `docs/plans/literature_survey_north_star_program_setup_result_2026-07-13.md` | `PROGRAM_SETUP_PASSED_M17_READY_NOT_STARTED` |
 | Setup blocker history | `docs/plans/literature_survey_north_star_program_setup_review_nonconvergence_blocker_2026-07-13.md` | Resolved by user-authorized extra governance repair and `AGREE` |
 | Extra governance verdict | `docs/reviews/literature_survey_north_star_program_setup_governance_extra_authorized_review_verdict_2026-07-13.md` | `VERDICT: AGREE` |
 
 Declared milestone result paths are indexed in the visible runbook. M17-M19
 results and the intermediate M20A-M20B4 records now exist. Revised M20/G3 and
-M21/G4 and M22/G5-G6 have passed result artifacts. M23 has a dirty-worktree
-operational pass, but terminal Review Round 3 found that the current commit does
-not contain the supporting implementation, tests, scripts, and compact evidence.
-The versioned clean-checkout close is pending, and the accomplished label is
-withdrawn until the exact integration candidate is committed and reproduced
-from a clean checkout.
+M21/G4 and M22/G5-G6 have passed result artifacts. M23's dirty-worktree pass
+remains historical evidence, while the exact supporting implementation, tests,
+scripts, documents, and compact evidence are now versioned in commit
+`6149818ab25791ca01c9d84fbbbb580f1e121841` and reproduced from a clean detached
+checkout. The ordinary local close record and terminal Review Round 4 complete
+the program within the declared scope.
 At each M17-M22 handoff, the next subplan must be refreshed from actual
 predecessor artifacts and reviewed before execution. M23 instead closes through
 its terminal completion/blocker handoff. These initial M18-M23 shells do not
@@ -239,7 +246,7 @@ acceptance environments.
 | G4 Real source/status and anchors | Seven bounded arXiv source packages are retained; six yield `288` machine anchors and one is an explicit PDF-wrapper text-parse gap; replay passes and supported claims remain zero | Approved bounded public-source intake, mission-local hashed records, honest parser/source gaps, and unpromoted anchor candidates | Closed within the seven-source credential-free scope; no claim/retraction/completeness conclusion | M21 |
 | G5 Qualitative scholarly assessment | Legacy V4 receipt engineering and a 73-item packet remain historical; the active interface has 16 source-grounded qualitative assessments, a replayed 55-row frontier, and five inspected omission-risk papers | Readable merits/concerns/uncertainties with exact source anchors, deterministic source gates, explicit nonclaims, and no generic-human or numeric prerequisite | Active interface passed within current source scope | M22 |
 | G6 Representative real missions | Active V2 matrix has nine replay-valid cases; topic and explicit-seed paths reach assessed terminals; limitations and adversarial rejects remain explicit | Predeclared local real-mission matrix, at least one within-scope assessed terminal, honest failures/stops, and independent evidence audit | Closed within recorded M22 scope; no live topic-quality or completeness claim | M22 |
-| G7 Operational/usability closeout | Dirty-worktree offline wheel installs; installed commands run from an external cwd; topic/seed stops, resume, qualitative assessment, generated M22 replay, tamper rejection, and documentation consistency pass | The same behavior reproduced from an identified clean checkout containing all runtime, test, document, and compact-evidence dependencies | Pending versioned clean-checkout close; no human-usability, cross-platform, live-topic, product, or release claim | M23 |
+| G7 Operational/usability closeout | Identified commit `6149818a...` reproduces the offline wheel, external-cwd commands, topic/seed stops, resume, qualitative assessment, generated M22 replay, tamper rejection, and documentation consistency from a clean checkout | The same behavior reproduced from an identified clean checkout containing all runtime, test, document, and compact-evidence dependencies | Closed in the observed local Python 3.11/WSL environment; no human-usability, cross-platform, live-topic, product, or release claim | M23 |
 
 ## Skeptical Plan Audit
 
@@ -472,6 +479,14 @@ discovery, topic confirmation and unavailable terminals, explicit-seed local
 skeleton and unchanged resume, qualitative nonpromotion, M22 replay, copied
 artifact tamper rejection, and documentation/capability consistency.
 
+The final versioned close uses commit
+`6149818ab25791ca01c9d84fbbbb580f1e121841`, tree
+`60467239d7ccfd5f035049f6ca6913a880d3ba23`. A detached clean checkout passed
+compile and diff checks, `23` focused M22/M23 tests, the exact affected gate
+(`263 passed, 77 deselected`), fresh `9/9` M23 acceptance, installed replay,
+empty stderr, JSON parsing, and source/wheel module equality. Terminal Review
+Round 4 returned `AGREE`.
+
 Exit evidence: final fresh-process acceptance root, capability/limitation
 matrix, command ledger, deterministic replay, affected regression gate,
 terminal read-only audit, and the ordinary north-star close record. This is not
@@ -610,17 +625,18 @@ and the ordinary close record demonstrates:
 - source-grounded qualitative assessed evidence with exact nonclaims;
 - at least one successful within-scope real mission plus honest representative
   boundary cases;
-- documented operator usability and recovery; and
+- documented operator workflow and recovery; and
 - exact nonclaims and known limitations.
 
 A label alone is not completion evidence; the M23 result must bind the wheel,
 installed command ledger, replay, inventory, tests, and remaining limitations.
 
-Current completion status: `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE`.
-The terminal label may return to
-`ACCOMPLISHED_WITHIN_RECORDED_LOCAL_EXPLORATORY_SCOPE` only after the exact
-integration candidate is committed, a clean checkout passes the affected gate
-and fresh M23 acceptance, and terminal review agrees.
+Current completion status:
+`ACCOMPLISHED_WITHIN_RECORDED_LOCAL_EXPLORATORY_SCOPE`.
+The exact integration candidate was committed, a clean checkout passed the
+affected gate and fresh M23 acceptance, and terminal Review Round 4 agreed.
+The close record is
+`docs/plans/literature_survey_north_star_m23_versioned_clean_checkout_close_result_2026-07-19.md`.
 Future live topic-quality validation, broader source inspection, forward
 citation coverage, claim promotion, publication work, cross-platform support,
 and release are separate programs or human boundaries, not unfinished M23

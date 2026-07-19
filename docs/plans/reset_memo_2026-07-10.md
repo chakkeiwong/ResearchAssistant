@@ -9,9 +9,10 @@ output is ignored and can be regenerated into a fresh validation root.
 
 ## Current State
 
-- Branch: `main`; the working tree contains a dirty-worktree operational
-  candidate whose exact versioned integration is pending. No push or release is
-  implied.
+- Branch: `main`; the versioned M22/M23 integration authority is commit
+  `6149818ab25791ca01c9d84fbbbb580f1e121841`, tree
+  `60467239d7ccfd5f035049f6ca6913a880d3ba23`. It was reproduced from a detached
+  clean checkout. No push or release is implied.
 - Active research boundary: M20 arXiv-only backward discovery is closed within
   its bounded source/anchor contract; M21 retained-source intake is closed with
   one explicit text-parse gap; M22 now uses system-generated qualitative
@@ -40,11 +41,16 @@ output is ignored and can be regenerated into a fresh validation root.
   outside the repository; all nine cases and offline replay pass; copied M22
   tampering is rejected; and documentation preserves active capabilities and
   limitations.
-- Program state: `PENDING_VERSIONED_CLEAN_CHECKOUT_CLOSE`. Forward citation
-  coverage remains unavailable and non-blocking; 50 identifier-bearing
+- The program is accomplished within recorded local exploratory scope. Forward
+  citation coverage remains unavailable and non-blocking; 50 identifier-bearing
   rows and 195 identifier-free units remain open; final claim support and prose
   readiness remain false; and no live topic-quality, completeness, product,
   release, or broad-platform claim is made.
+- Clean-checkout verification passed compile and diff checks, `23` focused
+  M22/M23 tests, the exact affected gate (`263 passed, 77 deselected`), fresh
+  `9/9` M23 acceptance, installed replay from `/tmp`, empty stderr, `75` parsed
+  JSON artifacts, and source/wheel M23 module equality. Terminal fallback
+  Review Round 4 returned `AGREE`.
 
 ## Repository Boundary
 
@@ -54,15 +60,18 @@ Tracked:
 - authored plans, reset memos, result notes, and review verdicts/bundles under
   `docs/plans/` and `docs/reviews/`;
 - compact, claim-relevant M20/M21/M22 manifests, ledgers, decision records, and
-  reviewer worksheets explicitly selected from `docs/validation/`.
+  reviewer worksheets explicitly selected from `docs/validation/`;
+- exact cited TeX source members selected for the retained-source and omission-
+  risk technical inspections. Their original bytes, including whitespace, are
+  preserved as evidence.
 
 Ignored:
 
 - raw/private research intake under `local_research/`;
 - generated validation roots except explicitly selected compact evidence;
-- downloaded source/PDF/text bodies, copied execution sources, logs, JUnit
-  transcripts, replay state, wheels, build products, caches, and local review
-  transcripts under `.claude_reviews/`.
+- bulk downloaded archives, PDFs, uncited source bodies, copied execution
+  sources, logs, JUnit transcripts, replay state, wheels, build products,
+  caches, and local review transcripts under `.claude_reviews/`.
 
 The policy is intentionally conservative: an ignored artifact can be rebuilt
 from tracked code and plans, while a promotion or claim must be supported by a
@@ -85,12 +94,14 @@ tracked result note and its compact evidence record.
   record. Legacy human-review packet files remain compatibility evidence only.
 - M23: the acceptance subplan and repair history, final fresh-process result,
   wheel/command/replay hashes, capability and documentation reports, affected
-  regression summary, and terminal review provenance. Generated validation
-  roots remain local and reproducible.
+  regression summary, versioned clean-checkout close record, and terminal
+  review provenance. Generated validation roots remain local and reproducible.
 
-These records preserve outcomes and limitations, not raw paper content. The
-result notes remain the authoritative interpretation and explicitly separate
-hard vetoes, descriptive diagnostics, and nonclaims.
+These records preserve outcomes, limitations, and only the exact cited TeX
+members needed to audit scoped source descriptions. They do not preserve bulk
+paper archives or authorize broader claims. The result notes remain the
+authoritative interpretation and explicitly separate hard vetoes, descriptive
+diagnostics, and nonclaims.
 
 ## Validation And Hygiene
 
@@ -106,7 +117,7 @@ hard vetoes, descriptive diagnostics, and nonclaims.
 1. Start from a clean checkout of `main`.
 2. Create a fresh, versioned output root under `docs/validation/` or another
    explicitly local run directory; do not reuse an old root.
-3. Read the M23 close record, M22 close record, repaired representative-mission
+3. Read the M23 versioned clean-checkout close record, M22 close record, repaired representative-mission
    report, qualitative bundle, and the M20/M21 result notes before any action.
 4. Use the inspected technical passages for scoped survey roles. Do not
    recreate numeric scoring or require a generic human worker to disposition
@@ -129,10 +140,9 @@ hard vetoes, descriptive diagnostics, and nonclaims.
 
 ## Handoff
 
-This memo is the M23 versioned-close repair boundary. The next action is the
-exact Git integration and clean-checkout reproduction subplan; it is not a new
-scientific milestone. After that close, any work on live topic quality,
-additional paper/source
+This memo is the completed M23 clean-restart boundary. No M17-M23 continuation
+work remains within the recorded local exploratory program. Any work on live
+topic quality, additional paper/source
 inspection, forward citations, claim/prose promotion, cross-platform support,
 or release requires a separate scoped plan and the actual human approval at any
 external, credential, publication, or release boundary. Do not reopen

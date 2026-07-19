@@ -1,7 +1,7 @@
 # M23 Versioned Clean-Checkout Close Subplan
 
 Date: `2026-07-19`
-Status: `READY_AT_GIT_MUTATION_BOUNDARY`
+Status: `PASSED_CLEAN_COMMIT_AND_TERMINAL_REVIEW`
 
 ## Phase Objective
 
@@ -131,3 +131,31 @@ The temporary M23 wheel SHA-256 was
 `ed1c2593052cd16f4ff807ff9447401646d07f99f21c87490892c8d4ba932341`.
 These diagnostics establish that the proposed boundary is feasible; they do not
 authorize or substitute for the real integration commit and clean checkout.
+
+## Phase Result
+
+The real local integration commit is
+`6149818ab25791ca01c9d84fbbbb580f1e121841`, tree
+`60467239d7ccfd5f035049f6ca6913a880d3ba23`. Its exact changed path set matches
+the 101-path include manifest and contains none of the exclude-manifest bulk
+artifacts.
+
+A detached clean checkout passed:
+
+- compile and `git diff --check`;
+- `23` focused M22/M23 tests;
+- the exact affected gate: `263 passed, 77 deselected`;
+- fresh M23 acceptance: `9/9`, `M23_OPERATIONAL_ACCEPTANCE_PASSED`;
+- installed replay from `/tmp` with `PYTHONPATH` unset;
+- empty stderr and `75` parseable JSON artifacts; and
+- source/wheel M23 module equality at SHA-256
+  `14173a0f5dedfa9c7e087dfa1f880ad245fab7038ab6dd15ed6b75176903bc6b`.
+
+The authoritative wheel SHA-256 is
+`fdd58293702371e4f85efe1f667e5310e597073d35ca3a945b6b831d1cbe7899`.
+Fresh Codex fallback Review Round 4 returned `AGREE`. Claude export remained
+unavailable under the environment's external-data policy and was not routed
+around.
+
+Handoff: write and commit the ordinary close record, preserve all scientific
+limitations and nonclaims, and do not push or release.
