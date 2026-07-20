@@ -131,13 +131,13 @@ Conflicts and accepted-audit disagreements block apply. After apply, run
 
 ## Release Gate Model
 
-Local fixture evidence can support limited pilot readiness. Broad release still
-requires real fresh-reader onboarding, real macOS validation, real minimal
-parser-tool machine validation, release-owner tag approval, and release-owner
-publication approval.
+The supported release contract is one researcher using Linux/WSL with Python
+3.11.x. Local fixture and parser evidence support this contract; external-user
+and macOS validation are out of scope. Release-owner approval is required only for
+tagging or publication, not for local use.
 
-Local substitutes must remain visibly separate from real external validation.
-Do not mark manual gates as passed unless they actually happened.
+Parser smoke remains diagnostic and must not be presented as scientific
+extraction-accuracy evidence.
 
 The private v0.1 candidate additionally requires
 `dist/release_gate_evidence.json` from

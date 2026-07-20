@@ -1,14 +1,14 @@
 # Installation
 
-This release target is for one colleague using one private local workspace. It does not require a server, SSO, shared database, or live LLM provider.
+This release target is for one researcher using one private local workspace. It does not require a server, SSO, shared database, or live LLM provider.
 
 Use Python 3.11.x. The package metadata intentionally rejects Python 3.10 and
 Python 3.12+; backward and forward minor-version compatibility are not release
 requirements for v0.1.
 
-## Primary Colleague Install From A Wheel
+## Local Install From A Wheel
 
-The recommended release path for colleagues is a wheel attached to the release candidate:
+The recommended release path is a wheel built by the maintainer:
 
 ```bash
 python -m pip install research_assistant-0.1.0-py3-none-any.whl

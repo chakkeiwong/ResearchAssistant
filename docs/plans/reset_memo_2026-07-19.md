@@ -170,3 +170,29 @@ because replay and durability invariants are concentrated there. The release
 evidence does not claim scientific correctness, literature completeness,
 cross-platform support, hosted-service readiness, or complete PDF extraction
 quality.
+## Release Gap Closure Handoff - 2026-07-20
+
+The release-gap closure plan was skeptically reviewed and executed. The final
+Python 3.11 CPU-only source-bound gate passed all eight commands with fingerprint
+`034713adb34f466ceeab7b5fd11e9234b2c7357518b830fee7f245863bae9218`; the full
+inventory was `1722 passed, 229 skipped`. Artifact manifest validation passed for
+the wheel, sdist, and final gate evidence. A disposable workspace reached
+`ready_for_release_candidate_review` with zero blockers and warnings.
+
+Remaining release actions are a successful final-commit GitHub Actions run
+(Ruff/mypy) and release-owner approval before tag/publication. Colleague and
+macOS validation are out of scope for the Linux-only local tool. No tag, upload,
+or publication was performed.
+See `docs/plans/release_gap_closure_result_2026-07-20.md` and
+`docs/release_readiness.md` for the complete handoff. Generated `dist/` artifacts
+remain untracked; synthetic parser/performance evidence remains diagnostic only.
+## 2026-07-20 Linux-Local Gate Closure Update
+
+The active release contract is Linux/WSL2 with Python 3.11.x for one local
+researcher. macOS, native Windows, and colleague onboarding are out of scope;
+they are not release gates. The obsolete `onboarding-report` CLI and active
+onboarding document inventory entry were removed so `release-report` cannot
+reintroduce that gate. Historical proposals and validation records are retained
+as history only. After this source/doc change, regenerate the source-bound gate
+evidence before release-candidate review. Remote GitHub Actions, tagging, and
+publication remain external release-owner boundaries.

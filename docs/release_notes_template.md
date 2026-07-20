@@ -14,7 +14,7 @@ YYYY-MM-DD
 - Source distribution:
 - SHA256 hashes:
 
-Primary colleague install path:
+Primary local install path:
 
 ```bash
 python -m pip install research_assistant-X.Y.Z-py3-none-any.whl
@@ -26,8 +26,7 @@ ra --root ~/research-assistant-workspace doctor
 ## Supported Platforms
 
 - Linux:
-- macOS:
-- WSL:
+- WSL2:
 
 ## Validation Results
 
@@ -37,14 +36,11 @@ ra --root ~/research-assistant-workspace doctor
 - `scripts/run_packaging_smoke.sh`:
 - `scripts/run_clean_install_smoke.sh`:
 - `ra repository-hygiene check --strict`:
-- `ra individual-git-release validation-substitutes`:
+- `ra individual-git-release validation-local`:
 - `ra individual-git-release fixture-rehearsal`:
 - `ra individual-git-release performance`:
 - `ra individual-git-release validation-report`:
 - `ra individual-git-release gate-build`:
-- Real colleague onboarding:
-- macOS validation:
-- Real minimal parser-tool machine:
 - Release-owner tag/publication approval:
 
 ## Privacy
@@ -70,8 +66,8 @@ ra workspace merge --source /path/to/other/repo --target /path/to/mine --apply -
 ra workspace rebuild-derived
 ```
 
-Local validation substitutes do not satisfy real colleague/macOS/minimal-machine
-validation. Shared database, service deployment, SSO/RBAC, real-time
+Parser smoke is local diagnostic evidence, not scientific extraction-accuracy
+certification. Shared database, service deployment, SSO/RBAC, real-time
 collaboration, and hosted UI remain future work.
 
 ## Backup And Migration Notes

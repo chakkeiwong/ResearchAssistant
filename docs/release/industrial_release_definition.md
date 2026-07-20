@@ -14,7 +14,7 @@ multi-user department platform.
 
 ### Limited Individual Pilot
 
-- One researcher or close colleague.
+- One researcher using one private local workspace.
 - Local files are the working store.
 - Wheel or source checkout install.
 - Git sharing may be manual.

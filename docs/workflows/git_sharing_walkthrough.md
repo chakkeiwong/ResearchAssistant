@@ -140,13 +140,13 @@ Real restore requires `--no-dry-run --confirm-restore`; overwrites require
 Local release maintainers can record sanitized evidence:
 
 ```bash
-ra --root ~/research-assistant-workspace individual-git-release validation-substitutes
+ra --root ~/research-assistant-workspace individual-git-release validation-local
 ra --root ~/research-assistant-workspace individual-git-release fixture-rehearsal
 ra --root ~/research-assistant-workspace individual-git-release performance --synthetic-count 100
 ra --root ~/research-assistant-workspace individual-git-release validation-report
 ra --root ~/research-assistant-workspace individual-git-release gate-build
 ```
 
-If a real colleague, macOS machine, minimal parser-tool machine, tag approval,
-or publication approval is unavailable, record it as blocked/manual. Do not
-replace real validation with local substitute evidence.
+This is a local Linux/WSL workflow. Tagging or publication remains blocked until
+the release owner explicitly approves it; no external-user validation is
+required for this product.

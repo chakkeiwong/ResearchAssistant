@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
+from research_assistant import __version__
 from research_assistant.release_evidence import (
+    RELEASE_ARTIFACT_MANIFEST_SCHEMA,
     RELEASE_GATE_COMMAND_NAMES,
     RELEASE_GATE_EVIDENCE_PATH,
     atomic_write_evidence,
     build_release_gate_evidence,
     release_source_fingerprint,
+    validate_release_artifact_manifest,
     validate_release_gate_evidence,
 )
 
@@ -102,3 +107,67 @@ def test_release_gate_evidence_rejects_incomplete_command_set(tmp_path: Path) ->
     result = validate_release_gate_evidence(tmp_path)
     assert result["status"] == "blocked"
     assert any(issue["code"] == "release_gate_evidence_commands_invalid" for issue in result["issues"])
+
+
+def test_release_artifact_manifest_validates_hashes_and_required_packages(tmp_path: Path) -> None:
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    files = {
+        f"research_assistant-{__version__}-py3-none-any.whl": b"wheel",
+        f"research_assistant-{__version__}.tar.gz": b"sdist",
+        "release_gate_evidence.json": b"evidence",
+    }
+    rows = []
+    for name, raw in files.items():
+        (dist / name).write_bytes(raw)
+        rows.append({"filename": name, "path": str(dist / name), "sha256": hashlib.sha256(raw).hexdigest(), "size": len(raw)})
+    (dist / "release_artifacts_manifest.json").write_text(json.dumps({
+        "schema_version": RELEASE_ARTIFACT_MANIFEST_SCHEMA,
+        "created_at": "2026-07-20T00:00:00Z",
+        "package_version": __version__,
+        "dist_dir": str(dist),
+        "artifact_count": len(rows),
+        "artifacts": rows,
+        "status": "ok",
+        "warnings": [],
+    }))
+    assert validate_release_artifact_manifest(tmp_path)["status"] == "passed"
+    (dist / f"research_assistant-{__version__}-py3-none-any.whl").write_bytes(b"changed")
+    result = validate_release_artifact_manifest(tmp_path)
+    assert result["status"] == "blocked"
+    assert any(issue["code"] == "release_artifact_hash_or_size_mismatch" for issue in result["issues"])
+
+
+def test_release_artifact_manifest_rejects_unlisted_or_malformed_artifacts(tmp_path: Path) -> None:
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    for name in (
+        f"research_assistant-{__version__}-py3-none-any.whl",
+        f"research_assistant-{__version__}.tar.gz",
+        "release_gate_evidence.json",
+    ):
+        (dist / name).write_bytes(name.encode())
+    (dist / "unlisted.txt").write_text("not in manifest")
+    (dist / "release_artifacts_manifest.json").write_text(json.dumps({
+        "schema_version": RELEASE_ARTIFACT_MANIFEST_SCHEMA,
+        "created_at": "2026-07-20T00:00:00Z",
+        "package_version": __version__,
+        "dist_dir": str(dist),
+        "artifact_count": 3,
+        "status": "ok",
+        "warnings": [],
+        "artifacts": [
+            {"filename": "../escape.whl", "path": "ignored", "sha256": "0" * 64, "size": 1},
+            {"filename": f"research_assistant-{__version__}.tar.gz", "path": "ignored", "sha256": None, "size": "bad"},
+            {"filename": "release_gate_evidence.json", "path": "ignored", "sha256": "0" * 64, "size": 1},
+        ],
+    }))
+
+    result = validate_release_artifact_manifest(tmp_path)
+
+    assert result["status"] == "blocked"
+    codes = {issue["code"] for issue in result["issues"]}
+    assert "release_artifact_filename_invalid" in codes
+    assert "release_artifact_row_fields_invalid" in codes
+    assert "release_artifact_unlisted_file" in codes
+    assert "release_artifact_wheel_missing" in codes

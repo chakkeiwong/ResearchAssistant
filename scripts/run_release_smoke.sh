@@ -23,5 +23,12 @@ timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "${WORKSPA
 echo "timeout ${TIMEOUT_SECONDS}s ra --root ${WORKSPACE} demo run"
 timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "${WORKSPACE}" demo run
 
-echo "timeout ${TIMEOUT_SECONDS}s ra --root ${WORKSPACE} release-report"
-timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "${WORKSPACE}" release-report
+if [[ "${RELEASE_GATE_IN_PROGRESS:-0}" != "1" ]]; then
+  echo "timeout ${TIMEOUT_SECONDS}s ra --root ${WORKSPACE} release-report"
+  timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "${WORKSPACE}" release-report
+else
+  echo "release-report deferred until the candidate gate writes final evidence"
+fi
+
+echo "timeout ${TIMEOUT_SECONDS}s scripts/run_external_tool_tests.sh"
+timeout "${TIMEOUT_SECONDS}s" scripts/run_external_tool_tests.sh

@@ -26,7 +26,6 @@ class LifecycleHandlers:
     parser_benchmark_smoke: Handler
     arxiv_batch: Handler
     release_artifacts: Handler
-    onboarding_report: Handler
     platform_status: Handler
 
 
@@ -212,9 +211,9 @@ def register_release_utility_commands(sub: Subparsers, handlers: LifecycleHandle
     release_artifacts_manifest_cmd = release_artifacts_sub.add_parser('manifest')
     release_artifacts_manifest_cmd.add_argument('--dist-dir')
     release_artifacts_manifest_cmd.set_defaults(func=handlers.release_artifacts)
-
-    onboarding_report_cmd = sub.add_parser('onboarding-report', help='Emit individual release onboarding checklist')
-    onboarding_report_cmd.set_defaults(func=handlers.onboarding_report)
+    release_artifacts_validate_cmd = release_artifacts_sub.add_parser('validate')
+    release_artifacts_validate_cmd.add_argument('--release-root')
+    release_artifacts_validate_cmd.set_defaults(func=handlers.release_artifacts)
 
     platform_cmd = sub.add_parser('platform-status', help='Show local platform support status')
     platform_cmd.set_defaults(func=handlers.platform_status)
@@ -252,8 +251,8 @@ def _register_individual_git_release_commands(sub: Subparsers, handler: Handler)
     individual_git_release_validation_record.set_defaults(func=handler)
     individual_git_release_validation_report = individual_git_release_sub.add_parser('validation-report')
     individual_git_release_validation_report.set_defaults(func=handler)
-    individual_git_release_validation_substitutes = individual_git_release_sub.add_parser('validation-substitutes')
-    individual_git_release_validation_substitutes.set_defaults(func=handler)
+    individual_git_release_validation_local = individual_git_release_sub.add_parser('validation-local')
+    individual_git_release_validation_local.set_defaults(func=handler)
     individual_git_release_fixture = individual_git_release_sub.add_parser('fixture-rehearsal')
     individual_git_release_fixture.add_argument('--fixture-root')
     individual_git_release_fixture.add_argument('--include-blocker', action=argparse.BooleanOptionalAction, default=False)

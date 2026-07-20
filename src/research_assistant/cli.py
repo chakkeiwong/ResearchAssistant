@@ -65,7 +65,6 @@ from research_assistant.individual_release import (
     doctor,
     init_workspace,
     inspect_backup,
-    onboarding_report,
     parser_benchmark_smoke,
     parser_tool_matrix,
     performance_smoke,
@@ -83,12 +82,13 @@ from research_assistant.individual_release import (
     workspace_repair,
     workspace_validate,
 )
+from research_assistant.release_evidence import validate_release_artifact_manifest
 from research_assistant.individual_git_release import (
     classify_shareable_path,
     fixture_rehearsal,
     individual_git_release_gate,
     load_shareable_workspace_policy,
-    record_local_validation_substitutes,
+    record_local_validations,
     representative_workspace_performance,
     repository_hygiene_check,
     validation_record,
@@ -593,8 +593,8 @@ def cmd_individual_git_release(args: argparse.Namespace) -> int:
         ))
     if args.individual_git_release_action == 'validation-report':
         return _print_json(validation_report(root=root))
-    if args.individual_git_release_action == 'validation-substitutes':
-        return _print_json(record_local_validation_substitutes(root=root))
+    if args.individual_git_release_action == 'validation-local':
+        return _print_json(record_local_validations(root=root))
     if args.individual_git_release_action == 'fixture-rehearsal':
         return _print_json(fixture_rehearsal(
             root=root,
@@ -761,11 +761,11 @@ def cmd_release_artifacts(args: argparse.Namespace) -> int:
         return _print_json(release_artifacts_manifest(
             dist_dir=Path(args.dist_dir) if args.dist_dir else None,
         ))
+    if args.release_artifacts_action == 'validate':
+        return _print_json(validate_release_artifact_manifest(
+            Path(args.release_root) if args.release_root else Path.cwd(),
+        ))
     raise SystemExit(f'unknown release-artifacts action {args.release_artifacts_action}')
-
-
-def cmd_onboarding_report(args: argparse.Namespace) -> int:
-    return _print_json(onboarding_report())
 
 
 def cmd_platform_status(args: argparse.Namespace) -> int:
@@ -1340,7 +1340,6 @@ def build_parser() -> argparse.ArgumentParser:
         parser_benchmark_smoke=cmd_parser_benchmark_smoke,
         arxiv_batch=cmd_arxiv_batch,
         release_artifacts=cmd_release_artifacts,
-        onboarding_report=cmd_onboarding_report,
         platform_status=cmd_platform_status,
     )
     register_lifecycle_commands(sub, lifecycle_handlers)

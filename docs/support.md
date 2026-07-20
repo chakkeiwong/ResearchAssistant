@@ -2,9 +2,8 @@
 
 This support process is for private individual installs. Share diagnostics, not research data.
 
-Current release status: limited individual pilot candidate. Broad non-pilot
-rollout still requires real fresh-reader onboarding, macOS clean-install smoke,
-and minimal-parser-tool machine validation.
+Current release status: Linux/WSL local release candidate for one researcher.
+macOS and native Windows are outside the supported product scope.
 
 ## Before Asking For Help
 
@@ -85,7 +84,7 @@ ra individual-git-release gate-build
 
 Include:
 
-- operating system and whether this is Linux, WSL, macOS, or native Windows;
+- operating system and whether this is Linux, WSL2, or another unsupported platform;
 - Python version;
 - install mode, such as wheel, source checkout, or editable checkout;
 - exact command that failed;

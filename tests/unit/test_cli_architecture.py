@@ -15,7 +15,7 @@ TOP_LEVEL_COMMANDS = (
     "privacy", "release-report", "mcp", "repository-hygiene",
     "individual-git-release", "bounded-workflow", "performance",
     "parser-tool-matrix", "parser-benchmark-smoke", "survey", "surveybench",
-    "arxiv-batch", "release-artifacts", "onboarding-report", "platform-status",
+    "arxiv-batch", "release-artifacts", "platform-status",
     "ingest", "find", "show", "export-context", "review-list", "review-show",
     "review-mark", "review-write", "link-add", "artifact-paths",
     "industrial-validate", "domain-templates", "derivation", "experiment",
@@ -45,7 +45,7 @@ SURVEY_COMMANDS = (
     "qualitative-assessment",
 )
 
-CLI_SCHEMA_SHA256 = "807a9ce76cfaf6c85b47eb6c83d4e19562dcaf674d694463a06155bbcbc10d1b"
+CLI_SCHEMA_SHA256 = "9cf0349c20ab7f667a9ff08f569d81c60a819413e743857ca1925cad94f6716a"
 
 
 def _subparsers(parser: argparse.ArgumentParser) -> argparse._SubParsersAction:
@@ -109,7 +109,7 @@ def test_public_command_inventory_is_explicit() -> None:
 def test_cli_parser_schema_changes_require_explicit_review() -> None:
     rows = list(_parser_schema(cli.build_parser()))
     payload = json.dumps(rows, sort_keys=True, separators=(",", ":"), default=str).encode()
-    assert len(rows) == 951
+    assert len(rows) == 952
     assert hashlib.sha256(payload).hexdigest() == CLI_SCHEMA_SHA256
 
 

@@ -51,6 +51,7 @@ echo "timeout ${TIMEOUT_SECONDS}s ${PYTHON} -m pip install ${INSTALL_FLAGS[*]} $
 PYTHONPATH="" timeout "${TIMEOUT_SECONDS}s" "${PYTHON}" -m pip install "${INSTALL_FLAGS[@]}" "${INSTALL_TARGET}"
 
 cd "${TMP_DIR}"
+unset PYTHONPATH
 
 echo "timeout ${TIMEOUT_SECONDS}s ${RA} --help"
 timeout "${TIMEOUT_SECONDS}s" "${RA}" --help >/dev/null

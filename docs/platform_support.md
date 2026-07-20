@@ -11,13 +11,9 @@
 Linux or Linux through WSL with Python 3.11.x. Python 3.10 and Python 3.12+
 are outside this release contract. Release shell scripts require a POSIX shell.
 
-## Tier 2
-
-macOS with Python 3.11.x. Optional parser tools may require platform-specific installation steps. This remains a pilot target until a macOS clean-install smoke is recorded.
-
-## Tier 3
-
-Windows through WSL. Native Windows is untested for the shell-script release workflow and should not be advertised as supported.
+Native Windows is untested for the shell-script release workflow and is not
+supported by this release. Linux through WSL2 is supported because it provides
+the Linux/POSIX runtime contract.
 
 ## Validation
 
@@ -27,7 +23,7 @@ Run:
 ra platform-status
 scripts/run_clean_install_smoke.sh
 env WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl timeout 300 scripts/run_clean_install_smoke.sh
-ra individual-git-release validation-record --validation-type macos --result passed --scope external_machine --platform "macOS <version>" --python-version "<python>" --install-method "<wheel or source>" --command-summary "clean install smoke completed"
+ra --root /tmp/research-assistant-final-release individual-git-release validation-local
 ```
 
 The `.sh` scripts require a POSIX shell.

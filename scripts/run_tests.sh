@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 export PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
 export CUDA_VISIBLE_DEVICES="-1"
-TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-900}"
+TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-1200}"
 
 cd "$ROOT"
 

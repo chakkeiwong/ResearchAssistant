@@ -1,6 +1,6 @@
 # Release Checklist
 
-Run these bounded checks before sending a release candidate to colleagues:
+Run these bounded checks before using a Linux local release candidate:
 
 ```bash
 scripts/ra-agent fast-tests
@@ -13,14 +13,15 @@ scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q
 scripts/run_packaging_smoke.sh
 CUDA_VISIBLE_DEVICES=-1 scripts/run_external_tool_tests.sh
 scripts/build_release_artifacts.sh
+PYTHONPATH=src python3.11 -m research_assistant.cli release-artifacts validate
 WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
-python scripts/run_release_candidate_gate.py
+CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src python3.11 scripts/run_release_candidate_gate.py
 scripts/run_individual_git_release_gate.sh
 ra --root /tmp/research-assistant-final-release init
 ra --root /tmp/research-assistant-final-release release-report
 ra --root /tmp/research-assistant-final-release repository-hygiene check --strict
-ra --root /tmp/research-assistant-final-release individual-git-release validation-substitutes
+ra --root /tmp/research-assistant-final-release individual-git-release validation-local
 ra --root /tmp/research-assistant-final-release individual-git-release fixture-rehearsal
 ra --root /tmp/research-assistant-final-release individual-git-release performance --synthetic-count 100
 ra --root /tmp/research-assistant-final-release individual-git-release performance --tier synthetic_git_1000 --synthetic-count 1000 --timeout-seconds 600
@@ -31,7 +32,8 @@ ra --root /tmp/research-assistant-final-release individual-git-release gate-buil
 Run the release-candidate gate with Python 3.11.x. It writes
 `dist/release_gate_evidence.json`, including the exact Python version, commands,
 return codes, wall times, artifact path, and a fingerprint of release-relevant
-source. `ra release-report` warns when this evidence is missing and blocks when
+source. After all commands pass, it refreshes and hash-validates
+`dist/release_artifacts_manifest.json`. `ra release-report` warns when this evidence is missing and blocks when
 it is failed, malformed, or stale. Any source change after the gate requires a
 fresh run.
 
@@ -70,6 +72,8 @@ Release gates:
 - `ra bounded-workflow diagnostic` creates a timeout artifact;
 - `ra performance smoke --include-industrial-artifacts --include-backup --include-export` completes on a small synthetic corpus;
 - `scripts/build_release_artifacts.sh` produces `dist/release_artifacts_manifest.json`;
+- `ra release-artifacts validate` verifies the expected versioned wheel, sdist,
+  final gate evidence, file inventory, sizes, and SHA256 values;
 - `ra platform-status` matches `docs/platform_support.md`;
 - `ra repository-hygiene check` reports no unsafe private/generated files for a shareable workspace;
 - `ra repository-hygiene check --strict` catches local build/cache/private roots and secret-like fields;
@@ -82,4 +86,4 @@ Release gates:
 - known limitations are included in `ra release-report`.
 - `ra release-report` validates passing evidence for the exact source tree;
 - release notes and support instructions are present;
-- any unvalidated platform or human onboarding trial is recorded as a pilot limitation rather than broad support.
+- unsupported platforms and deferred product capabilities are recorded as limitations rather than support claims.

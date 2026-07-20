@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import json
 from pathlib import Path
 import platform
 import subprocess
@@ -18,7 +19,9 @@ from research_assistant.release_evidence import (  # noqa: E402
     atomic_write_evidence,
     build_release_gate_evidence,
     utc_now_iso,
+    validate_release_artifact_manifest,
 )
+from research_assistant.individual_release import release_artifacts_manifest  # noqa: E402
 
 
 COMMANDS = (
@@ -44,6 +47,7 @@ def main() -> int:
     rows = []
     environment = os.environ.copy()
     environment["PYTHONPATH"] = str(ROOT / "src")
+    environment["RELEASE_GATE_IN_PROGRESS"] = "1"
     for name, command in COMMANDS:
         command_started = time.monotonic()
         completed = subprocess.run(command, cwd=ROOT, env=environment)
@@ -66,7 +70,40 @@ def main() -> int:
     output = ROOT / RELEASE_GATE_EVIDENCE_PATH
     atomic_write_evidence(output, payload)
     print(output)
-    return 0 if payload["status"] == "passed" else 1
+    if payload["status"] != "passed":
+        return 1
+    release_artifacts_manifest(release_root=ROOT)
+    manifest_validation = validate_release_artifact_manifest(ROOT)
+    print(manifest_validation["path"])
+    if manifest_validation["status"] != "passed":
+        for issue in manifest_validation["issues"]:
+            print(issue, file=sys.stderr)
+        return 1
+    final_report = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "research_assistant.cli",
+            "--root",
+            environment.get("WORKSPACE", "/tmp/research-assistant-release-smoke"),
+            "release-report",
+        ],
+        cwd=ROOT,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    try:
+        report = json.loads(final_report.stdout)
+    except json.JSONDecodeError:
+        print("final release-report did not emit valid JSON", file=sys.stderr)
+        return 1
+    if final_report.returncode != 0 or report.get("status") != "ready_for_release_candidate_review" or report.get("blockers") or report.get("warnings"):
+        print(json.dumps(report, indent=2, sort_keys=True), file=sys.stderr)
+        return 1
+    print("final release-report: ready_for_release_candidate_review")
+    return 0
 
 
 if __name__ == "__main__":

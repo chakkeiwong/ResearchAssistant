@@ -28,11 +28,12 @@ def test_project_metadata_exposes_ra_entrypoint() -> None:
     assert 'WHEEL_PATH="${WHEEL_PATH:-}"' in Path("scripts/run_clean_install_smoke.sh").read_text()
     assert Path("scripts/build_release_artifacts.sh").exists()
     assert os.access("scripts/build_release_artifacts.sh", os.X_OK)
-    assert Path("docs/onboarding_trial.md").exists()
     assert Path("docs/known_limitations.md").exists()
     assert Path("docs/platform_support.md").exists()
     assert Path("docs/support.md").exists()
     assert Path("docs/release_notes_0.1.0.md").exists()
+    assert Path("docs/release_readiness.md").exists()
+    assert Path("docs/release/publication_runbook.md").exists()
     assert Path("docs/release_notes_template.md").exists()
     assert Path("docs/workflows/git_sharing_walkthrough.md").exists()
     assert Path(".github/ISSUE_TEMPLATE/individual_release_bug.md").exists()
@@ -172,6 +173,11 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
         "validate_release_gate_evidence",
         lambda _root: {"status": "missing", "issues": [], "source_matches": False},
     )
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_artifact_manifest",
+        lambda _root: {"status": "missing", "issues": []},
+    )
 
     rc = main(["--root", str(tmp_path), "init"])
     assert rc == 0
@@ -202,6 +208,7 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert rc == 0
     assert report["status"] in {"ready_for_release_candidate_review", "warnings"}
     assert not report["blockers"]
+    assert "onboarding" not in report
     assert report["mcp_readiness"]["optional"] is True
     assert report["mcp_readiness"]["default_mode"] == "read_only"
     assert report["release_gate_evidence"]["status"] in {"missing", "passed"}
@@ -209,11 +216,11 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert "ra_review_mark" not in report["mcp_readiness"].get("mcp_tools", [])
     assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
     gates = report["mcp_readiness"]["gate_status"]
-    assert gates["colleague_mcp_trial"]["status"] == "accepted"
-    assert gates["colleague_mcp_trial"]["evidence"] == "external_agent_stdio_trial_passed_2026_05_03"
-    assert gates["colleague_mcp_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
-    assert gates["colleague_mcp_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
-    assert gates["colleague_mcp_trial"]["result_record"] == "docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md"
+    assert gates["external_mcp_setup_trial"]["status"] == "accepted"
+    assert gates["external_mcp_setup_trial"]["evidence"] == "external_agent_stdio_trial_passed_2026_05_03"
+    assert gates["external_mcp_setup_trial"]["record_template"] == "docs/mcp_colleague_trial_record_template.md"
+    assert gates["external_mcp_setup_trial"]["evidence_index"] == "docs/validation/local_mcp_external_validation_records.md"
+    assert gates["external_mcp_setup_trial"]["result_record"] == "docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md"
     assert gates["explicit_id_arxiv_source_batch"]["status"] == "available_with_local_grant"
     assert gates["explicit_id_arxiv_source_batch"]["live_scale_evidence"] == "accepted_25_50_100_public_id_runs_2026_05_03"
     assert gates["explicit_id_arxiv_source_batch"]["live_protocol"] == "docs/validation/local_mcp_live_arxiv_scale_protocol.md"
@@ -325,6 +332,11 @@ def test_demo_setup_run_clean_and_release_report(tmp_path: Path, capsys, monkeyp
         "validate_release_gate_evidence",
         lambda _root: {"status": "missing", "issues": [], "source_matches": False},
     )
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_artifact_manifest",
+        lambda _root: {"status": "missing", "issues": []},
+    )
     demo_root = tmp_path / "demo_workspace"
     rc = main(["--root", str(demo_root), "demo", "setup"])
     setup = _json_out(capsys)
@@ -375,6 +387,33 @@ def test_release_report_blocks_failed_or_stale_gate_evidence(tmp_path: Path, mon
     assert report["status"] == "blocked"
     assert report["release_gate_evidence"]["issues"] == issues
     assert any(blocker["code"] == "release_gate_evidence_blocked" for blocker in report["blockers"])
+
+
+def test_release_report_blocks_stale_artifact_manifest(tmp_path: Path, monkeypatch) -> None:
+    init_workspace = individual_release.init_workspace(root=tmp_path)
+    assert init_workspace["status"] == "initialized"
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_gate_evidence",
+        lambda _root: {"status": "passed", "issues": [], "source_matches": True},
+    )
+    monkeypatch.setattr(
+        individual_release,
+        "read_release_artifacts_manifest",
+        lambda **_kwargs: {"status": "ok", "artifacts": [], "artifact_count": 0},
+    )
+    manifest_issues = [{"code": "release_artifact_hash_or_size_mismatch", "filename": "candidate.whl"}]
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_artifact_manifest",
+        lambda _root: {"status": "blocked", "issues": manifest_issues},
+    )
+
+    report = individual_release.release_report(root=tmp_path)
+
+    assert report["status"] == "blocked"
+    assert report["release_artifact_manifest_validation"]["issues"] == manifest_issues
+    assert any(blocker["code"] == "release_artifact_manifest_blocked" for blocker in report["blockers"])
 
 
 def test_demo_setup_refuses_existing_non_demo_workspace(tmp_path: Path, capsys) -> None:
@@ -428,7 +467,7 @@ def test_bounded_workflow_diagnostic_and_performance_smoke(tmp_path: Path, capsy
     assert output.exists()
 
 
-def test_release_artifacts_onboarding_and_corruption_checks(tmp_path: Path, capsys) -> None:
+def test_release_artifacts_and_corruption_checks(tmp_path: Path, capsys) -> None:
     dist = tmp_path / "dist"
     dist.mkdir()
     artifact = dist / "research_assistant-0.1.0-py3-none-any.whl"
@@ -441,12 +480,11 @@ def test_release_artifacts_onboarding_and_corruption_checks(tmp_path: Path, caps
     assert manifest["artifact_count"] == 1
     assert (dist / "release_artifacts_manifest.json").exists()
 
-    rc = main(["onboarding-report"])
-    onboarding = _json_out(capsys)
+    rc = main(["release-artifacts", "validate", "--release-root", str(tmp_path)])
+    validation = _json_out(capsys)
     assert rc == 0
-    assert onboarding["status"] == "ready_for_trial"
-    assert "run demo run" in onboarding["checklist"]
-    assert "restore backup dry-run" in onboarding["checklist"]
+    assert validation["status"] == "blocked"
+    assert any(issue["code"] == "release_artifact_sdist_missing" for issue in validation["issues"])
 
     main(["--root", str(tmp_path), "init"])
     capsys.readouterr()
@@ -557,7 +595,7 @@ def test_validation_records_report_and_strict_hygiene(tmp_path: Path, capsys) ->
     rc = main([
         "--root", str(tmp_path),
         "individual-git-release", "validation-record",
-        "--validation-type", "linux_wsl",
+        "--validation-type", "linux_local",
         "--result", "passed",
         "--scope", "local_machine",
         "--platform", "Linux fixture",
@@ -576,6 +614,17 @@ def test_validation_records_report_and_strict_hygiene(tmp_path: Path, capsys) ->
         "--root", str(tmp_path),
         "individual-git-release", "validation-record",
         "--validation-type", "linux_wsl",
+        "--result", "passed",
+    ])
+    obsolete = _json_out(capsys)
+    assert rc == 0
+    assert obsolete["status"] == "blocked"
+    assert obsolete["issues"][0]["code"] == "unknown_validation_type"
+
+    rc = main([
+        "--root", str(tmp_path),
+        "individual-git-release", "validation-record",
+        "--validation-type", "linux_local",
         "--result", "passed",
         "--evidence-note", "/home/private/paper.pdf",
     ])
@@ -617,7 +666,7 @@ def test_validation_records_report_and_strict_hygiene(tmp_path: Path, capsys) ->
     report = _json_out(capsys)
     assert rc == 0
     assert report["status"] == "blocked"
-    assert "colleague_onboarding" in report["missing_required_validation"]
+    assert "linux_parser_tools" in report["missing_required_validation"]
 
 
 def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, capsys, monkeypatch) -> None:
@@ -626,7 +675,7 @@ def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, caps
 
     rc = main([
         "--root", str(tmp_path),
-        "individual-git-release", "validation-substitutes",
+        "individual-git-release", "validation-local",
     ])
     substitutes = _json_out(capsys)
     assert rc == 0
@@ -664,8 +713,8 @@ def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, caps
     report = _json_out(capsys)
     assert rc == 0
     assert report["local_fixture_validation_complete"] is True
-    assert report["external_validation_complete"] is False
-    assert "colleague_onboarding" in report["blocked_required_validation"]
+    assert report["external_validation_complete"] is True
+    assert report["blocked_required_validation"] == []
 
     # This scenario calibrates local Git-sharing evidence, independently of the
     # source-bound release artifact that may be missing or stale in a checkout.
@@ -679,11 +728,11 @@ def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, caps
     assert gate["repository_hygiene_strict"] is True
     assert gate["future_multi_user_platform_deferred"] is True
     assert gate["ready_for_limited_individual_pilot"] is True
-    assert gate["ready_for_broad_individual_release"] is False
-    assert gate["ready_for_git_shared_research_release"] is False
+    assert gate["ready_for_broad_individual_release"] is True
+    assert gate["ready_for_git_shared_research_release"] is True
     blocker_codes = {blocker["code"] for blocker in gate["blockers"]}
-    assert "external_validation_required_for_broad_release" in blocker_codes
-    assert "release_owner_approval_required" in blocker_codes
+    assert "external_validation_required_for_broad_release" not in blocker_codes
+    assert "release_owner_approval_required" not in blocker_codes
 
 
 def test_git_sharing_walkthrough_and_gate_script_reference_current_commands() -> None:

@@ -1,27 +1,26 @@
 # Release Notes 0.1.0
 
-Date: 2026-04-29
+Date: 2026-07-20
 
 ## Release Scope
 
 This is a limited pilot release candidate for researchers who want a private local `research-assistant` workspace with Git-based sharing. It is not a shared department server, shared database, live collaboration system, hosted UI, SSO/RBAC system, or default live LLM/provider release.
 
-The candidate should remain pilot-scoped until real colleague onboarding, macOS validation, real minimal-parser-tool validation, release-owner tag approval, and publication approval are recorded.
+The supported release is one researcher using Linux/WSL with Python 3.11.x. Tagging and publication remain separate release-owner actions.
 
-Current external validation status for this candidate:
-- real fresh-reader onboarding: blocked/manual, not yet recorded;
-- real macOS clean-install smoke: blocked/manual, not yet recorded;
-- real minimal-parser-tool machine validation: blocked/manual, not yet recorded;
+Current local validation status for this candidate:
+- Linux/Python 3.11 source and disposable-workspace checks: recorded locally;
+- Linux parser command smoke: recorded locally as diagnostic evidence;
 - external MCP setup trial: accepted on 2026-05-03 using the sanitized
   external-agent stdio result in
   `docs/validation/local_mcp_h1_external_trial_result_2026-05-03.md`.
 
-Do not treat local substitute records, synthetic fixtures, or maintainer-machine
-smoke tests as real external validation.
+Do not treat synthetic fixtures or maintainer-machine parser smoke as scientific
+extraction-accuracy evidence.
 
 ## Primary Install Path
 
-Recommended colleague path:
+Recommended local path:
 
 ```bash
 python -m pip install research_assistant-0.1.0-py3-none-any.whl
@@ -44,19 +43,18 @@ scripts/build_release_artifacts.sh
 
 The artifact manifest is regenerated at `dist/release_artifacts_manifest.json` and includes SHA256 hashes. Build outputs under `dist/` are not committed to Git.
 
-Current local rollout artifact from the final local 2026-04-29 validation pass:
-
-- Wheel: `research_assistant-0.1.0-py3-none-any.whl`
-- Size: `145857` bytes
-- SHA256: `f9f4ae52ce7c53a5acfe3332b567347d86dce55248c0a905821fea1e2e385a0c`
-- Rebuilt locally on 2026-05-02 after local MCP gap-closure work. The generated
-  files under `dist/` are not committed to Git.
+Artifact hashes are intentionally not copied into this versioned document:
+they change whenever the source tree changes. Build the final wheel and sdist
+with `scripts/build_release_artifacts.sh`, then use the generated
+`dist/release_artifacts_manifest.json` as the authoritative checksum record.
+The release gate and publication check validate that manifest against the files
+actually present in `dist/`.
 
 ## Supported Platforms
 
 - Validated locally on Linux/WSL2 with Python 3.11.15 on 2026-04-27.
 - Plain Linux with Python 3.11.x is the intended Tier 1 target but should still run the release gate on the target machine.
-- macOS with Python 3.11.x is a pilot target until a colleague machine completes clean-install smoke.
+- Linux and WSL2 with Python 3.11.x are the only supported release targets.
 - Python 3.10 and Python 3.12+ are not supported by this release.
 - Windows through WSL is the supported Windows path. Native Windows shell-script workflow is unvalidated.
 
@@ -70,7 +68,7 @@ performance evidence to be recorded alongside the local fixture evidence.
 scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
 PYTHONPATH=src python -m pytest tests/integration/test_individual_release_cli.py -q
-ra --root /tmp/research-assistant-final-release individual-git-release validation-substitutes
+ra --root /tmp/research-assistant-final-release individual-git-release validation-local
 ra --root /tmp/research-assistant-final-release individual-git-release fixture-rehearsal
 ra --root /tmp/research-assistant-final-release individual-git-release performance --synthetic-count 100
 ra --root /tmp/research-assistant-final-release repository-hygiene check --strict
@@ -85,7 +83,7 @@ ra --root /tmp/research-assistant-final-release release-report
 
 The exact command results for the current candidate are recorded in `docs/plans/reset_memo_2026-04-26.md`.
 
-Local evidence now includes a validation schema under `local_research/governance/individual_git_release/validation/`, deterministic Git-sharing fixture rehearsal, strict repository hygiene, explicit-wheel clean install smoke, and synthetic representative workspace performance through `synthetic_git_1000`. Real external validation and release-owner approval remain blocked/manual when unavailable.
+Local evidence now includes a validation schema under `local_research/governance/individual_git_release/validation/`, deterministic Git-sharing fixture rehearsal, strict repository hygiene, explicit-wheel clean install smoke, Linux parser smoke, and synthetic representative workspace performance through `synthetic_git_1000`. Release-owner approval is required only before tagging or publication.
 
 ## Showcase: source-first NeuTra chapter audit
 
@@ -184,8 +182,8 @@ Restore defaults to dry-run. A real restore requires `--no-dry-run --confirm-res
 - Generated derivations, experiments, synthesis, traceability, governance, and readiness reports are review material, not mathematical approval.
 - Parser quality depends on local optional tools and source/PDF quality.
 - Parser-tool availability and degradation are checked, but parser scientific accuracy is not certified.
-- A real colleague onboarding trial and macOS validation remain required before broad non-pilot rollout.
-- Minimal parser-tool validation on a real minimal machine remains required before broad non-pilot rollout.
+- This release does not claim support for macOS or native Windows.
+- Linux parser-tool smoke is diagnostic and does not certify scientific extraction accuracy.
 - Git-sharing merge/import performance has been measured through `synthetic_git_1000` and does not certify real personal libraries.
 - Local MCP external setup and live explicit-ID arXiv 25/50/100 source intake
   have bounded accepted evidence. Query discovery, PDF batch execution, and MCP

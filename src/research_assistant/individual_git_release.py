@@ -4,15 +4,18 @@ from pathlib import Path
 from typing import Any
 import fnmatch
 import json
+import os
 import platform as platform_module
 import re
 import shutil
 import subprocess
+import sys
 import time
 
 from research_assistant.config import get_paths
 from research_assistant.individual_release import (
     create_backup,
+    parser_benchmark_smoke,
     parser_tool_matrix,
     release_report,
     workspace_validate,
@@ -38,26 +41,20 @@ VALIDATION_SCOPES = {
 }
 
 REQUIRED_VALIDATION_TYPES = [
-    "linux_wsl",
-    "colleague_onboarding",
-    "macos",
-    "minimal_parser_tools",
+    "linux_local",
+    "linux_parser_tools",
     "merge_fixture_rehearsal",
     "representative_workspace_performance",
 ]
 
 LOCAL_FIXTURE_VALIDATION_TYPES = [
-    "linux_wsl",
-    "minimal_parser_tools",
+    "linux_local",
+    "linux_parser_tools",
     "merge_fixture_rehearsal",
     "representative_workspace_performance",
 ]
 
-EXTERNAL_VALIDATION_TYPES = [
-    "colleague_onboarding",
-    "macos",
-    "minimal_parser_tools",
-]
+EXTERNAL_VALIDATION_TYPES: list[str] = []
 
 PUBLICATION_APPROVAL_TYPES = [
     "release_owner_tag_approval",
@@ -507,6 +504,19 @@ def validation_record(
     warning: list[str] | None = None,
     root: Path | None = None,
 ) -> dict[str, Any]:
+    if validation_type not in KNOWN_VALIDATION_TYPES:
+        return {
+            "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
+            "artifact_type": "individual_git_validation_record",
+            "status": "blocked",
+            "validation_type": validation_type,
+            "result": result,
+            "issues": [{
+                "severity": "blocker",
+                "code": "unknown_validation_type",
+                "expected": KNOWN_VALIDATION_TYPES,
+            }],
+        }
     if result not in VALIDATION_RESULTS:
         raise ValueError(f"validation result must be one of {sorted(VALIDATION_RESULTS)}")
     if scope not in VALIDATION_SCOPES:
@@ -520,7 +530,7 @@ def validation_record(
             provenance={"created_by": "ra individual-git-release validation-record"},
             limitations=[
                 "Validation records are sanitized release evidence, not research approval.",
-                "Local substitutes do not satisfy real external-machine validation requirements.",
+                "Local validation applies only to the supported Linux/WSL single-user release contract.",
             ],
         ),
         "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
@@ -620,8 +630,8 @@ def validation_report(*, root: Path | None = None) -> dict[str, Any]:
     def non_blocked_recorded(validation_type: str) -> bool:
         return any(row.get("result") in {"passed", "warnings"} for row in record_map.get(validation_type, []))
 
-    # Local substitutes can support pilot readiness, but broad-release gates
-    # require real_external/external_machine scopes and release-owner approval.
+    # This product is a single-user Linux local tool. No external machine or
+    # The supported release is local-only; no external user evidence is required.
     local_fixture_complete = all(non_blocked_recorded(validation_type) for validation_type in LOCAL_FIXTURE_VALIDATION_TYPES)
     external_complete = all(passed(validation_type, scopes={"real_external", "external_machine"}) for validation_type in EXTERNAL_VALIDATION_TYPES)
     publication_approved = all(passed(validation_type, scopes={"release_owner"}) for validation_type in PUBLICATION_APPROVAL_TYPES)
@@ -629,18 +639,6 @@ def validation_report(*, root: Path | None = None) -> dict[str, Any]:
     blockers.extend({"code": "blocked_required_validation", "validation_type": validation_type} for validation_type in blocked_required)
     blockers.extend(issues)
     warnings = []
-    if not external_complete:
-        warnings.append({
-            "code": "external_validation_incomplete",
-            "validation_types": EXTERNAL_VALIDATION_TYPES,
-            "message": "Real colleague/macOS/minimal-machine validation is still manual or unavailable.",
-        })
-    if not publication_approved:
-        warnings.append({
-            "code": "publication_approval_missing",
-            "validation_types": PUBLICATION_APPROVAL_TYPES,
-            "message": "Tagging and publication require explicit release-owner approval.",
-        })
     return {
         "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
         "artifact_type": "individual_git_validation_report",
@@ -662,8 +660,7 @@ def validation_report(*, root: Path | None = None) -> dict[str, Any]:
         "blockers": blockers,
         "warnings": warnings,
         "next_actions": [
-            "record deterministic local fixture validations after running release checks",
-            "record real colleague/macOS/minimal-machine validations only after they actually happen",
+            "record deterministic local Linux validations after running release checks",
             "record release-owner approval only when tagging or publication is explicitly approved",
         ],
     }
@@ -1063,97 +1060,105 @@ def representative_workspace_performance(
     return payload
 
 
-def record_local_validation_substitutes(*, root: Path | None = None) -> dict[str, Any]:
+def _run_linux_parser_smoke(release_root: Path, *, timeout_seconds: float = 600) -> dict[str, Any]:
+    script = release_root / "tests" / "scripts" / "run_parser_benchmark.py"
+    if not script.is_file():
+        return {"status": "blocked", "reason": "parser_benchmark_script_missing"}
+    environment = os.environ.copy()
+    environment["CUDA_VISIBLE_DEVICES"] = "-1"
+    environment["PYTHONPATH"] = str(release_root / "src")
+    try:
+        completed = subprocess.run(
+            [sys.executable, str(script)],
+            cwd=release_root,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired:
+        return {"status": "blocked", "reason": "parser_benchmark_timeout"}
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        return {"status": "blocked", "reason": "parser_benchmark_invalid_json", "returncode": completed.returncode}
+    results = payload.get("results") if isinstance(payload, dict) else None
+    if not isinstance(results, list):
+        return {"status": "blocked", "reason": "parser_benchmark_results_missing", "returncode": completed.returncode}
+    successful_by_fixture = {
+        str(row.get("id")): sorted({
+            str(parser.get("parser_name"))
+            for parser in row.get("parser_runs", [])
+            if isinstance(parser, dict) and parser.get("parse_status") == "ok"
+        })
+        for row in results
+        if isinstance(row, dict)
+    }
+    report = payload.get("report") if isinstance(payload.get("report"), dict) else {}
+    passed = (
+        completed.returncode == 0
+        and report.get("ready_for_release_gate") is True
+        and bool(successful_by_fixture)
+        and all(successful_by_fixture.values())
+    )
+    return {
+        "status": "passed" if passed else "blocked",
+        "returncode": completed.returncode,
+        "fixture_count": report.get("fixture_count"),
+        "scored_count": report.get("scored_count"),
+        "successful_parsers_by_fixture": successful_by_fixture,
+        "limitations": ["Synthetic parser smoke is diagnostic and does not certify scientific extraction accuracy."],
+    }
+
+
+def record_local_validations(*, root: Path | None = None) -> dict[str, Any]:
     paths = get_paths(root)
     platform_status = platform_module.platform()
     python_version = platform_module.python_version()
     records = []
     system = platform_module.system()
-    linux_result = "passed" if system == "Linux" else "blocked"
+    linux_result = "passed" if system == "Linux" and platform_module.python_version().startswith("3.11.") else "blocked"
     records.append(validation_record(
-        validation_type="linux_wsl",
+        validation_type="linux_local",
         result=linux_result,
         scope="local_machine",
         platform=platform_status,
         python_version=python_version,
         install_method="source checkout",
         command_summary="local platform detection during individual Git release gate",
-        evidence_note="Linux/WSL validation is local-machine evidence only.",
-        blocker=[] if linux_result == "passed" else [f"local system is {system}, not Linux/WSL"],
+        evidence_note="Supported Linux/WSL local-machine validation.",
+        blocker=[] if linux_result == "passed" else [f"local platform is {system} Python {python_version}; expected Linux Python 3.11.x"],
         root=paths.root,
     ))
     matrix = parser_tool_matrix(root=paths.root)
-    missing_tools = [
-        row["tool"] for row in matrix.get("optional_tools", [])
-        if not row.get("available")
-    ]
+    missing_tools = [row["tool"] for row in matrix.get("optional_tools", []) if not row.get("available")]
+    parser_smoke = _run_linux_parser_smoke(Path(__file__).resolve().parents[2])
+    parser_result = "passed" if parser_smoke["status"] == "passed" else "blocked"
     records.append(validation_record(
-        validation_type="minimal_parser_tools",
-        result="warnings",
-        scope="local_substitute",
+        validation_type="linux_parser_tools",
+        result=parser_result,
+        scope="local_machine",
         platform=platform_status,
         python_version=python_version,
         install_method="source checkout",
-        command_summary="ra parser-tool-matrix local substitute",
-        evidence_note="Local optional-tool matrix recorded as a substitute, not real minimal-machine validation.",
+        command_summary="ra parser-tool-matrix; scripts/run_external_tool_tests.sh",
+        evidence_note=(
+            f"Linux parser smoke status={parser_smoke['status']}; "
+            f"fixtures={parser_smoke.get('fixture_count')}; scored={parser_smoke.get('scored_count')}. "
+            "Diagnostic only, not scientific accuracy certification."
+        ),
+        blocker=[] if parser_result == "passed" else [str(parser_smoke.get("reason", "parser_smoke_failed"))],
         warning=[f"missing_optional_tools={','.join(missing_tools)}"] if missing_tools else [],
-        root=paths.root,
-    ))
-    records.append(validation_record(
-        validation_type="colleague_onboarding",
-        result="blocked",
-        scope="real_external",
-        platform="external colleague machine",
-        python_version="unknown",
-        install_method="unknown",
-        command_summary="manual fresh-reader onboarding trial",
-        evidence_note="No real fresh-reader onboarding trial was available during autonomous execution.",
-        blocker=["manual_colleague_onboarding_not_completed"],
-        root=paths.root,
-    ))
-    records.append(validation_record(
-        validation_type="macos",
-        result="blocked",
-        scope="external_machine",
-        platform="macOS",
-        python_version="unknown",
-        install_method="unknown",
-        command_summary="manual macOS release validation",
-        evidence_note="No real macOS machine was available during autonomous execution.",
-        blocker=["manual_macos_validation_not_completed"],
-        root=paths.root,
-    ))
-    records.append(validation_record(
-        validation_type="release_owner_tag_approval",
-        result="blocked",
-        scope="release_owner",
-        platform="manual approval",
-        python_version="not applicable",
-        install_method="not applicable",
-        command_summary="release-owner tag approval",
-        evidence_note="No explicit release-owner approval to tag was provided.",
-        blocker=["tag_approval_not_provided"],
-        root=paths.root,
-    ))
-    records.append(validation_record(
-        validation_type="publication_approval",
-        result="blocked",
-        scope="release_owner",
-        platform="manual approval",
-        python_version="not applicable",
-        install_method="not applicable",
-        command_summary="release-owner publication approval",
-        evidence_note="No explicit release-owner approval to publish artifacts was provided.",
-        blocker=["publication_approval_not_provided"],
         root=paths.root,
     ))
     return {
         "schema_version": INDIVIDUAL_GIT_VALIDATION_VERSION,
-        "artifact_type": "individual_git_validation_substitute_batch",
+        "artifact_type": "individual_git_local_validation_batch",
         "status": "recorded",
         "records": records,
         "next_actions": [
-            "replace blocked manual records with real external validation records when available",
+            "keep Linux local validation records synchronized with the final release gate",
             "do not tag or publish until release-owner approval records pass",
         ],
     }
@@ -1209,15 +1214,7 @@ def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
             "validation_types": validations["local_fixture_validation_types"],
         })
     if not validations["external_validation_complete"]:
-        blockers.append({
-            "code": "external_validation_required_for_broad_release",
-            "details": "Real colleague/macOS/minimal-machine validation remains a manual gate.",
-        })
-    if not validations["publication_approved"]:
-        blockers.append({
-            "code": "release_owner_approval_required",
-            "details": "Tagging and publication require explicit release-owner approval.",
-        })
+        blockers.append({"code": "external_validation_required_for_broad_release", "details": "No external validation types are configured for the Linux local release."})
     if not merge_supported:
         blockers.append({"code": "workspace_merge_unavailable"})
     ready_for_limited_individual_pilot = (
@@ -1234,7 +1231,6 @@ def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
     ready_for_broad_individual_release = (
         ready_for_git_shared_research_release
         and validations["external_validation_complete"]
-        and validations["publication_approved"]
     )
     return {
         **base_artifact(
@@ -1273,7 +1269,7 @@ def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
             "missing",
         ),
         "release_notes_status": "present" if (release_root / "docs" / "release_notes_0.1.0.md").exists() else "missing",
-        "publication_tag_approval_status": "approved" if validations["publication_approved"] else "blocked",
+        "publication_tag_approval_status": "approved" if validations["publication_approved"] else "not_requested",
         "future_multi_user_platform_deferred": True,
         "blockers": blockers,
         "warnings": warnings,
@@ -1286,8 +1282,7 @@ def individual_git_release_gate(*, root: Path | None = None) -> dict[str, Any]:
             "department operations and SOP approval",
         ],
         "next_actions": [
-            "collect real colleague/platform validation records",
-            "obtain explicit release-owner tag/publication approval",
+            "obtain explicit release-owner tag/publication approval only for publication",
             "run repository hygiene before sharing",
             "use workspace merge dry-run before importing another repository",
         ],

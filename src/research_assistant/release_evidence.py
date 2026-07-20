@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from research_assistant import __version__
 from research_assistant.core_utils import atomic_write_bytes, canonical_json_bytes, sha256_bytes, utc_now_iso
 
 
@@ -21,6 +22,17 @@ RELEASE_GATE_COMMAND_NAMES = (
     "clean_install_smoke",
     "release_smoke",
 )
+RELEASE_ARTIFACT_MANIFEST_SCHEMA = "individual-release-artifacts-v1"
+RELEASE_ARTIFACT_MANIFEST_FIELDS = {
+    "schema_version",
+    "created_at",
+    "package_version",
+    "dist_dir",
+    "artifact_count",
+    "artifacts",
+    "status",
+    "warnings",
+}
 
 _ROOT_FILES = (
     "CHANGELOG.md",
@@ -37,6 +49,8 @@ _RELEASE_DOCS = (
     "docs/quickstart.md",
     "docs/release_checklist.md",
     "docs/release_notes_0.1.0.md",
+    "docs/release_readiness.md",
+    "docs/release/publication_runbook.md",
     "docs/support.md",
     "docs/validation_scripts.md",
 )
@@ -127,7 +141,7 @@ def build_release_gate_evidence(
         "source_fingerprint": release_source_fingerprint(root).to_dict(),
         "commands": command_rows,
         "what_is_not_concluded": [
-            "macOS or native-Windows support",
+            "native-Windows support",
             "shared or hosted deployment readiness",
             "scientific correctness or literature completeness",
             "PDF equation, citation, or abstract correctness",
@@ -209,6 +223,143 @@ def validate_release_gate_evidence(root: Path) -> dict[str, Any]:
         "source_matches": source_matches,
         "issues": issues,
         "evidence": payload,
+    }
+
+
+def validate_release_artifact_manifest(root: Path) -> dict[str, Any]:
+    """Validate generated artifact hashes and filenames without trusting paths."""
+    release_root = root.resolve()
+    manifest_path = release_root / "dist" / "release_artifacts_manifest.json"
+    if not manifest_path.is_file():
+        return {
+            "status": "missing",
+            "path": str(manifest_path),
+            "issues": [{"code": "release_artifact_manifest_missing"}],
+        }
+    try:
+        payload = json.loads(manifest_path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        return {
+            "status": "blocked",
+            "path": str(manifest_path),
+            "issues": [{"code": "release_artifact_manifest_invalid", "message": str(exc)}],
+        }
+    issues: list[dict[str, Any]] = []
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != RELEASE_ARTIFACT_MANIFEST_FIELDS
+        or payload.get("schema_version") != RELEASE_ARTIFACT_MANIFEST_SCHEMA
+    ):
+        issues.append({"code": "release_artifact_manifest_schema_invalid"})
+        artifacts: list[Any] = []
+    else:
+        if isinstance(payload.get("artifacts"), list):
+            artifacts = payload["artifacts"]
+        else:
+            artifacts = []
+            issues.append({"code": "release_artifact_manifest_artifacts_invalid"})
+        if payload.get("package_version") != __version__:
+            issues.append({
+                "code": "release_artifact_manifest_version_invalid",
+                "expected": __version__,
+                "observed": payload.get("package_version"),
+            })
+        if payload.get("status") != "ok":
+            issues.append({"code": "release_artifact_manifest_status_invalid", "status": payload.get("status")})
+        if not isinstance(payload.get("created_at"), str) or not isinstance(payload.get("dist_dir"), str):
+            issues.append({"code": "release_artifact_manifest_metadata_invalid"})
+        if payload.get("warnings") != []:
+            issues.append({"code": "release_artifact_manifest_warnings_invalid"})
+        if payload.get("artifact_count") != len(artifacts):
+            issues.append({"code": "release_artifact_manifest_count_invalid"})
+    filenames: list[str] = []
+    for row in artifacts:
+        if not isinstance(row, dict) or set(row) != {"filename", "path", "sha256", "size"}:
+            issues.append({"code": "release_artifact_manifest_row_invalid"})
+            continue
+        filename = row["filename"]
+        if (
+            not isinstance(filename, str)
+            or not filename
+            or Path(filename).name != filename
+            or filename in {".", ".."}
+        ):
+            issues.append({"code": "release_artifact_filename_invalid", "filename": filename})
+            continue
+        filenames.append(filename)
+        if (
+            not isinstance(row["path"], str)
+            or Path(row["path"]).name != filename
+            or not isinstance(row["sha256"], str)
+            or len(row["sha256"]) != 64
+            or any(character not in "0123456789abcdef" for character in row["sha256"])
+            or not isinstance(row["size"], int)
+            or isinstance(row["size"], bool)
+            or row["size"] < 0
+        ):
+            issues.append({"code": "release_artifact_row_fields_invalid", "filename": filename})
+            continue
+        artifact_path = manifest_path.parent / filename
+        try:
+            artifact_path.resolve().relative_to(manifest_path.parent.resolve())
+        except ValueError:
+            issues.append({"code": "release_artifact_path_escape", "filename": filename})
+            continue
+        if not artifact_path.is_file():
+            issues.append({"code": "release_artifact_missing", "filename": filename})
+            continue
+        try:
+            raw = artifact_path.read_bytes()
+        except OSError as exc:
+            issues.append({"code": "release_artifact_unreadable", "filename": filename, "message": str(exc)})
+            continue
+        if row["size"] != len(raw) or row["sha256"] != sha256_bytes(raw):
+            issues.append({"code": "release_artifact_hash_or_size_mismatch", "filename": filename})
+    if len(filenames) != len(set(filenames)):
+        issues.append({"code": "release_artifact_manifest_duplicate_filename"})
+    actual_filenames = {
+        path.name
+        for path in manifest_path.parent.iterdir()
+        if path.is_file() and path.name != manifest_path.name
+    }
+    listed_filenames = set(filenames)
+    for filename in sorted(actual_filenames - listed_filenames):
+        issues.append({"code": "release_artifact_unlisted_file", "filename": filename})
+    package_files = [name for name in filenames if name.endswith((".whl", ".tar.gz"))]
+    wheel_files = [name for name in package_files if name.endswith(".whl")]
+    sdist_files = [name for name in package_files if name.endswith(".tar.gz")]
+    if not wheel_files:
+        issues.append({"code": "release_artifact_wheel_missing"})
+    elif len(wheel_files) != 1:
+        issues.append({"code": "release_artifact_wheel_count_invalid", "count": len(wheel_files)})
+    if not sdist_files:
+        issues.append({"code": "release_artifact_sdist_missing"})
+    elif len(sdist_files) != 1:
+        issues.append({"code": "release_artifact_sdist_count_invalid", "count": len(sdist_files)})
+    if not any(name.startswith(f"research_assistant-{__version__}-") and name.endswith(".whl") for name in package_files):
+        issues.append({"code": "release_artifact_wheel_version_invalid", "expected": __version__})
+    if f"research_assistant-{__version__}.tar.gz" not in package_files:
+        issues.append({"code": "release_artifact_sdist_version_invalid", "expected": __version__})
+    allowed_files = {
+        "release_gate_evidence.json",
+        f"research_assistant-{__version__}.tar.gz",
+        *(
+            name
+            for name in filenames
+            if name.startswith(f"research_assistant-{__version__}-") and name.endswith(".whl")
+        ),
+    }
+    for filename in sorted(set(filenames) - allowed_files):
+        issues.append({"code": "release_artifact_unexpected_file", "filename": filename})
+    evidence = release_root / RELEASE_GATE_EVIDENCE_PATH
+    if evidence.is_file() and "release_gate_evidence.json" not in filenames:
+        issues.append({"code": "release_artifact_evidence_missing_from_manifest"})
+    return {
+        "status": "passed" if not issues else "blocked",
+        "path": str(manifest_path),
+        "issues": issues,
+        "artifact_count": len(artifacts),
+        "filenames": filenames,
     }
 
 

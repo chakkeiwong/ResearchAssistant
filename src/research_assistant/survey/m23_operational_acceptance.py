@@ -77,7 +77,7 @@ NONCLAIMS = [
     "publication-ready prose",
     "autonomous expert judgment",
     "public release readiness",
-    "macOS or native-Windows support",
+    "native-Windows support",
     "general product readiness",
 ]
 
