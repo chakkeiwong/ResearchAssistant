@@ -5,13 +5,17 @@ Run these bounded checks before sending a release candidate to colleagues:
 ```bash
 scripts/ra-agent fast-tests
 scripts/ra-agent focused-tests
+scripts/run_static_checks.sh
 scripts/run_fast_tests.sh
 scripts/run_bounded_tests.sh
+scripts/run_tests.sh
 scripts/ra-agent pytest tests/integration/test_individual_release_cli.py -q
 scripts/run_packaging_smoke.sh
+CUDA_VISIBLE_DEVICES=-1 scripts/run_external_tool_tests.sh
 scripts/build_release_artifacts.sh
 WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_install_smoke.sh
 scripts/run_release_smoke.sh
+python scripts/run_release_candidate_gate.py
 scripts/run_individual_git_release_gate.sh
 ra --root /tmp/research-assistant-final-release init
 ra --root /tmp/research-assistant-final-release release-report
@@ -24,6 +28,28 @@ ra --root /tmp/research-assistant-final-release individual-git-release validatio
 ra --root /tmp/research-assistant-final-release individual-git-release gate-build
 ```
 
+Run the release-candidate gate with Python 3.11.x. It writes
+`dist/release_gate_evidence.json`, including the exact Python version, commands,
+return codes, wall times, artifact path, and a fingerprint of release-relevant
+source. `ra release-report` warns when this evidence is missing and blocks when
+it is failed, malformed, or stale. Any source change after the gate requires a
+fresh run.
+
+The command set is closed: static, fast, bounded, active full-suite, packaging,
+wheel build, clean-install, and release smoke checks must all be present and
+passing. A partial evidence file is rejected.
+
+The external parser benchmark is separate because installed tools vary by
+machine. It deliberately sets `CUDA_VISIBLE_DEVICES=-1`; its synthetic parser
+scores are availability/regression diagnostics, not scientific extraction
+certification.
+
+The active test and coverage runners also set `CUDA_VISIBLE_DEVICES=-1` before
+Python import. `scripts/run_tests.sh` partitions the same complete unit,
+integration, and script inventory so each failure is attributable and bounded;
+every partition must pass. No GPU behavior is part of this private v0.1 release
+gate.
+
 The performance commands are not optional bookkeeping for the release gate.
 Run them before `validation-report` and `gate-build` so
 `representative_workspace_performance` is recorded in the validation evidence.
@@ -32,6 +58,7 @@ Maintainers should also read `docs/maintainer_guide.md` before changing
 release-gate, repository-hygiene, backup/restore, or workspace-merge behavior.
 
 Release gates:
+- package metadata and runtime diagnostics accept Python 3.11.x only;
 - `ra --help` and `ra version` work after install;
 - `ra init` is idempotent;
 - `ra doctor` reports optional tool and offline status;
@@ -53,5 +80,6 @@ Release gates:
 - `ra individual-git-release gate-build` reports database/service/RBAC/UI as deferred future-platform items, not current release blockers;
 - generated artifacts are review material and not accepted mathematical conclusions;
 - known limitations are included in `ra release-report`.
+- `ra release-report` validates passing evidence for the exact source tree;
 - release notes and support instructions are present;
 - any unvalidated platform or human onboarding trial is recorded as a pilot limitation rather than broad support.

@@ -403,10 +403,10 @@ def _tripwired(allowed_write_root: Path) -> Iterator[Tripwires]:
 
 
 def _metadata_collection(*, topic: str, seeds: list[str], providers: list[str], max_records: int, fetched_at: str) -> dict[str, Any]:
-    if topic != TOPIC or seeds != [SEED] or set(providers) != {"arxiv", "openalex"} or max_records != 25:
+    if topic != TOPIC or seeds != [SEED] or providers != ["arxiv"] or max_records != 25:
         raise AssertionError("fixture metadata request changed")
     statuses = []
-    for provider in ("arxiv", "openalex"):
+    for provider in ("arxiv",):
         statuses.extend([
             {"provider": provider, "query_kind": "seed_resolution", "normalized_seed_key": SEED, "topic_query": False, "query_cap": 5, "status": "available", "record_count": 1, "raw_response_saved": False},
             {"provider": provider, "query_kind": "topic_search", "normalized_seed_key": None, "topic_query": True, "query_cap": 12, "status": "available", "record_count": 0, "raw_response_saved": False},
@@ -423,19 +423,17 @@ def _metadata_collection(*, topic: str, seeds: list[str], providers: list[str], 
             "year": 2022,
             "doi": None,
             "arxiv_id": "2201.12220v3",
-            "openalex_id": "https://openalex.org/W123",
+            "openalex_id": None,
             "landing_page_url": "https://arxiv.org/abs/2201.12220v3",
-            "citation_count": 42,
-            "providers": ["openalex", "arxiv"],
+            "citation_count": None,
+            "providers": ["arxiv"],
             "roles": [],
             "provider_records": [
                 {"provider": "arxiv", "query_kind": "seed_resolution", "source_id": "2201.12220v3", "primary_category": "cs.LG", "published": "2022-01-01"},
-                {"provider": "openalex", "query_kind": "seed_resolution", "source_id": "https://openalex.org/W123", "citation_count": 42, "publication_date": "2022-01-01", "work_type": "article"},
             ],
             "referenced_works": [],
             "query_provenance": [
                 {"provider": "arxiv", "query_kind": "seed_resolution", "normalized_seed_key": SEED, "topic_query": False},
-                {"provider": "openalex", "query_kind": "seed_resolution", "normalized_seed_key": SEED, "topic_query": False},
             ],
         }],
     }
@@ -590,7 +588,7 @@ def _setup_reviewed_mission(case_root: Path, *, close_omissions: bool = True, in
     with patch.object(survey_build, "_collect_public_metadata", _metadata_collection):
         built = survey_build.build_survey_evidence_packet(
             topic=TOPIC, seeds=[SEED], output_dir=mission / "public_metadata", mode="public-metadata",
-            public_metadata_providers=["arxiv", "openalex"], max_records=25,
+            public_metadata_providers=["arxiv"], max_records=25,
         )
     if built["status"] != "metadata_only_packet":
         raise AssertionError("metadata fixture build failed")

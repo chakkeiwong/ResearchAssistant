@@ -80,6 +80,12 @@ from research_assistant.survey.reviewed_packet import (
 from research_assistant.survey.source_safety_review import resolve_current_source_safety
 from research_assistant.survey.review_decisions import workflow_blocker_resolution
 from research_assistant.survey.packet import compose_public_source_evidence_packet
+from research_assistant.survey.next_action import (
+    build_next_action,
+    gate_summary,
+    reviewed_evidence_blocker_commands,
+    safe_next_commands,
+)
 from research_assistant.survey.source_intake import (
     MissionSourceCapability,
     build_source_intake_metadata_authority,
@@ -2630,344 +2636,29 @@ def _next_action(
     public_discovery_confirmation: dict[str, Any],
     artifact_initialization_required: bool = False,
 ) -> dict[str, Any]:
-    created_at = _utc_now_iso()
-    base = {
-        "schema_version": SURVEY_NEXT_ACTION_SCHEMA_VERSION,
-        "created_at": created_at,
-        "gate_id": gate["gate_id"],
-        "approval_required": bool(gate.get("approval_required")),
-        "safe_next_commands": _safe_next_commands(gate, output_dir, topic, seeds),
-        "blockers": [],
-        "required_artifacts": [],
-        "public_discovery_confirmation": public_discovery_confirmation,
-        "forbidden_actions": [
-            "do not run live/API/source/PDF/download/credential actions implicitly",
-            "do not run public discovery before public_discovery_confirmation.confirmed is true",
-            "do not treat reviewed sidecar discovery as final prose readiness",
-            "do not hide reviewed-evidence blockers",
-            "do not use credentials, private databases, paid model workers, hidden evaluator material, unbounded crawling, or outputs outside the mission directory without separate explicit approval",
-        ],
-        "what_is_not_concluded": ORCHESTRATION_NONCLAIMS,
-    }
-    if gate["gate_id"] != "claim_safety_omission_review":
-        return {
-            **base,
-            "action_id": gate["gate_id"],
-            "status": gate["status"],
-            "mission_status": (
-                "blocked_at_gate"
-                if gate["approval_required"] or gate.get("implementation_or_artifact_blocker")
-                else "ready_for_local_continuation"
-            ),
-            "summary": _gate_summary(gate),
-            "required_artifacts": [gate["required_artifact"]],
-        }
-
-    if artifact_initialization_required:
-        return {
-            **base,
-            "action_id": "resume_to_initialize_artifact_state",
-            "status": "ready_to_initialize_artifact_state",
-            "mission_status": "ready_for_local_continuation",
-            "summary": "Resume this committed mission to compose coverage before the unified review queue and atomically select the immutable artifact set.",
-            "safe_next_commands": [
-                "rerun run-public-source-workflow with the same mission identity and --resume; no live/API/source/PDF action is required"
-            ],
-            "required_artifacts": [".artifact_state/GENESIS", ".artifact_state/CURRENT"],
-        }
-
-    if not review_queue:
-        return {
-            **base,
-            "action_id": "create_review_queue",
-            "status": "blocked_missing_review_queue",
-            "mission_status": "blocked_at_gate",
-            "summary": "Create review_queue.json from the public-source packet before importing reviewed sidecars.",
-            "required_artifacts": ["review_queue.json"],
-        }
-
-    review_queue_path = review_queue["path"]
-    claims = reviewed_artifacts["reviewed_claims"]
-    source_safety = reviewed_artifacts["reviewed_source_safety"]
-    omissions = reviewed_artifacts["reviewed_omissions"]
-    workflow_blockers = reviewed_artifacts["reviewed_workflow_blockers"]
-    merged = reviewed_artifacts["reviewed_evidence"]
-    coverage_complete = all(status.get("exists") is True for status in coverage_artifacts.values())
-
-    if not coverage_complete:
-        return {
-            **base,
-            "action_id": "repair_authoritative_coverage",
-            "status": "blocked_missing_authoritative_coverage",
-            "mission_status": "blocked_at_gate",
-            "summary": "The selected immutable artifact set does not expose a complete validated coverage directory.",
-            "required_artifacts": [status["required_path"] for status in coverage_artifacts.values()],
-        }
-
-    invalid_authorities = [
-        {
-            "family": family,
-            "code": status.get("lineage_status"),
-            "required_path": status["required_path"],
-            "blockers": list(status.get("blockers") or []),
-        }
-        for family, status in (
-            ("claim_candidate", claims),
-            ("source_safety", source_safety),
-            ("omission_risk", omissions),
-        )
-        if status.get("authority_invalid") is True
-    ]
-    if invalid_authorities:
-        return {
-            **base,
-            "action_id": "invalid_reviewed_authority",
-            "status": "blocked_invalid_reviewed_authority",
-            "mission_status": "blocked_at_gate",
-            "summary": "A selected immutable reviewed authority is missing, corrupt, stale, or otherwise invalid.",
-            "safe_next_commands": [],
-            "blockers": [
-                blocker
-                for authority in invalid_authorities
-                for blocker in authority["blockers"]
-            ],
-            "required_artifacts": [authority["required_path"] for authority in invalid_authorities],
-            "invalid_authorities": invalid_authorities,
-        }
-
-    if not claims["exists"] or claims.get("decision_coverage_complete") is not True:
-        command = (
-            "review claim_candidates, then run: "
-            "ra survey import-claim-review "
-            f"--review-queue {review_queue_path} "
-            "--decisions <reviewed_claim_decisions.json> "
-            f"--out {output_dir / 'reviewed_claims'}"
-        )
-        return {
-            **base,
-            "action_id": "import_reviewed_claims",
-            "status": "blocked_pending_reviewed_claims",
-            "mission_status": "blocked_at_gate",
-            "summary": "Import reviewed claim decisions linked to claim_candidate queue items.",
-            "safe_next_commands": [command],
-            "required_artifacts": [claims["required_path"]],
-        }
-    if not source_safety["exists"] or source_safety.get("decision_coverage_complete") is not True:
-        command = (
-            "ra survey import-source-safety-review "
-            f"--review-queue {review_queue_path} "
-            "--decisions <reviewed_source_safety_decisions.json> "
-            f"--out {output_dir / 'reviewed_source_safety'}"
-        )
-        return {
-            **base,
-            "action_id": "import_reviewed_source_safety",
-            "status": "blocked_pending_reviewed_source_safety",
-            "mission_status": "blocked_at_gate",
-            "summary": "Import reviewed source-safety decisions; source availability alone is not safety evidence.",
-            "safe_next_commands": [command],
-            "required_artifacts": [source_safety["required_path"]],
-        }
-    if not omissions["exists"] or omissions.get("decision_coverage_complete") is not True:
-        command = (
-            "ra survey import-omission-review "
-            f"--review-queue {review_queue_path} "
-            "--decisions <reviewed_omission_decisions.json> "
-            f"--out {output_dir / 'reviewed_omissions'}"
-        )
-        return {
-            **base,
-            "action_id": "import_reviewed_omissions",
-            "status": "blocked_pending_reviewed_omissions",
-            "mission_status": "blocked_at_gate",
-            "summary": "Import reviewed omission-risk decisions without claiming literature completeness.",
-            "safe_next_commands": [command],
-            "required_artifacts": [omissions["required_path"]],
-        }
-    if not workflow_blockers["exists"] or workflow_blockers.get("decision_coverage_complete") is not True:
-        command = (
-            "ra survey import-workflow-blocker-review "
-            f"--review-queue {review_queue_path} "
-            "--decisions <reviewed_workflow_blocker_decisions.json> "
-            f"--out {output_dir / 'reviewed_workflow_blockers'}"
-        )
-        return {
-            **base,
-            "action_id": "import_reviewed_workflow_blockers",
-            "status": "blocked_pending_reviewed_workflow_blockers",
-            "mission_status": "blocked_at_gate",
-            "summary": "Import one exact disposition for every workflow blocker; upstream-only blockers must remain open.",
-            "safe_next_commands": [command],
-            "required_artifacts": [workflow_blockers["required_path"]],
-        }
-    if not merged["exists"]:
-        command = (
-            "ra survey merge-reviewed-evidence "
-            f"--review-queue {review_queue_path} "
-            f"--reviewed-claims {claims['required_path']} "
-            f"--reviewed-source-safety {source_safety['required_path']} "
-            f"--reviewed-omissions {omissions['required_path']} "
-            f"--reviewed-workflow-blockers {workflow_blockers['required_path']} "
-            f"--out {output_dir / 'reviewed_evidence'}"
-        )
-        return {
-            **base,
-            "action_id": "merge_reviewed_evidence",
-            "status": "blocked_pending_reviewed_evidence_merge",
-            "mission_status": "blocked_at_gate",
-            "summary": "Merge reviewed sidecars and preserve blockers before any readiness decision.",
-            "safe_next_commands": [command],
-            "required_artifacts": [merged["required_path"]],
-        }
-
-    blockers = list(merged.get("blockers") or [])
-    if merged.get("ready_for_reviewed_packet") is not True or blockers:
-        return {
-            **base,
-            "action_id": "resolve_reviewed_evidence_blockers",
-            "status": "blocked_by_reviewed_evidence_merge",
-            "mission_status": "blocked_at_gate",
-            "summary": "Resolve current reviewed-evidence outcome blockers; exact decision coverage alone is not packet or prose readiness.",
-            "safe_next_commands": _reviewed_evidence_blocker_commands(
-                blockers=blockers,
-                review_queue_path=review_queue_path,
-                output_dir=output_dir,
-                claims_path=claims["required_path"],
-                source_safety_path=source_safety["required_path"],
-                omissions_path=omissions["required_path"],
-                workflow_blockers_path=workflow_blockers["required_path"],
-            ),
-            "blockers": blockers,
-            "required_artifacts": [merged["required_path"]],
-        }
-    if merged.get("ready_for_reviewed_packet") is True and not blockers:
-        packet_status = final_artifacts["reviewed_final_packet"]
-        hostile_status = final_artifacts["hostile_review_result"]
-        readiness_status = final_artifacts["final_packet_readiness"]
-        local_argument = (
-            f" --local-evidence-root {local_evidence_root.absolute()}"
-            if local_evidence_root is not None
-            else ""
-        )
-        packet_command = (
-            "ra survey compose-reviewed-final-packet "
-            f"--mission-root {output_dir} "
-            f"--review-queue {review_queue_path} "
-            f"--packet-dir {packet_dir} "
-            f"--anchor-dir {anchor_dir}"
-            f"{local_argument} "
-            f"--out {output_dir / 'reviewed_final_packet'}"
-        )
-        hostile_command = (
-            "ra survey hostile-review "
-            f"--reviewed-final-packet {packet_status['required_path']} "
-            f"--mission-root {output_dir} "
-            f"--review-queue {review_queue_path} "
-            f"--packet-dir {packet_dir} "
-            f"--anchor-dir {anchor_dir}"
-            f"{local_argument} "
-            f"--out {output_dir / 'hostile_review'}"
-        )
-        if not packet_status["exists"]:
-            if packet_status["present"]:
-                return {
-                    **base,
-                    "action_id": "repair_reviewed_final_packet",
-                    "status": "blocked_invalid_reviewed_final_packet",
-                    "mission_status": "blocked_at_gate",
-                    "summary": "The reviewed final packet exists but does not replay from current external mission authority.",
-                    "safe_next_commands": [f"{packet_command} --force"],
-                    "blockers": list(packet_status.get("blockers") or []),
-                    "required_artifacts": [packet_status["required_path"]],
-                }
-            return {
-                **base,
-                "action_id": "compose_reviewed_final_packet",
-                "status": "ready_for_reviewed_packet_composition",
-                "mission_status": "ready_for_local_continuation",
-                "summary": "Exact reviewed evidence is clear; compose the immutable reviewed final packet before hostile review or prose readiness.",
-                "safe_next_commands": [packet_command],
-                "required_artifacts": [merged["required_path"], packet_status["required_path"]],
-            }
-        if hostile_status["exists"]:
-            safe_commands: list[str] = []
-            summary = "The authoritative hostile result is current; hand off its bounded state to the Phase 5 executing supervisor."
-            if not readiness_status["exists"]:
-                safe_commands.append("regenerate final_packet_readiness.json from the validated hostile result; this view is not authority")
-                summary += " The optional readiness view is missing or stale and may be regenerated without changing authority."
-            return {
-                **base,
-                "action_id": "phase5_executing_supervisor_handoff",
-                "status": "ready_for_phase5_supervisor",
-                "mission_status": "ready_for_local_continuation",
-                "summary": summary,
-                "safe_next_commands": safe_commands,
-                "ready_for_hostile_review": True,
-                "ready_for_prose": hostile_status["ready_for_prose"],
-                "readiness_classification": hostile_status.get("readiness_classification"),
-                "blockers": list(hostile_status.get("blockers") or []),
-                "required_artifacts": [packet_status["required_path"], hostile_status["required_path"]],
-            }
-        if hostile_status["present"]:
-            return {
-                **base,
-                "action_id": "repair_hostile_review_result",
-                "status": "blocked_invalid_hostile_review_result",
-                "mission_status": "blocked_at_gate",
-                "summary": "The hostile result exists but does not replay from current external mission authority.",
-                "safe_next_commands": [f"{hostile_command} --force"],
-                "blockers": list(hostile_status.get("blockers") or []),
-                "required_artifacts": [hostile_status["required_path"]],
-            }
-        if packet_status["exists"]:
-            command = f"{hostile_command} --force" if readiness_status["present"] else hostile_command
-            return {
-                **base,
-                "action_id": "run_hostile_review",
-                "status": "ready_for_hostile_review",
-                "mission_status": "ready_for_local_continuation",
-                "summary": "The reviewed final packet is current; run packet-only hostile review before any prose-readiness claim.",
-                "safe_next_commands": [command],
-                "ready_for_hostile_review": True,
-                "ready_for_prose": False,
-                "required_artifacts": [packet_status["required_path"], hostile_status["required_path"]],
-            }
-    return {
-        **base,
-        "action_id": "resolve_reviewed_evidence_blockers",
-        "status": "blocked_by_reviewed_evidence_merge",
-        "mission_status": "blocked_at_gate",
-        "summary": "Resolve the blockers listed in reviewed_evidence_status.json, refresh the relevant sidecars, then rerun merge-reviewed-evidence.",
-        "safe_next_commands": _reviewed_evidence_blocker_commands(
-            blockers=blockers,
-            review_queue_path=review_queue_path,
-            output_dir=output_dir,
-            claims_path=claims["required_path"],
-            source_safety_path=source_safety["required_path"],
-            omissions_path=omissions["required_path"],
-        ),
-        "blockers": blockers,
-        "required_artifacts": [merged["required_path"]],
-    }
+    return build_next_action(
+        gate=gate,
+        output_dir=output_dir,
+        topic=topic,
+        seeds=seeds,
+        packet_dir=packet_dir,
+        review_queue=review_queue,
+        reviewed_artifacts=reviewed_artifacts,
+        coverage_artifacts=coverage_artifacts,
+        final_artifacts=final_artifacts,
+        anchor_dir=anchor_dir,
+        local_evidence_root=local_evidence_root,
+        public_discovery_confirmation=public_discovery_confirmation,
+        artifact_initialization_required=artifact_initialization_required,
+        created_at=_utc_now_iso(),
+        schema_version=SURVEY_NEXT_ACTION_SCHEMA_VERSION,
+        nonclaims=ORCHESTRATION_NONCLAIMS,
+        public_discovery_max_metadata_records=PUBLIC_DISCOVERY_MAX_METADATA_RECORDS,
+    )
 
 
 def _gate_summary(gate: dict[str, Any]) -> str:
-    if gate["gate_id"] == "public_metadata":
-        return "Public discovery is not confirmed yet. Ask the user once whether RA should search public web/archive sources, or provide a manifest-committed metadata bundle."
-    if gate["gate_id"] == "public_metadata_resolution":
-        return "The committed V2 metadata bundle has an unresolved, ambiguous, invalid, or conflicting seed; inspect identity_resolution.json before any source intake."
-    if gate["gate_id"] == "source_intake":
-        if gate.get("covered_by_public_discovery"):
-            return (
-                "Public source/status lookup is covered by the mission public-discovery confirmation, "
-                "but this workflow still needs phase4_source_intake_status.json from a bounded source-status implementation or existing artifact."
-            )
-        return "Source-intake status is missing; prepare an exact source_fetch approval packet or provide the approved artifact."
-    if gate["gate_id"] == "source_anchors":
-        return "Source anchors are missing; run local anchor extraction from already-approved structured source records."
-    if gate["gate_id"] == "public_source_packet":
-        return "The public-source packet is missing; compose it from local metadata, source-status, and anchor artifacts."
-    return "Continue the supervised workflow from the current gate."
+    return gate_summary(gate)
 
 
 def _reviewed_evidence_blocker_commands(
@@ -2980,33 +2671,15 @@ def _reviewed_evidence_blocker_commands(
     omissions_path: str,
     workflow_blockers_path: str,
 ) -> list[str]:
-    commands = []
-    if any("omission" in blocker.lower() for blocker in blockers):
-        commands.append(
-            "refresh reviewed_omission_risks.json so open omission risks are inspected, expanded, or explicitly closed for scope"
-        )
-    if any("source-safety" in blocker.lower() or "checked_clear" in blocker.lower() for blocker in blockers):
-        commands.append(
-            "refresh reviewed_source_safety.json so every required source-safety row has reviewed checked_clear, blocked, or quarantine evidence"
-        )
-    if any("claim" in blocker.lower() for blocker in blockers):
-        commands.append(
-            "refresh reviewed_claims.json so every supported claim row has reviewed technical support and provenance"
-        )
-    if any("workflow" in blocker.lower() for blocker in blockers):
-        commands.append(
-            "refresh reviewed_workflow_blockers.json with exact current evidence scopes or keep upstream-only blockers open"
-        )
-    commands.append(
-        "ra survey merge-reviewed-evidence "
-        f"--review-queue {review_queue_path} "
-        f"--reviewed-claims {claims_path} "
-        f"--reviewed-source-safety {source_safety_path} "
-        f"--reviewed-omissions {omissions_path} "
-        f"--reviewed-workflow-blockers {workflow_blockers_path} "
-        f"--out {output_dir / 'reviewed_evidence'} --force"
+    return reviewed_evidence_blocker_commands(
+        blockers=blockers,
+        review_queue_path=review_queue_path,
+        output_dir=output_dir,
+        claims_path=claims_path,
+        source_safety_path=source_safety_path,
+        omissions_path=omissions_path,
+        workflow_blockers_path=workflow_blockers_path,
     )
-    return commands
 
 
 def _safe_next_commands(
@@ -3015,37 +2688,13 @@ def _safe_next_commands(
     topic: str,
     seeds: list[str],
 ) -> list[str]:
-    quoted_topic = json.dumps(topic)
-    first_seed = seeds[0] if seeds else "<seed>"
-    if gate["gate_id"] == "public_metadata":
-        return [
-            (
-                "ask once: Do you want RA to search public web/archive sources for this idea? "
-                "If yes, rerun this workflow with --confirm-public-discovery. "
-                f"Planned bounded metadata command: ra survey build --topic {quoted_topic} --seed {first_seed} "
-                f"--out {output_dir / 'public_metadata'} --mode public-metadata "
-                f"--public-metadata-provider arxiv --max-records {PUBLIC_DISCOVERY_MAX_METADATA_RECORDS}"
-            )
-        ]
-    if gate["gate_id"] == "public_metadata_resolution":
-        return [
-            "inspect identity_resolution.json and preserve every unresolved, ambiguous, invalid, or conflicting seed choice; do not invoke source intake"
-        ]
-    if gate["gate_id"] == "source_intake":
-        if gate.get("covered_by_public_discovery"):
-            return [
-                "continue within the recorded public-discovery scope by providing or implementing bounded phase4_source_intake_status.json; do not request a second ordinary public source/archive approval"
-            ]
-        return ["prepare an exact source_fetch approval packet from the public metadata candidate ledger"]
-    if gate["gate_id"] == "source_anchors":
-        return ["run ra survey anchors for the approved local structured source paper ids"]
-    if gate["gate_id"] == "public_source_packet":
-        return ["run ra survey packet with the metadata, source-status, and anchor directories"]
-    return [
-        "review claim_candidates and map only reviewed claims to source anchors",
-        "run approved retraction/version/erratum checks before marking safety checked_clear",
-        "resolve omission risks or record explicit omission reasons",
-    ]
+    return safe_next_commands(
+        gate,
+        output_dir,
+        topic,
+        seeds,
+        max_metadata_records=PUBLIC_DISCOVERY_MAX_METADATA_RECORDS,
+    )
 
 
 def _compose_authoritative_artifact_set(

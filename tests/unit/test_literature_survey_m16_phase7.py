@@ -897,9 +897,14 @@ def test_v2_reuse_rejects_provider_count_tamper(
     assert blocked["blocked_reason"] == "invalid_public_metadata_v2"
 
 
-def _mission_collection(*, records: list[dict], seed_key: str = SEED) -> dict:
+def _mission_collection(
+    *,
+    records: list[dict],
+    seed_key: str = SEED,
+    providers: tuple[str, ...] = ("arxiv", "openalex"),
+) -> dict:
     statuses = []
-    for provider in ["arxiv", "openalex"]:
+    for provider in providers:
         statuses.extend(
             [
                 {
@@ -1017,14 +1022,14 @@ def _checkpoint_v2_authority(
     monkeypatch.setattr(
         survey_build,
         "_collect_public_metadata",
-        lambda **_: _mission_collection(records=[_seed_record(roles=[])]),
+        lambda **_: _mission_collection(records=[_seed_record(roles=[])], providers=("arxiv",)),
     )
     result = survey_build.build_survey_evidence_packet(
         topic=TOPIC,
         seeds=[SEED],
         output_dir=metadata,
         mode="public-metadata",
-        public_metadata_providers=["openalex", "arxiv"],
+        public_metadata_providers=["arxiv"],
         max_records=25,
     )
     assert result["status"] == "metadata_only_packet"
@@ -1109,18 +1114,21 @@ def test_v2_authority_accepts_roleless_relevance_inclusion(
     )
     snapshot = manager.begin()
     relevant = _record(
-        "oa-relevant",
+        "arxiv-relevant",
         "Neural Transport Candidate",
-        provider="openalex",
-        source_id="W777",
+        provider="arxiv",
+        source_id="2401.00001",
         seed_key=None,
         topic_query=True,
-        openalex_id="W777",
+        arxiv_id="2401.00001",
         roles=[],
     )
     relevant["provider_records"][0]["query_kind"] = "topic_search"
-    collection = _mission_collection(records=[_seed_record(roles=[]), relevant])
-    collection["provider_statuses"][3]["record_count"] = 1
+    collection = _mission_collection(
+        records=[_seed_record(roles=[]), relevant],
+        providers=("arxiv",),
+    )
+    collection["provider_statuses"][1]["record_count"] = 1
     monkeypatch.setattr(survey_build, "_collect_public_metadata", lambda **_: collection)
     metadata = mission / "public_metadata"
     built = survey_build.build_survey_evidence_packet(
@@ -1128,7 +1136,7 @@ def test_v2_authority_accepts_roleless_relevance_inclusion(
         seeds=[SEED],
         output_dir=metadata,
         mode="public-metadata",
-        public_metadata_providers=["arxiv", "openalex"],
+        public_metadata_providers=["arxiv"],
         max_records=25,
     )
     try:
@@ -1166,14 +1174,18 @@ def test_blocked_v2_seed_gate_performs_zero_intake_calls(
     monkeypatch.setattr(
         survey_build,
         "_collect_public_metadata",
-        lambda **_: _mission_collection(records=[], seed_key=missing_seed.casefold()),
+        lambda **_: _mission_collection(
+            records=[],
+            seed_key=missing_seed.casefold(),
+            providers=("arxiv",),
+        ),
     )
     built = survey_build.build_survey_evidence_packet(
         topic=TOPIC,
         seeds=[missing_seed],
         output_dir=metadata,
         mode="public-metadata",
-        public_metadata_providers=["arxiv", "openalex"],
+        public_metadata_providers=["arxiv"],
         max_records=25,
     )
     snapshot = manager.checkpoint(
@@ -1441,7 +1453,11 @@ def test_orchestrator_blocks_unresolved_v2_before_capability_call(
     monkeypatch.setattr(
         survey_build,
         "_collect_public_metadata",
-        lambda **_: _mission_collection(records=[], seed_key=missing_seed.casefold()),
+        lambda **_: _mission_collection(
+            records=[],
+            seed_key=missing_seed.casefold(),
+            providers=("arxiv",),
+        ),
     )
     metadata = mission / "public_metadata"
     created = survey_build.build_survey_evidence_packet(
@@ -1449,7 +1465,7 @@ def test_orchestrator_blocks_unresolved_v2_before_capability_call(
         seeds=[missing_seed],
         output_dir=metadata,
         mode="public-metadata",
-        public_metadata_providers=["arxiv", "openalex"],
+        public_metadata_providers=["arxiv"],
         max_records=25,
     )
     assert created["status"] == "metadata_resolution_blocked"
@@ -1513,6 +1529,7 @@ def test_title_seed_v2_runs_intake_anchors_packet_and_replays(
         lambda **_: _mission_collection(
             records=[seed_record],
             seed_key=title_seed.casefold(),
+            providers=("arxiv",),
         ),
     )
     metadata = mission / "public_metadata"
@@ -1521,7 +1538,7 @@ def test_title_seed_v2_runs_intake_anchors_packet_and_replays(
         seeds=[title_seed],
         output_dir=metadata,
         mode="public-metadata",
-        public_metadata_providers=["arxiv", "openalex"],
+        public_metadata_providers=["arxiv"],
         max_records=25,
     )
     assert built["status"] == "metadata_only_packet"

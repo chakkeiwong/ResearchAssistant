@@ -145,3 +145,28 @@ Do not infer any of these objectives from this reboot memo.
   be pushed together with the commit containing this memo.
 - No live experiment, network/provider request, credential access, source
   download, GPU action, or release action is required to validate this memo.
+
+## Post-Memo Engineering Handoff - 2026-07-20
+
+The repository now includes the Python 3.11-only release-hardening and final
+maintainability refactoring pass. The skeptical plan audit passed before
+execution. Survey and SurveyBench action routers are in `cli_actions/`, parser
+argument declarations are in `cli_registration/`, pure survey next-action
+decisions are in `survey/next_action.py`, mutable stage execution remains in
+`survey/orchestrate.py`, and durable mission state remains in
+`survey/mission_state.py`.
+
+Fresh CPU-only validation passed the complete inventory as four isolated
+partitions (`1717 passed, 229 skipped` total); its final source fingerprint is
+`9ea1e58b127958d35aaf95e9b1c0c77d92f83809672ccf3de8c7e87a86c70a14` under
+Python `3.11.14`. Evidence validation returned no issues. A disposable
+initialized workspace returned `ready_for_release_candidate_review` with zero
+blockers and warnings. Ruff and mypy were unavailable locally but are installed
+and run by the Python 3.11 CI workflow.
+
+The mutable stage executor and `MissionStateManager` remain a future,
+characterization-first refactoring boundary. Do not move them as a casual cleanup
+because replay and durability invariants are concentrated there. The release
+evidence does not claim scientific correctness, literature completeness,
+cross-platform support, hosted-service readiness, or complete PDF extraction
+quality.

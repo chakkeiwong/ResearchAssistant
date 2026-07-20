@@ -18,6 +18,12 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Callable
 
+from research_assistant.core_utils import (
+    canonical_json_bytes as _canonical_json_bytes,
+    sha256_bytes as _sha256_bytes,
+    sha256_file as _sha256_file,
+)
+
 
 MISSION_CONTRACT_SCHEMA = "ra-survey-public-source-mission-contract-v2"
 MISSION_FINGERPRINT_SCHEMA = "ra-survey-public-source-mission-fingerprint-v2"
@@ -73,16 +79,9 @@ class MissionStateError(RuntimeError):
 
 def canonical_json_bytes(value: Any) -> bytes:
     try:
-        text = json.dumps(
-            value,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=True,
-            allow_nan=False,
-        )
+        return _canonical_json_bytes(value)
     except (TypeError, ValueError) as exc:
         raise MissionStateError("invalid_canonical_json", str(exc)) from exc
-    return text.encode("utf-8")
 
 
 def pretty_json_bytes(value: Any) -> bytes:
@@ -94,15 +93,11 @@ def pretty_json_bytes(value: Any) -> bytes:
 
 
 def sha256_bytes(value: bytes) -> str:
-    return hashlib.sha256(value).hexdigest()
+    return _sha256_bytes(value)
 
 
 def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return _sha256_file(path)
 
 
 def normalize_text(value: str, *, field: str) -> dict[str, str]:

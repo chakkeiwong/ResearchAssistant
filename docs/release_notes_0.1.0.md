@@ -55,8 +55,9 @@ Current local rollout artifact from the final local 2026-04-29 validation pass:
 ## Supported Platforms
 
 - Validated locally on Linux/WSL2 with Python 3.11.15 on 2026-04-27.
-- Plain Linux with Python 3.10 or newer is the intended Tier 1 target but should still run the release gate on the target machine.
-- macOS with Python 3.10 or newer is a pilot target until a colleague machine completes clean-install smoke.
+- Plain Linux with Python 3.11.x is the intended Tier 1 target but should still run the release gate on the target machine.
+- macOS with Python 3.11.x is a pilot target until a colleague machine completes clean-install smoke.
+- Python 3.10 and Python 3.12+ are not supported by this release.
 - Windows through WSL is the supported Windows path. Native Windows shell-script workflow is unvalidated.
 
 ## Validation Summary

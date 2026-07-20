@@ -14,7 +14,7 @@ echo "removing old artifacts from ${DIST_DIR}"
 find "$DIST_DIR" -maxdepth 1 -type f \( -name '*.whl' -o -name '*.tar.gz' -o -name 'release_artifacts_manifest.json' \) -delete
 
 if python -m build --version >/dev/null 2>&1; then
-  CMD=(python -m build --outdir "$DIST_DIR")
+  CMD=(python -m build --no-isolation --outdir "$DIST_DIR")
 else
   CMD=(python -m pip wheel --no-build-isolation . -w "$DIST_DIR")
 fi

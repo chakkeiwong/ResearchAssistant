@@ -8,15 +8,12 @@ from pathlib import Path
 from typing import Any
 
 from research_assistant.config import get_paths
+from research_assistant.core_utils import utc_now_iso
 from research_assistant.individual_release import atomic_write_json
 from research_assistant.query.review import VALID_REVIEW_STATUSES
 from research_assistant.schemas.artifact import stable_id
 
 REVIEW_WRITE_SCHEMA_VERSION = "review-write-confirmation-v1"
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 def parse_iso(value: str) -> datetime:

@@ -16,6 +16,8 @@ import tomllib
 
 from research_assistant import __version__
 from research_assistant.config import AppPaths, get_paths
+from research_assistant.core_utils import atomic_write_bytes, utc_now_iso
+from research_assistant.release_evidence import validate_release_gate_evidence
 from research_assistant.industrial.platform import (
     build_artifact_index,
     build_governance_record,
@@ -88,25 +90,14 @@ RELEASE_SCRIPTS = [
     "scripts/run_packaging_smoke.sh",
     "scripts/run_clean_install_smoke.sh",
     "scripts/build_release_artifacts.sh",
+    "scripts/run_external_tool_tests.sh",
+    "scripts/run_release_candidate_gate.py",
+    "scripts/run_static_checks.sh",
 ]
 
 
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-
-
 def atomic_write_text(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.{time.time_ns()}.tmp")
-    try:
-        with tmp.open("w", encoding="utf-8") as handle:
-            handle.write(text)
-            handle.flush()
-            os.fsync(handle.fileno())
-        tmp.replace(path)
-    finally:
-        if tmp.exists():
-            tmp.unlink()
+    atomic_write_bytes(path, text.encode("utf-8"))
 
 
 def atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -919,14 +910,17 @@ def platform_status(*, root: Path | None = None) -> dict[str, Any]:
         support_tier = "tier_3_windows_native_untested"
     else:
         support_tier = "untested"
+    python_supported = sys.version_info[:2] == (3, 11)
     return {
-        "status": "warnings" if support_tier in {"tier_3_windows_native_untested", "untested"} else "ok",
+        "status": "warnings" if support_tier in {"tier_3_windows_native_untested", "untested"} or not python_supported else "ok",
         "system": system,
         "release": release,
         "machine": platform.machine(),
         "is_wsl": is_wsl,
         "python_executable": sys.executable,
         "python_version": platform.python_version(),
+        "python_supported": python_supported,
+        "supported_python": "3.11.x",
         "support_tier": support_tier,
         "posix_shell_scripts": system in {"Linux", "Darwin"} or is_wsl,
         "workspace_root": str(get_paths(root).root),
@@ -1326,6 +1320,7 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
     onboarding = onboarding_report(release_root=release_root)
     corruption = corruption_hardening_status(root=paths.root)
     mcp_readiness = mcp_readiness_status(root=paths.root)
+    release_gate = validate_release_gate_evidence(release_root)
     doc_rows = [{"path": path, "exists": (release_root / path).exists()} for path in RELEASE_DOCS]
     script_rows = [{"path": path, "exists": (release_root / path).exists(), "executable": os.access(release_root / path, os.X_OK)} for path in RELEASE_SCRIPTS]
     source_checkout_materials = (release_root / "pyproject.toml").exists() and (release_root / "docs").exists()
@@ -1368,6 +1363,10 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         warnings.append({"code": "release_artifacts_not_built"})
     if onboarding["status"] == "warnings":
         warnings.append({"code": "onboarding_trial_doc_missing"})
+    if release_gate["status"] == "missing":
+        warnings.append({"code": "release_gate_evidence_missing"})
+    elif release_gate["status"] != "passed":
+        blockers.append({"code": "release_gate_evidence_blocked", "issues": release_gate["issues"]})
     status = "blocked" if blockers else ("warnings" if warnings else "ready_for_release_candidate_review")
     payload = {
         "schema_version": RELEASE_REPORT_SCHEMA_VERSION,
@@ -1384,6 +1383,7 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         "onboarding": onboarding,
         "corruption_hardening": corruption,
         "mcp_readiness": mcp_readiness,
+        "release_gate_evidence": release_gate,
         "release_material_root": str(release_root),
         "release_material_mode": "source_checkout" if source_checkout_materials else "installed_package_or_workspace",
         "docs": doc_rows,

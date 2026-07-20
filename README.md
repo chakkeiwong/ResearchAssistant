@@ -2,6 +2,8 @@
 
 A local-first research development assistant for Claude Code and terminal workflows.
 
+The v0.1 runtime contract is Python 3.11.x only.
+
 The product focuses on:
 - ingesting papers from arXiv IDs, local PDFs, DOI/title queries, or URLs;
 - using arXiv LaTeX source as the primary audit substrate when available;

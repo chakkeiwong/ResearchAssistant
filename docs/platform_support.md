@@ -8,11 +8,12 @@
 
 ## Tier 1
 
-Linux or Linux through WSL with Python 3.10 or newer. Release shell scripts require a POSIX shell.
+Linux or Linux through WSL with Python 3.11.x. Python 3.10 and Python 3.12+
+are outside this release contract. Release shell scripts require a POSIX shell.
 
 ## Tier 2
 
-macOS with Python 3.10 or newer. Optional parser tools may require platform-specific installation steps. This remains a pilot target until a macOS clean-install smoke is recorded.
+macOS with Python 3.11.x. Optional parser tools may require platform-specific installation steps. This remains a pilot target until a macOS clean-install smoke is recorded.
 
 ## Tier 3
 

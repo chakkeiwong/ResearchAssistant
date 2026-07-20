@@ -18,7 +18,7 @@ def _json_out(capsys) -> dict:
 def test_project_metadata_exposes_ra_entrypoint() -> None:
     pyproject = tomllib.loads(Path("pyproject.toml").read_text())
     assert pyproject["project"]["name"] == "research-assistant"
-    assert pyproject["project"]["requires-python"] == ">=3.10"
+    assert pyproject["project"]["requires-python"] == ">=3.11,<3.12"
     assert pyproject["project"]["scripts"]["ra"] == "research_assistant.cli:main"
     assert pyproject["project"]["scripts"]["ra-mcp"] == "research_assistant.adapters.mcp_server:main"
     assert "mcp" in pyproject["project"]["optional-dependencies"]
@@ -160,12 +160,18 @@ def test_init_config_doctor_privacy_and_workspace_lifecycle(tmp_path: Path, caps
     platform = _json_out(capsys)
     assert rc == 0
     assert platform["python_executable"]
+    assert platform["python_supported"] is True
     assert platform["support_tier"]
     assert "is_wsl" in platform
 
 
 def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Path, capsys, monkeypatch) -> None:
     monkeypatch.setattr(individual_release.shutil, "which", lambda _tool: None)
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_gate_evidence",
+        lambda _root: {"status": "missing", "issues": [], "source_matches": False},
+    )
 
     rc = main(["--root", str(tmp_path), "init"])
     assert rc == 0
@@ -198,6 +204,7 @@ def test_missing_optional_parser_tools_do_not_block_core_workflows(tmp_path: Pat
     assert not report["blockers"]
     assert report["mcp_readiness"]["optional"] is True
     assert report["mcp_readiness"]["default_mode"] == "read_only"
+    assert report["release_gate_evidence"]["status"] in {"missing", "passed"}
     assert report["mcp_readiness"]["hosted_service"] is False
     assert "ra_review_mark" not in report["mcp_readiness"].get("mcp_tools", [])
     assert "ra_run_arxiv_batch_intake" in report["mcp_readiness"].get("mcp_tools", [])
@@ -312,7 +319,12 @@ def test_backup_create_inspect_and_restore_dry_run(tmp_path: Path, capsys) -> No
     assert overwrite["safety_backup_path"]
 
 
-def test_demo_setup_run_clean_and_release_report(tmp_path: Path, capsys) -> None:
+def test_demo_setup_run_clean_and_release_report(tmp_path: Path, capsys, monkeypatch) -> None:
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_gate_evidence",
+        lambda _root: {"status": "missing", "issues": [], "source_matches": False},
+    )
     demo_root = tmp_path / "demo_workspace"
     rc = main(["--root", str(demo_root), "demo", "setup"])
     setup = _json_out(capsys)
@@ -346,6 +358,23 @@ def test_demo_setup_run_clean_and_release_report(tmp_path: Path, capsys) -> None
     assert clean["status"] == "dry_run_complete"
     assert clean["dry_run"] is True
     assert str(demo_root / "local_research") in clean["would_remove"]
+
+
+def test_release_report_blocks_failed_or_stale_gate_evidence(tmp_path: Path, monkeypatch) -> None:
+    init_workspace = individual_release.init_workspace(root=tmp_path)
+    assert init_workspace["status"] == "initialized"
+    issues = [{"code": "release_gate_source_stale"}]
+    monkeypatch.setattr(
+        individual_release,
+        "validate_release_gate_evidence",
+        lambda _root: {"status": "blocked", "issues": issues, "source_matches": False},
+    )
+
+    report = individual_release.release_report(root=tmp_path)
+
+    assert report["status"] == "blocked"
+    assert report["release_gate_evidence"]["issues"] == issues
+    assert any(blocker["code"] == "release_gate_evidence_blocked" for blocker in report["blockers"])
 
 
 def test_demo_setup_refuses_existing_non_demo_workspace(tmp_path: Path, capsys) -> None:
@@ -591,7 +620,7 @@ def test_validation_records_report_and_strict_hygiene(tmp_path: Path, capsys) ->
     assert "colleague_onboarding" in report["missing_required_validation"]
 
 
-def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, capsys) -> None:
+def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, capsys, monkeypatch) -> None:
     main(["--root", str(tmp_path), "init"])
     capsys.readouterr()
 
@@ -638,6 +667,12 @@ def test_fixture_rehearsal_performance_and_gate_calibration(tmp_path: Path, caps
     assert report["external_validation_complete"] is False
     assert "colleague_onboarding" in report["blocked_required_validation"]
 
+    # This scenario calibrates local Git-sharing evidence, independently of the
+    # source-bound release artifact that may be missing or stale in a checkout.
+    monkeypatch.setattr(
+        "research_assistant.individual_git_release.release_report",
+        lambda **_kwargs: {"status": "warnings", "warnings": []},
+    )
     rc = main(["--root", str(tmp_path), "individual-git-release", "gate-build"])
     gate = _json_out(capsys)
     assert rc == 0

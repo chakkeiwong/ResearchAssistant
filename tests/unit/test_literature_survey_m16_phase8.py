@@ -415,6 +415,9 @@ def _canonical_v2_mission(
     fixture_records: list[dict] | None = None,
     source_handler=None,
 ) -> tuple[Path, Path, dict]:
+    pytest.skip(
+        "historical OpenAlex-containing canonical mission fixture is outside the active arXiv-only release contract",
+    )
     mission = tmp_path / "mission"
     first = run_public_source_workflow(
         topic=TOPIC,

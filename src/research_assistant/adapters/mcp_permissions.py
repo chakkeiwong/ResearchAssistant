@@ -8,6 +8,7 @@ from typing import Any, Literal
 from urllib.parse import urlparse
 
 from research_assistant.config import get_paths
+from research_assistant.core_utils import utc_now_iso
 from research_assistant.individual_release import atomic_write_json
 from research_assistant.schemas.artifact import stable_id
 from research_assistant.storage.file_store import FileStore
@@ -17,10 +18,6 @@ ALLOWED_ARXIV_DOMAINS = {"arxiv.org", "export.arxiv.org"}
 MCP_MODES = {"read_only", "arxiv_batch_intake", "review_write", "destructive"}
 ARXIV_DESTINATIONS = {"source", "inbox"}
 ARXIV_OPERATIONS = {"source_fetch", "pdf_inbox_download", "metadata_only"}
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 def parse_iso_datetime(value: str) -> datetime:

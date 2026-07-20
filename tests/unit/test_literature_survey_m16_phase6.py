@@ -68,7 +68,7 @@ def _write_metadata(mission: Path, identifiers: list[str]) -> Path:
                 index,
                 identifier=identifier,
                 roles=["seed"] if seed else ["adjacent_method"],
-                providers=["arxiv"] if identifier.startswith("arxiv:") else ["openalex"],
+                providers=["arxiv"],
             )
         )
     ledger = {
@@ -105,7 +105,7 @@ def _write_metadata(mission: Path, identifiers: list[str]) -> Path:
         },
         "mission": "fixture mission",
         "topic": TOPIC,
-        "providers": ["openalex", "arxiv"],
+        "providers": ["arxiv"],
         "max_records": 25,
         "record_count": len(included),
         "provider_statuses": [],
@@ -141,7 +141,7 @@ def _checkpoint_source_authority(
     identifiers: list[str] | None = None,
     confirmed: bool = True,
 ) -> tuple[MissionStateManager, object, Path]:
-    identifiers = identifiers or [SEED, "doi:10.1000/fixture"]
+    identifiers = identifiers or [SEED, "arxiv:2401.00001"]
     manager = MissionStateManager(
         output_dir=mission,
         topic=TOPIC,
@@ -364,7 +364,7 @@ def test_exact_hostname_rejects_suffix_bypass_without_record_authority(tmp_path:
 
 
 def test_source_call_cap_creates_ordered_not_attempted_rows(tmp_path: Path) -> None:
-    identifiers = [SEED, *(f"doi:10.1000/fixture-{index}" for index in range(1, 7))]
+    identifiers = [SEED, *(f"arxiv:2401.{index:05d}" for index in range(1, 7))]
     mission = tmp_path / "mission"
     manager, snapshot, metadata = _checkpoint_source_authority(mission, identifiers=identifiers)
     calls: list[int] = []
@@ -398,11 +398,11 @@ def test_unsupported_identifier_is_no_call_and_does_not_consume_call_cap(tmp_pat
     identifiers = [
         SEED,
         "unsupported:fixture",
-        "doi:10.1000/fixture-2",
-        "doi:10.1000/fixture-3",
-        "doi:10.1000/fixture-4",
-        "doi:10.1000/fixture-5",
-        "doi:10.1000/fixture-6",
+        "arxiv:2401.00002",
+        "arxiv:2401.00003",
+        "arxiv:2401.00004",
+        "arxiv:2401.00005",
+        "arxiv:2401.00006",
     ]
     mission = tmp_path / "mission"
     manager, snapshot, metadata = _checkpoint_source_authority(mission, identifiers=identifiers)
@@ -434,7 +434,7 @@ def test_oversize_record_exhausts_remaining_calls_without_write(tmp_path: Path, 
     mission = tmp_path / "mission"
     manager, snapshot, metadata = _checkpoint_source_authority(
         mission,
-        identifiers=[SEED, "doi:10.1000/later"],
+        identifiers=[SEED, "arxiv:2401.00007"],
     )
     calls: list[int] = []
 

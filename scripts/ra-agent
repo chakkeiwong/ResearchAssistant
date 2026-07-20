@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="${ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 export PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
-TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-240}"
+TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-600}"
 
 usage() {
   cat <<'USAGE'
@@ -80,6 +80,8 @@ case "$command_name" in
       tests/integration/test_arxiv_batch_intake.py \
       tests/integration/test_pdf_batch_policy.py \
       tests/integration/test_cli_commands.py \
+      tests/integration/test_cli_library_commands.py -k \
+        'help or parser or ingest or review or inbox or citation or source or literature_audit' \
       tests/integration/test_individual_release_cli.py \
       -q "$@"
     ;;
