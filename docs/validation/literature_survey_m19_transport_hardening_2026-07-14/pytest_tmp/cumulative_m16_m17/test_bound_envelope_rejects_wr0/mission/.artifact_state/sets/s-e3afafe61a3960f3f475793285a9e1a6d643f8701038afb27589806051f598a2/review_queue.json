@@ -1,0 +1,99 @@
+{
+  "allowed_item_statuses": [
+    "review_required"
+  ],
+  "artifact_set_id": "s-e3afafe61a3960f3f475793285a9e1a6d643f8701038afb27589806051f598a2",
+  "coverage_exact_digests": {
+    "backward_snowball.json": {
+      "sha256": "e484c93c3192187d258c3a79715c6ce74886ed0932beb7318e4cb1174a65fdff",
+      "size_bytes": 465
+    },
+    "citation_venue_metadata.json": {
+      "sha256": "e3246a667d0b42f9d9cacbddf71108a2fae97b34e7215b1857f04c40b9dc84a8",
+      "size_bytes": 471
+    },
+    "coverage_manifest.json": {
+      "sha256": "a4c487ae0eb84c7c61785a28554051ef74ebb10c6167cc9a4fe09e660f3e2396",
+      "size_bytes": 2338
+    },
+    "forward_snowball.json": {
+      "sha256": "8ca94660bd1208a13f357e7e9863553b52091137c763856c8f2371b584be4a87",
+      "size_bytes": 464
+    },
+    "omitted_paper_risks.json": {
+      "sha256": "d18ac0d5258af02d0326f67a53de0abae01877a0ad6b3372af697267d9ee49be",
+      "size_bytes": 467
+    },
+    "paper_classifications.json": {
+      "sha256": "a2e0f34e895132abb82ace0e90171ac30c3217e440664a5c17db49bd3a251c85",
+      "size_bytes": 469
+    }
+  },
+  "coverage_lineage_sha256": "a1f27430f4798966951c26182cae5e4bc0a610d12c9a1f7694097f48497a02eb",
+  "coverage_semantic_digests": {
+    "backward_snowball.json": "0c2f93a2261da980fe0c1fe5d569fa5eb0b3f3faaa18b14c957979c4e7bd53b9",
+    "citation_venue_metadata.json": "4d8983d82078ada89e6cfb83b83eed20db3d7edd69cbf45fe8e72c9114d257a9",
+    "forward_snowball.json": "2cb5b7f414a5a2f611f81db7325e98bae03c1e9a3490126ee7cd695a95adf8af",
+    "omitted_paper_risks.json": "8ca2346924deb86b411bd49b960070289b4164d5c8da7480ad7d5529599fda48",
+    "paper_classifications.json": "9b1dc34e57d559d9ecb65553b781ae94d0935a56d802dfe40be8b498765510e6"
+  },
+  "forbidden_promotions": [
+    "review is not prose readiness"
+  ],
+  "items": [
+    {
+      "anchor_ids": [
+        "anchor-0"
+      ],
+      "claim_support_allowed": false,
+      "item_id": "claim_candidate-d45ecd5a3cde0d66ef11de36",
+      "paper_ids": [
+        "paper-0"
+      ],
+      "priority": "high",
+      "queue_type": "claim_candidate",
+      "semantic_item_sha256": "d45ecd5a3cde0d66ef11de36bdcb7df436b6ef9e8f9c1e560289370a358b7068",
+      "source_id": "claim-0",
+      "status": "review_required"
+    }
+  ],
+  "mission_anchor_generation_id": "g00000001-694632a681ea3349",
+  "mission_fingerprint": "55bea472f4f0afa4ca2d301bf0b9a674af1fa258f90ebeb140580d6aa3ce520b",
+  "mission_id": "22222222-2222-4222-8222-222222222222",
+  "packet_input_digests": {
+    "build_manifest": {
+      "relative_path": "build_manifest.json",
+      "sha256": "007c28c8373bdbd5cf6d4d30d4c8379a466b89c55ee0db7c30a591dda658e1ac",
+      "size_bytes": 70
+    },
+    "claim_support": {
+      "relative_path": "claim_support.json",
+      "sha256": "f032eaeeccede4094b442f6421c138aea8b2949c1b774c0b07d764a336f06207",
+      "size_bytes": 52
+    },
+    "source_safety_status": {
+      "relative_path": "source_safety_status.json",
+      "sha256": "fb7baa6b532a8cc6d7ec0f3f6aec33b60e133780f01c0a25430e407f65a47e67",
+      "size_bytes": 40
+    }
+  },
+  "queue_counts": {
+    "by_priority": {
+      "high": 1
+    },
+    "by_status": {
+      "review_required": 1
+    },
+    "by_type": {
+      "claim_candidate": 1
+    },
+    "total": 1
+  },
+  "queue_semantic_sha256": "6119b36602979ba92e92ca5311b7ccef13c0b8022a3aa49a28ae44485dddb9b8",
+  "schema_version": "ra-survey-public-source-review-queue-v2",
+  "status": "review_required",
+  "topic": "Phase 3 exact decision fixture",
+  "what_is_not_concluded": [
+    "scientific correctness"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "claim_support_policy": {
+    "anchor_availability_support_allowed_for_technical_claims": false,
+    "source_availability_support_allowed_for_technical_claims": false
+  },
+  "metadata_layer": {
+    "papers": [
+      {
+        "allowed_claims": [],
+        "checked_anchors": [],
+        "download_status": "source_not_attempted",
+        "forbidden_claims": [
+          "technical theorem, algorithm, or empirical claims",
+          "source availability claims",
+          "priority or lineage claims beyond provider metadata relation labels",
+          "literature completeness claims"
+        ],
+        "identifier": "W100",
+        "paper_key": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+        "primary_source_type": "not_inspected",
+        "source_status": "metadata_only_public",
+        "title": "Neural Optimal Transport"
+      }
+    ],
+    "status": "metadata_only_no_sources_inspected"
+  },
+  "not_concluded": [
+    "final survey prose quality",
+    "literature completeness",
+    "scientific correctness",
+    "technical claim support",
+    "retraction/version safety",
+    "product readiness"
+  ],
+  "papers": [
+    {
+      "allowed_claims": [
+        "local structured source record exists",
+        "listed anchor ids identify parser-extracted source blocks by label/line/hash"
+      ],
+      "arxiv_id": null,
+      "bibliography_count": 0,
+      "checked_anchor_count": 1,
+      "checked_anchors": [
+        "section:sec:method"
+      ],
+      "citation_count": 0,
+      "equation_count": 0,
+      "forbidden_claims": [
+        "theorem, algorithm, method, empirical, historical priority, or literature-completeness claims until a claim row is explicitly mapped to checked source anchors and reviewed"
+      ],
+      "limitations": [
+        {
+          "field": "source",
+          "note": "No live source transport was run.",
+          "status": "fixture_only"
+        }
+      ],
+      "paper_id": "paper_openalex_w100_fc9a224b790d",
+      "primary_for_audit": true,
+      "section_count": 1,
+      "source_record_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori82/mission/local_research/papers/source/records/paper_openalex_w100_fc9a224b790d.json",
+      "source_status": "available",
+      "source_type": "publisher_xml",
+      "technical_claim_support": "not_supported_until_claim_mapping_review",
+      "theorem_like_block_count": 0
+    }
+  ],
+  "schema_version": "ra-survey-public-source-support-v1",
+  "source_gap_rows": [],
+  "source_intake": {
+    "approved_candidate_ids": [],
+    "attempted_count": null,
+    "destination": null,
+    "failures": [],
+    "fetched_count": null,
+    "operation": null,
+    "raw_artifact_policy": {},
+    "skipped_duplicates": [],
+    "status": "completed_with_outcomes"
+  },
+  "source_safety_status": {
+    "artifact": "source_safety_status.json",
+    "source_availability_safety_allowed": false,
+    "status": "separate_source_safety_status_json_required"
+  },
+  "status": "public_source_overlay_available",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

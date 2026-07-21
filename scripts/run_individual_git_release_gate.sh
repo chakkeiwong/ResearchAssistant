@@ -21,8 +21,8 @@ timeout "${TIMEOUT_SECONDS}s" python -m pytest tests/integration/test_individual
 echo "timeout ${TIMEOUT_SECONDS}s python -m research_assistant.cli --root ${GATE_ROOT} init"
 timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "$GATE_ROOT" init >/dev/null
 
-echo "timeout ${TIMEOUT_SECONDS}s python -m research_assistant.cli --root ${GATE_ROOT} individual-git-release validation-substitutes"
-timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "$GATE_ROOT" individual-git-release validation-substitutes >/dev/null
+echo "timeout ${TIMEOUT_SECONDS}s python -m research_assistant.cli --root ${GATE_ROOT} individual-git-release validation-local"
+timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "$GATE_ROOT" individual-git-release validation-local >/dev/null
 
 echo "timeout ${TIMEOUT_SECONDS}s python -m research_assistant.cli --root ${GATE_ROOT} individual-git-release fixture-rehearsal"
 timeout "${TIMEOUT_SECONDS}s" python -m research_assistant.cli --root "$GATE_ROOT" individual-git-release fixture-rehearsal >/dev/null

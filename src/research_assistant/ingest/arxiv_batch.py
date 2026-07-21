@@ -17,6 +17,7 @@ from research_assistant.adapters.mcp_permissions import (
     mcp_batch_manifest_dir,
     read_mcp_grant,
     validate_arxiv_batch_grant,
+    validate_allowed_domains,
     validate_destination_path,
 )
 from research_assistant.config import get_paths
@@ -71,6 +72,10 @@ def _stable_plan_hash(payload: dict[str, Any]) -> str:
 
 
 def candidate_file_checksum(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def plan_file_checksum(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
@@ -319,6 +324,156 @@ def load_arxiv_candidate_file(candidate_file: Path) -> dict[str, Any]:
     }
 
 
+def _normalize_arxiv_ids_preserve_order(arxiv_ids: list[Any]) -> tuple[list[str], list[dict[str, Any]]]:
+    normalized: list[str] = []
+    issues: list[dict[str, Any]] = []
+    for index, value in enumerate(arxiv_ids):
+        if not isinstance(value, str) or not value.strip():
+            issues.append({"code": "plan_file_invalid_arxiv_id", "index": index, "value": value})
+            continue
+        try:
+            normalized.append(normalize_arxiv_id(value))
+        except ValueError as exc:
+            issues.append({"code": "plan_file_invalid_arxiv_id", "index": index, "message": str(exc)})
+    if len(set(normalized)) != len(normalized):
+        issues.append({"code": "plan_file_duplicate_arxiv_id"})
+    return normalized, issues
+
+
+def load_arxiv_plan_file(
+    plan_file: Path,
+    *,
+    expected_plan_hash: str | None = None,
+    expected_plan_file_sha256: str | None = None,
+    candidate_file: Path | None = None,
+    root: Path | None = None,
+    operation: Literal["source_fetch", "pdf_inbox_download", "metadata_only"] = "source_fetch",
+    destination: Literal["source", "inbox"] = "source",
+) -> dict[str, Any]:
+    path = plan_file.expanduser()
+    paths = get_paths(root)
+    if not path.exists():
+        return {"status": "blocked", "issues": [{"code": "plan_file_missing", "path": str(path)}]}
+    if not path.is_file():
+        return {"status": "blocked", "issues": [{"code": "plan_file_not_file", "path": str(path)}]}
+    checksum = plan_file_checksum(path)
+    issues: list[dict[str, Any]] = []
+    if expected_plan_file_sha256 and checksum != expected_plan_file_sha256:
+        issues.append({
+            "code": "plan_file_sha256_mismatch",
+            "expected": expected_plan_file_sha256,
+            "actual": checksum,
+        })
+    try:
+        payload = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        return {
+            "status": "blocked",
+            "issues": [{"code": "plan_file_invalid_json", "path": str(path), "message": str(exc)}],
+            "plan_file_sha256": checksum,
+        }
+
+    if payload.get("schema_version") != "arxiv-batch-plan-v1":
+        issues.append({"code": "plan_file_schema_mismatch", "actual": payload.get("schema_version")})
+    plan_hash = payload.get("plan_hash")
+    if expected_plan_hash and plan_hash != expected_plan_hash:
+        issues.append({"code": "plan_hash_mismatch", "expected": expected_plan_hash, "actual": plan_hash})
+    if payload.get("status") != "ready_for_grant":
+        issues.append({"code": "plan_file_status_not_ready_for_grant", "actual": payload.get("status")})
+    if payload.get("operation") != operation:
+        issues.append({"code": "operation_mismatch", "expected": operation, "actual": payload.get("operation")})
+    if payload.get("destination") != destination:
+        issues.append({"code": "destination_mismatch", "expected": destination, "actual": payload.get("destination")})
+    if Path(str(payload.get("workspace_root"))).resolve() != paths.root.resolve():
+        issues.append({
+            "code": "workspace_root_mismatch",
+            "expected": str(paths.root.resolve()),
+            "actual": payload.get("workspace_root"),
+        })
+
+    plan_ids_raw = payload.get("arxiv_ids")
+    if not isinstance(plan_ids_raw, list):
+        plan_ids_raw = []
+        issues.append({"code": "plan_file_arxiv_ids_not_list"})
+    plan_ids, id_issues = _normalize_arxiv_ids_preserve_order(plan_ids_raw)
+    issues.extend(id_issues)
+    max_papers = payload.get("max_papers")
+    if not isinstance(max_papers, int) or max_papers <= 0:
+        issues.append({"code": "invalid_max_papers", "max_papers": max_papers})
+    elif len(plan_ids) > max_papers:
+        issues.append({"code": "max_papers_exceeded", "count": len(plan_ids), "max_papers": max_papers})
+
+    candidates = payload.get("candidates")
+    if not isinstance(candidates, list):
+        candidates = []
+        issues.append({"code": "plan_file_candidates_not_list"})
+    candidate_ids, candidate_id_issues = _normalize_arxiv_ids_preserve_order([
+        candidate.get("arxiv_id") if isinstance(candidate, dict) else None
+        for candidate in candidates
+    ])
+    issues.extend(candidate_id_issues)
+    if candidate_ids and candidate_ids != plan_ids:
+        issues.append({"code": "plan_file_candidate_ids_mismatch", "expected": plan_ids, "actual": candidate_ids})
+    if candidates and len(candidates) != len(plan_ids):
+        issues.append({"code": "plan_file_candidate_count_mismatch", "expected": len(plan_ids), "actual": len(candidates)})
+
+    urls = []
+    for index, candidate in enumerate(candidates):
+        if not isinstance(candidate, dict):
+            issues.append({"code": "plan_file_candidate_not_object", "index": index})
+            continue
+        for key in ("source_url", "pdf_url"):
+            url = candidate.get(key)
+            if isinstance(url, str) and url:
+                urls.append(url)
+    domain_validation = validate_allowed_domains(urls, ALLOWED_ARXIV_DOMAINS)
+    if domain_validation["status"] != "ok":
+        issues.append({"code": "plan_file_domain_not_allowed", "blocked": domain_validation["blocked"]})
+
+    destination_path = payload.get("destination_path")
+    if destination_path:
+        dest_validation = validate_destination_path(Path(str(destination_path)), root=paths.root)
+        if dest_validation["status"] != "ok":
+            issues.append(dest_validation)
+
+    candidate_file_metadata = payload.get("candidate_file")
+    candidate_file_result = None
+    if candidate_file_metadata:
+        if candidate_file is None:
+            issues.append({"code": "candidate_file_required_for_plan_file_binding"})
+        else:
+            candidate_file_result = load_arxiv_candidate_file(candidate_file)
+            if candidate_file_result["status"] != "ok":
+                issues.extend(candidate_file_result["issues"])
+            else:
+                actual_metadata = candidate_file_result["metadata"]
+                actual_ids = actual_metadata["ordered_arxiv_ids"]
+                expected_sha = candidate_file_metadata.get("candidate_file_sha256")
+                if expected_sha and actual_metadata["candidate_file_sha256"] != expected_sha:
+                    issues.append({
+                        "code": "candidate_file_sha256_mismatch",
+                        "expected": expected_sha,
+                        "actual": actual_metadata["candidate_file_sha256"],
+                    })
+                if actual_ids != plan_ids:
+                    issues.append({"code": "candidate_file_ids_mismatch", "expected": plan_ids, "actual": actual_ids})
+
+    metadata = {
+        "plan_file": str(path),
+        "plan_file_sha256": checksum,
+        "plan_hash": plan_hash,
+        "ordered_arxiv_ids": plan_ids,
+        "candidate_count": len(plan_ids),
+        "candidate_file": candidate_file_result["metadata"] if candidate_file_result and candidate_file_result["status"] == "ok" else None,
+    }
+    return {
+        "status": "blocked" if issues else "ok",
+        "issues": issues,
+        "metadata": metadata,
+        "payload": payload,
+    }
+
+
 def plan_arxiv_batch_intake(
     *,
     query: str | None = None,
@@ -431,6 +586,8 @@ def run_arxiv_batch_intake(
     plan_hash: str,
     arxiv_ids: list[str] | None = None,
     candidate_file: Path | None = None,
+    plan_file: Path | None = None,
+    plan_file_sha256: str | None = None,
     root: Path | None = None,
 ) -> dict[str, Any]:
     paths = get_paths(root)
@@ -453,6 +610,22 @@ def run_arxiv_batch_intake(
         ids = candidate_ids
     if not ids:
         return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": [{"code": "missing_arxiv_ids"}]}
+    plan_file_binding: dict[str, Any] | None = None
+    if plan_file is not None:
+        plan_binding_result = load_arxiv_plan_file(
+            plan_file,
+            expected_plan_hash=plan_hash,
+            expected_plan_file_sha256=plan_file_sha256,
+            candidate_file=candidate_file,
+            root=paths.root,
+            operation="source_fetch",
+            destination="source",
+        )
+        if plan_binding_result["status"] != "ok":
+            append_mcp_audit_event("batch_blocked", grant_id=grant_id, root=paths.root, detail={"issues": plan_binding_result["issues"], "plan_hash": plan_hash})
+            return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": plan_binding_result["issues"]}
+        plan_file_binding = plan_binding_result["metadata"]
+        ids = plan_file_binding["ordered_arxiv_ids"]
     grant = read_mcp_grant(grant_id, root=paths.root)
     validation = validate_arxiv_batch_grant(
         grant,
@@ -476,10 +649,16 @@ def run_arxiv_batch_intake(
     )
     if plan["plan_hash"] != plan_hash:
         issue = {"code": "recomputed_plan_hash_mismatch", "expected": plan_hash, "actual": plan["plan_hash"]}
-        append_mcp_audit_event("batch_blocked", grant_id=grant_id, root=paths.root, detail={"issues": [issue]})
-        return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": [issue]}
+        if plan_file_binding is None:
+            append_mcp_audit_event("batch_blocked", grant_id=grant_id, root=paths.root, detail={"issues": [issue]})
+            return {"status": "blocked", "grant_id": grant_id, "plan_hash": plan_hash, "issues": [issue]}
 
-    append_mcp_audit_event("batch_started", grant_id=grant_id, root=paths.root, detail={"plan_hash": plan_hash, "arxiv_ids": ids})
+    append_mcp_audit_event("batch_started", grant_id=grant_id, root=paths.root, detail={
+        "plan_hash": plan_hash,
+        "arxiv_ids": ids,
+        "plan_file_binding": plan_file_binding,
+        "runtime_plan_hash": plan["plan_hash"],
+    })
     results = []
     skipped = []
     failures = []
@@ -518,6 +697,8 @@ def run_arxiv_batch_intake(
         "status": "completed_with_failures" if failures else "completed",
         "grant_id": grant_id,
         "plan_hash": plan_hash,
+        "approved_plan_file": plan_file_binding,
+        "runtime_plan_hash": plan["plan_hash"],
         "workspace_root": str(paths.root.resolve()),
         "operation": "source_fetch",
         "destination": "source",

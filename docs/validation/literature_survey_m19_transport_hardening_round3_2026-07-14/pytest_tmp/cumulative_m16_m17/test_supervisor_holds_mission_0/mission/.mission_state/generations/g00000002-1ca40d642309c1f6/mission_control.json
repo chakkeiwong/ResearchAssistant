@@ -1,0 +1,134 @@
+{
+  "actions": [],
+  "artifact_state": {
+    "marker": 0
+  },
+  "coverage_artifacts": {},
+  "created_at": "2026-07-14T09:57:31+00:00",
+  "final_artifacts": {},
+  "forbidden_actions": [],
+  "generation_id": "g00000002-1ca40d642309c1f6",
+  "local_supervisor": {
+    "max_transitions": 12,
+    "observation_sha256": "7fa6a9c1178c4b78666d1a912284086d57d061e8a3098b9fb9f1ec10d426d5b4",
+    "readiness_classification": null,
+    "ready_for_prose": false,
+    "schema_version": "ra-survey-local-supervisor-v1",
+    "status": "terminal_blocked_no_progress",
+    "terminal_action_id": "terminal_blocked_no_progress",
+    "terminal_reason": "typed_stage_did_not_change_normalized_observation",
+    "transition_count": 1,
+    "transition_history": [
+      {
+        "dispatch_class": "local_writer",
+        "observed_action_id": "build_offline_skeleton",
+        "post_dispatch_outcome": "no_progress",
+        "pre_dispatch_observation_sha256": "7fa6a9c1178c4b78666d1a912284086d57d061e8a3098b9fb9f1ec10d426d5b4",
+        "stage_id": "build_offline_skeleton",
+        "stage_result": {
+          "required_output_paths": [
+            "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_supervisor_holds_mission_0/mission/synthetic-output.json"
+          ],
+          "schema_version": "synthetic-v1",
+          "status": "success"
+        },
+        "transition_index": 0
+      }
+    ],
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "mission_contract": {
+    "created_at": "2026-07-14T09:57:31+00:00",
+    "discovery_budget": {
+      "allowed_domains": [
+        "api.openalex.org",
+        "arxiv.org",
+        "export.arxiv.org"
+      ],
+      "max_bytes_per_source": 52428800,
+      "max_metadata_records": 25,
+      "max_source_records": 5,
+      "providers": [
+        "arxiv",
+        "openalex"
+      ],
+      "write_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_supervisor_holds_mission_0/mission"
+    },
+    "generation": 2,
+    "lineage": {
+      "artifacts": [],
+      "generation_id": "g00000002-1ca40d642309c1f6",
+      "mission_contract_sha256": "0168f04dd6dfc03e9f467010db58f28fcb1f1af83c7188ddedd31222b5c0ec9c",
+      "parent_generation_id": "g00000001-4794b9deadb1755d",
+      "transaction_nonce": "08c19ebeafb19212c0f9a1df3089d224"
+    },
+    "migration": null,
+    "mission_fingerprint": "1ca917cf99015a1780ade83c91c230adffae83fd46ea11ab623ffec89777698d",
+    "mission_id": "97c1437e-123b-4a06-89fe-8c19ae20a710",
+    "normalized_seeds": [
+      {
+        "display": "arxiv:2201.12220",
+        "key": "arxiv:2201.12220"
+      }
+    ],
+    "normalized_topic": {
+      "display": "Neural Optimal Transport",
+      "key": "neural optimal transport"
+    },
+    "public_discovery_confirmation": {
+      "confirmation_source": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    "schema_version": "ra-survey-public-source-mission-contract-v2",
+    "updated_at": "2026-07-14T09:57:31+00:00"
+  },
+  "mission_fingerprint": "1ca917cf99015a1780ade83c91c230adffae83fd46ea11ab623ffec89777698d",
+  "mission_id": "97c1437e-123b-4a06-89fe-8c19ae20a710",
+  "next_action": {
+    "action_id": "terminal_blocked_no_progress",
+    "generation_id": "g00000002-1ca40d642309c1f6",
+    "mission_fingerprint": "1ca917cf99015a1780ade83c91c230adffae83fd46ea11ab623ffec89777698d",
+    "mission_id": "97c1437e-123b-4a06-89fe-8c19ae20a710",
+    "mission_status": "blocked_at_gate",
+    "readiness_classification": null,
+    "ready_for_prose": false,
+    "required_artifacts": [],
+    "safe_next_commands": [],
+    "schema_version": "ra-survey-public-source-next-action-v1",
+    "status": "terminal_blocked_no_progress",
+    "summary": "typed_stage_did_not_change_normalized_observation"
+  },
+  "next_action_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_supervisor_holds_mission_0/mission/next_action.json",
+  "next_gate": {
+    "gate_id": "synthetic",
+    "marker": 0
+  },
+  "output_dir": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_supervisor_holds_mission_0/mission",
+  "phase_statuses": {},
+  "public_discovery_confirmation": {},
+  "review_queue_counts": null,
+  "review_queue_path": null,
+  "review_queue_reused": null,
+  "reviewed_artifacts": {},
+  "safe_next_commands": [],
+  "schema_version": "ra-survey-public-source-mission-control-v2",
+  "seeds": [
+    "arxiv:2201.12220"
+  ],
+  "status": "blocked_at_gate",
+  "topic": "Neural Optimal Transport",
+  "updated_at": "2026-07-14T09:57:31+00:00",
+  "what_is_not_concluded": [],
+  "workflow_state": null
+}

@@ -1,0 +1,1435 @@
+{
+  "arxiv_id": "1709.08894",
+  "bibliography_count": 0,
+  "citation_count": 56,
+  "equations": [
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:duality"
+      ],
+      "line": 169,
+      "raw_latex_bytes": 259,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "3a03661169d46630951daf973b87b689833b007f75992ac9a1142f9535d0fa56"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 174,
+      "raw_latex_bytes": 73,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "51eb7ef3fbb98513c0e6f707010c8426af5400f65cf7eb707c8f2722607b767a"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:dualRegOT"
+      ],
+      "line": 200,
+      "raw_latex_bytes": 280,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "698c4fe06e31460c0314f99f75ca1f01805c98da97052eb930ed7b2478196fd2"
+    },
+    {
+      "environment": "equation*",
+      "labels": [
+        "eq:JS"
+      ],
+      "line": 219,
+      "raw_latex_bytes": 143,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "915951f69dc1bc4ccf74022171b005c23dc8a2c80561dd7e17f9ba951fcf4900"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:EM"
+      ],
+      "line": 224,
+      "raw_latex_bytes": 220,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "555d8e942329f0215df66463c0aedc7c084860604210d4dffd80a4782546c7e3"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:EM-Dual"
+      ],
+      "line": 234,
+      "raw_latex_bytes": 153,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "431bc70caa00c67cebe86feacfdd1d98f10cd25d959ce17b83a338bc94518840"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:WGANGame"
+      ],
+      "line": 243,
+      "raw_latex_bytes": 148,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "af5437d4c04a1d2f5dbcf2acc3057700f9f1baa20bab56cc37cf4801f97ef4d3"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:iWGAN"
+      ],
+      "line": 313,
+      "raw_latex_bytes": 189,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6e2fb0762cc6c3d4d2e9b8398cbd6cb638b7823ca6ba2dc601d2b48ece7a0dc9"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 319,
+      "raw_latex_bytes": 79,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "63d49111a82580fbd63832d6e0e80e6a1856f8c609cd938507bb3ad9bbca7cc1"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 618,
+      "raw_latex_bytes": 101,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "42041a04fe099e37cde33d789e03f9da0ce0e616f025459ffad8a77db39afb85"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:LP-simple"
+      ],
+      "line": 657,
+      "raw_latex_bytes": 127,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "571f50bccc4c39abd51814294929bed7504375244d2e931158628ee65f21148e"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:L"
+      ],
+      "line": 667,
+      "raw_latex_bytes": 111,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "ac7a1bdaef9c31ca45959b10e4adbc11cc322aa5c787a836741fbc9a664f4320"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:WGAN-LP"
+      ],
+      "line": 679,
+      "raw_latex_bytes": 231,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "bcc658520900235283d6c480a791628de25a9d3cf164472a4d797413bb449466"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:WGAN-LP"
+      ],
+      "line": 690,
+      "raw_latex_bytes": 234,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "ccd67e56fd4afa6a4de7e317e083d004324364a2bc77fcd61376168cfa31dcf0"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:OPT-L2"
+      ],
+      "line": 712,
+      "raw_latex_bytes": 240,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "288d75a96754015cdeeefe35b77b1f1375382fbb02c27443bd3a2f4bb011a617"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 725,
+      "raw_latex_bytes": 99,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "13b7ef835b8a9cc39e4131efa5825190b58b3cf5633dd5ac897495bb013f73d9"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 735,
+      "raw_latex_bytes": 107,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "5320e8cabf4957fcd5859470a9fb16b253f66610ce8c5493c99145502fd6480b"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:LP-general"
+      ],
+      "line": 737,
+      "raw_latex_bytes": 143,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "93e9c8c81afdfd0940a4f4b043c69cd2d8d1d96eaf7305ee0518c96a8b6b9ee2"
+    },
+    {
+      "environment": "equation",
+      "labels": [],
+      "line": 761,
+      "raw_latex_bytes": 166,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "ef625a684507ca00d356f871b2efe1b46eacd46831f741090e17289d4b1e2c35"
+    },
+    {
+      "environment": "equation",
+      "labels": [],
+      "line": 769,
+      "raw_latex_bytes": 166,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "bf5cd7d53a6d2a8bbc2ecf276699a0e40198ed3b059070f7708173a4bb65474e"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1015,
+      "raw_latex_bytes": 113,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "9dfe2ecc7eaf4bbe71f064ed8daffa249a5176c8a0c0b9094a0c6073c1acbe64"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1151,
+      "raw_latex_bytes": 69,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "ac7ffbf495a17990bc3a75654c6711dc6cf8abe820a4e99d0c12ceaa4503ce04"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1156,
+      "raw_latex_bytes": 102,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "64fb15f9a79498705293b325a7134513cdaa8d0a3f540aac4133ea4cc1624277"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1158,
+      "raw_latex_bytes": 63,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b82e4acdd372ee2228c28951a6438b55033053b39e1bbc0597cc9027f6133208"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1166,
+      "raw_latex_bytes": 62,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "9a21a2b221ce0af52a535c326535bdbc3df785dcca429f358759b3278e4dea70"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1170,
+      "raw_latex_bytes": 161,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0b3e2e5fbfff8f96b84ec8b7224c50afccd77f6272c4b3c78e5c1974a3ec5d9d"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1171,
+      "raw_latex_bytes": 58,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b602f31db7c800b0f1245ac567ea04883d0463a34fd892ad83788fa816534d5d"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1174,
+      "raw_latex_bytes": 99,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "c7b60e5ced4b92e769ac304ebd19f6804c2fff3ca3f534d0c6cb78fbe1d208ea"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1175,
+      "raw_latex_bytes": 110,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "00afcff259ddcb57c843e50e93a4dc5ecc2910edd7262c42104cb7f117d924ca"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1176,
+      "raw_latex_bytes": 34,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "515d10f68be235f31f4552d43186bc4fe91543a6db1caaf85f16688e901ff3e1"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1181,
+      "raw_latex_bytes": 80,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "cc98068fde9c56e280e66cf6e5653ec877eea3dd983cbd1cf9069cf247acaa90"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1182,
+      "raw_latex_bytes": 114,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d4b699b76a14da85ad8c8b6c43ea5cc83cd7c094730960ece95c1af10377f1ba"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1184,
+      "raw_latex_bytes": 144,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "e8de099993bf36d165c172195ff5dd867d36ea062f493c9e8eeca9010fc7a397"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1186,
+      "raw_latex_bytes": 191,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "330dd97a438ba7817ff843fd6f4c83bddd1afef0da0eebda54351c6c4ff0340b"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1189,
+      "raw_latex_bytes": 85,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "556fa966d50c115ad94dded3d3fc99ac6e73fc99f0b9c3b4cfe04b62ad648cb3"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1192,
+      "raw_latex_bytes": 161,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7e1205b8065e58c8ea248afce47defb9c96eb80f2832da5f4cafcf895434cd11"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1209,
+      "raw_latex_bytes": 70,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "27b4e1d80a5fc56d9b660699f11bdb9f6266d9949e3f1c90d2f1c051c7cffddc"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1250,
+      "raw_latex_bytes": 67,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8bbb273cd3f06540b26fe65394e61f46c333428c9436f2b3b64d5566de7af4bb"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1251,
+      "raw_latex_bytes": 50,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b38d8479a5599ddf949d9c724714ab8db0df854fe012820bdcdfd7c1870769c9"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1252,
+      "raw_latex_bytes": 95,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6cd7d6a25bdaf5a809ffa59d7811a6823a9b2ac89223f714b350203d90d6a607"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1255,
+      "raw_latex_bytes": 85,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "91e58d96bb3632b87885c60d0ac28ee0174c687dc93c3ffd9fa9035bc4c550de"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1256,
+      "raw_latex_bytes": 68,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "35eed31809e164fbdbaa626bca370a4b6c50b0883dd2bb022e59eed7ea7720f8"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1257,
+      "raw_latex_bytes": 135,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d2751042c44dd9c712099dd24923dc06e0500d67334e5af47f46a8b1b1471965"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1261,
+      "raw_latex_bytes": 113,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "ee2e34a8725ad6e609904b7f9d84222c454bbcf901354c225242def7cea30d10"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1262,
+      "raw_latex_bytes": 113,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6c54114bb4f196607ba68b01343fb6602bf2e986ff981d72790ff5d273e26add"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1263,
+      "raw_latex_bytes": 80,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "34e4d3c6fb589c729bd9173ce6d9fc1f3e67560270ba4763234d5c6979d5e793"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1265,
+      "raw_latex_bytes": 113,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6291194d48133e7b8ae90ed322e4bf8766341761bcf854ffb7761a9821b9504c"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1266,
+      "raw_latex_bytes": 114,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "15dc23c4ed703b365a9196e9e61f5f28c886ba7cc10d28f0ae4a2ddc704a0d39"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1267,
+      "raw_latex_bytes": 60,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "9dc7f124e890fb1743ee90f50d52cfec3cb44d77297f44e931963e78c228f38f"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1273,
+      "raw_latex_bytes": 108,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "3d3cc44632fd0b26252123ccf038809518f07cd39db85e0380fae5ddccbc7745"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1274,
+      "raw_latex_bytes": 48,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "a8cd644891063810bab2c7408e497b26dc5473ae2a4cbd73c852215b44a0c55e"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1276,
+      "raw_latex_bytes": 190,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "e325f0e87c5cf34872759374a5a3d697fb5aeb8b2cfbde3443645ed01474f681"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1278,
+      "raw_latex_bytes": 114,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b153800d70eeec720c47b15868be2e043f1a19bf5dab2e60aa108ab6ec9c4d0a"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1280,
+      "raw_latex_bytes": 97,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "72ed463df75bc5475552bb5dfa13e4e2c18c036f425e534ddbeeb82f9e6570be"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1281,
+      "raw_latex_bytes": 90,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7bdce5a962c3902ecb1698fdecee3c7228af10a326b182fc741e62ee06461c62"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1282,
+      "raw_latex_bytes": 91,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "98a74b36d507555683a4726704d167359492696f59708c75aebea211f1ddb1dd"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1283,
+      "raw_latex_bytes": 137,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "3cd0534e3b428743a910584a78664941bb878d045fb9edf6e33a009554b7c836"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1284,
+      "raw_latex_bytes": 109,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0fcae0bad5f4469b04425df4294fda4631d821e4667a25b055d2366ee3de5e03"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1285,
+      "raw_latex_bytes": 17,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "322f8d79ba0ac84d03ee0a407bae1ea3b7c50ec143ff19f849bae38a94365a79"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1287,
+      "raw_latex_bytes": 183,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6ba894809cff7d25d1d44be101a456cf262418282600167ab36096d74f4b4864"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1288,
+      "raw_latex_bytes": 70,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "526b049373afe5764954f7c35ffc80829ff1df5abe4ad0c67ff0a2dc700a30b3"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1289,
+      "raw_latex_bytes": 54,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b9495b91a008baa3ded55c1e1ca8646357b14074f404af3188ca80adf0281d1f"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1290,
+      "raw_latex_bytes": 59,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "a09e7a27df846376adb9c1b263de0de153647270f0d04a4c69ce9e235e807ad6"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1291,
+      "raw_latex_bytes": 72,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d8a26bfe7b0adb66a71f435947b3495e1142db7ee0df7e6873f92e643cc1cde6"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1297,
+      "raw_latex_bytes": 118,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "44cf46002f5d8f6f9200f92822d0f0da548e8cbff6c1cf1092da07f3e421e3a0"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1299,
+      "raw_latex_bytes": 146,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4ec3365dbbda9da522be7b09130497359881e50d58e2dcd40aeecabef671e85d"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1307,
+      "raw_latex_bytes": 164,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7f6ea8f09dcafb3d4b24ed766dcb31732f3ad7e6a92e11b0d2f3ca7bb09a408a"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1308,
+      "raw_latex_bytes": 60,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4331f55c303f5067f8671f9028e57673149b4caa7020908fa5f2112623697554"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1310,
+      "raw_latex_bytes": 106,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "663d9981f24d4cfce2283366da462518cf8a25a457d4f3c5d2ddf1d524ef91cb"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 1312,
+      "raw_latex_bytes": 97,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7a37b5b53ca7408b4f19fc18a2ca00ff6a5dc989cfb2ee2eb3acf8400863f94a"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "scalarProduct"
+      ],
+      "line": 1321,
+      "raw_latex_bytes": 111,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4159d4f27abddfc3853b269a64ce0a8ff61bdffb400e2243d8ff0f260c09d75a"
+    },
+    {
+      "environment": "equation",
+      "labels": [
+        "eq:LP-general"
+      ],
+      "line": 1502,
+      "raw_latex_bytes": 143,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "184ed0417f62322c428501bb4ffb263e323db0f6254e4d35e60606340c794b5a"
+    },
+    {
+      "environment": "equation",
+      "labels": [],
+      "line": 1530,
+      "raw_latex_bytes": 98,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "2a5bcd8ac7dc725d28e9bd18f1233ab5ce261a91d9a092d0a1cac77cf1e01e5f"
+    }
+  ],
+  "limitations": [
+    {
+      "field": "mathematics",
+      "note": "Mathematical expressions are preserved as raw LaTeX, not normalized.",
+      "status": "raw_latex"
+    },
+    {
+      "field": "macros",
+      "note": "Custom macro semantics are extracted but not expanded.",
+      "status": "requires_review"
+    }
+  ],
+  "main_tex_member": "main.tex",
+  "raw_source_included": false,
+  "schema_version": "ra-literature-survey-m21-seven-source-v1-structured-source",
+  "sections": [
+    {
+      "command": "section",
+      "labels": [],
+      "level": 3,
+      "line": 105,
+      "raw_latex_bytes": 4257,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "749ff161ad765250769b9c2cacd4629873e684c9c4c8985190b0a202a12ea36e",
+      "title": "Introduction"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:optimalTransport",
+        "thm:Kantorovich",
+        "eq:duality",
+        "eq:dualRegOT"
+      ],
+      "level": 3,
+      "line": 141,
+      "raw_latex_bytes": 5550,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4e70d44a3c4897fdd2d3423f9397dba8f8068d5299a66d7ae78558f2d9519636",
+      "title": "Optimal Transport"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:WGANs",
+        "eq:JS",
+        "eq:EM",
+        "eq:EM-Dual",
+        "eq:WGANGame"
+      ],
+      "level": 3,
+      "line": 214,
+      "raw_latex_bytes": 5087,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "f15ffb5f0912ba4d4bb8f5fba97f2f8f275a452677e6bffeb7c4833c98fbfb61",
+      "title": "Wasserstein GANs"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:wc"
+      ],
+      "level": 3,
+      "line": 254,
+      "raw_latex_bytes": 14,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "5e0d9fb4ae5cffc96ec400d1b0b564b745587288b898d18fcb8f644e0458a989",
+      "title": "Weight clipping to enforce the Lipschitz constraint"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:iWGAN",
+        "lma:One",
+        "prp:weightclipping",
+        "eq:iWGAN",
+        "prp:WGan"
+      ],
+      "level": 3,
+      "line": 257,
+      "raw_latex_bytes": 7065,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0584c15460c99e574f82e6684b10193a5d7a9a527b9c92b12eb9ccb125d1d96b",
+      "title": "Improved training of WGANs"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sct:samplingMarginals"
+      ],
+      "level": 4,
+      "line": 339,
+      "raw_latex_bytes": 497,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "40a6facc8451f20e6749cf503457d98552362070bc7a641cfb2918128da86d1e",
+      "title": "Sampling from the marginals instead of the optimal coupling"
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "CouplingsOnly",
+        "2dim"
+      ],
+      "level": 6,
+      "line": 347,
+      "raw_latex_bytes": 6319,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "82406e3710156fe59326a981483a0bd43492bb1c02b247c61b133819a04d5ec0",
+      "title": "Example 1"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sct:diffCritic",
+        "fig:NoDif",
+        "fig:NoDifGaussian",
+        "fig:NoDif",
+        "fig:NoDifGaussian",
+        "prp:Gaussians",
+        "obs:nonDifMultiDim"
+      ],
+      "level": 4,
+      "line": 488,
+      "raw_latex_bytes": 9048,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4ab4ad9251735d116add015fa441e3cbe5b355ab1a0acd37af65d56c68dcaa81",
+      "title": "Differentiability of the critic"
+    },
+    {
+      "command": "subsection",
+      "labels": [],
+      "level": 4,
+      "line": 636,
+      "raw_latex_bytes": 714,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "9b78d44905031ce5c2e85be75ed9b26a9d02f67adeb080408917547ae283c4ca",
+      "title": "A discussion of the regularization of WGAN-GP"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:proposal"
+      ],
+      "level": 3,
+      "line": 648,
+      "raw_latex_bytes": 104,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "1f846b7cb59bc042fd9675fd2f5bb803677eafb326642b8ee443cbc3c869c9b2",
+      "title": "How to regularize WGANs"
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "sct:penalizingCorrectly",
+        "eq:LP-simple",
+        "eq:L",
+        "eq:WGAN-LP"
+      ],
+      "level": 6,
+      "line": 652,
+      "raw_latex_bytes": 3982,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "cc0d1ba83028406d72ba11051561e3312f2eeff26043534d9628d0bb2321113f",
+      "title": "Penalizing the violation of the Lipschitz constraint."
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "eq:WGAN-LP"
+      ],
+      "level": 4,
+      "line": 687,
+      "raw_latex_bytes": 609,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7f9717737e5ee5aeab60f2190dd82dbd34e89411361333ba9cbfaf47bcd10712",
+      "title": "Our proposal for WGANs"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sct:howToSample"
+      ],
+      "level": 4,
+      "line": 698,
+      "raw_latex_bytes": 702,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "02e3b4b90becd73adde432fd986cbbd2d198afc00796fceccd1530afd5f94d92",
+      "title": "Sample based estimate of the regularization term"
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "eq:OPT-L2"
+      ],
+      "level": 6,
+      "line": 709,
+      "raw_latex_bytes": 1457,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d73af7e3740fccd39469e2082d636905818eebc04127a0e1a05beefaad6a5b50",
+      "title": "The connection to regularized optimal transport."
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "prp:lambdaDependence"
+      ],
+      "level": 6,
+      "line": 720,
+      "raw_latex_bytes": 1081,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "30d24f0c3dd379399e48901e0c5e3a16ec5a1065ff878606ef1d98896bbb10bb",
+      "title": "Dependence on the regularization hyperparameter $\\lambda$."
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "eq:LP-general"
+      ],
+      "level": 6,
+      "line": 731,
+      "raw_latex_bytes": 2885,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "5730ca6e9f39b0a2c6b8b9eb8f2ebe56d476c57cbe83edbf1c608acb00fc3e9b",
+      "title": "A more general view."
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:experiments"
+      ],
+      "level": 3,
+      "line": 751,
+      "raw_latex_bytes": 3617,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "980b891e2a856644eed1412b09792dacf91fa03b57aadfeb93a98c662155232e",
+      "title": "Experiments"
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "fig:LevelSetSwissRoll"
+      ],
+      "level": 6,
+      "line": 784,
+      "raw_latex_bytes": 4339,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4a0e5fcd04d51fa3a67990293d6c4ce89ac44531403bedc7619fee58af2ee3d8",
+      "title": "Level sets of the critic."
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "qsdfqsdf",
+        "fig:WGANfLoss",
+        "fig:WGANfLoss"
+      ],
+      "level": 6,
+      "line": 843,
+      "raw_latex_bytes": 3720,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "204fd1f869936fdd42c9b69c7d875a32cc0d75d5eb7d29b3c246548b5e9c88e6",
+      "title": "Evolution of the critic loss."
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "fig:ExpEMD",
+        "fig:ExpEMD"
+      ],
+      "level": 6,
+      "line": 895,
+      "raw_latex_bytes": 3280,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b4dde4e88084ba1171050001feea66514e40ec7f992681113141ffd77bcdf179",
+      "title": "Estimating the Wasserstein distance."
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "Tab:IS",
+        "tab:IS",
+        "fig:lossComparison"
+      ],
+      "level": 6,
+      "line": 931,
+      "raw_latex_bytes": 5548,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0f6b7b71f8545093d6ad02dc7ced9bf6857ab33d52f0a0a84860a25e00e35101",
+      "title": "Sample quality on CIFAR-10."
+    },
+    {
+      "command": "paragraph",
+      "labels": [],
+      "level": 6,
+      "line": 1009,
+      "raw_latex_bytes": 380,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "243c67795ff723015d22988e32fd60c1e2b795dbeb7218060d7113118557e705",
+      "title": "Related penalties"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec:conclusion"
+      ],
+      "level": 3,
+      "line": 1013,
+      "raw_latex_bytes": 1244,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7fe11f1b066b2e687a3b2d91419b1ef656f0f4ff2994ad4b25274a076aeaa7a5",
+      "title": "Conclusion"
+    },
+    {
+      "command": "subsubsection",
+      "labels": [],
+      "level": 5,
+      "line": 1022,
+      "raw_latex_bytes": 292,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "72ee4e9e0221fe35b6209b4d2af90363705c27a8bd268da98644434ad230ec7a",
+      "title": "Acknowledgments"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "appendix:criticFunction",
+        "obs:falseGeneration",
+        "fig:criticLearnsWrong"
+      ],
+      "level": 3,
+      "line": 1039,
+      "raw_latex_bytes": 3338,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "320489e99a97e6df86b7990133ebeb082b38711bb86a8f7662327d763772c4b1",
+      "title": "Properties of an optimal critic function of WGANs"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sct:provingOptimality"
+      ],
+      "level": 4,
+      "line": 1093,
+      "raw_latex_bytes": 827,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7e4bdabae23753ef956e2afa1833ac7455da2296b7af9a008cf4958befc19f0a",
+      "title": "Proving optimality of certain combinations of coupling and critic function"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "appendix:weightClipping",
+        "lma:One",
+        "prp:weightclipping"
+      ],
+      "level": 3,
+      "line": 1104,
+      "raw_latex_bytes": 9714,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "2c7e4782609cad85c51bb3a37cc3c236bb5ebcdcb79b65e9a043b8821e12c0ee",
+      "title": "The issue with the weight clipping approach"
+    },
+    {
+      "command": "section",
+      "labels": [],
+      "level": 3,
+      "line": 1197,
+      "raw_latex_bytes": 0,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "title": "Proofs"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "appendix:kantorovich"
+      ],
+      "level": 4,
+      "line": 1199,
+      "raw_latex_bytes": 1564,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "cfcb77256b31b32c10296a157a2bdd344f1703cbe799500b33b5f58f52e5be80",
+      "title": "Proof of Theorem \\ref{thm:Kantorovich}"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "appendix:weightClipping"
+      ],
+      "level": 4,
+      "line": 1218,
+      "raw_latex_bytes": 31,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b2fa879396fe534a65358caf95b683f7e06e824d673c643165b21332b9ca237b",
+      "title": "Proof of Proposition \\ref{prp:weightclipping}"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "app:simpleProof"
+      ],
+      "level": 4,
+      "line": 1221,
+      "raw_latex_bytes": 1140,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "34953d7266672e85ad7358efd8fa20867ba7aa3d843b3989a8db92c28a1f3b40",
+      "title": "Proof of Proposition~\\ref{prp:WGan}"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "appendix:NoDifGaussian",
+        "prop:truncatedGaussian",
+        "prf:Gaussians"
+      ],
+      "level": 4,
+      "line": 1230,
+      "raw_latex_bytes": 7073,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "518c0529a10ec431abd8aab02e816acc91ba3f0248fb1a3344b6c3d4c59860cd",
+      "title": "Proof of Proposition \\ref{prp:Gaussians}"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "app:lambdaDependence"
+      ],
+      "level": 4,
+      "line": 1302,
+      "raw_latex_bytes": 871,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "99165229c61ab5ed8d7ea53a426879a7a106aa2e90a26d2b968a9daae340832c",
+      "title": "Proof of Proposition \\ref{prp:lambdaDependence}"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "app:nonDifMultiDim",
+        "scalarProduct"
+      ],
+      "level": 4,
+      "line": 1318,
+      "raw_latex_bytes": 1056,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "12224e77427a7e157f353b7c5c1a944def199921e50fa532b3ac623e1ab0394a",
+      "title": "The arguments supporting Observation~\\ref{obs:nonDifMultiDim}"
+    },
+    {
+      "command": "section",
+      "labels": [],
+      "level": 3,
+      "line": 1324,
+      "raw_latex_bytes": 0,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "title": "Additional experimental results"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "appendix:levelSets",
+        "fig:LevelSet8Gaussian",
+        "fig:LevelSet25Gaussian",
+        "fig:ExpEMD"
+      ],
+      "level": 4,
+      "line": 1325,
+      "raw_latex_bytes": 4550,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "655aa7268480d78afcfbd7948a7a392fa3afe85eecb05aa164a17ea68c2f5193",
+      "title": "Level sets of the critic"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "appendix:criticsLoss",
+        "fig:WGANfLoss-GPwp1"
+      ],
+      "level": 4,
+      "line": 1417,
+      "raw_latex_bytes": 533,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8a2f4968173ab5d22861731bf767c06ce4c177b5fa5ef91b1d5c682d92d1e06a",
+      "title": "Evolution of critics loss"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "appendix:EMdistance"
+      ],
+      "level": 4,
+      "line": 1428,
+      "raw_latex_bytes": 30,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "3aba6e9e7403b8dfb678f5c0e3b90891cc0411ae329ffa4a513e0c9ddc78bbe4",
+      "title": "Evolution of the EM distance"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "fig:ExpEMD-DRAGAN",
+        "fig:ExpEMDWGAN-GP-wp1"
+      ],
+      "level": 3,
+      "line": 1430,
+      "raw_latex_bytes": 1007,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "eae435895cd54b08df0c81eef16d60234e43ec528abe5847f9e1084c3926f5d0",
+      "title": "Drawbacks of Wasserstein approach"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "app:differentSampling",
+        "fig:LossDRAGAN",
+        "fig:ExpEMD-DRAGAN"
+      ],
+      "level": 4,
+      "line": 1455,
+      "raw_latex_bytes": 4109,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6f386a1891673720251c75c1a6b8dbb905806c2691d683cd1398920cd23b7ba4",
+      "title": "Different sampling methods"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "app:wasserstein2",
+        "eq:LP-general",
+        "fig:Wasserstein2"
+      ],
+      "level": 4,
+      "line": 1499,
+      "raw_latex_bytes": 1711,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8b23f9c897e5e4cee7d9f91df0830c51c54d5b9bd6aa4cf7094e01ac03f60550",
+      "title": "Optimizing the Wasserstein-2 distance"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "app:realExperiments"
+      ],
+      "level": 4,
+      "line": 1525,
+      "raw_latex_bytes": 27,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "da5e279ff954d30ae4ae0736fd65602466f23fda793a6651ca4e18f15233c101",
+      "title": "Experimental results on CIFAR"
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "fig:unconditional"
+      ],
+      "level": 6,
+      "line": 1527,
+      "raw_latex_bytes": 2988,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b2d4ec0d6cd3257785213c3fcf2dedb28f36611b5cd87f7a517b39bead9505b5",
+      "title": "Inception score."
+    },
+    {
+      "command": "paragraph",
+      "labels": [
+        "fig:lossComparison",
+        "fig:dev_set_comparison",
+        "fig:dev_set_comparison"
+      ],
+      "level": 6,
+      "line": 1564,
+      "raw_latex_bytes": 3911,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d5f2c846e5e74f99f7521b49c1d20cf2233af4acd1114c3ad4849c501252cffe",
+      "title": "Stability"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "App:Related",
+        "fig:LevelSetSwissRollRelated",
+        "fig:relatedIScompare"
+      ],
+      "level": 4,
+      "line": 1619,
+      "raw_latex_bytes": 3135,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "747da74a2bc3405190029cf86ce7a89063d872dc9fd5fd0755ac12fe70d120ab",
+      "title": "Related penalties"
+    }
+  ],
+  "source_package_bytes": 6466486,
+  "source_package_sha256": "f9cd3152a0f90989ab68c6afba0a0bb04ad1529ae75a833d68425fc7a8bb873a",
+  "status": "available_machine_parsed",
+  "theorem_like_blocks": [
+    {
+      "environment": "definition",
+      "labels": [],
+      "line": 145,
+      "raw_latex_bytes": 371,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b32423b359f8521afff1742ee4eaf7e8353c68dd39cb61031e410fef514bddf1"
+    },
+    {
+      "environment": "definition",
+      "labels": [],
+      "line": 149,
+      "raw_latex_bytes": 343,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "48947ee11f6353527b8c88d1043bb2892318ba927d29e7f45149cad1bb684c97"
+    },
+    {
+      "environment": "theorem",
+      "labels": [
+        "thm:Kantorovich",
+        "eq:duality"
+      ],
+      "line": 162,
+      "raw_latex_bytes": 1323,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "595e1e1ca2621ccdd0370776925d4d79a4a307dc48b13f6b1d0eb64134d5eb9a"
+    },
+    {
+      "environment": "lemma",
+      "labels": [
+        "lma:One"
+      ],
+      "line": 262,
+      "raw_latex_bytes": 277,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "6a28b6aa4a0a670f46d912e541a15de50413baf0284b496252d15d12c6f159ad"
+    },
+    {
+      "environment": "proof",
+      "labels": [],
+      "line": 265,
+      "raw_latex_bytes": 480,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "e141e2e7e41a174e9d91e5ae6aad1339cb084c822284a3fde5ea41f4097d884a"
+    },
+    {
+      "environment": "observation",
+      "labels": [],
+      "line": 277,
+      "raw_latex_bytes": 139,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "a1b7d5885172e8e8918d2bc4768f5a5d32434c10d0ff792b6e2ccd4c3c520a58"
+    },
+    {
+      "environment": "proposition",
+      "labels": [
+        "prp:weightclipping"
+      ],
+      "line": 286,
+      "raw_latex_bytes": 779,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "a20374f668b5b4c839bb53f3c8de42fc0e7e8eb175ddaf0f271b41d7add2f0c9"
+    },
+    {
+      "environment": "proposition",
+      "labels": [
+        "prp:WGan"
+      ],
+      "line": 317,
+      "raw_latex_bytes": 896,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0149d9e648ccc2dfe9df4ec397d830a27ca102534668bab7ac22a3c9b1346715"
+    },
+    {
+      "environment": "observation",
+      "labels": [],
+      "line": 341,
+      "raw_latex_bytes": 463,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0dc58f943f0a6e3f237bd546fbe29a1ff75c792129a7153bc0cc2d6449f29abc"
+    },
+    {
+      "environment": "observation",
+      "labels": [],
+      "line": 490,
+      "raw_latex_bytes": 131,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "75067fea1ca21fa1afc9f66e8a2053ab61c6f19c1c161df01fb4e60092fd2279"
+    },
+    {
+      "environment": "proof",
+      "labels": [
+        "fig:NoDif",
+        "fig:NoDifGaussian",
+        "fig:NoDif",
+        "fig:NoDifGaussian",
+        "prp:Gaussians",
+        "obs:nonDifMultiDim",
+        "sec:proposal",
+        "sct:penalizingCorrectly",
+        "eq:LP-simple",
+        "eq:L",
+        "eq:WGAN-LP",
+        "eq:WGAN-LP",
+        "sct:howToSample",
+        "eq:OPT-L2",
+        "prp:lambdaDependence",
+        "eq:LP-general",
+        "sec:experiments",
+        "fig:LevelSetSwissRoll",
+        "qsdfqsdf",
+        "fig:WGANfLoss",
+        "fig:WGANfLoss",
+        "fig:ExpEMD",
+        "fig:ExpEMD",
+        "Tab:IS",
+        "tab:IS",
+        "fig:lossComparison",
+        "sec:conclusion",
+        "appendix:criticFunction",
+        "obs:falseGeneration",
+        "fig:criticLearnsWrong",
+        "sct:provingOptimality",
+        "appendix:weightClipping",
+        "lma:One"
+      ],
+      "line": 495,
+      "raw_latex_bytes": 49217,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "9b2c18e18d6b602e5d9be377c98247670855af7e2a7fbc5dabab7d2d5ae11d15"
+    },
+    {
+      "environment": "observation",
+      "labels": [],
+      "line": 1121,
+      "raw_latex_bytes": 137,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "fd96a3ac3cb74133ba6584afe39dce41a666ee52bc0156e9829886406f4b6da6"
+    },
+    {
+      "environment": "proposition",
+      "labels": [
+        "prp:weightclipping"
+      ],
+      "line": 1132,
+      "raw_latex_bytes": 753,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b40b249a2f3b2a30b2a56b95b93dcd5253831bcd12bf1f84c49cd9ebe75acd89"
+    },
+    {
+      "environment": "proof",
+      "labels": [],
+      "line": 1146,
+      "raw_latex_bytes": 6211,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "e17f1619a3bb16b9ebd90f03b2e519dfe6aef74d63cc71ae12eb1f14b3c68871"
+    },
+    {
+      "environment": "proof",
+      "labels": [],
+      "line": 1202,
+      "raw_latex_bytes": 1530,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "17decf52fcdbf7904137415695bd34566a8f950e1c61193e1ed615d4eb5ed692"
+    },
+    {
+      "environment": "proof",
+      "labels": [],
+      "line": 1223,
+      "raw_latex_bytes": 1115,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8e4fc5639d1909e17a1bb2551e1d7a8e092f17291a6a98ff03214cb534cb610f"
+    },
+    {
+      "environment": "proposition",
+      "labels": [
+        "prop:truncatedGaussian"
+      ],
+      "line": 1235,
+      "raw_latex_bytes": 749,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "7b9d91a010305bb0fa628c1312bb2981e8c4d98883ede4348c97402e0b601935"
+    },
+    {
+      "environment": "proof",
+      "labels": [],
+      "line": 1247,
+      "raw_latex_bytes": 5051,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "c421d1c420370efa90885d63bd06c6ad21a776511550dc20ac2e794a53dbdeac"
+    },
+    {
+      "environment": "proof",
+      "labels": [
+        "prf:Gaussians"
+      ],
+      "line": 1296,
+      "raw_latex_bytes": 829,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "61d8b39e6adfa77d8a23bdc2906f46b1b12dee1ef71e8ae62861d91c4c53fe8e"
+    },
+    {
+      "environment": "proof",
+      "labels": [],
+      "line": 1305,
+      "raw_latex_bytes": 840,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d4cbefd401ad2e36489456df2dd32a448f743a64211a4eb9da74727d16085098"
+    },
+    {
+      "environment": "observation",
+      "labels": [],
+      "line": 1432,
+      "raw_latex_bytes": 177,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d7cdb47827cc3cae8f88f6fc60ff4af026d8a34391e99c84fa14182c3eea0e31"
+    }
+  ],
+  "unresolved_include_count": 0
+}

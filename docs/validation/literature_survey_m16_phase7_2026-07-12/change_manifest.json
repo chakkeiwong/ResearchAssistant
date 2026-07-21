@@ -1,0 +1,43 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 7,
+  "captured_at": "2026-07-12T08:12:45+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "implementation_passed_four_primary_read_only_agreements",
+  "authorized_plan_sha256": "b1505f4351f48af3331e39cedfbda22c81c420072ed31bd3079d90874b3e4391",
+  "product_and_test_hashes": [
+    {"path": "src/research_assistant/survey/discovery_quality.py", "sha256": "e77da75af28a95a3534873636b783ede873452c639d71c351903bf087e202015"},
+    {"path": "src/research_assistant/survey/build.py", "sha256": "a143bb46891f34f04c3a6bc485290ee0c9f8c18084f2f8257e4bb0c5158b0c2e"},
+    {"path": "src/research_assistant/survey/source_intake.py", "sha256": "fc7c1981e2e9373d5ed2e4f2859c644b544812a6cb1bc964acc4cd1964c421e1"},
+    {"path": "src/research_assistant/survey/supervisor.py", "sha256": "4a5eac36ebe0651958551d4109f4792df19ffe20f37ef17fa0bffb9de7afa7b7"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "sha256": "8d38875fab6d202b77d5c93ef4ad453ba8f37050d414b0378bda455f609fd039"},
+    {"path": "tests/unit/test_literature_survey_m16_phase6.py", "sha256": "872c1a0cfa49bdc8da16949b37b4a82c6205ace81f0a99927033bcfdff1b30c9"},
+    {"path": "tests/unit/test_literature_survey_m16_phase7.py", "sha256": "4c12c3a63bbb1632fad7be81a23576cd1b5fdcaf36da86bfd803bd15b0426370"},
+    {"path": "tests/integration/test_cli_commands.py", "sha256": "531a641636cce35e8a2cc51194054cfc327299aaadf2aa80e18afaf31431ac40"}
+  ],
+  "protected_dirty_file_hashes": [
+    {"path": "src/research_assistant/source/arxiv_source.py", "sha256": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8"},
+    {"path": "src/research_assistant/ingest/arxiv_batch.py", "sha256": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be"},
+    {"path": "tests/unit/test_arxiv_source.py", "sha256": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"},
+    {"path": "tests/integration/test_arxiv_batch_intake.py", "sha256": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80"}
+  ],
+  "validation": {
+    "phase7_unit_postrepair": "58 passed",
+    "focused_phase7_postrepair": "62 passed",
+    "phase6_phase7_postrepair": "137 passed",
+    "combined_m16_postrepair": "201 + 95 + 137 = 433 passed",
+    "full_unit_postrepair": "433 M16 + 204 non-M16 = 637 passed",
+    "full_cli_integration_postrepair": "124 passed",
+    "exact_survey_scripts_postrepair": "6 passed",
+    "phase8_ux_postrepair": "passed with zero issues",
+    "compile_static_writer_transport_diff": "passed",
+    "inventory_reconciliation": "passed",
+    "implementation_review": "passed; four packet-only primary Claude Opus/max reviews returned VERDICT: AGREE"
+  },
+  "non_authoritative_artifacts": [
+    "docs/validation/literature_survey_m16_phase7_2026-07-12/combined_phase1_through_phase7.xml",
+    "docs/validation/literature_survey_m16_phase7_2026-07-12/unit_shard2.xml",
+    "docs/validation/literature_survey_m16_phase7_2026-07-12/combined_m16_postrepair.xml"
+  ],
+  "unexpected_mismatches": []
+}

@@ -1,0 +1,119 @@
+{
+  "artifacts": {
+    "credential_free_openalex_adapter": {
+      "path": "src/research_assistant/survey/openalex_adapter.py",
+      "sha256": "e079e50a5e6024eda3425393816ecfe75e05608a1e8c99890648af3c28ffd31e"
+    },
+    "m20b2_boundary_module": {
+      "path": "src/research_assistant/survey/openalex_credential_cost.py",
+      "sha256": "9fe8f51937589c07d2cfe2e03807f96834f42e14fdadde56c5b6da1423717a8c"
+    },
+    "m20b2_script_tests": {
+      "path": "tests/scripts/test_literature_survey_m20b2_synthetic_validation.py",
+      "sha256": "54d4f70d8077848b015891a460cc433b219552905b75c8f3d1b6ae3383981689"
+    },
+    "m20b2_synthetic_validation_script": {
+      "path": "scripts/literature_survey_m20b2_synthetic_validation.py",
+      "sha256": "50c58a86eaf6af29487343af8fb1e99714b3cfc3f91e2fe569cc52160c659449"
+    },
+    "m20b2_unit_tests": {
+      "path": "tests/unit/test_literature_survey_m20b2_credential_cost.py",
+      "sha256": "923189643b9411bdb4a8c7570d35e2a80ae76a8c9c8106cf346b4c9f4334d68d"
+    },
+    "combined_m19_m20_m20b2_junit": {
+      "path": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v8_2026-07-15/junit/combined_m19_m20_m20b2_retry1.xml",
+      "sha256": "35c2d06961c867f920f10cb099410f4153a578631d1db167f6bfb3f1a6f2e591"
+    },
+    "focused_junit": {
+      "path": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v8_2026-07-15/junit/focused.xml",
+      "sha256": "c3ca2326cd63031c65ee851fe0415c21eab3deaab43aca4220c99bffb8347a14"
+    },
+    "retained_m20b1_junit": {
+      "path": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v8_2026-07-15/junit/retained_m20b1.xml",
+      "sha256": "f57156b9ae01c226bbcc0c312994f3942cffa4051da91da9abca7735b6f53ede"
+    },
+    "synthetic_validation": {
+      "path": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v8_2026-07-15/synthetic_validation.json",
+      "sha256": "e7bfcee324c3d0c318da7b95cd4e02ccffddbf8e8d63697abc23fc8d5380c58a"
+    }
+  },
+  "attempts": {
+    "prior_roots": [
+      {
+        "classification": "superseded_incorrect_named_source_occurrence_accounting",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_2026-07-15"
+      },
+      {
+        "classification": "superseded_after_occurrence_accounting_repair",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v2_2026-07-15"
+      },
+      {
+        "classification": "superseded_after_fake_sink_ephemerality_repair",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v3_2026-07-15"
+      },
+      {
+        "classification": "superseded_before_encoded_echo_repair",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v4_2026-07-15"
+      },
+      {
+        "classification": "superseded_after_round1_review_found_missing_state_token_and_encoded_ipc_scan",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v5_2026-07-15"
+      },
+      {
+        "classification": "superseded_before_no_unlock_gap_transaction_repair",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v6_2026-07-15"
+      },
+      {
+        "classification": "superseded_before_structured_context_manager_cleanup",
+        "root": "docs/validation/literature_survey_m20b2_synthetic_credential_cost_v7_2026-07-15"
+      }
+    ],
+    "v8_combined_attempts": [
+      {
+        "artifact_created": false,
+        "classification": "interrupted_infrastructure_exit_143_during_concurrent_local_pytest",
+        "result": "partial progress only; not evidence"
+      },
+      {
+        "artifact": "junit/combined_m19_m20_m20b2_retry1.xml",
+        "classification": "authoritative_isolated_retry",
+        "result": "221 passed in 4.82s"
+      }
+    ]
+  },
+  "checks": {
+    "canary_prefix_scan_matches": 0,
+    "combined_m19_m20_m20b2": "221 passed in 4.82s",
+    "compile": "passed",
+    "credential_pattern_scan_matches": 0,
+    "diff_hygiene": "passed",
+    "focused": "33 passed in 0.20s",
+    "junit_failures": 0,
+    "junit_parse": "passed",
+    "m20b1_retained": "42 passed in 0.28s",
+    "network_used": false,
+    "real_credential_accessed": false,
+    "report_replay": "M20B2_V8_REPLAY_OK",
+    "report_scenario_count": 11,
+    "shared_reconciled_cost_usd": "0.0011",
+    "total_campaign_cost_cap_usd": "0.01"
+  },
+  "environment": {
+    "cpu_only": true,
+    "credential_variable_removed_from_test_commands": "OPENALEX_API_KEY",
+    "python": "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "pythonpath": "src"
+  },
+  "git_commit": "ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5",
+  "limitations": [
+    "synthetic_canaries_only",
+    "enumerated_raw_percent_form_json_and_one_nested_json_representations_only",
+    "enumerated_test_surfaces_only",
+    "synchronous_dispatch_transaction_holds_one_reentrant_lock_through_callback_validation_reconciliation_and_evidence",
+    "no_provider_or_network_behavior_checked",
+    "no_real_credential_accessed",
+    "no_git_integration_or_installed_worker_checked"
+  ],
+  "schema_version": "ra-literature-survey-m20b2-evidence-manifest-v1",
+  "status": "authoritative_candidate_round2_material_review_pending"
+}

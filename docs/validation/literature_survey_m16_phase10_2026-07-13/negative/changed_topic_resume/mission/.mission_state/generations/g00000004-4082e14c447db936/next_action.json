@@ -1,0 +1,183 @@
+{
+  "action_id": "source_intake",
+  "approval_required": false,
+  "blockers": [],
+  "created_at": "2026-07-13T05:46:52+00:00",
+  "forbidden_actions": [
+    "do not run live/API/source/PDF/download/credential actions implicitly",
+    "do not run public discovery before public_discovery_confirmation.confirmed is true",
+    "do not treat reviewed sidecar discovery as final prose readiness",
+    "do not hide reviewed-evidence blockers",
+    "do not use credentials, private databases, paid model workers, hidden evaluator material, unbounded crawling, or outputs outside the mission directory without separate explicit approval"
+  ],
+  "gate_id": "source_intake",
+  "generation_id": "g00000004-4082e14c447db936",
+  "mission_fingerprint": "87e8bef6e27e7084312ab65c6819f98b4b4d7b4210e8d13fed89e9a8938b33f1",
+  "mission_id": "190e25ca-0de7-4b14-80b1-25333ee97da5",
+  "mission_status": "blocked_at_gate",
+  "public_discovery_confirmation": {
+    "confirmation_source": "cli",
+    "confirmed": true,
+    "confirmed_at": "2026-07-13T05:46:51+00:00",
+    "forbidden_actions": [
+      "credentials",
+      "private_databases",
+      "paid_model_worker_trials",
+      "hidden_evaluator_material",
+      "unbounded_crawling",
+      "writes_outside_mission_output",
+      "technical_claim_support_from_metadata_or_source_availability",
+      "final_prose_readiness_from_discovery_alone"
+    ],
+    "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+    "schema_version": "ra-survey-public-discovery-confirmation-v1",
+    "scope": {
+      "allowed_actions": [
+        "local_cache_lookup",
+        "bounded_public_web_api_metadata",
+        "public_archive_search",
+        "public_source_status_lookup",
+        "capped_public_source_pdf_full_text_retrieval"
+      ],
+      "allowed_domains": [
+        "api.openalex.org",
+        "export.arxiv.org",
+        "arxiv.org"
+      ],
+      "caps": {
+        "max_metadata_records": 25,
+        "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission"
+      },
+      "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission",
+      "providers": [
+        "openalex",
+        "arxiv"
+      ],
+      "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+    },
+    "status": "confirmed",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "required_artifacts": [
+    "phase4_source_intake_status.json"
+  ],
+  "safe_next_commands": [
+    "continue within the recorded public-discovery scope by providing or implementing bounded phase4_source_intake_status.json; do not request a second ordinary public source/archive approval"
+  ],
+  "schema_version": "ra-survey-public-source-next-action-v1",
+  "source_intake_metadata_authority": {
+    "artifact_rows": [
+      {
+        "name": "build_manifest.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/build_manifest.json",
+        "sha256": "c9cfb73dac1a990944a75170ed95141fd0bf7c7159c766afc3112d054fea39da",
+        "size_bytes": 6216
+      },
+      {
+        "name": "candidate_ledger.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/candidate_ledger.json",
+        "sha256": "787becadf6e28f73d9b6318d8ff1037e6c2d17e51baf5de4532e31ad809e35ac",
+        "size_bytes": 2516
+      },
+      {
+        "name": "citation_map.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/citation_map.json",
+        "sha256": "f0ad6f9ff05fbe1057bb250e75f3589b1ffbb445175232e082caa63468de4eab",
+        "size_bytes": 3734
+      },
+      {
+        "name": "claim_support.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/claim_support.json",
+        "sha256": "04bf2c77f7cef555b04c110b6c0ca243f61e8ff68f3404495d3fd869da6f10e9",
+        "size_bytes": 626
+      },
+      {
+        "name": "identity_resolution.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/identity_resolution.json",
+        "sha256": "ea30a4724bbe1d8df78a21b222f2bb1215e5cfac5c9e0cdf1f1ee424413fe827",
+        "size_bytes": 5455
+      },
+      {
+        "name": "metadata_provenance.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/metadata_provenance.json",
+        "sha256": "2c1fda74832d0fd6a046bcf38e7e91b1c1e579b363d74396f486dae02b2bcc39",
+        "size_bytes": 2604
+      },
+      {
+        "name": "omission_risk.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/omission_risk.json",
+        "sha256": "3540279a52f534629e682e509a7fdfc3a323258c6658114c5bd01a79b3d76b75",
+        "size_bytes": 2920
+      },
+      {
+        "name": "paper_classifications.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/paper_classifications.json",
+        "sha256": "752ec325129da3d804e12d81661cd5dc2dc67593348b75ff7f1696b8cb1b382a",
+        "size_bytes": 1002
+      },
+      {
+        "name": "relevance_ranking.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/relevance_ranking.json",
+        "sha256": "38ecc8284f953245828d4645625327d5b5784613fd7ee2d376c8cfc1e96e180f",
+        "size_bytes": 1156
+      },
+      {
+        "name": "source_support.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/source_support.json",
+        "sha256": "36370f57ebd62471c88e178a14f0565785f70b1798e68f4ebef9af8d1341cacd",
+        "size_bytes": 1054
+      },
+      {
+        "name": "survey_packet.md",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/survey_packet.md",
+        "sha256": "fb99250eb5e85ec5caa0978c9da5b1810d96cfeb4689a265105382852898bf18",
+        "size_bytes": 1730
+      },
+      {
+        "name": "workflow_state.json",
+        "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/workflow_state.json",
+        "sha256": "dea1f2baac701a35938b8b081661040185b91c20a347d79869be18ad7a83e470",
+        "size_bytes": 1102
+      }
+    ],
+    "build_manifest_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/build_manifest.json",
+    "build_manifest_sha256": "c9cfb73dac1a990944a75170ed95141fd0bf7c7159c766afc3112d054fea39da",
+    "build_manifest_size_bytes": 6216,
+    "candidate_count": 1,
+    "candidate_ledger_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata/candidate_ledger.json",
+    "candidate_ledger_sha256": "787becadf6e28f73d9b6318d8ff1037e6c2d17e51baf5de4532e31ad809e35ac",
+    "candidate_ledger_size_bytes": 2516,
+    "candidate_set_sha256": "6075f5b70f7c26dbfad92503306ee6b4d9607374b797e3c05d2dd1059fa468ac",
+    "metadata_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata",
+    "mission_fingerprint": "87e8bef6e27e7084312ab65c6819f98b4b4d7b4210e8d13fed89e9a8938b33f1",
+    "mission_id": "190e25ca-0de7-4b14-80b1-25333ee97da5",
+    "normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "normalized_topic_key": "neural optimal transport for generative modeling and inference",
+    "schema_version": "ra-survey-source-intake-metadata-authority-v2"
+  },
+  "status": "blocked_missing_public_source_intake_artifact",
+  "summary": "Public source/status lookup is covered by the mission public-discovery confirmation, but this workflow still needs phase4_source_intake_status.json from a bounded source-status implementation or existing artifact.",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

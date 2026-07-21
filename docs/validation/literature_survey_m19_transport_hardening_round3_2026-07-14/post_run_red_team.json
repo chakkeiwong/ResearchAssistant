@@ -1,0 +1,16 @@
+{
+  "schema_version": "ra-literature-survey-m19a-post-run-red-team-v2",
+  "status": "no_m19a_continuation_veto_after_repair",
+  "strongest_alternative_explanation": "The fake opener and deterministic worker may still miss behavior unique to real urllib, DNS, TLS, remote servers, or the live network path.",
+  "response": "M19A establishes only repaired local boundary engineering. A separately approved one-shot live attempt is still required to observe real transport behavior.",
+  "result_that_would_overturn_the_conclusion": "A replay mismatch, changed committed code hash, unexpected exception projected as provider unavailable, unaccounted request, proxy/redirect/retry escape, missing cleanup, outside write, invalid artifact, or protected-path drift.",
+  "weakest_evidence": "No packet capture or real-provider exercise occurred by design; third-party dependency closure remains assisted by system site packages.",
+  "observed_repairs": [
+    "terminal review round 1 correctly rejected broad unexpected-parser fallback",
+    "commit bb4300c added fail-closed parser handling and two catching regressions",
+    "round 2 failed collection because the current shell lacked the installed package with PYTHONPATH unset",
+    "the isolated venv initially skipped the wheel because an inherited system package had the same version; force-reinstall corrected package origin",
+    "round 3 ran every gate from the isolated installed wheel and passed"
+  ],
+  "interpretation": "The round-1 defect was a real product boundary defect. Later import/install issues were harness failures. None supports provider, source, scientific, or product claims."
+}

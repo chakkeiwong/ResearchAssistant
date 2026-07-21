@@ -1,0 +1,51 @@
+{
+  "artifacts": {
+    "adapter_runtime": {
+      "path": "src/research_assistant/survey/openalex_adapter.py",
+      "sha256": "e079e50a5e6024eda3425393816ecfe75e05608a1e8c99890648af3c28ffd31e"
+    },
+    "adapter_tests": {
+      "path": "tests/unit/test_literature_survey_m20_openalex_adapter.py",
+      "sha256": "a2a4603828ef6846df908df521f198a66d2161b0d4ba82f7f42fc3ccf8738c73"
+    },
+    "affected_m16_m17_junit": {
+      "path": "docs/validation/literature_survey_m20_route_specific_adapter_2026-07-14/junit/affected_m16_m17.xml",
+      "sha256": "03c86ad9a6f5b14748ee102ec1874bb701b0cbc03bd8b8ff41bf7e47fb7868a9"
+    },
+    "discovery_runtime": {
+      "path": "src/research_assistant/survey/discovery_capability.py",
+      "sha256": "317929ad18e933380efda3d9f4e11895389365953f88d65a41fe1215d42ce464"
+    },
+    "discovery_tests": {
+      "path": "tests/unit/test_literature_survey_m20_discovery.py",
+      "sha256": "a2ddc705b3396ffeb7491e8d96e79f86a305432a71182524e34817903d62593e"
+    },
+    "m19_m20_adapter_junit": {
+      "path": "docs/validation/literature_survey_m20_route_specific_adapter_2026-07-14/junit/m19_m20_adapter_round3.xml",
+      "sha256": "f5cfa7d423c464ceaafd76e97b7804fdef03fa0bcf65bdc9936693384ce64bfe"
+    },
+    "subplan": {
+      "path": "docs/plans/literature_survey_north_star_m20a_route_specific_openalex_adapter_subplan_2026-07-14.md",
+      "sha256": "94f574529445268c05590add9a9539db1a98cb20e828842a1ae9797e64b911ff"
+    }
+  },
+  "automaton_sha256": "a1f3d6126de27880ebb9804dcb075091b9694fc9b8d36f005e327b29bdefc0b7",
+  "baseline_commit": "ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5",
+  "environment": {
+    "cpu_only": true,
+    "cuda_visible_devices": "-1",
+    "network_used": false,
+    "python": "/home/chakwong/anaconda3/envs/tf-gpu/bin/python"
+  },
+  "schema_version": "ra-literature-survey-m20-route-specific-code-test-manifest-v1",
+  "tests": {
+    "affected_m16_m17": {
+      "passed": 846,
+      "seconds": 493.19
+    },
+    "m19_m20_adapter": {
+      "passed": 188,
+      "seconds": 4.59
+    }
+  }
+}

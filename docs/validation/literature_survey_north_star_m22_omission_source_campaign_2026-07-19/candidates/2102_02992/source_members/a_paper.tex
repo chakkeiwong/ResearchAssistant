@@ -1,0 +1,1889 @@
+%  ICML 2021 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+% \usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% \usepackage{thmtools} 
+\usepackage{thm-restate}
+
+\usepackage{lipsum}
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+% \newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[preprint]{neurips_2021}
+% \usepackage[preprint]{neurips_2021}
+% \usepackage[final]{neurips_2021}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{amsfonts}
+\usepackage{physics}
+\usepackage{subfig}
+\usepackage{multirow}
+
+\usepackage[normalem]{ulem}
+\usepackage{enumitem}
+
+\title{Learning High Dimensional Wasserstein Geodesics}
+
+\newcommand{\zha}[1]{{\color{red} Zha: #1}}
+\newcommand{\chen}[1]{\textcolor{cyan}{#1}}
+\newcommand{\equal}{\textsuperscript{*}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{prop}{Proposition}
+\newtheorem{manualtheoreminner}{Theorem}
+\newenvironment{manualtheorem}[1]{%
+  \renewcommand\themanualtheoreminner{#1}%
+  \manualtheoreminner
+}{\endmanualtheoreminner}
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+% \newcommand{\theHalgorithm}{\arabic{algorithm}}
+\usepackage{algorithm}% http://ctan.org/pkg/algorithms
+\usepackage{algpseudocode}%
+
+\newcommand{\thickhat}[1]{\mathbf{\hat{\text{$#1$}}}}
+\newcommand{\thickbar}[1]{\mathbf{\bar{\text{$#1$}}}}
+\newcommand{\thicktilde}[1]{\mathbf{\tilde{\text{$#1$}}}}
+
+\newtheorem{sublemma}{Lemma}[lemma]
+
+
+\newtheorem{innercustomprop}{Proposition}
+\newenvironment{customprop}[1]
+  {\renewcommand\theinnercustomprop{#1}\innercustomprop}
+  {\endinnercustomprop}
+
+\newtheorem{innercustomlemma}{Lemma}
+\newenvironment{customlemma}[1]
+  {\renewcommand\theinnercustomlemma{#1}\innercustomlemma}
+  {\endinnercustomlemma}
+  
+\newtheorem{innercustomthm}{Theorem}
+\newenvironment{customthm}[1]
+  {\renewcommand\theinnercustomthm{#1}\innercustomthm}
+  {\endinnercustomthm}
+  
+  
+\begin{document}
+
+
+
+\author{
+  Shu Liu\thanks{Equal contribution} \\
+  Department of Mathematics\\
+  Georgia Institute of Technology\\
+  Atlanta, GA 30332, USA \\
+  \texttt{sliu459@gatech.edu} \\
+   \And
+   Shaojun Ma\equal\\
+   Department of Mathematics \\
+   Georgia Institute of Technology\\
+    Atlanta, GA 30332, USA\\
+   \texttt{shaojunma@gatech.edu} \\
+   \And
+   Yongxin Chen \\
+   Department of Aerospace Engineering \\
+   Georgia Institute of Technology\\
+   Atlanta, GA 30332, USA \\
+   \texttt{yongchen@gatech.edu} \\
+   \And
+   Hongyuan Zha \thanks{The research of Hongyuan Zha is supported in part by a grant from Shenzhen Research Institute of Big Data}\\
+   School of Data Science \\
+   Shenzhen Research Institute of Big Data\\
+   The Chinese University of Hong Kong\\
+   Shenzhen, Guangdong Province 518172, China \\
+   \texttt{zhahy@cuhk.edu.cn} \\
+   \And
+   Haomin Zhou \\
+   Department of Mathematics \\
+   Georgia Institute of Technology\\
+   Atlanta, GA 30332, USA \\
+   \texttt{hmzhou@math.gatech.edu} \\
+}
+
+\maketitle
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+% \icmlkeywords{Machine Learning, ICML}
+
+% \vskip 0.3in
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+% \printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+% \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
+\begin{abstract}
+We propose a new formulation and learning strategy for computing the Wasserstein geodesic between two probability distributions in high dimensions. By applying the method of Lagrange multipliers to the dynamic formulation of the optimal transport (OT) problem, we derive a minimax problem whose saddle point is the Wasserstein geodesic. We then parametrize the functions by deep neural networks and design a sample based bidirectional learning algorithm for training. The trained networks enable sampling from the Wasserstein geodesic. As by-products, the algorithm also computes the Wasserstein distance and OT map between the marginal distributions. We demonstrate the performance of our algorithms through a series of experiments with both synthetic and real-world data. 
+
+%meanwhile the Wasserstein distance and optimal transport map from one probability distribution to another can also be computed. First we start with the fluid dynamics formulation of the optimal transport (OT) problem, by applying the method of Lagrange multipliers, we obtain the OT problem in a saddle scheme. Second, we parametrize the transport map and the Lagrange multiplier by deep neural networks, making it possible for us to deal with high-dimensional case. Since we handle the OT problem as a learning task, we utilize the Benamou-Brenier solution structure to draw samples.
+% \zha{coherence! how does this relate to the saddle point problem?} 
+%Finally we extend our framework into a bidirectional form to facilitate the training. We demonstrate our model's performance through a series of synthetic and realistic data sets.
+\end{abstract}
+
+\section{Introduction}
+As a key concept of optimal transport (OT) \citep{villani2003topics}, Wasserstein distance has been widely used to evaluate the distance between two distributions. Suppose we are given any two probability distributions $\rho_a$ and $\rho_b$ on $\mathbb{R}^d$, the Wasserstein distance between $\rho_a$ and $\rho_b$ is defined as
+\begin{equation}
+    % W_p(\rho_a,\rho_b) = 
+    \inf_{\pi}\left\{\int_{\mathbb{R}^d\times \mathbb{R}^d}c(x,y)d\pi (x,y)\big|\pi\in \Pi(\rho_a,\rho_b)\right\}
+    \label{Static OT}
+\end{equation}
+in the Kantorovich form. Here $c(x,y)$ is the cost function that quantifies the effort of moving one unit of mass from location $x$ to location $y$, and $\Pi(\rho_a,\rho_b)$ is the set of joint distribution of $\rho_a$ and $\rho_b$. The solution of OT refers to an optimal $\pi^*$ to attain the Wasserstein distance between two distributions as well as an optimal map $g$ such that $g(x)$ and $y$ have the same distribution when $x \sim \rho_a$. 
+
+\begin{figure}[ht]
+\centering
+\subfloat[][t=0]{\includegraphics[width=.2\linewidth]{new_gaussian_geo1.png}}
+\subfloat[][t=0.25]{\includegraphics[width=.2\linewidth]{new_gaussian_geo2.png}}
+\subfloat[][t=0.5]{\includegraphics[width=.2\linewidth]{new_gaussian_geo3.png}}
+\subfloat[][t=0.75]{\includegraphics[width=.2\linewidth]{new_gaussian_geo4.png}}
+\subfloat[][t=1]{\includegraphics[width=.2\linewidth]{new_gaussian_geo5.png}}
+\caption{Wasserstein geodesic between two Gaussians}
+\label{fig:geodesic}
+% \vspace{-1em}
+\end{figure}
+
+When applying OT-related computations to applications, the Kantorovich duality form has been widely studied and applied. For example, many regularized OT problems have been investigated,
+%to compute Wasserstein distance and related variants, 
+including entropic regularized OT \citep{cuturi2013sinkhorn, largeot}, Laplacian regularization \citep{lapregular}, Group-Lasso regularized OT \citep{grouplasso}, Tsallis regularized OT \citep{tsallis} and OT with $L^2$ regularization \citep{l2regular}.
+
+
+Based on the Kantorovich form, specially if choosing cost function as $c(x,y) = \frac{1}{2}|x-y|^2$ which results in the well-known $2$-Wasserstein distance, %denoted by $W_2$,  
+the OT problem can be rewritten in a fluid dynamics perspective \citep{benamou2}: %rewrites the OT problem from a fluid dynamics perspective:
+$W_2$ defined below is the square of $2$-Wasserstein distance,
+\begin{align}
+    W_2(\mu,\nu) = & \textrm{inf} \left\{ \int_{\mathbb{R}^d}\int_0^1\rho(x,t)|v(x,t)|^2dxdt\right\},\nonumber\\
+    \text{subject to:}~~&\partial_t\rho + \nabla\cdot(\rho v)=0,~~~\rho(\cdot,0) = \rho_a, ~~ \rho(\cdot,1) = \rho_b.
+    \label{eqn:fluiddynamics}
+\end{align}
+% where a time interval is fixed on $[0,T]$, $x\in \mathbb{R}^d$, $\rho(x,t)\geq 0$, $v(x,t)\in \mathbb{R}^d$ are density and velocity fields, then corresponding optimal map is given by $\nabla \Phi^*$ for some convex potential $\Phi^*$:
+% \begin{align}
+%     &X(x,t) = x + \frac{t}{T}(\nabla \Phi^*(x) - x)\nonumber\\
+%     &\text{where:}~~X(x,0) = x, ~~\partial_tX(x,t) = v(X(x,t),t)
+%     \label{eqn:optsol}
+% \end{align}
+% Then by setting $T=1$ and applying a Lagrange multiplier we have the dual form of Benamou-Brenier problem.
+% \begin{align}
+%     &\underset{\Phi, \rho}{\sup}\int \Phi(x,1)\rho(x,1) - \int \Phi(x,0)\rho(x,0)\nonumber\\
+%     &\text{subject to:}~~\frac{\partial \Phi}{\partial t} + \frac{1}{2}|\nabla \Phi|^2 = 0
+%     \label{eqn:dualfluid}
+% \end{align}
+Solving \eqref{eqn:fluiddynamics} leads to the following partial differential equation (PDE) system:
+\begin{align}
+    &\partial_t\rho + \nabla\cdot(\rho \nabla \Phi)=0, ~~~\frac{\partial \Phi}{\partial t} + \frac{1}{2}|\nabla \Phi|^2 = 0,  \nonumber\\
+    % &\text{subject to:}~~\rho(\cdot,0) = \mu, ~~~ \Phi(\cdot, 0) = \Phi_0 \\
+    &\text{subject to:}~~\rho(\cdot,0) = \rho_a, ~~~ \rho(\cdot, 1) = \rho_b.
+    \label{eqn:otpde}
+\end{align}
+The solution of Problem \eqref{eqn:fluiddynamics} or \eqref{eqn:otpde} gives the definition of Wasserstein {\it geodesic}: if there exists an optimal pushforward map $\Xi^*$ between $\rho_a$ and $\rho_b$, then the constant speed geodesic is defined as a continuous curve: $\rho_t = (\textrm{Id} + t \Xi^*)_\sharp \rho_a$\footnote{Please check Definition \ref{pushfwd of distribution}.
+% Suppose $T:\mathbb{R}^d\rightarrow \mathbb{R}^d$ and $\lambda$ is a probability distribution on $\mathbb{R}^d$, then $T_{\sharp}\lambda$ is defined as $T_{\sharp}\lambda(E) = \lambda(T^{-1}(E))$ for all measurable set $E \subset \mathbb{R}^d$.
+}, which depicts the trajectory of $x_0 \in \rho_a$ moving towards $x_1 \in \rho_b$. Here $\textrm{Id}$ stands for the identity map.
+
+Knowing Wasserstein geodesic between $\rho_a$ and $\rho_b$ (refer to Figure \ref{fig:geodesic} as an example, trajectory of the distribution mean is indicated by a red line) provides ample information for their Wasserstein distance and optimal pushforward map. More importantly, since the Wasserstein geodesic is automatically kinetic-energy-minimizing, it offers a natural sampling mechanism without using additional artificial regularization to generate samples not only for the target distribution $\rho_b$, but also for all distributions along the Wasserstein geodesic. This is different from several recent OT based models for computing the optimal pushforward map, such as Jacobian and Kinetic regularized OT \citep{trainode} and $L^2$ regularized OT \citep{pfg}.  
+%However, computing Wasserstein geodesic directly through Problem \eqref{eqn:fluiddynamics} or \eqref{eqn:otpde} presents a well-known challenge, especially in high dimensional settings because it usually requires spatial discretization. To tackle this issue, we propose a novel sample based method to compute the geodesic directly. A pleasant byproduct of our method is that for $\rho_a$ and $\rho_b$, their Wasserstein distance and the optimal push forward map can be all obtained in the same framework. Besides the typical regularized OT methods we mentioned before, other Benamou-Brenier model based methods such as Jacobian and Kinetic regularized OT \cite{trainode} and $L^2$ regularized OT \cite{pfg} are proposed to compute an optimal map.\zha{Last sentence not clear!}
+
+
+% {\color{blue} Could we consider more general one:
+% \begin{align}
+%     &\frac{\partial \rho(x,t)}{\partial t} + \nabla\cdot(\rho(x,t) \nabla L^{-1}(\nabla \Phi(x,t)))=0,  \label{continuity in geodesic eq}\\
+%     &\frac{\partial \Phi(x,t)}{\partial t} + H(\nabla \Phi(x,t)) = 0  \label{HJ in geodesic eq}\\
+%     &\textrm{subject to:}~~\rho(\cdot,0) = \rho_a, ~\rho(\cdot, 1) = \rho_b.
+% \end{align}
+% }
+
+Wasserstein geodesic also finds applications in robotics and optimal control communities. 
+%OT problem has also raised interests of robotics and optimal control communities.
+\citet{otrobotics1} apply Brenier-Benamou OT to swarm control and updates the velocity of each agent. \citet{otrobotics2} study the locations of robots by minimizing the Wasserstein distance between original and target distributions. \citet{otcontrol1, otcontrol2} investigate diverse OT applications in control theories. Currently, the research that combines OT with robotics or control is still limited to low dimensions. We believe, having a method to compute the Wasserstein geodesic, especially in high dimensional setups, will be very beneficial for developing novel algorithms and applications in robotics and control, such as path planning for multi-agent systems.   
+%and consider that Wasserstein geodesic may be beneficial for providing the trajectories of the agents, we believer it is worth more effort to investigate high dimensional Wasserstein geodesic. \zha{Motivations are not well articulated!}
+
+Last but not least, finding an efficient method to compute the Wasserstein geodesic is important and challenging in applied mathematics as well. It is well-known that  directly solving Problem \eqref{eqn:fluiddynamics} or \eqref{eqn:otpde} by the traditional numerical PDE methods, such as finite difference or finite element method which requires spatial discretization, must face the {\it curse of dimensionality}, meaning that the computational cost grows exponentially as the dimension increases.
+
+To this end, we first formulate the OT problem as a saddle point problem without introducing any regularizers. We also further reduce the search space for the saddle point problem by leveraging KKT conditions. We then parametrize the optimal maps as well as the Lagrange multipliers via deep neural networks, which can be trained alternately. The resulting method is a sample based algorithm that is capable of handling high dimensional Wasserstein geodesic. It is worth mentioning that there is no Lipschitz or convexity constraint on the neural networks in our computation. Those constraints become thorny issues when they can only be approximately enforced in methods for other Wasserstein related problems. Furthermore, our formulation is based on a Lagrangian framework which can be readily generalized to various alternative cost functions, including the $L^p$-Wasserstein distance. To the best of our knowledge, there is no method to compute high dimensional Wasserstein distance, optimal map as well as Wasserstein geodesic all at once for a general cost function. We validate our method through a series experiments on both synthetic and realistic data sets. To summarize, our contributions are:
+% \vspace{-0.5em}
+\begin{itemize}[leftmargin=*]
+    \item We develop a novel saddle point formulation so that high dimensional Wasserstein geodesic, optimal map as well as Wasserstein distance between two given distributions can be computed in one single framework.
+    \item Our scheme is formulated to handle general convex cost functions, including the general $L^p$-Wasserstein distance. More importantly, it provides a method without requiring convexity or Lipschitz constraint.
+    \item We show the effectiveness of our method through extensive numerical experiments with both synthetic and realistic data sets. %Though our experiments are mainly conducted under $W_2$, we initialize them with a general cost function but not restrict to $L^2$.
+\end{itemize}
+% \vspace{-0.8em}
+% Another important concept is Wasserstein geodesic.(robotics application, mathematically difficult)
+\textbf{Related work:}
+% \zha{The following is all related work!}
+Traditional approaches \citep{benamou2,benamou1,parallelot,unnormot} for OT problems are designed to handle low dimensional settings but become infeasible in high dimensional cases since those methods are based on spatial discretizations. In machine learning community, researchers utilize OT to drive one distribution to another, and the Sinkhorn algorithm has been widely adopted \citep{lineartimeotsinkhorn, genwithsinkhorn, otmatch, ipot} due to its convenient implementation even in high dimensional settings. 
+% though it has been proved that the optimum of Sinkhorn distance with an entropy regularization term converges to Wasserstein distance \cite{sinkhorn},
+However, the algorithm does not scale well to a large number of samples or can't readily handle continuous probability measures \citep{soptilargescaleot}. 
+
+To overcome the challenges of Sinkhorn algorithm, researchers bring neural networks to study OT problems. \citet{largeot} study the regularized OT by applying neural networks such that large scale and high dimensional OT can be computed. \citet{wgan} propose Wasserstein-1 GAN, which is a generative model to minimize Wasserstein distance. Though we have witnessed a great success of Wasserstein-1 GAN and its related work in high dimensional and large scale applications \citep{gulrajani2017improved, wasserautoencoder, spectral, wassproximalofgan, wofwforgen, scalsot}, the non-trivial Lipschitz-1 constraint of the discriminator is hard to be theoretically satisfied.
+% \zha{Also cite http://proceedings.mlr.press/v97/xie19a/xie19a.pdf}
+
+In order to avoid Lipschitz-1 constraint in Wasserstein-1 GAN, by using input convex neural networks (ICNN) \citep{icnn} to approximate the potential function, \citet{wasserstein2gan} propose Wasserstein-2 GAN to rewrite OT as a minimization problem, \citet{icnnwasserbary} and \citet{icnnot} extend the semi-dual formulation of OT to new minimax problems. 
+
+\citet{ruthotto2020machine} propose a machine learning framework for solving general Mean-Field Games in high dimensional spaces. Such method can be applied to solving Optimal Transport problems by adding penalty term to enforce the terminal constraint. Many other OT based approaches have been proposed to drive one distribution to another, including continuous normalizing flows (CNF) \citep{cnf1, cnf2} and the approaches developed by \citet{tabak1, tabak2}. 
+
+Various OT models bring numerous applications in domain adaptation \citep{largeot}, generative modeling \citep{wgan}, partial differential equations \citep{learnsde1}, stochastic control \citep{wassercontrol}, robotics \citep{otrobotics1,otrobotics2}, as well as color transfer \citep{wasserstein2gan}, which is also one of the experiments in this paper.
+
+Although Wasserstein distance and optimal map have been widely studied within diverse frameworks, most of them focus on the cases that the cost function is either $L^1$ or $L^2$ based, and Wasserstein geodesic is seldom computed, especially in high dimensional settings. In this paper we compute all in our novel designed framework. We also note that a similar strategy formulated by \citet{apac} derives a saddle point optimization scheme for solving the mean field game equations. We should point out that our problem setting and sampling method are distinct from them.
+
+
+\section{Background of the Wasserstein Geodesic}
+% \section{Basic results on dynamical version of Optimal Transport problems}
+We consider two probability distributions $\rho_a, \rho_b$ defined on $\mathbb{R}^d$. For ease of discussion, we assume the density functions of these two distributions exist, then we focus on computing an interpolation curve $\{\rho_t\}_{t=0}^1$ between $\rho_a$ and $\rho_b$. To be more precise, we aim to find the length-minimizing curve joining $\rho_a$ and $\rho_b$, which is also known as the {\it Wasserstein geodesic}. 
+%In order to introduce and formulate our main problem, let us 
+To this end, we start from the classical Optimal Transport (OT) problem \eqref{Static OT}, and assume the cost function $c(x,y)$ is the optimal value of the following control problem,
+% {\color{cyan} Do we want to keep this notation ${v}$ for vectors? It is not very common in ML.}
+% \begin{equation*}
+%   c(x, y) = \min_{\{{v}(\cdot, t)\}_{t=0}^1} \left\{\int_0^1 L({v}_t)~dt~ \Big|  ~ \frac{d}{dt}x_t={v}(x_t, t) \quad \textrm{with}~~ x_0 = x, x_1 = y ~~ \right\}=L(y-x) \\
+%   % & \textrm{subject to}~~ \frac{d}{dt}x_t={v}_t(x_t) \quad \textrm{with}~~ x_0 = x, x_1 = y.
+% \end{equation*}
+\begin{align}
+  & c(x, y) =L(y-x)  = \min_{\{{v}(\cdot, t)\}}  \left\{ \int_0^1 L({v}_t)~dt \right\},  \nonumber\\
+  & \textrm{subject to:}~~\dot{x}_t={v}(x_t, t),~ x_0 = x,~ x_1 = y. \nonumber
+\end{align}
+Here we assume the Lagrangian $L(\cdot)\in C^1(\mathbb{R}^d)$ satisfies $L(-u)=L(u)$ for arbitrary $u\in \mathbb{R}^d$ and is strictly convex and superlinear.\footnote{$L(\cdot)$ is super linear if $\lim_{u\rightarrow \infty}~\frac{L(u)}{|u|}=\infty$.} Then $\nabla L:\mathbb{R}^d\rightarrow \mathbb{R}^d$ is an invertible map, we denote $\nabla L^{-1}$ the inverse of $\nabla L$ in the sequel. We define the Hamiltonian $H(\cdot)$ associated with Lagrangian $L(\cdot)$ as
+\begin{align}
+  H(p) & = \max_{v\in\mathbb{R}^d}\{v\cdot p - L(v)\} = \nabla L^{-1}(p)\cdot p - L(\nabla L^{-1}(p))\label{Legendre},  
+\end{align}
+This is useful in our future discussion.
+\begin{remark}
+ One important instance of $L$ is $L(v)=\frac{|v|^p}{p}$, $p>1$, which leads to $p$-Wasserstein distance. When $p=2$, it recovers the classical $2$-Wasserstein distance.
+\end{remark}
+Since \eqref{Static OT} doesn't involve time, we denote it as \textbf{Static OT} problem and we denote its optimal value as $W_{\textrm{Static}}(\rho_a, \rho_b)$. Before introducing the dual problem of \eqref{Static OT}, we introduce the following definition.
+\begin{definition}\label{pushfwd of distribution}
+ Given measurable map $T:\mathbb{R}^d\rightarrow \mathbb{R}^d$ and $\lambda$ as a probability distribution on $\mathbb{R}^d$.  We denote the pushforward of $\lambda$ by $T$ as $T_{\sharp}\lambda$, which is defined as 
+ \begin{equation*}
+   T_{\sharp}\lambda(E) = \lambda(T^{-1}(E)) \quad  \textrm{for all measurable set} ~ E \subset \mathbb{R}^d.
+ \end{equation*}
+\end{definition}
+Problem \eqref{Static OT} has the Kantorovich dual form \citep{villani2008optimal}
+\begin{equation}
+ \max_{\phi(y)-\psi(x)\leq c(x,y)}\left\{ \int \phi(y)\rho_b(y)~dy - \int \psi(x)\rho_a(x)~dx \right\} . \label{Kant duality}
+\end{equation}
+Here and in the sequel, we will denote $\int$ as $\int_{\mathbb{R}^d}$ for conciseness. One can show that the optimal value of \eqref{Kant duality} equals $W_{\textrm{Static}}(\rho_a, \rho_b)$. Let us denote the optimizer to \eqref{Kant duality} as $ (\phi^*,\psi^*)$.
+Then $\nabla\psi^*$ (as well as $\nabla\phi^*$) provides optimal transport maps from $\rho_a$ to $\rho_b$ (as well as from $\rho_b$ to $\rho_a$) in the sense that
+\begin{equation}
+(\textrm{Id}+\nabla L^{-1}(\nabla\psi^*))_{\sharp}\rho_a=\rho_b, ~  % \quad 
+(\textrm{Id}-\nabla L^{-1}(\nabla\phi^*))_{\sharp}\rho_b = \rho_a.  \label{phi, psi as monge maps}
+\end{equation}
+
+We then consider the dynamic version of \eqref{Static OT}
+\begin{align}
+    & W_{\textrm{Dym}}(\rho_a,\rho_b) = \min_{\rho,{v}}\left\{ \int_0^1\int L({v}(x,t))~\rho(x,t)~dxdt  \right\}, \label{dynamical OT}\\
+    & \textrm{subject to:}~~\frac{\partial\rho}{\partial t} + \nabla\cdot(\rho{v}) = 0, \rho(\cdot, 0)=\rho_a, \rho(\cdot,1) = \rho_b.  \label{constraints}
+\end{align}
+This problem also has an equivalent particle control version %\eqref{particle dynamical OT}. Such particle version will be more helpful for designing sample based formulation compared with the PDE version \eqref{dynamical OT} in our later discussions in \eqref{geodesic pushforward}.
+\begin{align}
+  \min_{{v}}\left\{ \int_0^1\mathbb{E} [L({v}(\boldsymbol{X}_t,t))]~dt  \right\}, \label{particle dynamical OT} \quad
+  \textrm{subject to}~ \frac{d}{dt}\boldsymbol{X}_t = {v}(\boldsymbol{X}_t, t),~ \boldsymbol{X}_0 \sim \rho_a, ~ \boldsymbol{X}_1 \sim \rho_b. % \nonumber
+\end{align}
+Such particle control version is more helpful for designing sample based formulation than its PDE counterpart, \eqref{dynamical OT} as we will stated in Section \ref{geodesic pushforward}.
+Since we introduce the dynamics of $\{\rho_t\}$ and $\{\boldsymbol{X}_t\}$ into the new definition and reformulate the original problem \eqref{Static OT} as an optimal control problem \eqref{dynamical OT} and \eqref{particle dynamical OT}, we thus denote \eqref{dynamical OT}, \eqref{particle dynamical OT} as \textbf{Dynamical OT} problem. The optimal solution of Dynamical OT is given by the following coupled PDE system, c.f. Chapter 13 of \cite{villani2008optimal}
+\begin{align}
+\label{geodesic eq}
+\begin{split}
+  &\frac{\partial \rho(x,t)}{\partial t} + \nabla\cdot(\rho(x,t) \nabla L^{-1}(\nabla \Phi(x,t)))=0,~~\frac{\partial \Phi(x,t)}{\partial t} + H(\nabla \Phi(x,t)) = 0 ,  \\
+  &\textrm{subject to:}~~\rho(\cdot,0) = \rho_a, ~\rho(\cdot, 1) = \rho_b.
+\end{split}
+\end{align}
+We denote the solution to \eqref{geodesic eq} as $(\rho^*, \Phi^*)$. Then the optimal vector field is
+\begin{equation}
+  {v}^*(x,t) = \nabla L^{-1}(\nabla\Phi^*(x, t)). \label{vector field = inv grad L grad Phi}
+\end{equation}
+% Both \eqref{geodesic eq} and \eqref{vector field = inv grad L grad Phi} can be deduced from the KKT conditions \eqref{kkt} of \eqref{dynamical OT}.
+From a geometric perspective, Problem \eqref{dynamical OT} can be treated as a computing scheme  for the geodesic on the probability manifold equipped with Wasserstein distance $W_{\textrm{Dym}}(\cdot,\cdot)$. Following this point of view, we also treat \eqref{dynamical OT} as the problem for evaluating the \textbf{Wasserstein geodesic} joining $\rho_a$ and $\rho_b$. Meanwhile, the PDE system \eqref{geodesic eq} serves as the geodesic equation for the Wasserstein geodesic. %Such geodesic on probability manifold provides a natural interpolation between target distributions $\rho_a$ and $\rho_b$ and is automatically kinetic-energy-minimizing. In the following work, we aim at solving the problem \eqref{dynamical OT}.
+
+
+Static OT problems and Dynamical OT problems are closely related. We summarize some of their connections, which are useful for our future derivations in section \ref{derivation }. 
+
+Recall $(\phi^*,\psi^*)$ as optimal solution to \eqref{Kant duality}, and $\Phi^*$ as solution of \eqref{geodesic eq}, then
+\begin{equation}
+ \Phi^*(x, 0) = \psi^*(x) + C_0,\quad \Phi^*(x,1) = \phi^*(x) + C_1.   \label{static dual = dynamic dual}
+\end{equation}
+Here $C_0, C_1$ are constants. Furthermore, from \eqref{phi, psi as monge maps} we have
+% \begin{equation}
+%   (\textrm{Id}+\nabla L^{-1}(\nabla\Phi(\cdot, 0)))_{\sharp}\rho_a=\rho_b, ~  % \quad
+%   (\textrm{Id}-\nabla L^{-1}(\nabla\Phi(\cdot, 1)))_{\sharp}\rho_b = \rho_a.  \label{Phi0, Phi1 as monge maps}
+% \end{equation}
+\begin{align}
+\label{Phi0, Phi1 as monge maps}
+ \begin{split}
+  (\textrm{Id}+\nabla L^{-1}(\nabla\Phi^*(\cdot, 0)))_{\sharp}\rho_a=\rho_b,~~~  % \quad
+  (\textrm{Id}-\nabla L^{-1}(\nabla\Phi^*(\cdot, 1)))_{\sharp}\rho_b = \rho_a. 
+ \end{split}
+\end{align}
+% Such equations \eqref{phi, psi as monge maps} and \eqref{Phi0, Phi1 as monge maps} are called Monge-Ampere equations. Assume $(\textrm{Id}+\nabla u)_{\sharp}\rho_a = \rho_b$ admits unique solution $u(x)$, then $\nabla u=\nabla\phi^*=\nabla\Phi_0$ is the optimal transport field to the OT problem from $\rho_a$ to $\rho_b$.
+In addition, Static and Dynamical OT produce the same distance, i.e. $W_{\textrm{Static}}(\rho_a, \rho_b) = W_{\textrm{Dym}}(\rho_a, \rho_b)$. % Detailed discussion on the equivalent relations between Static OT and Dynamical OT problems has been elaborated in several references such as section 5.1 of \cite{villani2003topics} and chapter 13 of \cite{villani2008optimal}.
+
+
+
+
+\section{Proposed Methods }\label{derivation } % for Wasserstein Geodesic Computation }\label{derivation }
+\subsection{Primal-Dual based saddle point scheme}\label{prototype saddle problem}
+% \subsection{Saddle scheme via Lagrange multiplier (primal-dual) method}\label{prototype saddle problem}
+In this section, we present an approach of solving \textbf{Dynamical OT} problem \eqref{dynamical OT} by applying Lagrange Multiplier method. We introduce Lagrange Multiplier $\Phi(x,t)$ for the PDE constraint $\frac{\partial\rho(x,t)}{\partial t} + \nabla\cdot(\rho(x,t){v}(x,t)) = 0 $ and $\Psi(x)$ for one of the boundary constraints $\rho(\cdot, 1) = \rho_b$. (The constraint $\rho( \cdot,0)=\rho_a$ can be naturally treated as the initial condition of $\rho_t$.) Then we consider the functional
+\begin{align}
+  \mathfrak{L}(\rho,{v},\Phi,\Psi) &=  \int_0^1\int L({v})~\rho + \left(\frac{\partial\rho}{\partial t} + \nabla\cdot(\rho{v})\right)\Phi(x,t)~dxdt + \int \Psi(x)(\rho(x,1)-\rho_b(x))~dx  \nonumber\\
+ &=  \int_0^1\int \left( L({v}) -\frac{\partial\Phi}{\partial t} - \nabla\Phi\cdot{v} \right) ~\rho(x,t)~dx dt  \label{reformulation of L of original problem} + \int \Phi(x,1)\rho(x,1)~dx \\
+ &- \int \Phi(x,0)\rho_a(x)~dx +\int \Psi(x) (\rho(x,1)-\rho_b(x))~dx. \nonumber
+\end{align}
+% \begin{align}
+%   & \mathfrak{L}(\rho,{v},\Phi,\Psi)\\
+%  = & \int_0^1\int L({v}(x,t))~\rho(x,t) + \left(\frac{\partial\rho(x,t)}{\partial t} + \nabla\cdot(\rho(x,t){v}(x,t))\right)\Phi(x,t)~dxdt  \label{L of original problem} \\
+%  & + \int \Psi(x)(\rho(x,1)-\rho_b(x))~dx  \nonumber\\
+%  = & \int_0^1\int \left( L({v}(x,t)) -\frac{\partial\Phi(x,t)}{\partial t} - \nabla\Phi(x,t)\cdot{v}(x,t) \right) ~\rho(x,t)~dx dt  \label{reformulation of L of original problem} \\
+%  & + \int \Phi(x,1)\rho(x,1)~dx - \int \Phi(x,0)\rho_a(x)~dx +\int \Psi(x) (\rho(x,1)-\rho_b(x))~dx \nonumber
+% \end{align}
+For the second equality, we apply integration by parts on $[0,1]$ and use the initial condition $\rho(\cdot, 0)=\rho_a$.
+Solving the constrained optimization problem \eqref{dynamical OT} is equivalent to investigating the following saddle point optimization problem
+\begin{equation}
+    \min_{\rho,{v}}  \max_{\Phi,\Psi}   ~\mathfrak{L}(\rho,{v},\Phi,\Psi).  \label{original saddle scheme}
+\end{equation}
+Problem \eqref{original saddle scheme} contains $(\rho,{v},\Phi,\Psi)$ as variables. We eliminate some of the variables by leveraging
+%When we optimize over $\mathfrak{L}$, we are seeking through the space spanned by these four variables. The searching space may contain numerous local optimas that will hinder our optimization. In order to make \eqref{original saddle scheme} more tractable to compute, one of our choices is to shrink our searching space. To be more precise, we leverage the explicit relations among the optimal solution of \eqref{original saddle scheme} in order to eliminate some of the variables.
+%Notice that the optimal solutions to \eqref{original saddle scheme} satisfy 
+the Karush–Kuhn–Tucker (KKT) conditions \citep{kuhn1951}
+% \begin{equation}
+%   \frac{\partial \mathfrak{L}}{\partial  \rho(x,t)}\Big|_{\rho^*,{v}^*,\Phi,\Psi} = 0 \quad \frac{\partial \mathfrak{L}}{\partial {v}(x,t)}\Big|_{\rho^*,{v}^*,\Phi,\Psi} = 0    \label{kkt}
+% \end{equation}
+\begin{equation}
+   \frac{\partial \mathfrak{L}}{\partial \Phi(x,t)}=0, \frac{\partial \mathfrak{L}}{\partial \Psi(x)} = 0, 
+  \frac{\partial \mathfrak{L}}{\partial  \rho(x,t)} = 0,  \frac{\partial \mathfrak{L}}{\partial {v}(x,t)} = 0. \label{kkt}
+\end{equation}
+% These two equations together with the two constraints forms the Karush–Kuhn–Tucker(KKT) condition for \eqref{dynamical OT}.
+The first two conditions lead to the constraints \eqref{constraints}. The third condition in \eqref{kkt} yields
+\begin{align}
+   -\frac{\partial\Phi}{\partial t} - (\nabla\Phi(x,t)\cdot{v}(x,t) - L({v}(x,t))) = 0, \label{condition A original HJ}\\
+   \Phi(x,1)+\Psi(x)=0.  \label{condition B}
+\end{align}
+The fourth condition in \eqref{kkt} yields $\nabla L({v}(x, t)) -\nabla\Phi(x,t) = 0$, 
+% Since $L$ is strictly convex, $\nabla L:\mathbb{R}^d\rightarrow \mathbb{R}^d$ is a bijective map. We can rewrite the condition as
+which can be rewritten as
+\begin{equation}
+  {v}(x,t) = \nabla L^{-1} (\nabla\Phi(x,t)).  \label{condition C  rel of v and nabla Phi}
+\end{equation}
+% Furthermore, we denote the Hamiltonian $H(p)=\max_{v\in\mathbb{R}^d}\{v\cdot p - L(v)\} = (\nabla L(\cdot))^{-1}(p)\cdot p - L(\nabla L(\cdot)^{-1}(p))$. We then have $\nabla H = (\nabla L(\cdot))^{-1}$. Plugging \eqref{condition C  rel of v and nabla Phi} into \eqref{condition A original HJ} yields the Hamilton-Jacobi equation
+% \begin{equation*}
+%   \frac{\partial \Phi(x,t)}{\partial t} + H(\nabla\Phi(x,t)) = 0
+% \end{equation*}
+% In order to decrease the number of variables and thus to simply the saddle scheme \eqref{original saddle scheme}, we notice that 
+The KKT conditions \eqref{condition B} and \eqref{condition C  rel of v and nabla Phi} reveal explicit relations among ${v}$, $\Phi$ and $\Psi$, which can be incorporated in \eqref{original saddle scheme} by plugging $\Psi(x) = -\Phi(x,1)$ and ${v}(x,t) = \nabla L^{-1}(\nabla\Phi(x,t))$ back into \eqref{reformulation of L of original problem}. 
+% Before we derive our new optimization scheme, we introduce the Hamiltonian $H$ defined as
+% \begin{align}
+%   H(p) & = \max_{v\in\mathbb{R}^d}\{v\cdot p - L(v)\}\label{Legendre} \\
+%       & = \nabla L^{-1}(p)\cdot p - L(\nabla L^{-1}(p)). \nonumber    
+% \end{align}
+% We then have $\nabla H = (\nabla L(\cdot))^{-1}$. 
+Recall definition of $H$ in \eqref{Legendre}, the first term of \eqref{reformulation of L of original problem} then becomes $-\left(\frac{\partial\Phi(x,t)}{\partial t}+H(\nabla \Phi(x,t))\right)$. Our new optimization problem can be formulated as
+% \begin{equation}
+%  \min_{\rho}\max_{\Phi} ~ \hat{\mathfrak{L}}(\rho,\Phi),  \label{new scheme}
+% \end{equation}
+\begin{align}
+  \min_{\rho}\max_{\Phi}
+%   \hat{\mathfrak{L}}(\rho, \Phi) =  
+\int_0^1\int -\left(\frac{\partial\Phi}{\partial t}+H(\nabla \Phi)\right) \rho(x,t)~dxdt  + \int\Phi(x,1)\rho_b(x) - \Phi(x,0)\rho_a(x)~dx.
+\label{functional L}
+\end{align}
+% {\color{blue}
+% (reduce the number of variables, thus the searching space is smaller, there is a chance to reduce cost)
+% }
+
+% Here we denote the Hamiltonian
+% \begin{align}
+%   H(p) & = \max_{v\in\mathbb{R}^d}\{v\cdot p - L(v)\}\label{Legendre} \\
+%       & = \nabla L(\cdot)^{-1}(p)\cdot p - L(\nabla L(\cdot)^{-1}(p)). \nonumber    
+% \end{align}
+% % We then have $\nabla H = (\nabla L(\cdot))^{-1}$. 
+% When plugging \eqref{condition C  rel of v and nabla Phi} into \eqref{reformulation of L of original problem}, then the term $L({v}(x,t)) -\frac{\partial\Phi(x,t)}{\partial t} - \nabla\Phi(x,t)\cdot{v}(x,t)$ in \eqref{reformulation of L of original problem} becomes $-\left(\frac{\partial\Phi(x,t)}{\partial t}+H(\nabla \Phi(x,t))\right)$ in \eqref{functional L}.
+
+
+
+\subsection{Simplification via geodesic pushforward map}\label{geodesic pushforward}
+%Before our discussion, we first introduce the following definition
+%{\color{blue}
+In the saddle point problem \eqref{functional L}, both variables $\rho(\cdot,t)$ and $\Phi(\cdot,t)$ are time-varying functions. It is a weak formulation of the OT problem that may accommodate general cost $L$. On the other hand, it requires to optimize over rather large space of time-varying functions, which may increase the computational cost as well as the chance of encountering local optima. %It may also lead to inaccurate results to the dynamical OT problem. %} 
+%Notice that in our derived saddle point problem \eqref{new scheme}, $\rho$ still possesses strong flexibility, however, this may cause troubles to our implementation.\zha{too vague!} {\color{blue} we rewrite this part in the blue text.} %Similar to our concerns mentioned in \ref{prototype saddle problem}, 
+%We still have to optimize over a very large space of probability distributions, which may increase our computational cost and as well increase the chance of encountering local optimas, this may lead to inaccurate solutions to the dynamical OT problem. 
+To mitigate the challenge, we reduce the search space by leveraging the the following geodesic property of optimal transporting trajectory if $L$ is strictly convex. 
+\begin{theorem}\label{transport along geod}
+    Suppose $\{\boldsymbol{X}^*_t\}_{t=0}^1$ is the trajectory obeying the optimal vector field of \eqref{particle dynamical OT} with strictly convex Lagrangian $L$, then $\frac{d^2\boldsymbol{X}^*_t}{dt^2}=0$.
+   % Consider the control problem \eqref{particle dynamical OT}, suppose ${v}^*(\cdot, t)$ is the optimal solution to \eqref{particle dynamical OT}, consider the motion of one particle: $\frac{d\boldsymbol{X}_t}{dt} = {v}^*(\boldsymbol{X}_t,t)$. Then $\frac{d^2\boldsymbol{X}_t}{dt^2}=0$, i.e. the trajectory $\{\boldsymbol{X}_t\}$ under optimal transporting is a geodesic in $\mathbb{R}^d$, (i.e. straight line with uniform speed).
+\end{theorem}
+
+This result was discussed by \citet{hjd2} for 2-Wasserstein case ($L(\cdot)=\frac{|\cdot|^2}{2}$). The more general result was presented in Theorem 5.5 of \cite{villani2003topics}. This theorem illustrates that, from the particle point of view, the optimal transport process can be treated as a pushforward operation along the geodesics (straight lines) in $\mathbb{R}^d$. To be more precise, we denote $\{\rho^*(\cdot, t)\}_{t=0}^1$ as the optimal solution to \eqref{dynamical OT}. Denote $\{{v}^*(\cdot, t)\}_{t=0}^1$ as the optimal vector field in \eqref{particle dynamical OT}. Then $\{\boldsymbol{X}_t^*\}_{t=0}^1$ solves $\frac{d}{dt}\boldsymbol{X}_t^* = {v}^*(\boldsymbol{X}_t,t)$. Since $\frac{d^2}{dt^2}\boldsymbol{X}_t^*=0$, this implies $\boldsymbol{X}^*_t = \boldsymbol{X}^*_0+t{v}^*(\boldsymbol{X}^*_0, 0)$, $t\in [0,1]$. Finally, due to the equivalence between \eqref{dynamical OT} and \eqref{particle dynamical OT}, we are able to verify that $\boldsymbol{X}^*_t\sim\rho^*(\cdot, t)$, which yields $\boldsymbol{X}^*_0+t{v}^*(\boldsymbol{X}^*_0, 0)\sim\rho^*(\cdot, t)$. Since $\boldsymbol{X}_0^*$ follows the distribution with density $\rho_a$, this leads to the following relation between optimal density $\rho^*(\cdot,t)$ and optimal vector field ${v}^*(\cdot, 0)$ at $t=0$
+\begin{equation}
+  \rho^*(\cdot, t) = (\textrm{Id}+t{v}^*(\cdot, 0))_{\sharp}\rho_a.  \label{optimal rho given by geodesic pushfwd}
+\end{equation}
+Equation \eqref{optimal rho given by geodesic pushfwd} justifies that the optimal $\rho^*(\cdot, t)$ can be obtained by pushforwarding the initial distribution $\rho_a$ along certain straight lines with initial direction ${v}^*(\cdot, 0)$. This observation motivates us to restrict the search space of $\{\rho_t\}_{t=0}^1$ on the following space $\mathcal{P}_{\textrm{restrict}}$
+\begin{equation*}
+  \{~\{\rho(\cdot, t)\}_{t=0}^1~|~ ~ \rho(\cdot, t) = (\textrm{Id}+t{F})_{\sharp}\rho_a~~\textrm{for}~  t \in[0,1]~~ \}.
+\end{equation*}
+Here ${F}$ is an arbitrary vector field defined on $\mathbb{R}^d$. Combining the previous discussions together, we propose the scheme $ \min_{\rho\in \mathcal{P}_{\textrm{restrict}}}\max_{\Phi} \hat{\mathfrak{L}}(\rho,\Phi)$. In particular, since $\rho$ is uniquely determined by ${F}$, we reformulate our scheme as
+\begin{align}
+  &  \min_{{F}}\max_{\Phi}  \mathcal{L}({F},\Phi),~~~ \mathcal{L}({F}, \Phi) = \hat{\mathfrak{L}}((\textrm{Id}+t{F})_{\sharp}\rho_a,\Phi).\label{chosen scheme}
+\end{align}
+% with $\mathcal{L}({F}, \Phi)$ defined as $\hat{\mathfrak{L}}((\textrm{Id}+t{F})_{\sharp}\rho_a,\Phi)$.
+We have the following theoretical property for scheme \eqref{chosen scheme}.
+\begin{restatable}{theorem}{theoremA}
+\label{main}
+  Denote the solution \eqref{geodesic eq} as $\rho^*(x,t)$ and $\Phi^*(x,t)$, and set $\Phi_0^*(\cdot) = \Phi^*(\cdot,0)$. Assume $\Phi^*(\cdot, t)\in C^2(\mathbb{R}^d)$, then %we are able to prove that
+  $(\nabla L^{-1}(\nabla \Phi_0^*), \Phi^*)$ is a critical point to the functional $\mathcal{L}$, i.e.
+%   \[ \frac{\partial \mathcal{L}}{\partial {F}}\Big|_{\substack{{F}=F^*,\\ \psi=\Phi^* }} = 0, \quad \frac{\partial \mathcal{L}}{\partial \psi}\Big|_{\substack{{F}=F^*,\\ \psi=\Phi^* }} = 0.\]
+\[ \frac{\partial \mathcal{L}}{\partial {F}}(\nabla L^{-1}(\nabla \Phi_0^*),\Phi^*) = 0, \quad \frac{\partial \mathcal{L}}{\partial \psi}(\nabla L^{-1}(\nabla \Phi_0^*),\Phi^*) = 0.\]
+Furthermore,  $\mathcal{L}(\nabla L^{-1}(\nabla\Phi_0^*), \Phi^*)=W_{\textrm{Dym}}(\rho_a,\rho_b)$.
+\end{restatable}
+Theorem \ref{main} shows that the optimal solution of Dynamical OT is also a critical point of the functional used in our saddle point optimization scheme \eqref{chosen scheme}. The optimal value of \eqref{chosen scheme} is exactly the optimal transport distance. The theorem is proved in the supplemental materials (Appendix B).
+% Remark on replacing ${F}$ by $\nabla \psi$.
+
+\subsection{Bidirectional dynamical formulation}
+%In our initial implementations of the saddle-point optimization scheme \eqref{chosen scheme}, we tend to encounter certain unstable behaviors.\zha{Be more specific!} Such instability usually leads to fluctuating numerical results as training goes on or inaccurate target distribution $\rho_b$.\zha{rewrite the previous tw0 sentences!}{\color{blue} [We rewrite the sentences in the following blue text.]} 
+%In our initial implementations of the saddle-point optimization scheme \eqref{chosen scheme}, we experienced some unstable behaviors. For example, our computed result as a density trajectory $\{\rho(\cdot, t)\}_{t=0}^1$ may fluctuate among several local optima without converging to the desired optimal solution as the training process goes on. In order to improve the numerical behavior of our proposed method, we propose the following {\it bidirectional} scheme. Our intuition is to introduce natural constraints on vector field ${F}$ to avoid local traps. We notice that $\rho_a$ and $\rho_b$ share the same status in the definition of Wasserstein distance. However this is not the case in \eqref{chosen scheme}. We thus introduce the reversed OT problem $W_2^2(\rho_b, \rho_a)$ to make the formulation symmetric with respect to $\rho_a$ and $\rho_b$. Since we consider two OT problems with reversed transporting directions, their corresponding transporting fields ${F}, {G}$ should satisfy a clear relation, namely, one is the reverse of the other. We incorporate this as constraints in our bidirectional scheme.
+% {\color{blue} Empirically, such scheme has more stable performance compared with our original scheme.}
+To improve the stability and avoid local traps in the training processing, we propose a {\it bidirectional} scheme by exploiting the symmetric status of $
+\rho_a$ and $\rho_b$ in \eqref{Static OT}.  
+% We introduce a bidirectional optimization scheme, we hope this scheme can help improve the quality of the numerical result. The idea is to We combine the problem of computing for $W(\rho_a,\rho_b)$ and $W(\rho_b, \rho_a)$ together. 
+Let's consider two OT problems
+\begin{equation*}
+    \min_{{F}}\max_{\Phi_F} ~ \mathcal{L}^{ab}({F}, \Phi_F), \quad 
+  \min_{ {G} }\max_{\Phi_G} ~ \mathcal{L}^{ba}({G}, \Phi_G),
+\end{equation*}
+where $\mathcal{L}^{ab}$ is defined in \eqref{chosen scheme}, and $\mathcal{L}^{ba}$ is defined by switching $\rho_a$ and $\rho_b$ in \eqref{chosen scheme}. Clearly, the first one is for $W(\rho_a,\rho_b)$ while the second one is for $W(\rho_b, \rho_a)$.
+% \begin{align}
+%     % W_2(\rho_a,\rho_b) = 
+%     \min_{F}\max_{\Phi_F} & \int_0^1 \int - \frac{\partial}{\partial t} \Phi_F(T^F_t(x),t)  -H(\nabla\Phi_F(T^F_t(x),t))\rho_a ~dxdt\nonumber  \\
+%   & + \int\Phi_F(x,1)\rho_b~dx-\int\Phi_F(x,0)\rho_a~dx \nonumber\\
+%   %W_2(\rho_b,\rho_a) = 
+%   \min_{G}\max_{\Phi_G} &\int_0^1 \int -\frac{\partial}{\partial t} \Phi_G(T^G_t(x),t)  -H(\nabla\Phi_G(T^G_t(x),t))\rho_b~dxdt\nonumber \\
+%   & + \int\Phi_G(x,1)\rho_a~dx-\int\Phi_G(x,0)\rho_b~dx\nonumber
+% \end{align}
+% Here we define $T^F_t(x) = x+t{F}(x)$ and $T^G_t(x) = x+t{G}(x)$. 
+When reaching optima, the vector fields $F$ and $G$ are transport vectors in the opposite directions. At a specific point $x\in\mathbb{R}^d$, moving along straight line in the direction ${F}$ ends up at $x+{F}(x)$. The direction of ${G}$ at $x+{F}(x)$ must point to the opposite direction of ${F}(x)$, which leads to ${G}(x+{F}(x))=-{F}(x)$. Similarly, we also have ${F}(x+{G}(x))=-{G}(x)$. Thus we introduce two constraints for ${F}$ and ${G}$
+\begin{align*}
+ % \label{regularization terms}
+\begin{split}
+ \mathcal{R}^{ab}({F}, {G}) = & \int |{G}(x+{F}(x))+{F}(x)|^2~\rho_a(x)~dx, \\
+ \mathcal{R}^{ba}({F}, {G}) = & \int |{F}(x+{G}(x))+{G}(x)|^2\rho_b(x)~dx.
+\end{split}
+\end{align*}
+Our final saddle-point problem becomes
+%   \min_{F,G}\max_{\Phi_F,\Phi_G} ~~ & \int_0^1 \mathbb{E}_{z\sim \rho_a} -\left(\frac{\partial}{\partial t} \Phi_F(z+t F(z),t)  +\frac{1}{2}|\nabla\Phi_F(z+t F(z),t)|^2\right)~dt\nonumber  \\
+%   & + \mathbb{E}_{z_b\sim\rho_b}\Phi_F(z_b,1)-\mathbb{E}_{z_a\sim \rho_a}\Phi_F(z_a,0)\nonumber \\ 
+%   & \int_0^1 \mathbb{E}_{z\sim \rho_b} -\left(\frac{\partial}{\partial t} \Phi_G(z+tG(z),t)  +\frac{1}{2}|\nabla\Phi_G(z+tG(z),t)|^2\right)~dt\nonumber \\
+%   & + \mathbb{E}_{z_b\sim\rho_a}\Phi_G(z_b,1)-\mathbb{E}_{z_a\sim \rho_b}\Phi_G(z_a,0)\nonumber \\
+%   & + \lambda ~\left[ \mathbb{E}_{z \sim \rho_a}  |G(z+F(z))+F(z)|^2 + \mathbb{E}_{z \sim \rho_b} |F(z+G(z))+G(z)|^2  \right] \label{bidirection}
+% \end{align}
+\begin{align}
+  \label{bidirection}
+  \begin{split}
+  \min_{ {F}, {G} }\max_{\Phi_F,\Phi_G} ~& \mathcal{L}^{ab}({F}, \Phi_F) + \mathcal{L}^{ba}({G}, \Phi_G) + \lambda(\mathcal{R}^{ab}({F}, {G}) + \mathcal{R}^{ba}({F}, {G})),
+  \end{split}
+\end{align}
+% \begin{align}
+%   \min_{ {F}, {G} }\max_{\Phi_F,\Phi_G} ~~ & \mathcal{L}^{ab}({F}, \Phi_F) + \mathcal{L}^{ba}({G}, \Phi_G) \label{bidirection}   \\
+%   & + \lambda \int |{G}(x+{F}(x))+{F}(x)|^2\rho_a(x)~dx  \nonumber\\
+%   & + \lambda \int |{F}(x+{G}(x))+{G}(x)|^2\rho_b(x)~dx. \nonumber
+% \end{align}
+where $\lambda$ is a tunable coefficient of our constraint terms. 
+
+\subsection{Overview of the algorithm}
+To solve \eqref{bidirection}, we propose an algorithm that is summarized in the following steps. Please also check its detailed discussions in Appendix A.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Preconditioning}  We can apply preconditioning techniques to 2-Wasserstein cases in order to make our computation more efficient.
+  \item \textbf{Main Algorithm} We set ${F}_{\theta_1}, {G}_{\theta_2}$ and $\Phi^F_{\omega_1},\Phi^G_{\omega_2}$ as fully connected neural networks and optimize over their parameters $\omega_1,\omega_2$ and $\theta_1,\theta_2$ alternatively via stochastic gradient ascend and descend.
+    % \begin{align*}
+    %  & (\omega_1,\omega_2) \leftarrow (\omega_1,\omega_2) + \nabla_{\omega_1,\omega_2}  ( \mathcal{L}^{ab}(F_{\theta_1}, \Phi^F_{\omega_1}) + \mathcal{L}^{ba}({G}_{\theta_2}, \Phi_{\omega_2}^G))\\
+    %  &  (\theta_1, \theta_2) \leftarrow (\theta_1, \theta_2) - \nabla_{\theta_1, \theta_2} (\mathcal{L}^{ab}(F_{\theta_1}, \Phi^F_{\omega_1}) + \mathcal{L}^{ba}({G}_{\theta_2}, \Phi_{\omega_2}^G) +\lambda(\mathcal{R}^{ab}(F_{\theta_1}, G_{\theta_2})+\mathcal{R}^{ba}(F_{\theta_1}, G_{\theta_2})))
+    % \end{align*}
+    \item \textbf{Stopping Criteria} When computed ${F}$ (or ${G}$) is close to the optimal solution, the Wasserstein distance $W(\rho_a,\rho_b)$ (or $W(\rho_b, \rho_a)$) can be approximated by % the following expectations
+    \begin{equation*}
+      \widehat{W}^{ab} = \int L({F}(x))~\rho_a(x)~dx,  ~ \widehat{W}^{ba} = \int L({G}(x))~\rho_b(x)~dx.
+    \end{equation*}
+    For a chosen threshold $\epsilon>0$, we treat $|\widehat{W}^{ab} - \widehat{W}^{ba}|<\epsilon$ as the stopping criteria of our algorithm.
+\end{itemize}
+
+
+% {\color{blue} We may try $|\widehat{W}^{ab} - \widehat{W}^{ba}|$ as an error term and optimize over it in our alg.}
+
+% \begin{algorithm}[t]
+% \caption{Computing Wasserstein geodesic from $\rho_a$ to $\rho_b$ via bi-directional scheme \eqref{bidirection} and preconditioning}
+% \begin{algorithmic}[1]\label{Algorithm_main}
+% \STATE Choose our preconditioning map $T(x)=\sigma x + \mu$. Denote $\hat{\rho_a} = T_{\sharp}\rho_a$ (This step is only applicable for 2-Wasserstein case. If we do not need preconditioning, we treat $T=\textrm{Id}$.)
+% \STATE Set up the threshold $\epsilon>0$ as the stopping criteria
+% \STATE Initialize ${F}_{\theta_1}, {G}_{\theta_2}$, $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$
+% \FOR{${F}_{\theta_1}$, ${G}_{\theta_2}$ steps}
+% \STATE Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\hat{\rho}_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$ from $\rho_b\otimes U(0,1)$; 
+% % (Here $U(0,1)$ denotes the uniform distribution on $(0,1)$.)
+% \STATE Set $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$,  $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% \STATE Sample $\{w^a_k\}_{k=1}^M$ from $\hat{\rho}_a$ and $\{w^b_k\}$ from $\rho_b$;
+% \FOR{$\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ steps}
+% % \STATE Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$; (U(0,1) denotes the uniform distribution on (0,1).)
+% % \STATE Compute $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$ and $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% % \STATE Sample $\{w^a_k\}_{k=1}^M$ from $\rho_a$ and $\{w^b_k\}$ from $\rho^b$;
+% \STATE Update (via gradient ascent) $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ by:
+% \begin{equation*}
+%     \nabla_{\omega_1, \omega_2} (\mathcal{L}^{ab}(\Phi^F_{\omega_1}) +\mathcal{L}^{ba}(\Phi^G_{\omega_2}))
+% \end{equation*}
+% \ENDFOR
+% % \STATE Sample $\{(z_k,t_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$;
+% % \STATE Compute $x_k = z_k+t_k{F}_\theta(z_k)$;
+% % \STATE Sample $\{z'_k\}_{k=1}^M$ from $\rho_a$;
+% % \STATE Sample $\{x'_k\}_{k=1}^M$ from $\rho_b$;
+% \STATE Sample $\{\xi^a_k\}_{k=1}^K$ from $\hat{\rho}_a$ and $\{\xi^b_k\}_{k=1}^K$ from $\rho_b$
+% \STATE Update (grad descent) ${F}_{\theta_1}$, ${G}_{\theta_2}$ by:
+% \begin{equation*}
+%  \nabla_{\theta_1, \theta_2} ( \mathcal{L}^{ab}(\Phi_{\omega_1}^F) + \mathcal{L}^{ba}(\Phi_{\omega_2}^G) +\mathcal{K}({F}_{\theta_1}, {G}_{\theta_2}))
+% \end{equation*}
+% \STATE Whenever $|\widehat{W}^{ab}-\widehat{W}^{ba}|<\epsilon$, skip out of the loop.
+% \ENDFOR
+% \STATE Set ${F}^* = {F}_{\theta_1}\circ T + T - \textrm{Id}$ and ${G}^* = {G}_{\theta_2}\circ T + T - \textrm{Id}$.
+% \STATE Wasserstein geodesic from $\rho_a$ to $\rho_b$ is given by $\{(\textrm{Id}+t{F}_{\theta_1})_{\sharp}\rho_a\}$; Wasserstein geodesic from $\rho_b$ to $\rho_a$ is given by $\{(\textrm{Id}+t{G}_{\theta_2})_{\sharp}\rho_b\}$. 
+% \end{algorithmic}
+% \end{algorithm}
+
+
+% \subsection{Preconditioning technique for 2-Wasserstein case}
+% It's worth mentioning that we can apply preconditioning technique under the 2-Wasserstein cases, i.e., $L(\cdot) = \frac{|\cdot|^2}{2}$. When the support of distributions $\rho_a$ and $\rho_b$ are far away from each other, the computational process might get much more sensitive with respect to vector field ${F}$. In order to deal with this situation, we consider preconditioning to our initial distribution $\rho_a$. In our implementation, we treat $P:\mathbb{R}^d\rightarrow\mathbb{R}^d$ as our preconditioning map. We fix its structure as $P(x) = \sigma x + \mu$ with $\sigma\in\mathbb{R}_+, ~\mu\in\mathbb{R}^d$. Such preconditioning process can be treated as an operation aiming at relocating and rescaling the initial distribution $\rho_a$ so that the support of $P_{\sharp}\rho_a$ matches with the support of $\rho_b$ in a better way, which in turn facilitates the training process of our OT problem. A similar technique is also carried out in \cite{kuang2017preconditioning}. 
+
+
+
+% Let us denote the optimal vector field of OT problem between $P_{\sharp}\rho_a$ and $\rho_b$ as $\nabla\widehat{\Phi}_0$, then for the vector field ${F}^*(x) = \nabla\widehat{\Phi}_0 \circ P(x) + P(x) - x $, the following theorem guarantees the optimality of ${F}^*$.
+% \begin{restatable}{theorem}{theoremP}
+% \label{theorem on preconditioning}
+%  Suppose $L(\cdot)=\frac{|\cdot|^2}{2}$. We define the map $P(x)=\sigma x+\mu$ with $\sigma\in\mathbb{R}_+, \mu\in\mathbb{R}^d$. Recall \eqref{vector field = inv grad L grad Phi}, we denote ${v}(x,t)=\nabla\widehat{\Phi}(x, t)$ as the optimal solution to dynamical OT problem \eqref{dynamical OT} from $P_{\sharp}\rho_a$ to $\rho_b$. We set $\widehat{\Phi}_0 = \widehat{\Phi}(\cdot, 0)$. Furthermore, we denote ${v}(x,t)=\nabla\Phi^*(x,t)$ as the optimal solution to dynamical OT problem \eqref{dynamical OT} from $\rho_a$ to $\rho_b$,
+%  % \chen{what's the difference between $\Phi$ and $\Phi^*$?} {\color{blue} We now always use $\Phi^*$ to denote the optimal solution to \eqref{geodesic eq}, i.e. "*" represents optimality.} 
+%  and set $\Phi^*_0=\Phi^*(\cdot, 0)$. Then we have
+%   \begin{equation*}
+%      \nabla\Phi^*_0(x) = \nabla\widehat{\Phi}_0\circ P(x)+P(x)-x,
+% ~~\Phi^*_0(x) = \frac{1}{\sigma}\widehat{\Phi}_0(\sigma x + \mu)+\frac{\sigma - 1}{2}|x|^2 + \mu^Tx+\textrm{Const}.
+% \end{equation*}
+% \end{restatable}
+% % \begin{theorem}\label{theorem on preconditioning}
+% %   Suppose $L(\cdot)=\frac{|\cdot|^2}{2}$. We define the map $T(x)=\sigma x+\mu$ with $\sigma\in\mathbb{R}_+, \mu\in\mathbb{R}^d$. Recall \eqref{vector field = inv grad L grad Phi}, we denote the optimal ${v}(x,t)$ to the dynamical OT problem \eqref{dynamical OT} from $T_{\sharp}\rho_a$ to $\rho_b$ as $\nabla\Phi(x,t)$. We set $\Phi_0 = \Phi(\cdot, 0)$. Furthermore, we denote the optimal ${v}(x,t)$ to the dynamical OT problem \eqref{dynamical OT} from $\rho_a$ to $\rho_b$ as $\nabla\Phi^*(x,t)$. We set $\Phi^*_0=\Phi^*(\cdot, 0)$. Then we have
+% %   \begin{equation*}
+% %      \nabla\Phi^*_0(x) = \nabla\Phi_0\circ T(x)+T(x)-x
+% %   \end{equation*}
+% %   And $\Phi^*_0(x) = \frac{1}{\sigma}\Phi_0(\sigma x + \mu)+\frac{\sigma - 1}{2}|x|^2 + \mu^Tx+\textrm{Const}$.
+% % \end{theorem}
+% This theorem indicates that our constructed ${F}^*$ is exactly the optimal transport field $\nabla\Phi^*_0$ for the original OT problem from $\rho_a$ to $\rho_b$. The proof is in the supplemental materials (Appendix B).
+
+% \begin{algorithm}[t!]
+% \caption{Computing Wasserstein geodesic from $\rho_a$ to $\rho_b$ via bidirectional scheme \eqref{bidirection} and preconditioning}
+% \begin{algorithmic}[1]
+% % \label{Algorithm_main}
+% \State Choose our preconditioning map $P(x)=\sigma x + \mu$. Denote $\hat{\rho_a} = P_{\sharp}\rho_a$ (This step is only applicable for 2-Wasserstein case. If we do not need preconditioning, we treat $P=\textrm{Id}$.)
+% \State Set up the threshold $\epsilon>0$ as the stopping criteria
+% \State Initialize ${F}_{\theta_1}, {G}_{\theta_2}$, $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$
+% \For{${F}_{\theta_1}$, ${G}_{\theta_2}$ steps}
+% \State Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\hat{\rho}_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$ from $\rho_b\otimes U(0,1)$; 
+% % (Here $U(0,1)$ denotes the uniform distribution on $(0,1)$.)
+% \State Set $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$,  $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% \State Sample $\{w^a_k\}_{k=1}^M$ from $\hat{\rho}_a$ and $\{w^b_k\}$ from $\rho_b$;
+% \For{$\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ steps}
+% % \STATE Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$; (U(0,1) denotes the uniform distribution on (0,1).)
+% % \STATE Compute $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$ and $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% % \STATE Sample $\{w^a_k\}_{k=1}^M$ from $\rho_a$ and $\{w^b_k\}$ from $\rho^b$;
+% \State Update (via gradient ascent) $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ by:
+% \begin{equation*}
+%     \nabla_{\omega_1, \omega_2} (\mathcal{L}^{ab}(\Phi^F_{\omega_1}) +\mathcal{L}^{ba}(\Phi^G_{\omega_2}))
+% \end{equation*}
+% \EndFor
+% % \STATE Sample $\{(z_k,t_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$;
+% % \STATE Compute $x_k = z_k+t_k{F}_\theta(z_k)$;
+% % \STATE Sample $\{z'_k\}_{k=1}^M$ from $\rho_a$;
+% % \STATE Sample $\{x'_k\}_{k=1}^M$ from $\rho_b$;
+% \State Sample $\{\xi^a_k\}_{k=1}^K$ from $\hat{\rho}_a$ and $\{\xi^b_k\}_{k=1}^K$ from $\rho_b$
+% \State Update (grad descent) ${F}_{\theta_1}$, ${G}_{\theta_2}$ by:
+% \begin{equation*}
+%  \nabla_{\theta_1, \theta_2} ( \mathcal{L}^{ab}(\Phi_{\omega_1}^F) + \mathcal{L}^{ba}(\Phi_{\omega_2}^G) +\mathcal{K}({F}_{\theta_1}, {G}_{\theta_2})  )
+% \end{equation*}
+% \State Whenever $|\widehat{W}^{ab}-\widehat{W}^{ba}|<\epsilon$, skip out of the loop.
+% \EndFor
+% \State Set ${F}^* = {F}_{\theta_1}\circ P + P - \textrm{Id}$ and ${G}^* = {G}_{\theta_2}\circ P + P - \textrm{Id}$.
+% \State Wasserstein geodesic from $\rho_a$ to $\rho_b$ is given by $\{(\textrm{Id}+t{F}_{\theta_1})_{\sharp}\rho_a\}$; Wasserstein geodesic from $\rho_b$ to $\rho_a$ is given by $\{(\textrm{Id}+t{G}_{\theta_2})_{\sharp}\rho_b\}$. 
+% \end{algorithmic}
+% \label{alg:1}
+% \end{algorithm}
+
+% \subsection{Algorithm}
+% Our computation procedure is summarized in Algorithm \ref{alg:1}. We set ${F}_{\theta_1}, {G}_{\theta_2}$ and $\Phi^F_{\omega_1},\Phi^G_{\omega_2}$ as fully connected neural networks and optimize over their parameters.
+
+% \begin{remark}
+%  In Algorithm \ref{alg:1}, we need to sample points $\{z^a_k\}$ from the distribution $\hat{\rho}_a=P_\sharp \rho_a$. To achieve this, we first sample $\{u_k\}$ from $\rho_a$. Then $\{P(u_k)\}$ are our desired samples from $\hat{\rho}_a$.
+% \end{remark}
+% % The definitions of $\mathcal{L}^{ab}, \mathcal{L}^{ba}, \mathcal{K}, \widehat{W}^{ab}, \widehat{W}^{ba}$ mentioned in the algorithm are
+% In Algorithm \ref{alg:1} we define
+% \begin{align*}
+%   &\mathcal{L}^{ab}(\Phi^F_{\omega_1}) = -\frac{1}{N}\sum_{k=1}^N \left[\frac{\partial}{\partial t}\Phi^F_{\omega_1}(x^{a}_k,t^{a}_k) + H(\nabla \Phi^F_{\omega_1} (x^a_k,t^a_k)) \right] +\frac{1}{M}\sum_{k=1}^M(\Phi^F_{\omega_1}(w^b_k,1)-\Phi^F_{\omega_1}(w^a_k , 0)),\\
+%   & \mathcal{L}^{ba}(\Phi^G_{\omega_2}) =   -\frac{1}{N}\sum_{k=1}^N \left[\frac{\partial}{\partial t}\Phi^G_{\omega_2}(x^{b}_k,t^{b}_k) + H(\nabla \Phi^G_{\omega_2} (x^b_k,t^b_k))\right]+\frac{1}{M}\sum_{k=1}^M(\Phi^G_{\omega_2}(w^b_k,1)-\Phi^G_{\omega_2}(w^a_k , 0)),  \\
+%   & \mathcal{K}({F}_{\theta_1}, {G}_{\theta_2}) =   \frac{\lambda}{ K}\sum_{k=1}^K|{G}_{\theta_2}(\xi^a_k+{F}_{\theta_1}(\xi^a_k))+{F}_{\theta_1}(\xi^a_k)|^2 + \frac{\lambda}{K} \sum_{k=1}^K|{F}_{\theta_1}(\xi^b_k+{G}_{\theta_2}(\xi^b_k))+{G}_{\theta_2}(\xi^b_k)|^2,\\
+%   & \widehat{W}^{ab} = \frac{1}{M}\sum_{k=1}^{M}L({F}_{\theta_1}(w^a_k)), \quad \widehat{W}^{ba} = \frac{1}{M}\sum_{k=1}^{M}L({G}_{\theta_2}(w^b_k)). \quad
+% \end{align*}
+
+% \begin{algorithm}[hb!]
+% \caption{Computing Wasserstein geodesic from $\rho_a$ to $\rho_b$ via bidirectional scheme \eqref{bidirection} and preconditioning}
+% \begin{algorithmic}[1]
+% % \label{Algorithm_main}
+% \State Choose our preconditioning map $P(x)=\sigma x + \mu$. Denote $\hat{\rho_a} = P_{\sharp}\rho_a$ (This step is only applicable for 2-Wasserstein case. If we do not need preconditioning, we treat $P=\textrm{Id}$.)
+% \State Set up the threshold $\epsilon>0$ as the stopping criteria
+% \State Initialize ${F}_{\theta_1}, {G}_{\theta_2}$, $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$
+% \For{${F}_{\theta_1}$, ${G}_{\theta_2}$ steps}
+% \State Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\hat{\rho}_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$ from $\rho_b\otimes U(0,1)$; 
+% % (Here $U(0,1)$ denotes the uniform distribution on $(0,1)$.)
+% \State Set $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$,  $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% \State Sample $\{w^a_k\}_{k=1}^M$ from $\hat{\rho}_a$ and $\{w^b_k\}$ from $\rho_b$;
+% \For{$\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ steps}
+% % \STATE Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$; (U(0,1) denotes the uniform distribution on (0,1).)
+% % \STATE Compute $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$ and $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% % \STATE Sample $\{w^a_k\}_{k=1}^M$ from $\rho_a$ and $\{w^b_k\}$ from $\rho^b$;
+% \State Update (via gradient ascent) $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ by:
+% \begin{equation*}
+%     \nabla_{\omega_1, \omega_2} (\mathcal{L}^{ab}(\Phi^F_{\omega_1}) +\mathcal{L}^{ba}(\Phi^G_{\omega_2}))
+% \end{equation*}
+% \EndFor
+% % \STATE Sample $\{(z_k,t_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$;
+% % \STATE Compute $x_k = z_k+t_k{F}_\theta(z_k)$;
+% % \STATE Sample $\{z'_k\}_{k=1}^M$ from $\rho_a$;
+% % \STATE Sample $\{x'_k\}_{k=1}^M$ from $\rho_b$;
+% \State Sample $\{\xi^a_k\}_{k=1}^K$ from $\hat{\rho}_a$ and $\{\xi^b_k\}_{k=1}^K$ from $\rho_b$
+% \State Update (grad descent) ${F}_{\theta_1}$, ${G}_{\theta_2}$ by:
+% \begin{equation*}
+%  \nabla_{\theta_1, \theta_2} ( \mathcal{L}^{ab}(\Phi_{\omega_1}^F) + \mathcal{L}^{ba}(\Phi_{\omega_2}^G) +\mathcal{K}({F}_{\theta_1}, {G}_{\theta_2})  )
+% \end{equation*}
+% \State Whenever $|\widehat{W}^{ab}-\widehat{W}^{ba}|<\epsilon$, skip out of the loop.
+% \EndFor
+% \State Set ${F}^* = {F}_{\theta_1}\circ P + P - \textrm{Id}$ and ${G}^* = {G}_{\theta_2}\circ P + P - \textrm{Id}$.
+% \State Wasserstein geodesic from $\rho_a$ to $\rho_b$ is given by $\{(\textrm{Id}+t{F}_{\theta_1})_{\sharp}\rho_a\}$; Wasserstein geodesic from $\rho_b$ to $\rho_a$ is given by $\{(\textrm{Id}+t{G}_{\theta_2})_{\sharp}\rho_b\}$. 
+% \end{algorithmic}
+% \label{alg:1}
+% \end{algorithm}
+% \begin{align*}
+%   &\mathcal{L}^{ab}(\Phi^F_{\omega_1}) = -\frac{1}{N}\sum_{k=1}^N \left[\frac{\partial}{\partial t}\Phi^F_{\omega_1}(x^{a}_k,t^{a}_k) + H(\nabla \Phi^F_{\omega_1} (x^a_k,t^a_k)) \right]\\
+%   & \qquad \quad \qquad +\frac{1}{M}\sum_{k=1}^M(\Phi^F_{\omega_1}(w^b_k,1)-\Phi^F_{\omega_1}(w^a_k , 0))\\
+%   & \mathcal{L}^{ba}(\Phi^G_{\omega_2}) =   -\frac{1}{N}\sum_{k=1}^N \left[\frac{\partial}{\partial t}\Phi^G_{\omega_2}(x^{b}_k,t^{b}_k) + H(\nabla \Phi^G_{\omega_2} (x^b_k,t^b_k))\right]\\
+%   & \quad\qquad \qquad  +\frac{1}{M}\sum_{k=1}^M(\Phi^G_{\omega_2}(w^b_k,1)-\Phi^G_{\omega_2}(w^a_k , 0))
+% \end{align*}
+% \begin{align*}
+%   & \mathcal{K}({F}_{\theta_1}, {G}_{\theta_2}) =   \frac{\lambda}{ K}\sum_{k=1}^K|{G}_{\theta_2}(\xi^a_k+{F}_{\theta_1}(\xi^a_k))+{F}_{\theta_1}(\xi^a_k)|^2\\
+%   & \quad \quad \qquad \quad + \frac{\lambda}{K} \sum_{k=1}^K|{F}_{\theta_1}(\xi^b_k+{G}_{\theta_2}(\xi^b_k))+{G}_{\theta_2}(\xi^b_k)|^2
+% \end{align*}
+% \begin{equation*}
+% \widehat{W}^{ab} = \frac{1}{M}\sum_{k=1}^{M}L({F}_{\theta_1}(w^a_k)), \quad \widehat{W}^{ba} = \frac{1}{M}\sum_{k=1}^{M}L({G}_{\theta_2}(w^b_k)), \quad
+% \end{equation*}
+
+
+\section{Experiments}
+\textbf{Experiment Setup:}
+We test our algorithm through a series of synthetic data sets and compare our numerical results with the ground truths (only for the Gaussian cases) or with the computational methods introduced in the Python library (Python Optimal Transport (POT)) \citep{JMLR:v22:20-451}. We also test our algorithm for realistic data sets including color transfer \citep{10.1109/38.946629} and transportation between MNIST digits \citep{726791}. 
+
+For low dimensional cases, namely, 2 and 10 dimensional cases, we set $\Phi_F, \Phi_G$ and $F, G$ as fully connected neural networks, where $\Phi_F, \Phi_G$ have 6 hidden layers and $F$ and $G$ have 5 hidden layers. Each layer has 48 nodes, the activation function is chosen as Tanh. For high dimensional cases, where we deal with MNIST handwritten digits data set, we adopt similar structures of neural networks, the only difference is that in each layer we extend the number of nodes from 48 to 512. In terms of training process, for all synthetic and realistic cases we use the Adam optimizer \citep{kingma2014adam} with learning rate $10^{-4}$. Notice that we are computing Wasserstein geodesic, namely, starting with an initial distribution $\rho_{t_0}$, in most cases we generate evolving distributions for next ten time steps, from $t_1=0.1$ to $t_{10}=1$. The cost functions are chosen as $L(v)=|v|^{\frac{3}{2}}$ in Synthetic-2 and $L(v)=|v|^2$ in all other tests. We only show the final state of the generated distribution due to space limitation, more experiments and details are included in the last part of Appendix.
+
+% \textbf{Synthetic-1}: This is a 2-dimensional case, we set $\rho_a$ as a standard Gaussian distribution $N(\mu_0,\Sigma_0)$ while $\rho_b$ as six surrounding Gaussian distributions with the same $\Sigma_0$. In Figure \ref{fig:syn-1}, we show the generated distribution that follows $\rho_b$ as well as the one that follows $\rho_a$. We also show the start-end tracks of points and vector field.
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob170000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob1700010.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa170000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa1700010.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhoa_to_rhob17000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhoa_to_rhob1700010.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhob_to_rhoa17000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhob_to_rhoa1700010.jpg}}
+% \caption{Syn-1. (a)(b) true $\rho_a$ and generated $\rho_b$, (c)(d) true $\rho_b$ and generated $\rho_a$, (e)(g) tracks of sample points from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$), (f)(h) vector fields from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$).}
+% \label{fig:syn-1}
+% \vspace{-2em}
+% \end{figure}
+
+% \vspace{-0.2em}
+
+% \textbf{Synthetic-2}: In this 5-dimensional case we treat $\rho_a$ and $\rho_b$ both as two Gaussian distributions. We show the results of two dimensional projection in Figure \ref{fig:syn-2}.
+% \begin{figure}[t!]
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob_11000_0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob_11000_10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa_11000_0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa_11000_10.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhoa_to_rhob_11000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhoa_to_rhob_11000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhob_to_rhoa_11000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhob_to_rhoa_11000.jpg}}
+% \caption{Syn-2. (a)(b) true $\rho_a$ and generated $\rho_b$, (c)(d) true $\rho_b$ and generated $\rho_a$, (e)(g) tracks of sample points from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$), (f)(h) vector fields from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$).}
+% \label{fig:syn-2}
+% \vspace{-2em}
+% \end{figure}
+
+% \begin{figure}[t!]
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob255000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob2550010.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa255000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa2550010.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhoa_to_rhob25500.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhoa_to_rhob2550010.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhob_to_rhoa25500.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhob_to_rhoa2550010.jpg}}
+% \caption{Syn-3. (a)(b) true $\rho_a$ and generated $\rho_b$, (c)(d) true $\rho_b$ and generated $\rho_a$, (e)(g) tracks of sample points from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$), (f)(h) vector fields from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$).}
+% \label{fig:syn-3}
+% \vspace{-2em}
+% \end{figure}
+
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.26\linewidth]{train error decay.png}}
+% \subfloat[][]{\includegraphics[width=.18\linewidth]{comp mixgauss.jpg}}
+% \subfloat[][]{\includegraphics[width=.18\linewidth]{comp general.jpg}}
+% \caption{Left: Syn2: $L^2(\rho_a)$ error between our computed $F$ and the real OT map vs iteration number; Middle: Syn1: Plot of our computed $F$ (blue) and the OT vector field computed by POT (orange); Right: Syn3: Plot of our computed $F$ and the OT vector field computed by POT (orange).}
+% \label{fig:com}
+% \vspace{-1em}
+% \end{figure}
+
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time0out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time10out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time0out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time10out iteration1100.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 1_forest.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{2to1iteration800samplesatt121.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 2_forest.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{1to2iteration800samplesatt121.jpg}}
+% \caption{Real-1, Forest views. (a)(c) true summer(autumn) view of the forest, (b)(d) generated autumn(summer) view when true summer(autumn) view is given, (e)(g) true palette distribution of summer(autumn) view of the forest, (f)(h) generated palette distribution of summer(autumn) view of the forest.}
+% \label{fig:real-1}
+% \vspace{-2em}
+% \end{figure}
+
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{xihuxia_copy.jpg}}
+% % \subfloat[][]{\includegraphics[width=.25\linewidth]{baitaqiu_copy.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time10out iteration5200.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{baitaqiu_copy.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time10out iteration5200.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 1.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{2 to 1 iteration 5200, samples at t1 .jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 2.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{1 to 2 iteration = 5200, samples at t=1 .jpg}}
+% \caption{Real-2, Color transfer. (a)(b) true summer(generated autumn) view of the West Lake, (c)(d) true autumn(generated summer) view of the White Tower, (e)(f) palette distribution of the true summer West Lake(generated summer White Tower), (g)(h) palette distribution of the true autumn White Tower(generated autumn West Lake).}
+% \label{fig:real-2}
+% \vspace{-1em}
+% \end{figure}
+
+% \begin{figure}[t!]
+% \centering
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m16800at0.jpg}}
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m16800at10.jpg}}
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m030800at0.jpg}}
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m030800at10.jpg}}\\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m816400at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m816400at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m416400at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m416400at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m923600at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m923600at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m623600at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m623600at10.jpg}}
+% \caption{Real-3, Digits transformation. (a)(b) true(generated) digit 4(8), (c)(d) true(generated) digit 8(4), (e)(f) true(generated) digit 6(9), (g)(h)true(generated) digit 9(6).}
+% \label{fig:real-3}
+% % \vspace{-1em}
+% \end{figure}
+
+\textbf{Synthetic-1}: This is a 2-dimensional case, we set $\rho_a$ as a standard Gaussian distribution $N(\mu_0,\Sigma_0)$ while $\rho_b$ as six surrounding Gaussian distributions with the same $\Sigma_0$. In Figure \ref{fig:syn-1}, we show the generated distribution that follows $\rho_b$ as well as the one that follows $\rho_a$. We also show the start-end tracks of points and vector field.
+
+\vspace{-0.2em}
+\textbf{Synthetic-2}: In this 5-dimensional case we treat $\rho_a$ and $\rho_b$ both as two Gaussian distributions. We show the results of two dimensional projection in Figure \ref{fig:syn-2}.
+\vspace{-0.2em}
+
+\textbf{Synthetic-3}: As a 10-dimensional case, here we set $\rho_a$ as a standard Gaussian distribution and $\rho_b$ as a special distribution where samples are unevenly distributed around four corners. We show the results of two dimensional projection in Figure \ref{fig:syn-3}.
+
+\vspace{-0.2em}
+
+\textbf{Training and Results}: For synthetic data sets, in the training process we set the batch size $N_t=2000$ and sample size for prediction $N_p=1000$. From Figures \ref{fig:syn-1}, \ref{fig:syn-2} and \ref{fig:syn-3} we see that in all cases, within various dimensional settings, the generated samples closely follow the ground-truth distributions.
+
+
+\vspace{-0.2em}
+
+\textbf{Comparisons}: We now compare the numerical results listed in the Synthetic cases with either the ground truth (Synthetic-2) or with the results computed by POT (Synthetic-1, Synthetic-3) in Figure \ref{fig:com}. Here all the examples are computed under quadratic cost $L(v)=|v|^2/2$.
+
+
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time0out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time10out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time0out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time10out iteration1100.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 1_forest.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{2to1iteration800samplesatt121.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 2_forest.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{1to2iteration800samplesatt121.jpg}}
+% \caption{Forest views. (a)(c) true summer(autumn) view of the forest, (b)(d) generated autumn(summer) view when true summer(autumn) view is given, (e)(g) true palette distribution of summer(autumn) view of the forest, (f)(h) generated palette distribution of summer(autumn) view of the forest.}
+% \label{fig:real-1}
+% \vspace{-3.5em}
+% \end{figure}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{xihuxia_copy.jpg}}
+% % \subfloat[][]{\includegraphics[width=.25\linewidth]{baitaqiu_copy.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time10out iteration5200.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{baitaqiu_copy.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time10out iteration5200.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 1.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{2 to 1 iteration 5200, samples at t1 .jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 2.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{1 to 2 iteration = 5200, samples at t=1 .jpg}}
+% \caption{Color transfer. (a)(b) true summer(generated autumn) view of the West Lake, (c)(d) true autumn(generated summer) view of the White Tower, (e)(f) palette distribution of the true summer West Lake(generated summer White Tower), (g)(h) palette distribution of the true autumn White Tower(generated autumn West Lake).}
+% \label{fig:real-2}
+% \vspace{-2em}
+% \end{figure}
+
+% \begin{figure}[t!]
+% \centering
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m16800at0.jpg}}
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m16800at10.jpg}}
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m030800at0.jpg}}
+% % \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m030800at10.jpg}}\\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m816400at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m816400at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m416400at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m416400at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m923600at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m923600at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m623600at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m623600at10.jpg}}
+% \caption{Digits transformation. (a)(b) true(generated) digit 4(8), (c)(d) true(generated) digit 8(4), (e)(f) true(generated) digit 6(9), (g)(h)true(generated) digit 9(6).}
+% \label{fig:real-3}
+% \vspace{-1em}
+% \end{figure}
+
+
+\begin{figure}[t!]
+\centering
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob170000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob1700010.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa170000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa1700010.jpg}}
+% \\
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhoa_to_rhob17000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhoa_to_rhob1700010.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhob_to_rhoa17000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhob_to_rhoa1700010.jpg}}
+\caption{Syn-1. (a)(b) true $\rho_a$ and generated $\rho_b$, (c)(d) true $\rho_b$ and generated $\rho_a$, (e)(g) tracks of sample points from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$), (f)(h) vector fields from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$).}
+\label{fig:syn-1}
+\vspace{-2em}
+\end{figure}
+
+\vspace{-0.2em}
+
+\begin{figure}[t!]
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob_11000_0.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob_11000_10.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa_11000_0.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa_11000_10.jpg}}
+% \\
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhoa_to_rhob_11000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhoa_to_rhob_11000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhob_to_rhoa_11000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhob_to_rhoa_11000.jpg}}
+\caption{Syn-2. (a)(b) true $\rho_a$ and generated $\rho_b$, (c)(d) true $\rho_b$ and generated $\rho_a$, (e)(g) tracks of sample points from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$), (f)(h) vector fields from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$).}
+\label{fig:syn-2}
+\vspace{-2em}
+\end{figure}
+
+\begin{figure}[t!]
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob255000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhoa_to_rhob2550010.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa255000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{pre_rhob_to_rhoa2550010.jpg}}
+% \\
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhoa_to_rhob25500.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhoa_to_rhob2550010.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colored_tracks_rhob_to_rhoa25500.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{vec_fd_rhob_to_rhoa2550010.jpg}}
+\caption{Syn-3. (a)(b) true $\rho_a$ and generated $\rho_b$, (c)(d) true $\rho_b$ and generated $\rho_a$, (e)(g) tracks of sample points from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$), (f)(h) vector fields from $\rho_a$($\rho_b$) to $\rho_b$($\rho_a$).}
+\label{fig:syn-3}
+\vspace{-2em}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\subfloat[][]{\includegraphics[width=.26\linewidth]{train_error_decay.png}}
+\subfloat[][]{\includegraphics[width=.18\linewidth]{comp_mixgauss.jpg}}
+\subfloat[][]{\includegraphics[width=.18\linewidth]{comp_general.jpg}}
+\caption{Left: Syn2: $L^2(\rho_a)$ error between our computed $F$ and the real OT map vs iteration number; Middle: Syn1: Plot of our computed $F$ (blue) and the OT vector field computed by POT (orange); Right: Syn3: Plot of our computed $F$ and the OT vector field computed by POT (orange).}
+\label{fig:com}
+\vspace{-1em}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colortransform1to2attime0outiteration1000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colortransform1to2attime10outiteration1000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colortransform2to1attime0outiteration1000.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colortransform2to1attime10outiteration1100.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot_of_RGB_values_of_picture_1_forest.png}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{2to1iteration800samplesatt121.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot_of_RGB_values_of_picture_2_forest.png}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{1to2iteration800samplesatt121.jpg}}
+\caption{Real-1, Forest views. (a)(c) true summer(autumn) view, (b)(d) generated autumn(summer) view when true summer(autumn) view is given, (e)(g) true palette distribution of summer(autumn) view, (f)(h) generated palette distribution of summer(autumn) view.}
+\label{fig:real-1}
+\vspace{-2em}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\subfloat[][]{\includegraphics[width=.125\linewidth]{xihuxia_copy.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colortransform1to2attime10outiteration5200.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{baitaqiu_copy.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{colortransform2to1attime10outiteration5200.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot_of_RGB_values_of_picture_1.png}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{2to1iteration5200samplesatt1.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot_of_RGB_values_of_picture_2.png}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{1to2iteration=5200samplesatt=1.jpg}}
+\caption{Real-2, Color transfer. (a)(b) true summer(generated autumn) view of the West Lake, (c)(d) true autumn(generated summer) view of the White Tower, (e)(f) palette distribution of the true summer West Lake(generated summer White Tower), (g)(h) palette distribution of the true autumn White Tower(generated autumn West Lake).}
+\label{fig:real-2}
+\vspace{-1em}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+% \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m16800at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m16800at10.jpg}}
+% \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m030800at0.jpg}}
+% \subfloat[][]{\includegraphics[width=.2\linewidth]{approx_m030800at10.jpg}}\\
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m816400at0.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m816400at10.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m416400at0.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m416400at10.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m923600at0.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m923600at10.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m623600at0.jpg}}
+\subfloat[][]{\includegraphics[width=.125\linewidth]{approx_m623600at10.jpg}}
+\caption{Real-3, Digits transformation. (a)(b) true(generated) digit 4(8), (c)(d) true(generated) digit 8(4), (e)(f) true(generated) digit 6(9), (g)(h)true(generated) digit 9(6).}
+\label{fig:real-3}
+% \vspace{-1em}
+\end{figure}
+
+\textbf{Realistic-1}: Two given pictures describe the summer view$(\rho_a)$ and autumn view$(\rho_b)$ of a forest. We generate the autumn view starting with the summer view and generate the summer view starting with the autumn view. We also show the ground-truth and generated palette distributions in Figure \ref{fig:real-1}.
+
+
+% \vspace{-1em}
+\vspace{-0.2em}
+\textbf{Realistic-2}: In this case the view of West Lake in summer and the view of White Tower in autumn are given, then we aim to do a color transfer and simulate the summer view of White Tower and the autumn view of West Lake, the results are shown in Figure \ref{fig:real-2}, the ground-truth and generated palette distributions are also included.
+
+\vspace{-0.2em}
+\textbf{Realistic-3}: We choose MNIST as our data set ($28 \times 28$ dimensional) and study the Wasserstein mappings as well as geodesic between digit 0$(\rho_a)$ and digit 1$(\rho_b)$, digit 4($\rho_a$) and digit 8($\rho_b$), digit 6($\rho_a$) and digit 9($\rho_b$). Only partial results are presented in Figure \ref{fig:real-3} due to space limit.
+
+
+% \vspace{-1em}
+\vspace{-0.2em}
+\textbf{Training and Results}: For realistic-1 and realistic-2 we set the batch size $N_t=1000$, for realistic-3 in each iteration we take $N_t=500$ pictures for training, especially for realistic-3 we also add small noise to samples during the training process. From Figure \ref{fig:real-1} and \ref{fig:real-2}, the generated autumn(summer) views are very close to the true autumn(summer) views, moreover, the similarity between true and generated palette distributions also demonstrate that our algorithm works well in these cases. In realistic-3 we study the Wasserstein geodesic and mappings in original space without any dimension reduction techniques. Our generated handwritten digits follow similar patterns with the ground truth.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{figure}[t!]
+% \centering
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time0out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 1 to 2 at time10out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time0out iteration1000.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{color_transform 2 to 1 at time10out iteration1100.jpg}}
+% % \\
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 1_forest.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{2to1iteration800samplesatt121.jpg}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{scatterplot of RGB values of picture 2_forest.png}}
+% \subfloat[][]{\includegraphics[width=.125\linewidth]{1to2iteration800samplesatt121.jpg}}
+% \caption{Forest views. (a)(c) true summer(autumn) view of the forest, (b)(d) generated autumn(summer) view when true summer(autumn) view is given, (e)(g) true palette distribution of summer(autumn) view of the forest, (f)(h) generated palette distribution of summer(autumn) view of the forest.}
+% \label{fig:real-1}
+% \vspace{-3.5em}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\vspace{-0.6em}
+\section{Conclusion}
+% \vspace{-0.8em}
+OT problem has been drawing more attention in machine learning recently. Though many algorithms have been proposed during the past several years for efficient computations, most of them do not consider the Wasserstein geodesics, neither be suitable for estimating optimal transport map with general cost in high dimensions. In this paper we present a novel method to compute Wasserstein geodesic between two given distributions with general convex cost. In particular, we consider the primal-dual scheme of the dynamical OT problem and simplify the scheme via the KKT conditions as well as the geodesic transporting properties. By further introducing preconditioning techniques and bidirectional dynamics into our optimization, we obtain a stable and effective algorithm that is capable of high dimensional computation, which is one of the very first scalable algorithms for directly computing geodesics with general cost, including $L$-$p$. Our method not only computes sample based Wasserstein geodesics, but also provides Wasserstein distance and optimal map. We demonstrate the effectiveness of our scheme through a series of experiments with both low dimensional and high dimensional settings. It is worth noting that our model can be applied not only in machine learning such as image transfer, density estimation, but also in optimal control and robotics, where one needs to study the distribution of mobile agents. We should also be aware of the malicious usage for our method, for instance, it could be potentially used in some activities involving generating misleading data distributions.
+
+% \section{Broader Impact}
+% \chen{merge Broder impact and conclusion}
+% \vspace{-0.8em}
+% {\color{red} we need a broader impact section}
+% OT problem has been drawing more attention in machine learning recently. Though many algorithms have been proposed during the past several years for efficient computation, most of them are based on the discrete formulation of OT which are not suitable for estimating the Wasserstein geodesics as well as optimal transport map. 
+
+
+% The algorithm developed in this work is one of the very first scalable algorithms for computing geodesics with general cost, including $L$-$p$. It is worth noting that our model can be applied not only in machine learning such as image transfer, density estimation, but also in optimal control and robotics, where one needs to study the distribution of mobile agents. 
+
+% We should also be aware of the malicious usage for our method, for instance, it could be potentially used in many other activities involving maneuvering data distributions.
+
+\bibliography{a_paper}
+\bibliographystyle{nips2021}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+% If accepted, instead use the following line for the camera-ready submission:
+%\usepackage[accepted]{icml2020}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+
+
+% \icmltitlerunning{submission for ICML 2021}
+
+
+\appendix
+% \section{Equivalence between \textbf{Static OT} and \textbf{Dynamical OT}}\label{background}
+% Recall the original (static) optimal transport problem and consider its Kantorovich duality \cite{villani2008optimal}
+% \begin{equation}
+%  \max_{\phi(y)-\psi(x)\leq c(x,y)}\left\{ \int \phi(y)\rho_b(y)~dy - \int \psi(x)\rho_a(x)~dx \right\}  \label{Kant duality}
+% \end{equation}
+% Then the optimal value of \eqref{Kant duality} equals $W_{\textrm{Static OT}}(\rho_a, \rho_b)$. Let us denote the optimizer to \eqref{Kant duality} as $(\phi^*,\psi^*)$.
+% Then $\nabla\psi^*$ (as well as $\nabla\phi^*$) will provide optimal transporting maps from $\rho_a$ to $\rho_b$ (as well as from $\rho_b$ to $\rho_a$), i.e. we have
+% \begin{equation}
+% (\textrm{Id}+\nabla\psi^*)_{\sharp}\rho_a=\rho_b,  \quad (\textrm{Id}-\nabla\phi^*)_{\sharp}\rho_b = \rho_a.  \label{phi, psi as monge maps}
+% \end{equation}
+
+
+
+% For the dynamical OT problem, its optimal solution is given by
+% % {\color{blue} Could we consider more general one:
+% % \begin{align}
+% %     &\frac{\partial \rho(x,t)}{\partial t} + \nabla\cdot(\rho(x,t) \nabla L^{-1}(\nabla \Phi(x,t)))=0,  \label{continuity in geodesic eq}\\
+% %     &\frac{\partial \Phi(x,t)}{\partial t} + H(\nabla \Phi(x,t)) = 0  \label{HJ in geodesic eq}\\
+% %     &\textrm{subject to:}~~\rho(\cdot,0) = \rho_a, ~\rho(\cdot, 1) = \rho_b.
+% % \end{align}
+% % }
+% \begin{align}
+%   & \frac{\partial \rho(x,t)}{\partial t}+\nabla\cdot(\rho(x,t)  ~\nabla L(\cdot)^{-1}(\nabla\Phi(x,t))) = 0 \label{geodesic eq} \\
+%   & \frac{\partial \Phi(x,t)}{\partial t} + H(\nabla\Phi(x,t)) = 0   \nonumber\\
+%   & \textrm{subject to} ~ \rho(\cdot, 0) = \rho_a, \quad \rho(\cdot, 1) = \rho_b. \nonumber
+% \end{align}
+% And the optimal vector field 
+% \begin{equation}
+%   {v}^*(x,t) = \nabla L(\cdot)^{-1}(\nabla\Phi(x, t))  \label{vector field = inv grad L grad Phi}
+% \end{equation}
+% Both \eqref{geodesic eq} and \eqref{vector field = inv grad L grad Phi} can be deduced from the KKT conditions of the dynamical OT.
+
+% The connections between Static OT and Dynamical OT is tied by the following relations: 
+% \begin{equation}
+%   \Phi(x,1) = \phi^*(x) + C_1  \quad  \Phi(x, 0) = \psi^*(x) + C_0   \label{static dual = dynamic dual}
+% \end{equation}
+% where $C_0, C_1$ are constants. 
+
+% Furthermore, by \eqref{phi, psi as monge maps}, we also have
+% \begin{equation}
+%   (\textrm{Id}+\nabla\Phi(\cdot, 0))_{\sharp}\rho_a=\rho_b,  \quad (\textrm{Id}-\nabla\Phi(\cdot, 1))_{\sharp}\rho_b = \rho_a.  \label{Phi0, Phi1 as monge maps}
+% \end{equation}
+
+% Such equations \eqref{phi, psi as monge maps} and \eqref{Phi0, Phi1 as monge maps} are called Monge-Ampere equations. Assume $(\textrm{Id}+\nabla u)_{\sharp}\rho_a = \rho_b$ admits unique solution $u(x)$, then $\nabla u=\nabla\phi^*=\nabla\Phi_0$ is the optimal transport field to the OT problem from $\rho_a$ to $\rho_b$.
+
+% We also have $W_{\textrm{Static OT}}(\rho_a, \rho_b) = W_{\textrm{Dym OT}}(\rho_a, \rho_b)$. Detailed discussion on the equivalent relations between Static OT and Dynamical OT problems has been elaborated in several references such as section 5.1 of \cite{villani2003topics} and chapter 13 of \cite{villani2008optimal}.
+\newpage
+\section{Algorithm}
+\subsection{Preconditioning technique for 2-Wasserstein case}
+It's worth mentioning that we can apply preconditioning technique under the 2-Wasserstein cases, i.e., $L(\cdot) = \frac{|\cdot|^2}{2}$. When the support of distributions $\rho_a$ and $\rho_b$ are far away from each other, the computational process might get much more sensitive with respect to vector field ${F}$. In order to deal with this situation, we consider preconditioning to our initial distribution $\rho_a$. In our implementation, we treat $P:\mathbb{R}^d\rightarrow\mathbb{R}^d$ as our preconditioning map. We fix its structure as $P(x) = \sigma x + \mu$ with $\sigma\in\mathbb{R}_+, ~\mu\in\mathbb{R}^d$. Such preconditioning process can be treated as an operation aiming at relocating and rescaling the initial distribution $\rho_a$ so that the support of $P_{\sharp}\rho_a$ matches with the support of $\rho_b$ in a better way, which in turn facilitates the training process of our OT problem. A similar technique is also carried out by \citet{kuang2017preconditioning}. 
+
+
+
+Let us denote the optimal vector field of OT problem between $P_{\sharp}\rho_a$ and $\rho_b$ as $\nabla\widehat{\Phi}_0$, then for the vector field ${F}^*(x) = \nabla\widehat{\Phi}_0 \circ P(x) + P(x) - x $, the following theorem guarantees the optimality of ${F}^*$.
+\begin{manualtheorem}{3}
+\label{theorem on preconditioning}
+ Suppose $L(\cdot)=\frac{|\cdot|^2}{2}$. We define the map $P(x)=\sigma x+\mu$ with $\sigma\in\mathbb{R}_+, \mu\in\mathbb{R}^d$. Recall \eqref{vector field = inv grad L grad Phi}, we denote ${v}(x,t)=\nabla\widehat{\Phi}(x, t)$ as the optimal solution to dynamical OT problem \eqref{dynamical OT} from $P_{\sharp}\rho_a$ to $\rho_b$. We set $\widehat{\Phi}_0 = \widehat{\Phi}(\cdot, 0)$. Furthermore, we denote ${v}(x,t)=\nabla\Phi^*(x,t)$ as the optimal solution to dynamical OT problem \eqref{dynamical OT} from $\rho_a$ to $\rho_b$,
+ % \chen{what's the difference between $\Phi$ and $\Phi^*$?} {\color{blue} We now always use $\Phi^*$ to denote the optimal solution to \eqref{geodesic eq}, i.e. "*" represents optimality.} 
+ and set $\Phi^*_0=\Phi^*(\cdot, 0)$. Then we have
+  \begin{equation*}
+     \nabla\Phi^*_0(x) = \nabla\widehat{\Phi}_0\circ P(x)+P(x)-x,
+~~\Phi^*_0(x) = \frac{1}{\sigma}\widehat{\Phi}_0(\sigma x + \mu)+\frac{\sigma - 1}{2}|x|^2 + \mu^Tx+\textrm{Const}.
+\end{equation*}
+\end{manualtheorem}
+% \begin{theorem}\label{theorem on preconditioning}
+%   Suppose $L(\cdot)=\frac{|\cdot|^2}{2}$. We define the map $T(x)=\sigma x+\mu$ with $\sigma\in\mathbb{R}_+, \mu\in\mathbb{R}^d$. Recall \eqref{vector field = inv grad L grad Phi}, we denote the optimal ${v}(x,t)$ to the dynamical OT problem \eqref{dynamical OT} from $T_{\sharp}\rho_a$ to $\rho_b$ as $\nabla\Phi(x,t)$. We set $\Phi_0 = \Phi(\cdot, 0)$. Furthermore, we denote the optimal ${v}(x,t)$ to the dynamical OT problem \eqref{dynamical OT} from $\rho_a$ to $\rho_b$ as $\nabla\Phi^*(x,t)$. We set $\Phi^*_0=\Phi^*(\cdot, 0)$. Then we have
+%   \begin{equation*}
+%      \nabla\Phi^*_0(x) = \nabla\Phi_0\circ T(x)+T(x)-x
+%   \end{equation*}
+%   And $\Phi^*_0(x) = \frac{1}{\sigma}\Phi_0(\sigma x + \mu)+\frac{\sigma - 1}{2}|x|^2 + \mu^Tx+\textrm{Const}$.
+% \end{theorem}
+This theorem indicates that our constructed ${F}^*$ is exactly the optimal transport field $\nabla\Phi^*_0$ for the original OT problem from $\rho_a$ to $\rho_b$. The proof is in Appendix C.
+
+Our computation procedure is summarized in Algorithm \ref{alg:1}. We set ${F}_{\theta_1}, {G}_{\theta_2}$ and $\Phi^F_{\omega_1},\Phi^G_{\omega_2}$ as fully connected neural networks and optimize over their parameters.
+
+\begin{algorithm}[hb!]
+\caption{Computing Wasserstein geodesic from $\rho_a$ to $\rho_b$ via bidirectional scheme \eqref{bidirection} and preconditioning}
+\begin{algorithmic}[1]
+% \label{Algorithm_main}
+\State Choose our preconditioning map $P(x)=\sigma x + \mu$. Denote $\hat{\rho_a} = P_{\sharp}\rho_a$ (This step is only applicable for 2-Wasserstein case. If we do not need preconditioning, we treat $P=\textrm{Id}$.)
+\State Set up the threshold $\epsilon>0$ as the stopping criteria
+\State Initialize ${F}_{\theta_1}, {G}_{\theta_2}$, $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$
+\For{${F}_{\theta_1}$, ${G}_{\theta_2}$ steps}
+\State Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\hat{\rho}_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$ from $\rho_b\otimes U(0,1)$; 
+% (Here $U(0,1)$ denotes the uniform distribution on $(0,1)$.)
+\State Set $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$,  $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+\State Sample $\{w^a_k\}_{k=1}^M$ from $\hat{\rho}_a$ and $\{w^b_k\}$ from $\rho_b$;
+\For{$\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ steps}
+% \STATE Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$; (U(0,1) denotes the uniform distribution on (0,1).)
+% \STATE Compute $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$ and $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% \STATE Sample $\{w^a_k\}_{k=1}^M$ from $\rho_a$ and $\{w^b_k\}$ from $\rho^b$;
+\State Update (via gradient ascent) $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ by:
+\begin{equation*}
+    \nabla_{\omega_1, \omega_2} (\mathcal{L}^{ab}(\Phi^F_{\omega_1}) +\mathcal{L}^{ba}(\Phi^G_{\omega_2}))
+\end{equation*}
+\EndFor
+% \STATE Sample $\{(z_k,t_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$;
+% \STATE Compute $x_k = z_k+t_k{F}_\theta(z_k)$;
+% \STATE Sample $\{z'_k\}_{k=1}^M$ from $\rho_a$;
+% \STATE Sample $\{x'_k\}_{k=1}^M$ from $\rho_b$;
+\State Sample $\{\xi^a_k\}_{k=1}^K$ from $\hat{\rho}_a$ and $\{\xi^b_k\}_{k=1}^K$ from $\rho_b$
+\State Update (grad descent) ${F}_{\theta_1}$, ${G}_{\theta_2}$ by:
+\begin{equation*}
+ \nabla_{\theta_1, \theta_2} ( \mathcal{L}^{ab}(\Phi_{\omega_1}^F) + \mathcal{L}^{ba}(\Phi_{\omega_2}^G) +\mathcal{K}({F}_{\theta_1}, {G}_{\theta_2})  )
+\end{equation*}
+\State Whenever $|\widehat{W}^{ab}-\widehat{W}^{ba}|<\epsilon$, skip out of the loop.
+\EndFor
+\State Set ${F}^* = {F}_{\theta_1}\circ P + P - \textrm{Id}$ and ${G}^* = {G}_{\theta_2}\circ P + P - \textrm{Id}$.
+\State Wasserstein geodesic from $\rho_a$ to $\rho_b$ is given by $\{(\textrm{Id}+t{F}_{\theta_1})_{\sharp}\rho_a\}$; Wasserstein geodesic from $\rho_b$ to $\rho_a$ is given by $\{(\textrm{Id}+t{G}_{\theta_2})_{\sharp}\rho_b\}$. 
+\end{algorithmic}
+\label{alg:1}
+\end{algorithm}
+
+
+
+\begin{remark}
+ In Algorithm \ref{alg:1}, we need to sample points $\{z^a_k\}$ from the distribution $\hat{\rho}_a=P_\sharp \rho_a$. To achieve this, we first sample $\{u_k\}$ from $\rho_a$. Then $\{P(u_k)\}$ are our desired samples from $\hat{\rho}_a$.
+\end{remark}
+% The definitions of $\mathcal{L}^{ab}, \mathcal{L}^{ba}, \mathcal{K}, \widehat{W}^{ab}, \widehat{W}^{ba}$ mentioned in the algorithm are
+In Algorithm \ref{alg:1} we define
+\begin{align*}
+  &\mathcal{L}^{ab}(\Phi^F_{\omega_1}) = -\frac{1}{N}\sum_{k=1}^N \left[\frac{\partial}{\partial t}\Phi^F_{\omega_1}(x^{a}_k,t^{a}_k) + H(\nabla \Phi^F_{\omega_1} (x^a_k,t^a_k)) \right] +\frac{1}{M}\sum_{k=1}^M(\Phi^F_{\omega_1}(w^b_k,1)-\Phi^F_{\omega_1}(w^a_k , 0)),\\
+  & \mathcal{L}^{ba}(\Phi^G_{\omega_2}) =   -\frac{1}{N}\sum_{k=1}^N \left[\frac{\partial}{\partial t}\Phi^G_{\omega_2}(x^{b}_k,t^{b}_k) + H(\nabla \Phi^G_{\omega_2} (x^b_k,t^b_k))\right]+\frac{1}{M}\sum_{k=1}^M(\Phi^G_{\omega_2}(w^b_k,1)-\Phi^G_{\omega_2}(w^a_k , 0)),  \\
+  & \mathcal{K}({F}_{\theta_1}, {G}_{\theta_2}) =   \frac{\lambda}{ K}\sum_{k=1}^K|{G}_{\theta_2}(\xi^a_k+{F}_{\theta_1}(\xi^a_k))+{F}_{\theta_1}(\xi^a_k)|^2 + \frac{\lambda}{K} \sum_{k=1}^K|{F}_{\theta_1}(\xi^b_k+{G}_{\theta_2}(\xi^b_k))+{G}_{\theta_2}(\xi^b_k)|^2,\\
+  & \widehat{W}^{ab} = \frac{1}{M}\sum_{k=1}^{M}L({F}_{\theta_1}(w^a_k)), \quad \widehat{W}^{ba} = \frac{1}{M}\sum_{k=1}^{M}L({G}_{\theta_2}(w^b_k)). \quad
+\end{align*}
+
+% \begin{algorithm}[hb!]
+% \caption{Computing Wasserstein geodesic from $\rho_a$ to $\rho_b$ via bidirectional scheme \eqref{bidirection} and preconditioning}
+% \begin{algorithmic}[1]
+% % \label{Algorithm_main}
+% \State Choose our preconditioning map $P(x)=\sigma x + \mu$. Denote $\hat{\rho_a} = P_{\sharp}\rho_a$ (This step is only applicable for 2-Wasserstein case. If we do not need preconditioning, we treat $P=\textrm{Id}$.)
+% \State Set up the threshold $\epsilon>0$ as the stopping criteria
+% \State Initialize ${F}_{\theta_1}, {G}_{\theta_2}$, $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$
+% \For{${F}_{\theta_1}$, ${G}_{\theta_2}$ steps}
+% \State Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\hat{\rho}_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$ from $\rho_b\otimes U(0,1)$; 
+% % (Here $U(0,1)$ denotes the uniform distribution on $(0,1)$.)
+% \State Set $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$,  $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% \State Sample $\{w^a_k\}_{k=1}^M$ from $\hat{\rho}_a$ and $\{w^b_k\}$ from $\rho_b$;
+% \For{$\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ steps}
+% % \STATE Sample $\{(z^{a}_k,t^{a}_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$ and $\{(z^b_k, t^b_k)\}_{k=1}^N$; (U(0,1) denotes the uniform distribution on (0,1).)
+% % \STATE Compute $x^a_k = z^a_k+t^a_k {F}_{\theta_1}(z^a_k)$ and $x^b_k = z^b_k + t^b_k {G}_{\theta_2}(z^b_k)$;
+% % \STATE Sample $\{w^a_k\}_{k=1}^M$ from $\rho_a$ and $\{w^b_k\}$ from $\rho^b$;
+% \State Update (via gradient ascent) $\Phi^F_{\omega_1}, \Phi^G_{\omega_2}$ by:
+% \begin{equation*}
+%     \nabla_{\omega_1, \omega_2} (\mathcal{L}^{ab}(\Phi^F_{\omega_1}) +\mathcal{L}^{ba}(\Phi^G_{\omega_2}))
+% \end{equation*}
+% \EndFor
+% % \STATE Sample $\{(z_k,t_k)\}_{k=1}^N$ from $\rho_a\otimes U(0,1)$;
+% % \STATE Compute $x_k = z_k+t_k{F}_\theta(z_k)$;
+% % \STATE Sample $\{z'_k\}_{k=1}^M$ from $\rho_a$;
+% % \STATE Sample $\{x'_k\}_{k=1}^M$ from $\rho_b$;
+% \State Sample $\{\xi^a_k\}_{k=1}^K$ from $\hat{\rho}_a$ and $\{\xi^b_k\}_{k=1}^K$ from $\rho_b$
+% \State Update (grad descent) ${F}_{\theta_1}$, ${G}_{\theta_2}$ by:
+% \begin{equation*}
+%  \nabla_{\theta_1, \theta_2} ( \mathcal{L}^{ab}(\Phi_{\omega_1}^F) + \mathcal{L}^{ba}(\Phi_{\omega_2}^G) +\mathcal{K}({F}_{\theta_1}, {G}_{\theta_2})  )
+% \end{equation*}
+% \State Whenever $|\widehat{W}^{ab}-\widehat{W}^{ba}|<\epsilon$, skip out of the loop.
+% \EndFor
+% \State Set ${F}^* = {F}_{\theta_1}\circ P + P - \textrm{Id}$ and ${G}^* = {G}_{\theta_2}\circ P + P - \textrm{Id}$.
+% \State Wasserstein geodesic from $\rho_a$ to $\rho_b$ is given by $\{(\textrm{Id}+t{F}_{\theta_1})_{\sharp}\rho_a\}$; Wasserstein geodesic from $\rho_b$ to $\rho_a$ is given by $\{(\textrm{Id}+t{G}_{\theta_2})_{\sharp}\rho_b\}$. 
+% \end{algorithmic}
+% \label{alg:1}
+% \end{algorithm}
+
+
+
+
+
+
+
+\section{Proof of Theorem 2}\label{study}
+Let us denote $ {F}:\mathbb{R}^d\rightarrow \mathbb{R}^d$ as the transporting vector field. Recall that we are computing for the Wasserstein geodesic interpolating $\rho_a$ and $\rho_b$. We denote $\hat{\rho}_t = (I+t {F})_{\sharp}\rho_a$. Then we introduce the following functional of $F$ and $\Phi$:
+\begin{align}
+  \mathcal{L}( {F}, \Phi) = & \int_0^1 \int \left(-\frac{\partial \Phi(x,t)}{\partial t}-H(\nabla\Phi(x,t))\right)\hat{\rho}(x,t)~dxdt + \int \Phi(x,1)\rho_b(x) - \Phi(x, 0)\rho_a(x)~dx  \label{def of L} \nonumber \\
+  = & \int_0^1 \int \left(-\frac{\partial \Phi(x+tF(x),t)}{\partial t}-H(\nabla\Phi(x+tF(x),t))\right)\rho_a(x,t)~dxdt + \int \Phi(x,1)\rho_b(x) \nonumber\\
+  &- \Phi(x, 0)\rho_a(x)~dx 
+\end{align}
+As mentioned in \eqref{chosen scheme}, our numerical method is to solve the following saddle point problem
+\begin{equation}
+   \min_{ {F}}~\max_{\Phi} ~ \mathcal{L}( {F}, \Phi)  \label{saddle scheme}
+\end{equation}
+As stated in Theorem \ref{main}, the optimal solution obtained from dynamical OT problem (Brenier-Benamou formulation) \eqref{dynamical OT} is a critical point to the functional $\mathcal{L}( {F}, \Phi)$. Before we prove this result, we need the following lemmas:
+
+\begin{lemma}\label{con eq}
+  Given a distribution with density $\rho$ defined on $\mathbb{R}^d$, consider vector field $ {F}:\mathbb{R}^d\rightarrow\mathbb{R}^d$. Define time-varying density $\{\rho(\cdot,t)\}_{t\in [0,1]}$ as $\rho(\cdot, t) = (Id+t {F})_{\sharp}\rho_0$. Suppose for a given $f\in C^1(\mathbb{R}^d)$, $f(x)\rho(x,t)$ is integrable on $\mathbb{R}^d$. Then
+  \begin{equation*}
+     \int f(x)\frac{\partial}{\partial t}\rho(x,t) = \int \nabla f(x+t {F}(x))\cdot {F}(x)~\rho_a(x)~dx
+  \end{equation*}
+\end{lemma}
+\begin{proof}
+  We have
+  \begin{align*}
+     \int f(x)\frac{\partial}{\partial t}\rho(x,t) =\frac{d}{dt}\left(\int f(x)\rho(x,t)~dx\right)= &\frac{d}{dt}\left(\int f(x+t {F}(x))\rho_a(x)~dx\right)\\=& \int \nabla f(x+ {F}(x))\cdot {F}(x)~\rho_a(x)~dx
+  \end{align*}
+\end{proof}
+
+
+\begin{lemma}\label{vf of HJ}
+  Suppose $\Phi^*(x,t)$ is solved from \eqref{geodesic eq} in the paper with initial condition $\Phi^*(\cdot, 0) = \Phi^*_0(\cdot)$, we further assume $\Phi^*(\cdot, t)\in C^2(\mathbb{R}^d)$. Then we have
+  \begin{equation}
+    \nabla\Phi^*(x+t~\nabla L^{-1}(\nabla\Phi^*_0(x)), ~t) = \nabla\Phi^*_0(x).  \label{gradient of solution to hj}
+  \end{equation}
+\end{lemma}
+
+\begin{proof}
+   Now consider Hamilton-Jacobi equation of \eqref{geodesic eq} in the paper:
+   \begin{equation*}
+      \frac{\partial \Phi^*(y,t)}{\partial t} + H(\nabla\Phi^*(y,t)) = 0 \quad \Phi^*(\cdot, 0) = \Phi^*_0.
+   \end{equation*}
+   We take gradient with respect to $x$ on both sides, we have
+   \begin{equation}
+      \frac{\partial}{\partial t}(\nabla\Phi^*(y,t)) + \nabla^2\Phi^*(y,t)\nabla H( \nabla\Phi^*(y,t) ) = 0.  \label{grad of hj equation}
+   \end{equation}
+%   \begin{equation*}
+%       \frac{\partial}{\partial t}(\nabla\Phi^*(x+t\nabla\Phi^*_0(x), t)) + \nabla^2\Phi^*(x+t\nabla\Phi^*_0(x),t)\nabla H(\nabla\Phi^*(x+t\nabla\Phi^*_0(x), t)) = 0.
+%   \end{equation*}
+   Let us denote $T_t(x) = x+t\nabla H(\nabla\Phi^*_0(x))$ for simplicity. We now compute
+   \begin{equation*}
+      \frac{d}{dt}\nabla\Phi^*(T_t (x), t) = \frac{\partial}{\partial t}\nabla\Phi^*(T_t(x), t) + \nabla^2 \Phi^*(T_t(x), t) \nabla H(\nabla\Phi^*_0(x))
+   \end{equation*}
+   By plugging $y=T_t(x)$ into \eqref{grad of hj equation}, we are able to verify $\frac{d}{dt}\nabla\Phi^*(T_t (x), t) = 0$. Thus 
+   \begin {equation}
+      \nabla\Phi^*(T_t (x), t) = \nabla \Phi^*(T_0(x), 0) = \nabla\Phi^*_0(x) \quad \textrm{for} ~~ t\in [0,1]  \label{lemma2 eq}
+   \end{equation}
+   Recall $H$ defined in the paper, we can verify that $\nabla H = \nabla L^{-1}$. Thus \eqref{lemma2 eq} leads to
+   \begin{equation*}
+     \nabla\Phi^*(x+t~\nabla L^{-1}(\nabla\Phi^*_0(x)), ~t) = \nabla\Phi^*_0(x).
+   \end{equation*}
+
+\end{proof}
+
+
+% \begin{lemma}\label{convexity}
+%   Suppose $(\Phi(x,t),\rho(x))$ solves \eqref{Brenier-Benamou formulation}. Then $\Phi(\cdot, 0)+\frac{|\cdot|^2}{2}$ is a strictly convex function. 
+% \end{lemma}
+% \begin{proof}
+%   We have shown in \eqref{static dual = dynamic dual} that $\Phi(\cdot, 0)=\psi_*(\cdot)$, where $\psi^*$ is the optimal Kantorovich dual for \eqref{Kant duality} with $c(x, y)=\frac{1}{2}|x-y|^2$. Thus we only need to show that $\psi^*(\cdot)+\frac{|\cdot|^2}{2}$ is convex. This is proved in Theorem 2.47 of \cite{villani2003topics}.
+% \end{proof}
+
+
+\begin{lemma}\label{continuity eq lemma}
+   Suppose $\Phi^*(x,t)$ is solved from \eqref{geodesic eq} in the paper with initial condition $\Phi^*(\cdot, 0) = \Phi^*_0(\cdot)$, we further assume $\Phi^*(\cdot, t)\in C^2(\mathbb{R}^d)$. Now denote $\hat{\rho}(\cdot, t) = (\textrm{Id}+t\nabla L^{-1}(\nabla \Phi^*_0))_{\sharp}\rho_a$. Then $\hat{\rho}(\cdot, t)$ solves 
+   \begin{equation*}
+      \frac{\partial \hat{\rho}(x,t)}{\partial t} + \nabla\cdot(\hat{\rho}(x,t)\nabla L^{-1}(\nabla\Phi^*(x,t)))=0.
+   \end{equation*}
+\end{lemma}
+\begin{proof}
+  For arbitrary $f\in C_0^\infty(\mathbb{R}^d)$, we consider:
+  \begin{align*}
+    & \int f(x)\left(\frac{\partial \hat{\rho}(x,t)}{\partial t} + \nabla\cdot(\hat{\rho}(x,t)\nabla L^{-1}(\nabla\Phi^*(x,t)))\right)~dx \\
+    =& \int f(x)\frac{\partial\hat{\rho}(x,t)}{\partial t} ~dx -\int \nabla f(x)\cdot \nabla L^{-1}(\nabla\Phi^*(x,t))\hat{\rho}(x,t)~dx
+  \end{align*}
+  By Lemma \ref{con eq}, the first term equals
+  \begin{equation}
+   \int \nabla f(x+t\nabla L^{-1}(\nabla\Phi^*_0(x)))\cdot \nabla L^{-1}(\nabla\Phi^*_0(x))~\rho_a(x)~dx  \label{first}
+  \end{equation}
+  The second term equals
+  \begin{equation}
+    \int \nabla f(x+t\nabla L^{-1}(\nabla\Phi^*_0(x)))\cdot \nabla L^{-1}(\nabla\Phi^*(x+t\nabla L^{-1}(\nabla\Phi^*_0(x)), t))~\rho_a(x)~ dx\label{second}
+  \end{equation}
+  Using Lemma \ref{vf of HJ}, we know the integrals \eqref{first} and \eqref{second} are the same. Thus we have
+  \begin{equation*}
+     \int f(x)\left(\frac{\partial \hat{\rho}(x,t)}{\partial t} + \nabla\cdot(\hat{\rho}(x,t)\nabla L^{-1}(\nabla\Phi^*(x,t)))\right)~dx = 0 \quad \forall ~ ~f\in C_0^\infty(\mathbb{R}^d).
+  \end{equation*}
+  This leads to our result.
+\end{proof}
+
+
+
+
+\begin{lemma}\label{simplify wasserstein}
+ Suppose $\Phi^*(x,t)$ is solved from \eqref{geodesic eq} in the paper with initial condition $\Phi^*(\cdot, 0) = \Phi_0^*(\cdot)$, then 
+ \begin{equation}
+    W_{\textrm{Dym}}(\rho_a, \rho_b) = \int L(\nabla L^{-1}(\nabla\Phi_0^*(x)))\rho_a(x)~dx.  \label{compute Wass dist simplified}
+ \end{equation}
+\end{lemma}
+\begin{proof}
+   Consider particle dynamical OT with its optimal solution $ {v}^*(x,t) = \nabla L^{-1}(\nabla\Phi^*(x, t))$ as stated in \eqref{vector field = inv grad L grad Phi} in the paper. Recall Theorem 1 stating that the optimal plan is transporting each particle $\boldsymbol{X}_t$ along straight lines with constant velocity $ {v}^*(\boldsymbol{X}_0, 0) = \nabla L^{-1}(\nabla\Phi_0^*(\boldsymbol{X}_0))$, i.e. $ {v}^*(\boldsymbol{X}_t, t) =  {v}^*(\boldsymbol{X}_0, 0)$ for any $t\in [0,1]$. Combining these, we have
+   \begin{equation*}
+      W_{\textrm{Dym OT}}(\rho_a, \rho_b) = \int_0^1\mathbb{E}~ L( {v}^*(\boldsymbol{X}_t,t))~dt = \mathbb{E}\left(\int_0^1 L( {v}^*(\boldsymbol{X}_t,t))~dt\right)=\mathbb{E}~L(\nabla L^{-1}(\nabla\Phi_0^*(\boldsymbol{X}_0))).
+   \end{equation*}
+   Notice that we require $\boldsymbol{X}_0\sim\rho_a$. This will lead to \eqref{compute Wass dist simplified}.
+\end{proof}
+
+
+
+% \subsection{Proof of Theorem 2}
+
+
+\begin{customthm}{2}
+Recall the solution to the equation system \eqref{geodesic eq} in the paper is $\rho(x,t)$ and $\Phi^*(x,t)$, suppose $\Phi^*(\cdot, t)\in C^2(\mathbb{R}^d)$. Denote $\Phi_0^*(\cdot) = \Phi^*(\cdot,0)$, then $(\nabla L^{-1}(\nabla \Phi_0^*), \Phi^*)$ is a critical point to the functional $\mathcal{L}$, i.e.,
+  \[ \frac{\partial \mathcal{L}}{\partial {F}}(\nabla L^{-1}(\nabla \Phi_0^*),\Phi^*) = 0, \quad \frac{\partial \mathcal{L}}{\partial \psi}(\nabla L^{-1}(\nabla \Phi_0^*),\Phi^*) = 0.\]
+Furthermore,  $\mathcal{L}(\nabla L^{-1}(\nabla\Phi_0^*), \Phi^*)=W_{\textrm{Dym OT}}(\rho_a,\rho_b)$.
+\end{customthm}
+
+
+% \begin{theorem}
+%   Recall the solution to the equation system \eqref{continuity in geodesic eq} and \eqref{HJ in geodesic eq} is $\rho(x,t)$ and $\Phi(x,t)$, suppose $\Phi(\cdot, t)\in C^2(\mathbb{R}^d)$. Denote $\Phi_0(\cdot) = \Phi(\cdot,0)$ Then we are able to prove that $(\nabla L^{-1}(\nabla \Phi_0), \Phi)$ is a critical point to the functional $\mathcal{L}$, i.e. $\frac{\partial \mathcal{L}}{\partial  {F}}\Big|_{\substack{ {F}=\nabla L^{-1}(\nabla \Phi_0),\\ \psi=\Phi}} = 0$ and $\frac{\partial \mathcal{L}}{\partial \psi}\Big|_{\substack{ {F}=\nabla L^{-1}(\nabla \Phi_0),\\ \psi=\Phi}} = 0$. Furthermore, we have $\mathcal{L}(\nabla L^{-1}(\nabla\Phi_0), \Phi)=W_{\textrm{Dym OT}}(\rho_a,\rho_b)$.
+% \end{theorem}
+\begin{proof}
+%   Before we prove the result, let us denote
+%   \begin{equation*}
+%       X = \{ {F}~|~Id+t {F} ~ \textrm{is bijective} ~\forall t\in [0,1]\}
+%   \end{equation*}
+   % It is not hard to verify that $X$ is open. Now by Lemma \ref{convexity}, we can directly restrict $ {F}$ to $X$.\\
+   Since we have assumed $\Phi^*(\cdot, t)\in C^2(\mathbb{R}^d)$, we restrict our $\Phi\in C^2(\mathbb{R}^d)$ as well.\\
+   We first rewrite $\mathcal{L}( {F}, \Phi)$ by using integration by parts as:
+   \begin{equation}
+     % \mathcal{L}( {F},\Phi) = 
+     \int_0^1 \int \Phi(x,t)\frac{\partial \hat{\rho}(x,t)}{\partial t} - H(\nabla\Phi(x,t)) \hat{\rho}(x,t)~dxdt + \int \Phi(x,1)(\rho_a(x) - \hat{\rho}(x,1))~dx . \label{L1}
+   \end{equation}
+  By Lemma \ref{con eq}, \eqref{L1} can be written as
+%   $\hat{\rho}(x,t)$ solves the following continuity equation
+%   \begin{equation}
+%      \frac{\partial \hat{\rho}(x,t)}{\partial t} + \nabla\cdot(\hat{\rho}(x,t) {u}(x,t)) = 0.  \label{pf continuity eq}
+%   \end{equation}
+%   Here we define $ {u}(x,t) =  {F}((Id+t {F})^{-1}(x))$.\\
+%   By using \eqref{pf continuity eq} and integrating by parts,
+  \begin{align}
+     \mathcal{L}( {F}, \Phi) % =& \int_0^1\int_{\mathbb{R}^d} (\nabla\Phi(x,t)\cdot  {u}(x,t) - \frac{1}{2}|\nabla\Phi(x,t)|^2)\hat{\rho}(x,t)~dxdt + \int_{\mathbb{R}^d} \Phi(x,1)(\rho_b(x)-\hat{\rho}(x,1))~dx \label{variation A of L} \\
+     = & \int_0^1\int_{\mathbb{R}^d} [\nabla\Phi(x+t {F}(x),t)\cdot  { F }(x) - H(\nabla \Phi(x+t {F}(x),t))]\rho_a(x)~dxdt \label{variation B of L} \\
+     & + \int \Phi(x,1)\rho_b(x)~dx - \int \Phi(x+ {F}(x), 1)\rho_a(x)~dx.\nonumber
+  \end{align}
+  Now based on \eqref{variation B of L} here, we are able to compute $\frac{\partial \mathcal{L}( {F}, \Phi)}{\partial  {F}}(x)$ as
+  \begin{align}
+     \frac{\partial \mathcal{L}( {F}, \Phi)}{\partial {F}} % = &\int_0^1 [t\nabla^2\Phi(x+t {F}(x), t)\cdot  {F}(x) +\nabla\Phi(x+t {F}(x), t) - t\nabla^2\Phi(x+t {F}(x), t)\nabla\Phi(x+t {F}(x), t)]~\rho_a(x)~dt \label{dL/dF}\\
+     % & - \nabla\Phi(x+ {F}(x), 1)\rho_a(x) \nonumber\\
+     =& \int_0^1  t\nabla^2\Phi(x+t {F}(x), t)\cdot \underbrace{ [ {F}(x) - \nabla H( \nabla\Phi(x+t {F}(x), t)) ] }_{(A)} \rho_a(x)~dt  \label{dL/dF} \\
+     & + \underbrace{ \left( \int_0^1\nabla\Phi(x+t {F}(x), t)~dt -  \nabla\Phi(x+ {F}(x), 1) \right) }_{(B)} \rho_a(x). \nonumber
+  \end{align}
+  Now we plug $ {F} = \nabla L^{-1} (\nabla\Phi^*_0)$, $\Phi = \Phi^*$ into \eqref{dL/dF}, by Lemma \ref{vf of HJ}, we have 
+  \begin{equation}
+     \nabla\Phi^*(x+t~\nabla L^{-1}(\nabla\Phi^*_0(x)), ~t) = \nabla\Phi^*_0(x). \label{important relation}
+  \end{equation}
+  Then using \eqref{important relation} and recall that $\nabla H = \nabla L^{-1}$, one can verify that $(A)=0$, similarly, for $(B)$, we have $\nabla\Phi(x+t {F}(x) ,t) = \nabla\Phi^*_0$ for all $t\in [0,1]$. Thus $(B)=0$ and we are able to verify $\frac{\partial \mathcal{L}}{\partial{F}}(\nabla L^{-1}(\nabla \Phi^*_0), \Phi^*) = 0$. 
+  
+%   On the other hand, we apply integration by parts to the middle term of \eqref{L1}, then $\mathcal{L}( {F}, \Phi)$ can also be written as
+%   \begin{equation}
+%      %  \mathcal{L}( {F},\Phi) = 
+%      \int_0^1 \int \Phi(x,t)\left(\frac{\partial \hat{\rho}(x,t)}{\partial t} +\nabla\cdot(\hat{\rho}(x,t)\nabla\Phi(x,t))\right)~dxdt + \int \Phi(x,1)(\rho_a(x) - \hat{\rho}(x,1))~dx . \label{L2}
+%   \end{equation}
+%   Based on \eqref{L2}, 
+  On the other hand, we can compute $\frac{\partial\mathcal{L}( {F}, \Phi)}{\partial \Phi}(x,t)$ as 
+  % On the other hand, we can compute $\frac{\partial\mathcal{L}( {F}, \Phi)}{\partial \Phi}(x,t)$ based on \eqref{variation A of L} as
+  \begin{align*}
+     \frac{\delta\mathcal{L}( {F}, \Phi)}{\delta \Phi}(x,t) & = \underbrace{\left[\frac{\partial \hat{\rho}(x,t)}{\partial t} +\nabla\cdot(\hat{\rho}(x,t)\nabla H(\nabla\Phi(x,t)))\right]}_{(C)} + \underbrace{[\rho_b(x)-\hat{\rho}(x,1)]}_{(D)} \delta_1(t) %\\
+     % & = \nabla\cdot(\hat{\rho}(x,t)(\nabla\Phi(x,t) -  {u}(x,t))) + [\rho_b(x)-\hat{\rho}(x,1)]\delta_1(t)
+  \end{align*}
+  Now by Lemma \ref{continuity eq lemma}, we know $(C)=0$.
+%   Here $\delta_1(\cdot)$ is the Dirac measure defined on $[0,1]$ with single atom at $t=1$.\\
+%   Now we plug in $ {F} = \nabla\Phi^*_0$ and $\Phi = \Phi^*$. To verify  Again, by Lemma \ref{vf of HJ}, we have 
+%   \begin{equation*}
+%      \nabla \Phi^*(x,t) = \nabla \Phi^*_0((Id+t\nabla\Phi^*_0)^{-1}(x))
+%   \end{equation*}
+%   This leads to $\Phi(x,t)- {u}(x,t)=0$. 
+   Furthermore, since $\Phi^*$ solves Dynamical OT problem associated to the optimal transport problem between $\rho_a$ and $\rho_b$, by \eqref{Phi0, Phi1 as monge maps}, we have $\hat{\rho}(x,1) = (Id+\nabla\Phi^*_0)_{\sharp}\rho_a = \rho_b$, this verifies $(D) = 0$. Thus, we are able to verify $\frac{\partial \mathcal{L}( {F}, \Phi)}{\partial \Phi}( \nabla L^{-1}(\nabla \Phi^*_0), \Phi^* ) = 0$.
+   
+   At last, we plug $ {F}=\nabla L^{-1}(\nabla\Phi^*_0),\Phi = \Phi^*$ in \eqref{variation B of L} to obtain:
+   \begin{align*}
+      \mathcal{L}(\nabla L^{-1}(\nabla\Phi^*_0), \Phi^*) & = \int_0^1\int \nabla\Phi^*_0(x)\cdot\nabla L^{-1}(\nabla \Phi^*_0(x)) - H(\nabla\Phi^*_0(x)) ~\rho_a(x) ~dxdt \\
+     & = \int L(\nabla L^{-1}(\nabla\Phi^*_0(x)))\rho_a(x)~dx.
+   \end{align*}
+   Now by Lemma \ref{simplify wasserstein}, we have verified $\mathcal{L}(\nabla L^{-1}(\nabla\Phi^*_0), \Phi^*)=W_{\textrm{Dym OT}}(\rho_a,\rho_b)$.
+\end{proof}
+
+
+% Before we introduce the following result, we introduce the following definition
+% \begin{definition}
+%   Suppose $ {v}(x)$ is a given smooth time-varying vector field defined on $\mathbb{R}^d$, assume $p>0$ is the density of a probability distribution defined on $\mathbb{R}^d$. Denote $\varphi(x,t)$ as the unique solution of 
+%   \begin{equation*}
+%      -\nabla\cdot(p(x)\nabla\varphi(x)) = -\nabla\cdot(p(x) {v}(x))
+%   \end{equation*}
+%   We denote $\textrm{Proj}_{p}[ {v}](x) = \nabla\varphi(x)$, which can be treated as the orthogonal projection of vector field $ {v}$ onto the subspace of gradient fields with respect to the inner product with weight $p$.
+% \end{definition}
+% \begin{theorem}
+%   Recall that our optimization scheme aims at solving $\min_{ {F}}\max_{\psi}~\mathcal{L}( {F},\psi)$. This is equivalent to the following constrained control problem
+%   \begin{align}
+%      &\min_{ {F}} \left\{\int_0^1 \int_{\mathbb{R}^d} |\textrm{Proj}_{\hat{\rho}_t}[ {u}(\cdot,t)](x)|^2\hat{\rho}(x,t)~dxdt  \right\} \label{equivalent constrained control problem}  \\
+%      & \textrm{subject to }~ \hat{\rho_1} = \rho_b.\nonumber
+%   \end{align}
+%   Here we denote $ {u}(\cdot, t) =  {F}((\textrm{Id}+t {F})^{-1}(\cdot))$, also recall $\hat{\rho}_t = (\textrm{Id}+t {F})_{\sharp}\rho_a$.
+% \end{theorem}
+% \begin{proof}
+%   First, recall \eqref{variation A of L}, we can reformulate our original saddle problem \eqref{saddle scheme} as 
+%   \begin{equation*}
+%      \min_{ {F}}\max_{\psi} \left\{ \int_0^1\int_{\mathbb{R}^d} (\nabla\psi(x,t)\cdot  {u}(x,t) - \frac{1}{2}|\nabla\psi(x,t)|^2)\hat{\rho}(x,t)~dxdt + \int_{\mathbb{R}^d} \psi(x,1)(\rho_b(x)-\hat{\rho}(x,1))~dx \right\}
+%   \end{equation*}
+%   where  $ {u}(\cdot, t) =  {F}((\textrm{Id}+t {F})^{-1}(\cdot))$. It is not hard to verify that the optimal value of \eqref{saddle scheme} is finite, 
+% \end{proof}
+
+
+% \begin{theorem}
+% Recall the optimal solution to original dynamical OT problem \eqref{dynamical OT} is $ {v}^*(\cdot, t) = \nabla\Phi(\cdot,t), \rho^*(\cdot, t)$ with $\Phi(x,t),\rho^*(x,t)$ solves \eqref{geodesic eq}. We denote the optimal solution to \eqref{equivalent constrained control problem} as $ {F}_*$, then $ {F}_*(\cdot) = \nabla\Phi(\cdot, 0)$.
+% \end{theorem}
+
+
+\section{Proof of Theorem \ref{theorem on preconditioning}} \label{theorem3}
+
+
+\begin{customthm}{3}
+% \label{theorem on preconditioning}
+Suppose $L(\cdot)=\frac{|\cdot|^2}{2}$. We define the map $P(x)=\sigma x+\mu$ with $\sigma\in\mathbb{R}_+, \mu\in\mathbb{R}^d$. Recall \eqref{vector field = inv grad L grad Phi} in the paper, we denote ${v}(x,t)=\nabla\widehat{\Phi}(x, t)$ as the optimal solution to dynamical OT problem \eqref{dynamical OT} in the paper from $P_{\sharp}\rho_a$ to $\rho_b$. We set $\widehat{\Phi}_0 = \widehat{\Phi}(\cdot, 0)$. Furthermore, we denote ${v}(x,t)=\nabla\Phi^*(x,t)$ as the optimal solution to dynamical OT problem \eqref{dynamical OT} from $\rho_a$ to $\rho_b$. We set $\Phi^*_0=\Phi^*(\cdot, 0)$. Then we have
+\begin{equation*}
+  \nabla\Phi^*_0(x) = \nabla\widehat{\Phi}_0\circ P(x)+P(x)-x,
+\end{equation*}
+and $\Phi^*_0(x) = \frac{1}{\sigma}\widehat{\Phi}_0(\sigma x + \mu)+\frac{\sigma - 1}{2}|x|^2 + \mu^Tx+\textrm{Const}$.
+\end{customthm}
+
+
+
+\begin{proof}
+ According to \eqref{Phi0, Phi1 as monge maps} in the paper, we have
+ \begin{equation*}
+   (\textrm{Id}+\nabla\widehat{\Phi}_0)_{\sharp}(P_{\sharp}\rho_a) = \rho_b
+ \end{equation*}
+ This yields
+ \begin{equation*}
+    (P+\nabla\Phi_0\circ P)_{\sharp}\rho_a = \rho_b
+ \end{equation*}
+ We rewrite this as
+ \begin{equation}
+    (\textrm{Id} + \nabla\widehat{\Phi}_0\circ P + P - \textrm{Id})_{\sharp}\rho_a = \rho_b  \label{thm precondition eq1}
+ \end{equation}
+ We denote $u(x) =  \frac{1}{\sigma}\widehat{\Phi}_0(\sigma x + \mu) + \frac{\sigma-1}{2}|x|^2 + \mu^Tx$.
+ 
+ Then we can directly verify that
+ \begin{equation*}
+    \nabla u(x) = \nabla\widehat{\Phi}_0(\sigma x + \mu) + (\sigma x + \mu) - x = \nabla\widehat{\Phi}_0\circ P(x) + P(x) - x
+ \end{equation*}
+ Plug this into \eqref{thm precondition eq1} above we get:
+ \begin{equation*}
+    (\textrm{Id}+\nabla u)_{\sharp}\rho_a = \rho_b
+ \end{equation*}
+ Using the uniqueness of the solution to Monge-Ampere equation, we have $\Phi^*_0 = u +\textrm{Const}$, or equivalently, $\nabla\Phi^*_0(x) = \nabla u(x) = \nabla\widehat{\Phi}_0\circ P(x) + P(x)-x$
+\end{proof}
+
+\newpage
+\section{Complete Geodesics in Experiments}
+\subsection{Synthetic Data}
+\textbf{Syn-1:}
+\begin{figure*}[h!]
+\centering
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=0.18\textwidth,height=0.18\textheight,keepaspectratio]{pre_rhoa_to_rhob170001.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170002.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170003.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170004.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170005.jpg}}\\
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170006.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170007.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170008.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob170009.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob1700010.jpg}}\\
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170001.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170002.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170003.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170004.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170005.jpg}}\\
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170006.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170007.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170008.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa170009.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa1700010.jpg}}\\
+ \subfloat[][points track:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhoa_to_rhob17000.jpg}}
+ \subfloat[][vector field:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{vec_fd_rhoa_to_rhob1700010.jpg}}
+ \subfloat[][points track:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhob_to_rhoa17000.jpg}}
+ \subfloat[][vector field:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{vec_fd_rhob_to_rhoa1700010.jpg}}
+\caption{2-dimensional Gaussian to Gaussian}
+\label{fig:syn-111}
+\end{figure*}
+
+\newpage
+\textbf{Syn-2: Wasserstein-1.5}
+% Here we compare the vector fields under $\mathbb{W}_2$ (green) and $\mathbb{W}_{1.5}$ (red) in (w) and (x), we see the vector fields overlap, meaning no difference.
+\begin{figure*}[h!]
+\centering
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=0.18\textwidth,height=0.18\textheight,keepaspectratio]{pre_rhoa_to_rhob_11000_1.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_2.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_3.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_4.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_5.jpg}}\\
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_6.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_7.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_8.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_9.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_11000_10.jpg}}\\
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_1.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_2.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_3.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_4.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_5.jpg}}\\
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_6.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_7.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_8.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_9.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_11000_10.jpg}}\\
+\subfloat[][points track:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhoa_to_rhob_11000.jpg}}
+\subfloat[][vector field:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{vec_fd_rhoa_to_rhob_11000.jpg}}
+\subfloat[][points track:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhob_to_rhoa_11000.jpg}}
+\subfloat[][vector field:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{vec_fd_rhob_to_rhoa_11000.jpg}}
+% \subfloat[][vec field:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{vec_fd_rhoa_to_rhob_11000.jpg}}
+% \subfloat[][vec field:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{vec_fd_rhob_to_rhoa_11000.jpg}}
+\caption{5-dimensional Gaussian to Gaussian}
+\label{fig:syn-21}
+\end{figure*}
+
+\newpage
+\textbf{Syn-2: Wasserstein-2}
+\begin{figure*}[h!]
+\centering
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=0.18\textwidth,height=0.18\textheight,keepaspectratio]{pre_rhoa_to_rhob_model1.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model2.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model3.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model4.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model5.jpg}}\\
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model6.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model7.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model8.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model9.jpg}}
+\subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob_model10.jpg}}\\
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model1.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model2.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model3.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model4.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model5.jpg}}\\
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model6.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model7.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model8.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model9.jpg}}
+\subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa_model10.jpg}}\\
+\subfloat[][points track:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhoa_to_rhob_2_30000.jpg}}
+\subfloat[][vector field:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{vec_fd_rhoa_to_rhob_model20084.jpg}}
+\subfloat[][points track:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhob_to_rhoa_2_30000.jpg}}
+\subfloat[][vector field:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{vec_fd_rhob_to_rhoa_model20084.jpg}}
+\caption{5-dimensional Gaussian to Gaussian}
+\label{fig:syn-22}
+\end{figure*}
+
+
+\newpage
+\textbf{Syn-3:}
+\begin{figure}[ht!]
+    \centering
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280001.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280002.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280003.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280004.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280005.jpg}}\\
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280006.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280007.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280008.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob280009.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob2800010.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280001.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280002.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280003.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280004.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280005.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280006.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280007.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280008.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa280009.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa2800010.jpg}}
+\caption{5-dimensional Gaussian Mixture}
+\label{fig:syn-33}
+\end{figure}
+
+
+% \begin{align}
+% &\mu_{a_1} = 
+% \begin{bmatrix}
+%     -6&2&1&-2&3
+% \end{bmatrix}\qquad
+% \mu_{a_2} = 
+% \begin{bmatrix}
+%     -4 & 4 & 2 & 1 & 5
+% \end{bmatrix}\qquad
+% \mu_{a_3} = 
+% \begin{bmatrix}
+%     -2 & 5 & 3 & 2 & 2
+% \end{bmatrix}\nonumber\\
+% &\Sigma_{a_1} = 
+% \begin{bmatrix}
+%     1 & 0.5 & 0 & 0.3 & 0.8\\
+%     0.5 & 1 & -0.8 & 0 & 0\\
+%     0 & -0.8 & 2 & -0.5 & 0\\
+%     0.3 & 0 & -0.5 & 1 & 0\\
+%     0.8 & 0 & 0 & 0 & 2
+% \end{bmatrix}\qquad
+% \Sigma_{a_2} = 
+% \begin{bmatrix}
+%     1 & 0 & 0 & 0 & 0\\
+%     0 & 1 & 0 & 0 & 0\\
+%     0 & 0 & 1 & 0 & 0\\
+%     0 & 0 & 0 & 1 & 0\\
+%     0 & 0 & 0 & 0 & 1
+% \end{bmatrix}\nonumber\\
+% &\Sigma_{a_3} = 
+% \begin{bmatrix}
+%     3&0.8&0&-0.6&0\\
+%     0.8&1&0.5&0.5&-0.3\\
+%     0&0.5&1&0.8&0\\
+%     -0.6&0.5&0.8&1&0\\
+%     0&-0.3&0&0&1
+% \end{bmatrix}\nonumber
+% \end{align}
+
+% \begin{align}
+% &\mu_{b_1} = 
+% \begin{bmatrix}
+%     4& -2& 3& 3& 2
+% \end{bmatrix}\qquad
+% \mu_{b_2} = 
+% \begin{bmatrix}
+%     2& -3& 4& -1& 0
+% \end{bmatrix}\qquad
+% \mu_{b_3} = 
+% \begin{bmatrix}
+%     0& -5& 5& 2& -2
+% \end{bmatrix}\nonumber\\
+% &\Sigma_{b_1} = 
+% \begin{bmatrix}
+%     1&0&0.5&-0.3&0\\
+%     0&2&0&0.8&0\\
+%     0.5&0&1&0.4&-0.18\\
+%     -0.3&0.8&0.4&2&0\\
+%     0&0&-0.18&0&1
+% \end{bmatrix}\qquad
+% \Sigma_{b_2} = 
+% \begin{bmatrix}
+%     2&0.5&0&0&0.8\\
+%     0.5&1&0&-0.6&0\\
+%     0&0&1&0.5&0\\
+%     0&-0.6&0.5&1&0\\
+%     0.8&0&0&0&1
+% \end{bmatrix}\nonumber\\
+% &\Sigma_{b_3} = 
+% \begin{bmatrix}
+%     1&0&0&0&0\\
+%     0&0.8&0.5&0&0.6\\
+%     0&0.5&2&-0.5&0\\
+%     0&0&-0.5&1&0\\
+%     0&0.6&0&0&1
+% \end{bmatrix}\nonumber
+% \end{align}
+\newpage
+\textbf{Syn-4:}
+\begin{figure*}[ht!]
+\centering
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=0.18\textwidth,height=0.18\textheight,keepaspectratio]{pre_rhoa_to_rhob255001.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255002.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255003.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255004.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255005.jpg}}\\
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255006.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255007.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255008.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob255009.jpg}}
+ \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhoa_to_rhob2550010.jpg}}\\
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255001.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255002.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255003.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255004.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255005.jpg}}\\
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255006.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255007.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255008.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa255009.jpg}}
+ \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{pre_rhob_to_rhoa2550010.jpg}}\\
+ \subfloat[][points track:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhoa_to_rhob25500.jpg}}
+ \subfloat[][vector field:$\rho_a$ to $\rho_b$]{\includegraphics[width=.18\linewidth]{vec_fd_rhoa_to_rhob2550010.jpg}}
+ \subfloat[][points track:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{colored_tracks_rhob_to_rhoa25500.jpg}}
+ \subfloat[][vector field:$\rho_b$ to $\rho_a$]{\includegraphics[width=.18\linewidth]{vec_fd_rhob_to_rhoa2550010.jpg}}
+\caption{10-dimensional unbalanced Gaussian}
+\label{fig:syn-4}
+\end{figure*}
+
+\newpage
+\subsection{Realistic Data}
+\textbf{Real-1:}
+\begin{figure}[ht!]
+    \centering
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime1outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime2outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime3outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime4outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime5outiteration1000.jpg}}\\
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime6outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime7outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime8outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime9outiteration1000.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{colortransform1to2attime10outiteration1000.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime1outiteration1000.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime2outiteration1000.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime3outiteration1000.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime4outiteration1000.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime5outiteration1000.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime6outiteration1000.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime7outiteration1100.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime8outiteration1100.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime9outiteration1100.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{colortransform2to1attime10outiteration1100.jpg}}\\
+      \subfloat[][Color dist of Summer View]{\includegraphics[width=.2\linewidth]{scatterplot_of_RGB_values_of_picture_1_forest.png}}\quad
+     \subfloat[][Color dist of Autumn View]{\includegraphics[width=.2\linewidth]{scatterplot_of_RGB_values_of_picture_2_forest.png}}\quad
+     \subfloat[][Generated color dist of Summer View]{\includegraphics[width=.2\linewidth]{2to1iteration800samplesatt121.jpg}}\quad
+     \subfloat[][Generated color dist of Autumn View]{\includegraphics[width=.2\linewidth]{1to2iteration800samplesatt121.jpg}}
+\caption{Forest summer view and autumn view}
+\label{fig:real-11}
+\end{figure}
+
+\newpage
+\textbf{Real-2:}
+\begin{figure}[ht!]
+    \centering
+     \subfloat[][Summer West Lake]{\includegraphics[width=.25\linewidth]{xihuxia_copy.jpg}}
+     \quad
+     \subfloat[][Autumn White Tower]{\includegraphics[width=.25\linewidth]{baitaqiu_copy.jpg}}
+     \subfloat[][Color dist of West Lake]{\includegraphics[width=.2\linewidth]{scatterplot_of_RGB_values_of_picture_1.png}}\quad
+     \subfloat[][Color dist of White Tower]{\includegraphics[width=.2\linewidth]{scatterplot_of_RGB_values_of_picture_2.png}}\\
+     \subfloat[][Autumn West Lake]{\includegraphics[width=.25\linewidth]{colortransform1to2attime10outiteration5200.jpg}}\qquad
+     \subfloat[][Summer White Tower]{\includegraphics[width=.25\linewidth]{colortransform2to1attime10outiteration5200.jpg}}
+    \subfloat[][Generated color dist of West Lake]{\includegraphics[width=.2\linewidth]{2to1iteration5200samplesatt1.jpg}}\quad
+     \subfloat[][Generated color of White Tower]{\includegraphics[width=.2\linewidth]{1to2iteration=5200samplesatt=1.jpg}}
+\caption{Color transfer}
+% \vspace{-2em}
+\label{fig:real-22}
+\end{figure}
+
+\newpage
+\textbf{Real-3:}
+\begin{figure}[ht!]
+    % \vspace{-4.5em}
+    \centering
+    \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=.18\linewidth]{approx_m16800at1.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{approx_m16800at2.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{approx_m16800at3.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{approx_m16800at4.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{approx_m16800at5.jpg}}\\
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{approx_m16800at6.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{approx_m16800at7.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{approx_m16800at8.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{approx_m16800at9.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{approx_m16800at10.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{approx_m030800at1.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{approx_m030800at2.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{approx_m030800at3.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{approx_m030800at4.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{approx_m030800at5.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{approx_m030800at6.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{approx_m030800at7.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{approx_m030800at8.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{approx_m030800at9.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{approx_m030800at10.jpg}}
+\caption{Geodesics between "0" and "1"}
+% \vspace{-2em}
+\label{fig:real-33}
+\end{figure}
+
+\newpage
+\begin{figure}[ht!]
+    \centering
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=.18\linewidth]{approx_m816400at1.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{approx_m816400at2.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{approx_m816400at3.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{approx_m816400at4.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{approx_m816400at5.jpg}}\\
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{approx_m816400at6.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{approx_m816400at7.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{approx_m816400at8.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{approx_m816400at9.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{approx_m816400at10.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{approx_m416400at1.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{approx_m416400at2.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{approx_m416400at3.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{approx_m416400at4.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{approx_m416400at5.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{approx_m416400at6.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{approx_m416400at7.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{approx_m416400at8.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{approx_m416400at9.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{approx_m416400at10.jpg}}
+\caption{Geodesics between "4" and "8"}
+% \vspace{-2em}
+\label{fig:real-4}
+\end{figure}
+
+\newpage
+\begin{figure}[ht!]
+    \centering
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_1$]{\includegraphics[width=.18\linewidth]{approx_m923600at1.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_2$]{\includegraphics[width=.18\linewidth]{approx_m923600at2.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_3$]{\includegraphics[width=.18\linewidth]{approx_m923600at3.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_4$]{\includegraphics[width=.18\linewidth]{approx_m923600at4.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_5$]{\includegraphics[width=.18\linewidth]{approx_m923600at5.jpg}}\\
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_6$]{\includegraphics[width=.18\linewidth]{approx_m923600at6.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_7$]{\includegraphics[width=.18\linewidth]{approx_m923600at7.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_8$]{\includegraphics[width=.18\linewidth]{approx_m923600at8.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_9$]{\includegraphics[width=.18\linewidth]{approx_m923600at9.jpg}}
+     \subfloat[][$\rho_a $ to $\rho_b$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{approx_m923600at10.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_1$]{\includegraphics[width=.18\linewidth]{approx_m623600at1.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_2$]{\includegraphics[width=.18\linewidth]{approx_m623600at2.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_3$]{\includegraphics[width=.18\linewidth]{approx_m623600at3.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_4$]{\includegraphics[width=.18\linewidth]{approx_m623600at4.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_5$]{\includegraphics[width=.18\linewidth]{approx_m623600at5.jpg}}\\
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_6$]{\includegraphics[width=.18\linewidth]{approx_m623600at6.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_7$]{\includegraphics[width=.18\linewidth]{approx_m623600at7.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_8$]{\includegraphics[width=.18\linewidth]{approx_m623600at8.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_9$]{\includegraphics[width=.18\linewidth]{approx_m623600at9.jpg}}
+     \subfloat[][$\rho_b $ to $\rho_a$ at $t_{10}$]{\includegraphics[width=.18\linewidth]{approx_m623600at10.jpg}}
+\caption{Geodesics between "6" and "9"}
+% \vspace{-2em}
+\label{fig:real-5}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\end{document}
+
+

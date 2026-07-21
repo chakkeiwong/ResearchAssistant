@@ -1,0 +1,40 @@
+{
+  "bootstrap_authority": {
+    "capability_name": "deterministic_fixture",
+    "capability_version": "1",
+    "confirmed_generation_id": "g00000002-31833fb197475f32",
+    "effective_normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "manifest_sha256": "9622b67cd99f4274798d45255a4f1a6bf24b90b81968109290c0bce1794d2e0f",
+    "request_id": "br-66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+    "request_sha256": "66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+    "schema_version": "ra-survey-topic-bootstrap-authority-v1",
+    "set_id": "bs-fcac0fff5b75b1a58e14d0013858df461c3b95b540a019e6946b91f2d155ed7c"
+  },
+  "candidate_count": 1,
+  "duplicates": [],
+  "effective_seed_source": "selected_bootstrap_authority_not_original_mission_input",
+  "excluded": [],
+  "included": [
+    {
+      "bootstrap_manifest_sha256": "9622b67cd99f4274798d45255a4f1a6bf24b90b81968109290c0bce1794d2e0f",
+      "bootstrap_request_sha256": "66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+      "bootstrap_set_id": "bs-fcac0fff5b75b1a58e14d0013858df461c3b95b540a019e6946b91f2d155ed7c",
+      "identifier": "arxiv:2201.12220v3",
+      "paper_key": "arxiv:2201.12220v3",
+      "reason": "effective seed selected by hash-bound bootstrap authority",
+      "source": "selected_bootstrap_authority"
+    }
+  ],
+  "next_required_actions": [
+    "resolve seed metadata",
+    "run topic discovery",
+    "deduplicate DOI/arXiv/title variants",
+    "classify false positives with explicit exclusion reasons"
+  ],
+  "original_initial_seeds": [],
+  "schema_version": "ra-survey-bootstrap-effective-candidate-ledger-v1",
+  "status": "skeleton_pending_discovery",
+  "topic": "Neural Optimal Transport"
+}

@@ -1,0 +1,225 @@
+{
+  "cases": [
+    {
+      "case_id": "topic_start_assessed_terminal",
+      "evidence_ids": [
+        "m17_topic_mission_control",
+        "m17_topic_replay_result",
+        "m17_topic_seed_context",
+        "m22_production_mission_control",
+        "m22_qualitative_assessments",
+        "m22_selected_review_queue"
+      ],
+      "expected_terminal": "ASSESSED_TERMINAL_WITHIN_RECORDED_SCOPE",
+      "input": {
+        "replay_kind": "retained_production_topic_replay",
+        "selected_seed": "arxiv:2201.12220v3",
+        "topic": "Neural Optimal Transport"
+      }
+    },
+    {
+      "case_id": "explicit_identifier_assessed_terminal",
+      "evidence_ids": [
+        "m22_production_mission_control",
+        "m22_qualitative_assessments",
+        "m22_selected_review_queue"
+      ],
+      "expected_terminal": "ASSESSED_TERMINAL_WITHIN_RECORDED_SCOPE",
+      "input": {
+        "input_mode": "explicit_seed",
+        "seed": "arxiv:2201.12220v3"
+      }
+    },
+    {
+      "case_id": "source_format_gap",
+      "evidence_ids": [
+        "m21_correction_record",
+        "m22_qualitative_assessments",
+        "m22_source_intake_status"
+      ],
+      "expected_terminal": "TECHNICAL_SOURCE_GAP_RECORDED",
+      "input": {
+        "pdf_fallback": false,
+        "seed": "arxiv:1412.6980"
+      }
+    },
+    {
+      "case_id": "forward_coverage_unavailable",
+      "evidence_ids": [
+        "m20_forward_snowball",
+        "m22_qualitative_assessments"
+      ],
+      "expected_terminal": "NONBLOCKING_FORWARD_COVERAGE_LIMITATION",
+      "input": {
+        "coverage": "forward_citations"
+      }
+    },
+    {
+      "case_id": "identifier_free_omissions",
+      "evidence_ids": [
+        "m21_identifier_free_risk",
+        "m22_qualitative_assessments"
+      ],
+      "expected_terminal": "OPEN_IDENTIFIER_FREE_OMISSION_RISK",
+      "input": {
+        "unit_count": 195
+      }
+    },
+    {
+      "case_id": "residual_identifier_bearing_omissions",
+      "evidence_ids": [
+        "m22_inspection_queue",
+        "m22_provisional_classification",
+        "m22_qualitative_assessments",
+        "m22_source_inspection"
+      ],
+      "expected_terminal": "OPEN_RESIDUAL_IDENTIFIER_BEARING_OMISSION_RISK",
+      "input": {
+        "inspected_count": 5,
+        "residual_count": 50,
+        "triaged_count": 55
+      }
+    },
+    {
+      "case_id": "correction_supersession",
+      "evidence_ids": [
+        "m21_correction_record",
+        "m21_original_source_status",
+        "m22_source_intake_status"
+      ],
+      "expected_terminal": "CORRECTION_SELECTED_PRIOR_EVIDENCE_PRESERVED",
+      "input": {
+        "seed": "arxiv:1412.6980"
+      }
+    },
+    {
+      "case_id": "model_fixture_impersonation",
+      "evidence_ids": [
+        "human_attestation_validator"
+      ],
+      "expected_terminal": "HARD_REJECT_NONHUMAN_AUTHORITY",
+      "input": {
+        "display_name": "Codex",
+        "fixture_kind": "synthetic_nonhuman_reviewer_declaration"
+      }
+    },
+    {
+      "case_id": "stale_foreign_partial_bundle",
+      "evidence_ids": [
+        "m22_selected_review_queue"
+      ],
+      "expected_terminal": "HARD_REJECT_STALE_FOREIGN_PARTIAL_EVIDENCE",
+      "input": {
+        "fixture_kind": "synthetic_three_mutation_bundle"
+      }
+    }
+  ],
+  "execution_class": "local_read_only_replay",
+  "forbidden_actions": [
+    "credential_access",
+    "external_writes",
+    "network_dispatch",
+    "package_or_environment_mutation",
+    "pdf_fallback",
+    "provider_calls",
+    "public_messaging",
+    "push_or_release"
+  ],
+  "historical_predecessor": {
+    "path": "docs/plans/literature_survey_north_star_m22_frozen_mission_matrix_2026-07-18.json",
+    "sha256": "3ef5b6a92ffcfe678835fbb8f8ee853ca4548b844d7994b6a860422241d7ba16",
+    "status": "preserved_superseded_human_gate_matrix"
+  },
+  "matrix_id": "literature_survey_north_star_m22_representative_real_missions_2026-07-19",
+  "nonclaims": [
+    "claim truth",
+    "completeness",
+    "expert consensus",
+    "live topic-discovery validation",
+    "method ranking",
+    "M23 acceptance",
+    "product readiness",
+    "prose readiness",
+    "publication safety",
+    "scientific correctness"
+  ],
+  "retained_artifacts": {
+    "human_attestation_validator": {
+      "path": "src/research_assistant/survey/human_attestation.py",
+      "role": "active nonhuman-authority rejection validator",
+      "sha256": "68d8aca043130c482f0acdb33861940cdc2bd9e296d738a865c0c42598014076"
+    },
+    "m17_topic_mission_control": {
+      "path": "docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/selected/mission_control.json",
+      "role": "selected local topic-bootstrap authority",
+      "sha256": "c4962aa8662cde20738c54c78b286ce029bb3a04a76ad371c42937f5dfdccd0a"
+    },
+    "m17_topic_replay_result": {
+      "path": "docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/results/selected.json",
+      "role": "deterministic topic-bootstrap replay result",
+      "sha256": "f6f944eeeb4160dc4087b7b8c8d8bd95fc1bd8ef63a7cc1f0796d171b0827aa0"
+    },
+    "m17_topic_seed_context": {
+      "path": "docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/selected/offline_skeleton/bootstrap_effective_seed_context.json",
+      "role": "empty-original-seed to selected-effective-seed binding",
+      "sha256": "24d3ff893429454c0475b119b3310d16f0cf5c2dc2a13bb60e1e87b3154e9718"
+    },
+    "m20_forward_snowball": {
+      "path": "docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000/forward_snowball.json",
+      "role": "credential-free forward-coverage limitation",
+      "sha256": "f875c7e21ab35b85b830f4545b1d62f8e3615ac62a5b7e6c4219efcdd844413a"
+    },
+    "m21_correction_record": {
+      "path": "docs/plans/literature_survey_north_star_m21_source_campaign_reconciliation_2026-07-18.md",
+      "role": "visible source-format correction record",
+      "sha256": "0e245e59c478e1c3502e0d1fa63475b1e2665d8fb78821d21751ae3fe70e4c87"
+    },
+    "m21_identifier_free_risk": {
+      "path": "docs/validation/literature_survey_north_star_m21_candidate_context_triage_2026-07-18/identifier_free_risk.json",
+      "role": "identifier-free aggregate omission risk",
+      "sha256": "ed87f3f77eaf8d9e360738b16e86cee4b1216a0fb28acc175ba8a46b9259cdcf"
+    },
+    "m21_original_source_status": {
+      "path": "docs/validation/literature_survey_north_star_m21_seven_candidate_sources_2026-07-18/source_status.json",
+      "role": "preserved pre-correction source status",
+      "sha256": "fd107c930d156a81f327d6656979d2676b1e4dd636c8d449b49444db3fad7032"
+    },
+    "m22_inspection_queue": {
+      "path": "docs/validation/literature_survey_north_star_m22_omission_frontier_triage_2026-07-19/inspection_queue.json",
+      "role": "five-paper bounded inspection queue",
+      "sha256": "f3cdbb079da877dfdf69858cefddadae30757caebe39d5447374897bd2a1eca2"
+    },
+    "m22_production_mission_control": {
+      "path": "docs/validation/literature_survey_north_star_m22b0_production_reconciliation_2026-07-18/mission_control.json",
+      "role": "retained explicit-seed production lineage",
+      "sha256": "c13d9515936d20405a411a7873cdd6916250a35966421a8c6a28bfa3457867af"
+    },
+    "m22_provisional_classification": {
+      "path": "docs/validation/literature_survey_north_star_m22_omission_frontier_triage_2026-07-19/provisional_classification.json",
+      "role": "55-paper title-context-only triage",
+      "sha256": "4e3f26a74af92ac94b7b8ac0385f3f976242848190c88d008feaf42acfc5a851"
+    },
+    "m22_qualitative_assessments": {
+      "path": "docs/validation/literature_survey_north_star_m22_qualitative_assessment_2026-07-19/qualitative_assessments.json",
+      "role": "16 non-promoting qualitative assessments",
+      "sha256": "147cc4258811ca26bf9f37006eb4ba0cb6d4b3f2daca64f310fb21d5fa31a528"
+    },
+    "m22_selected_review_queue": {
+      "path": "docs/validation/literature_survey_north_star_m22b0_production_reconciliation_2026-07-18/.artifact_state/sets/s-2312a9bc0cbef0574c4746426ea3473d6c853db64db6723b24d8e9bbd958dd25/review_queue.json",
+      "role": "selected production review queue and source identity lineage",
+      "sha256": "dfac76952f156ca082a7d332f95e1c03623c40dc150f5a4c52dba9a423a608d9"
+    },
+    "m22_source_inspection": {
+      "path": "docs/validation/literature_survey_north_star_m22_omission_frontier_triage_2026-07-19/source_inspection.json",
+      "role": "five primary-source technical inspections",
+      "sha256": "4d64468b67bb952234aa997d1728b5f5d8d9dc3c7f7d9f83549adba15255264c"
+    },
+    "m22_source_intake_status": {
+      "path": "docs/validation/literature_survey_north_star_m22b0_production_reconciliation_2026-07-18/source_intake/phase4_source_intake_status.json",
+      "role": "active corrected source-intake authority",
+      "sha256": "061f29961f9fb975fd1e78f51171fb9a498e8976d429d31c52368075638a5b55"
+    }
+  },
+  "schema_version": "ra-survey-m22-representative-mission-matrix-v2",
+  "status": "frozen_before_execution"
+}

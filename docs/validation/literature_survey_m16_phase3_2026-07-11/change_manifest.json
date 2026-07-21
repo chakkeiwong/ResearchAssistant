@@ -1,0 +1,33 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 3,
+  "captured_at": "2026-07-11T06:57:49+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "passed_after_fresh_read_only_review",
+  "plan_sha256": "650c13ba3687ab33066a2886c51b0507df01d47279c930749c7635d750543228",
+  "phase2_result_sha256": "9fea760a7dbcf047f504b4d8055c8d400bc086ebbacd8b2a51a42cff1897685e",
+  "existing_files": [
+    {"path": "src/research_assistant/cli.py", "before_git_status": " M", "before_sha256": "1925a911d9a6ba76f4e08a9fbbf82352860cc9c52d53a6bced67486b152f9e8f", "after_sha256": "6cae50c4015956d07aa3b5399b2b12b44586dbd3c6a29cc73a38c1c7821620d7"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "before_git_status": "??", "before_sha256": "845d938d83c83340b0db6c0e1cd6342b896079291a76765c5c1a88561179ffe0", "after_sha256": "5f264a00a9d6981878496d4889c5faa547bda656382ff72c7f71487b905e0a7a"},
+    {"path": "src/research_assistant/survey/claim_review.py", "before_git_status": "??", "before_sha256": "f6ac2614172661c22f21040b4cc04d0204f44d4f7c9b3e2c6cd18b73b3ab081e", "after_sha256": "8e09f112aed9e90aa484e37a98c55c85ca842cbbafc4ddffe0518dc50486f40d"},
+    {"path": "src/research_assistant/survey/source_safety_review.py", "before_git_status": "??", "before_sha256": "8913d640e8fb06476ddabec3f1ee5e83bf05bfa61c01a1028adf2b6d1bace685", "after_sha256": "24c1971c95e9158fb991ae4ce901ae1399e5226399359103d4d12dfde621c053"},
+    {"path": "src/research_assistant/survey/omission_review.py", "before_git_status": "??", "before_sha256": "97462d36e9e6af1198ee89fc3cf48456529cd9bdde3bf744c2f88a7992355e35", "after_sha256": "e83e8ef067812f37abd0388dce81ae0af8bcf51563834d54e7c058b19870be32"},
+    {"path": "src/research_assistant/survey/reviewed_merge.py", "before_git_status": "??", "before_sha256": "dec5e7ffab0f2b3793841657d9db1d85afb01deec4c81eb0a3716212c0fb6894", "after_sha256": "036c9ec1e579e7b7a5c5a089a33c7164e1c1e50c84b5d466e6d1aca72076b99b"},
+    {"path": "tests/integration/test_cli_commands.py", "before_git_status": " M", "before_sha256": "3cdf2c570078ff1f92eec1b7414411d13feb28bc77281c40f7358dd3abe27259", "after_sha256": "52bd014effb440bda5d2265c6fc5be96e4754d6c1f570fda7af56e40f319c7bb"},
+    {"path": "scripts/literature_survey_phase8_ux_validation.py", "before_git_status": "??", "before_sha256": "f767249f5ac3052177a5ee1db6f9731c8e40e1ca05ad0abc280da879057e49dc", "after_sha256": "01eb60cff2f44410fd66ec553b967584845a12a58aa97200ac6f11e96e3e0665"}
+  ],
+  "new_files": [
+    {"path": "src/research_assistant/survey/review_decisions.py", "after_sha256": "987d872c5979fcbb69a89315cfad195e8dcf8839d6859a58b6ad7157ac5c9ea2"},
+    {"path": "src/research_assistant/survey/workflow_blocker_review.py", "after_sha256": "eda659ad7a973b51298c09a1c9221477a3f3cac824b91c3af192e490174e1130"},
+    {"path": "tests/unit/test_literature_survey_m16_phase3.py", "after_sha256": "e6ebe3a9cbb04e1183b20950c5844d57190ed72227a09e8257acebe3575baa92"}
+  ],
+  "implementation_review": {
+    "prior_rounds": "REVISE findings repaired in product code and tests",
+    "final_frozen_audit": "REVISE: declared negative-test contract lacked explicit regressions",
+    "repair": "test-only contract completion; all product hashes remained frozen",
+    "current_verdict": "AGREE; all eleven hashes verified before and after inspection",
+    "bundle": "docs/reviews/literature_survey_m16_phase3_implementation_review_bundle_2026-07-11.md"
+  },
+  "reconciliation": "docs/validation/literature_survey_m16_phase3_2026-07-11/nul_safe_reconciliation.json",
+  "unexpected_mismatches": []
+}

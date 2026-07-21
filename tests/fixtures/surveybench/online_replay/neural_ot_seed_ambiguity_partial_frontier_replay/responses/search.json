@@ -1,0 +1,144 @@
+{
+  "ambiguous_seed_candidates": {
+    "candidate_keys": [
+      "p_seed_001",
+      "p_seed_variant_001"
+    ],
+    "canonical_candidate_key": "p_seed_001",
+    "prompt_identifier": "arxiv:2201.12220",
+    "rejected_candidate_keys": [
+      "p_seed_variant_001"
+    ],
+    "status": "ambiguous_fixture"
+  },
+  "endpoint": "search",
+  "query": "Neural Optimal Transport for generative modeling and inference",
+  "request_id": "search-topic-neural-ot-ambiguity",
+  "result_count": 7,
+  "results": [
+    {
+      "arxiv_id": "2201.12220v3",
+      "authors": [
+        "Alexander Korotin",
+        "Daniil Selikhanovych",
+        "Evgeny Burnaev"
+      ],
+      "doi": "10.48550/arXiv.2201.12220",
+      "paper_key": "p_seed_001",
+      "resolution_signal": "canonical_candidate",
+      "source": "fixture_arxiv",
+      "title": "Neural Optimal Transport",
+      "version_hint": "v3",
+      "year": 2022
+    },
+    {
+      "arxiv_id": "2201.12220v1",
+      "authors": [
+        "Alexander Korotin",
+        "Daniil Selikhanovych",
+        "Evgeny Burnaev"
+      ],
+      "canonical_hint": "p_seed_001",
+      "doi": "10.48550/arXiv.2201.12220",
+      "paper_key": "p_seed_variant_001",
+      "resolution_signal": "ambiguous_seed_variant",
+      "source": "fixture_openalex",
+      "title": "Neural OT",
+      "version_hint": "v1",
+      "year": 2022
+    },
+    {
+      "authors": [
+        "Jean-David Benamou",
+        "Yann Brenier"
+      ],
+      "doi": "10.1007/s002110050002",
+      "paper_key": "p_ref_001",
+      "source": "fixture_reference_search",
+      "title": "A Computational Fluid Mechanics Solution to the Monge-Kantorovich Mass Transfer Problem",
+      "year": 2000
+    },
+    {
+      "authors": [
+        "Synthetic Followup"
+      ],
+      "doi": "10.0000/replay.followup.partial",
+      "paper_key": "p_cite_001",
+      "source": "fixture_citation_search",
+      "title": "Scalable Neural Transport Methods for Inference",
+      "year": 2023
+    },
+    {
+      "authors": [
+        "Ivan Kobyzev",
+        "Simon J. D. Prince",
+        "Marcus A. Brubaker"
+      ],
+      "doi": "10.1109/TPAMI.2020.2992934",
+      "paper_key": "p_adj_001",
+      "source": "fixture_adjacent_search",
+      "title": "Normalizing Flows: An Introduction and Review of Current Methods",
+      "year": 2020
+    },
+    {
+      "authors": [
+        "Noisy Adjacent"
+      ],
+      "doi": "10.0000/replay.noisy.single.cell",
+      "paper_key": "p_noise_001",
+      "source": "fixture_openalex_noisy",
+      "title": "Learning Single-Cell Perturbation Responses using Neural Optimal Transport",
+      "year": 2021
+    },
+    {
+      "authors": [
+        "Noisy Search"
+      ],
+      "doi": "10.0000/replay.noisy.nas",
+      "paper_key": "p_noise_002",
+      "source": "fixture_openalex_noisy",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    },
+    {
+      "authors": [
+        "Synthetic Withdrawn"
+      ],
+      "doi": "10.0000/replay.withdrawn.transport",
+      "paper_key": "p_quarantine_001",
+      "quarantine_status": "withdrawn_fixture",
+      "source": "fixture_retraction_watch",
+      "title": "Withdrawn Neural Transport Claim",
+      "year": 2021
+    }
+  ],
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "source_statuses": [
+    {
+      "message": "Seed metadata is available but the prompt identifier has multiple fixture records.",
+      "source": "fixture_arxiv",
+      "status": "ok"
+    },
+    {
+      "message": "OpenAlex fixture provides a title/version variant that must be deduplicated or excluded.",
+      "source": "fixture_openalex",
+      "status": "ok"
+    },
+    {
+      "message": "A secondary metadata fixture gives the seed a conflicting short title and version.",
+      "source": "fixture_conflicting_catalog",
+      "status": "ok"
+    },
+    {
+      "message": "Semantic Scholar is simulated as rate-limited for this seed.",
+      "source": "fixture_semantic_scholar",
+      "status": "simulated_rate_limit"
+    },
+    {
+      "message": "Retraction/quarantine fixture marks p_quarantine_001 withdrawn and unusable as support.",
+      "source": "fixture_retraction_watch",
+      "status": "ok"
+    }
+  ],
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay"
+}

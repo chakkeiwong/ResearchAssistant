@@ -1,0 +1,101 @@
+{
+  "anchor_cap_per_source": 5000,
+  "campaign_inputs": {
+    "selection_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m21_candidate_context_triage_2026-07-18/primary_source_selection.json",
+    "selection_sha256": "187dc440101e1a31a3fe85e5cfa82bbf7cd0ad05af6d8a73e30d8d0c5cd53a83",
+    "triage_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m21_candidate_context_triage_2026-07-18/candidate_context_triage.json",
+    "triage_sha256": "179a7d8f48e276861e7fb1036a293ae2020c6825439b149130987c304df810c2"
+  },
+  "candidate_ids": [
+    "1412.6980",
+    "1506.03365",
+    "1709.08894",
+    "1805.07277",
+    "1902.07197",
+    "2003.06635",
+    "2003.06788"
+  ],
+  "command_argv": [
+    "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "-m",
+    "research_assistant.survey.m21_seven_source_campaign",
+    "--repository-root",
+    "/home/chakwong/research-assistant",
+    "--output-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m21_seven_candidate_sources_2026-07-18"
+  ],
+  "completed_at_utc": "2026-07-18T07:45:52.163669+00:00",
+  "cpu_only": true,
+  "credential_interface": false,
+  "data_version": "exact seven arXiv IDs from M21 replay-valid context triage",
+  "derived_reserve_bytes": 20000000,
+  "environment": "project interpreter; deliberate CPU-only campaign",
+  "evidence_root_cap_bytes": 500000000,
+  "git_commit": "3890a41c75ab7d7db7ef45d5c3d98b6784170217",
+  "git_tree": "38152358cdacb457a4429e6b396aff56edf79cb3",
+  "hardware": "CPU-only; GPU devices intentionally hidden",
+  "pdf_fallback": false,
+  "per_source_cap_bytes": 100000000,
+  "plan_path": "/home/chakwong/research-assistant/docs/plans/literature_survey_north_star_m21_seven_candidate_arxiv_source_campaign_2026-07-18.md",
+  "preserved_execution_sources": [
+    {
+      "relative_path": "execution_sources/literature_survey_north_star_m21_seven_candidate_arxiv_source_campaign_2026-07-18.md",
+      "sha256": "08824a9664e6cf23b6886eb70dc800b9bce45d2c811cb2a116c1444ffc68fae6",
+      "size_bytes": 12389
+    },
+    {
+      "relative_path": "execution_sources/primary_source_selection.json",
+      "sha256": "187dc440101e1a31a3fe85e5cfa82bbf7cd0ad05af6d8a73e30d8d0c5cd53a83",
+      "size_bytes": 28020
+    },
+    {
+      "relative_path": "execution_sources/candidate_context_triage.json",
+      "sha256": "179a7d8f48e276861e7fb1036a293ae2020c6825439b149130987c304df810c2",
+      "size_bytes": 44626
+    },
+    {
+      "relative_path": "execution_sources/m21_seven_source_campaign.py",
+      "sha256": "16caa5ad61b744a8a1dcd598f3a49c557725d00863e68c9d55413a0f9e8d127a",
+      "size_bytes": 29910
+    },
+    {
+      "relative_path": "execution_sources/m20_arxiv_backward_worker.py",
+      "sha256": "9b2b82f34b3f407462da4fec898f9665362a465fa6447f53655bd8f27cd183fc",
+      "size_bytes": 11677
+    },
+    {
+      "relative_path": "execution_sources/m20_arxiv_only_live_runner.py",
+      "sha256": "ea4fc6bc6f7db056a4347a0810db019733b79848a0e363e4cbb6c9c65529c596",
+      "size_bytes": 31964
+    },
+    {
+      "relative_path": "execution_sources/anchors.py",
+      "sha256": "ff97005f8901ebdb3cbce64cbbbb49f1e802aee7bac119ffdbab8cf1c5c3f35c",
+      "size_bytes": 19888
+    },
+    {
+      "relative_path": "execution_sources/latex_bundle.py",
+      "sha256": "9b5ef02943bd593b0363bc862e45ecee173680c1d805baf902b4cacf1e21c364",
+      "size_bytes": 1668
+    },
+    {
+      "relative_path": "execution_sources/latex_extract.py",
+      "sha256": "14eaf460ab3212b1a2006a26782091c5cd153738532b32545c301c07c72cf796",
+      "size_bytes": 7518
+    },
+    {
+      "relative_path": "execution_sources/latex_flatten.py",
+      "sha256": "ef12d8d48ec26582c8634d5279f7f267de94a5daeaf89ea467f30c86e9975f28",
+      "size_bytes": 2026
+    }
+  ],
+  "python_executable": "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+  "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+  "random_seeds": "N/A (deterministic source intake and parse)",
+  "request_limit": 7,
+  "retry_policy": "none",
+  "schema_version": "ra-literature-survey-m21-seven-source-v1-manifest",
+  "started_at_utc": "2026-07-18T07:44:12.073128+00:00",
+  "status": "closed",
+  "worktree_dirty": true
+}

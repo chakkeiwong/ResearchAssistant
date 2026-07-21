@@ -1,0 +1,1264 @@
+{
+  "schema_version": "ra-literature-survey-automation-milestones-v2",
+  "mission_id": "literature_survey_automation_one_command",
+  "mission": "Make research-assistant let another agent or user start from an idea, topic, or paper, ask once for exploratory public discovery, then use local cache, public web/API metadata, public archives, source/status lookup, and bounded source/PDF/full-text retrieval to build an auditable survey evidence packet.",
+  "command_surface": "ra survey run-public-source-workflow --topic <topic> [--seed <paper>] --out <mission-dir>",
+  "current_command_surface": "ra survey run-public-source-workflow --topic <topic> [--seed <paper>] --out <mission-dir>",
+  "target_input_modes": ["idea_or_topic_without_initial_paper_seed", "paper_title", "doi", "arxiv_identifier", "other_supported_paper_identifier"],
+  "updated_at": "2026-07-18",
+  "authoritative_status": {
+    "status": "M22B0_PASSED_M22B_READY_FOR_GENUINE_HUMAN_PARTICIPATION",
+    "completed_milestone": "M21_live_source_status_and_anchor_intake",
+    "completed_scope": "M16 Phases 0-10, M17 topic/bootstrap engineering, M18 identified local Git/install reproducibility, M19 bounded metadata engineering, revised-scope M20 arXiv source/backward discovery, M21 bounded source/anchor intake, M22A V4 human-attestation engineering, and M22B0 production retained-evidence reconciliation",
+    "git_integration": "candidate_654e6e1_isolated_clone_and_wheel_passed",
+    "live_execution": "M19, revised M20, and bounded M21 campaigns are complete. M22B0 selected one explicit-seed 73-item production queue and prepared a fresh unattested packet; genuine human decisions and representative mission replay remain pending.",
+    "north_star_mission": "in_progress",
+    "authority": "docs/plans/literature_survey_north_star_m22b0_production_queue_reconciliation_result_2026-07-18.md"
+  },
+  "active_milestones": [
+    "M22_human_attested_review_and_real_missions"
+  ],
+  "north_star_sequence": [
+    "M17_idea_topic_bootstrap",
+    "M18_reproducible_git_integration",
+    "M19_bounded_live_metadata_validation",
+    "M20_live_discovery_and_citation_frontier",
+    "M21_live_source_status_and_anchor_intake",
+    "M22_human_attested_review_and_real_missions",
+    "M23_north_star_acceptance_and_operational_closeout"
+  ],
+  "historical_records_policy": "M0-M15 retain their original objectives, checks, handoffs, and stop conditions as planning history only. They are not current execution authority. Current work is governed exclusively by authoritative_status, active_milestones, north_star_sequence, the M16 close record, and the north-star gap-closure master program.",
+  "approval_layers": {
+    "development_validation_authority": "Fresh repository-execution approvals may be required for Codex to run a predeclared network/source validation while developing and evaluating M19-M21. They authorize only that frozen supervised run.",
+    "production_end_user_confirmation": "At product runtime, one persisted bounded public-discovery confirmation covers all implemented in-scope ordinary public metadata, citation, archive, source-status, and capped public source/PDF/full-text actions. The workflow must not prompt again merely because it advances from metadata to citation or source transport.",
+    "always_separate_boundaries": "Credentials, private or paid sources, hidden data, unbounded crawling, writes outside the mission, genuine human review decisions, product defaults, and release remain separate explicit decisions."
+  },
+  "remaining_gap_ids": [
+    "G5_human_attested_review",
+    "G6_representative_real_missions",
+    "G7_operational_closeout"
+  ],
+  "status_legend": {
+    "completed_superseded_by_m16": "The historical milestone was implemented and its authority is now subsumed by the stronger M16 local integrated-alpha evidence.",
+    "completed_local_scope_superseded_by_m16": "The local or fixture-backed part was implemented and superseded by M16; no live claim is implied.",
+    "superseded_incomplete_live_scope": "Local or sanitized predecessors exist, but the milestone's live scope was not established and is replaced by M19-M21.",
+    "passed_local_engineering_git_integration_pending": "M16 Phases 0-10 passed on the preserved dirty-tree baseline; Git reproducibility and live behavior remain outside the claim.",
+    "active_planning_local_only": "The milestone is the current local planning lane; it authorizes neither live action nor Git mutation.",
+    "active_planning_no_git_action_authorized": "Historical setup state: the milestone was a Git planning lane with no mutation authority.",
+    "active_local_integration": "The milestone is the active trusted-local integration lane under the user's execute/resume request and current repository policy; push, release, destructive actions, and later external boundaries remain unauthorized.",
+    "completed_local_git_install_reproducibility": "An identified commit passed the declared isolated clone, offline wheel, origin, payload, and local regression gates in the observed environment; no live or product-readiness claim follows.",
+    "completed_bounded_live_metadata_engineering": "One exactly approved metadata-only attempt passed the frozen boundary and replay contract; this does not establish provider quality, citation recall, source support, or product readiness.",
+    "route_independent_local_engineering_passed_official_route_contract_pending": "The route-independent state machine, replay, inventory, and exhaustive composition gates pass locally; official provider-route evidence and route-specific adapters remain pending, and no live provider use is authorized.",
+    "m20a_local_no_network_engineering_passed_m20b_boundary_pending": "Official route evidence plus route-independent and route-specific no-network engineering pass locally; M20 remains incomplete and M20B requires credential, privacy, cost, installed-byte, exact-packet, and human execution authority.",
+    "m20b1_documentation_contract_passed_m20b2_human_decisions_required": "Historical state: the bounded official authentication/pricing documentation campaign passed and was consumed; M20B2 had not yet received its human interface, privacy, and numeric cost decisions.",
+    "m20b2_local_synthetic_engineering_passed_m20b3_git_authority_required": "M20B2 passed local synthetic-only credential/redaction/cost engineering and terminal review without real-key or network use; M20 remains incomplete, and M20B3 requires new explicit human authority for its exact bounded Git payload, stage/commit, isolated clone, and offline wheel operation.",
+    "blocked_m20b3_review_nonconvergence_after_five_rounds_no_git_action": "M20B3 exhausted five material review rounds with an unresolved blocked-after-dispatch observed-cost replay defect and stopped before staging, commit, clone, wheel, installed validation, or packet freeze; human direction is required before any extra repair round.",
+    "m20b3_local_integration_resumed_extra_review_agreed_m20b4_do_not_execute": "One explicitly human-authorized extra replay-integrity repair/review round closed the observed-cost blocker; bounded M20B3 local Git/clone/wheel/install/packet-freeze work is active, while M20B4 and all external boundaries remain forbidden.",
+    "blocked_m20b4_review_nonconvergence_after_five_rounds_no_live_action": "M20B3 remains passed, but five material M20B4 pre-launch plan/closeout reviews did not converge on the exact supervisor-lifecycle signal predicate. The packet was not invoked, no credential or network action occurred, both roots remain absent, and human direction is required before one extra local repair/review round.",
+    "m20b4_extra_repair_review_agreed_exact_human_authorization_required": "The explicitly authorized extra local supervisor-lifecycle signal repair passed focused and combined checks plus terminal read-only review. The packet remains unexecuted and exact human live authorization is the next separate boundary.",
+    "blocked_m20b4_early_supervisor_exit_no_manifest_attempt_consumed_no_rerun_human_direction_required": "The exactly authorized M20B4 executable was invoked once, returned closed exit code 2, and created no live root or supervisor manifest. The attempt is consumed with no retry/rerun. Exact cause and all credential/provider/network/cost/privacy/candidate outcomes are not established; further live work requires human direction and a new campaign.",
+    "m20_arxiv_only_local_gates_in_progress_single_authorized_attempt_pending": "The active M20/G3 contract is bounded arXiv source intake, backward-reference extraction, preliminary candidate classification, omission-risk analysis, and replay. Forward coverage is unavailable out of scope and non-blocking. One 500 MB source/root invocation is authorized after local gates, with no retry or rerun.",
+    "completed_m20_arxiv_source_grounded_backward_discovery": "One bounded arXiv source request retained the exact seed package, produced a non-empty replayable backward candidate set with preliminary classifications and omission ledgers, and recorded forward coverage as unavailable out of scope and non-blocking. No relevance, technical-support, completeness, or scientific claim follows.",
+    "m21_local_slices_passed_public_source_authorization_required": "The exact retained seed yielded 53 replayable machine anchor candidates with zero supported claims, and all 62 backward candidates were context-accounted: 7 are seed-cited and 55 are unused bundled BibTeX entries. The reviewed exact-seven public source campaign is ready but unlaunched; explicit M21 source authorization is required.",
+    "m21_campaign_authorized_pending_launch": "The exact retained seed yielded 53 replayable machine anchor candidates with zero supported claims, and all 62 backward candidates were context-accounted: 7 are seed-cited and 55 are unused bundled BibTeX entries. The user explicitly approved the exact-seven credential-free arXiv source campaign; final local refresh and one launch are pending.",
+    "completed_m21_g4_six_parsed_one_explicit_source_gap": "The exact-seven credential-free arXiv campaign dispatched seven requests with zero retries and retained seven source packages. Six produced 288 machine anchor candidates; 1412.6980 is honestly closed as a PDF-wrapper text-parse gap with PDF fallback out of scope. Offline replay passes, supported claims remain zero, and M22's genuine-human boundary is next.",
+    "pending_human_attestation_policy_and_representative_matrix": "Historical M22 planning state before local M22A/M22B0 engineering completed.",
+    "ready_for_genuine_human_participation": "M22A V4 receipt engineering and M22B0 production retained-evidence reconciliation pass locally. One selected 73-item explicit-seed packet is ready, but no genuine human decisions or representative mission replay exist.",
+    "completed_local_engineering_git_integration_pending": "The milestone's local engineering and review gates passed; clean Git integration and later live/product evidence remain outside the claim.",
+    "pending": "The milestone has not met its entry conditions or promotion criterion."
+  },
+  "north_star_completion_definition": [
+    "A clean checkout of an identified commit installs and exposes the documented ra command.",
+    "A user can start from a topic, title, DOI, or arXiv identifier and record one bounded public-discovery confirmation for the mission.",
+    "The workflow performs allowed local, metadata, citation, source-status, and capped public source/PDF/full-text steps through reviewed production transports, or records an exact honest boundary outcome.",
+    "Every technical claim admitted to the reviewed packet has checked primary-source anchors or an explicit project derivation and a genuine human-attested decision.",
+    "Source-safety, omission, workflow-blocker, hostile-review, and lineage gates remain fail-closed under resume, provider failure, stale artifacts, and partial evidence.",
+    "At least one predeclared real mission reaches terminal_ready_for_reviewed_prose_within_recorded_scope and the representative mission matrix records honest outcomes for all other runs.",
+    "A new independent operator uses documentation only and a clean install to take an idea/topic start through production bootstrap to terminal_ready_for_reviewed_prose_within_recorded_scope; separate acceptance cases demonstrate honest boundary stops.",
+    "Completion does not claim literature completeness, scientific correctness, broad provider reliability, autonomous human review, or production readiness beyond the recorded scope."
+  ],
+  "global_boundaries": [
+    "No actual Codex, Claude, Copilot, or paid model-subject trial is part of this lane.",
+    "Benchmark work is support infrastructure, not the mission.",
+    "Ordinary exploratory public/local discovery should require one user confirmation per mission, not separate provider-shaped approvals.",
+    "The single public-discovery confirmation may cover bounded public web/API metadata, public archive search, local cache lookup, public source-status checks, and capped public source/PDF/full-text retrieval inside the mission output directory.",
+    "The single public-discovery confirmation does not authorize credentials, private databases, paid model-worker trials, hidden evaluator material, unbounded crawling, or writes outside the mission output directory.",
+    "Technical claims require checked primary-source anchors or explicit source-gap labels.",
+    "Citation counts, venue metadata, abstracts, source availability, and unreviewed downloaded text are routing signals only, not technical claim support.",
+    "Skeleton, replay, metadata, or source-availability evidence must not be described as product readiness, survey completeness, or scientific correctness.",
+    "review_queue.json is a handoff artifact only; queue creation does not review claims, clear source safety, resolve omissions, or make prose ready.",
+    "Reviewed-claim import must require checked source anchors and explicit review provenance; unreviewed claim candidates remain non-support.",
+    "Reviewed-claim import is a sidecar handoff; it does not clear source safety, omission review, or final prose readiness.",
+    "Source-safety rows may be marked checked_clear only by explicit reviewed evidence or public safety lookup performed under the mission public-discovery confirmation.",
+    "Reviewed source-safety import is a sidecar handoff; it does not resolve omissions, merge claims, or make prose ready.",
+    "Omission-risk rows may be closed only by explicit reviewed rationale or recorded blockers.",
+    "Reviewed omission import is a sidecar handoff; it does not prove literature completeness, merge claims, or make prose ready.",
+    "Reviewed evidence merge may mark prose ready only when claim, source-safety, omission, and stale-artifact gates all pass.",
+    "Reviewed evidence merge status is a readiness/blocker artifact; it does not imply product readiness or scientific correctness.",
+    "Resume orchestration should ask exactly once for public discovery when the mission lacks confirmation, then continue automatically through bounded public/local discovery steps once confirmation is recorded.",
+    "Coverage and snowballing ledgers are routing/blocker artifacts only; they do not prove literature completeness or technical support.",
+    "Hostile review may mark final prose ready only when reviewed evidence, coverage, snowballing, omission, and source-safety gates all pass."
+  ],
+  "milestones": [
+    {
+      "id": "M0_mission_control",
+      "name": "Mission Control",
+      "status": "completed_superseded_by_m16",
+      "objective": "Create the central control artifact and machine-readable milestones that steer future work toward the one-command workflow.",
+      "entry_conditions": [
+        "Real-subject branch retired from active plan.",
+        "Phase 12 deterministic negative-case scorer hardening passed."
+      ],
+      "required_artifacts": [
+        "docs/plans/literature_survey_automation_mission_control_2026-07-06.md",
+        "docs/plans/literature_survey_automation_milestones.json",
+        "docs/plans/literature_survey_automation_phase0_mission_control_alignment_subplan_2026-07-06.md"
+      ],
+      "required_checks": [
+        "JSON milestone file parses.",
+        "git diff --check passes.",
+        "Focused CLI tests pass after command skeleton is added."
+      ],
+      "evidence_contract": {
+        "question": "Do future agents have a single source of truth for the one-command survey workflow?",
+        "baseline": "Scattered SurveyBench plans and retired real-subject lane.",
+        "primary_criterion": "Mission-control artifacts name the command, milestones, boundaries, next allowed action, and stop conditions.",
+        "veto_diagnostics": [
+          "Mission control treats benchmark construction as the mission.",
+          "Mission control requires a live model-subject trial.",
+          "Milestones lack stop conditions or required artifacts."
+        ],
+        "not_concluded": [
+          "Full workflow implementation",
+          "survey quality",
+          "live coverage",
+          "scientific correctness",
+          "product readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M1 may start after mission-control docs exist and pass local checks."
+      ],
+      "stop_conditions": [
+        "No single source of truth exists.",
+        "Active plan still points to real-agent launch.",
+        "Milestones are not machine-readable JSON."
+      ]
+    },
+    {
+      "id": "M1_workflow_contract",
+      "name": "Workflow Contract",
+      "status": "completed_local_scope_superseded_by_m16",
+      "objective": "Freeze the input, output, status, and evidence contracts for ra survey build.",
+      "entry_conditions": [
+        "M0 mission control exists.",
+        "Command skeleton exists or is explicitly planned."
+      ],
+      "required_artifacts": [
+        "Survey build contract section in mission-control or dedicated contract doc.",
+        "Stable schemas for candidate ledger, citation map, source support, classifications, claim support, omission risk, survey packet, and build manifest."
+      ],
+      "required_checks": [
+        "Schema examples parse.",
+        "No output schema permits unsupported technical claims."
+      ],
+      "evidence_contract": {
+        "question": "Is the command contract precise enough for agents and tests to build against?",
+        "baseline": "Existing SurveyBench packet schemas and helper outputs.",
+        "primary_criterion": "Every required output artifact has schema, status semantics, and non-claim rules.",
+        "veto_diagnostics": [
+          "A packet can be marked ready without citation map or source-status ledgers.",
+          "Metadata-only evidence can support technical claims.",
+          "Source gaps are silently omitted."
+        ],
+        "not_concluded": [
+          "Implementation completeness",
+          "source availability",
+          "survey prose quality"
+        ]
+      },
+      "handoff_conditions": [
+        "M2/M3 may implement against the contract without changing evidence semantics after seeing scores."
+      ],
+      "stop_conditions": [
+        "Required artifacts are ambiguous.",
+        "Pass criteria rely on proxy metrics as survey correctness."
+      ]
+    },
+    {
+      "id": "M2_single_command_skeleton",
+      "name": "Single Command Skeleton",
+      "status": "completed_superseded_by_m16",
+      "objective": "Provide a stable ra survey build command that creates the expected packet directory and honest pending-status artifacts.",
+      "entry_conditions": [
+        "Mission is defined as one-command survey evidence automation."
+      ],
+      "required_artifacts": [
+        "src/research_assistant/survey/build.py",
+        "CLI registration for ra survey build",
+        "Focused CLI test",
+        "Skeleton packet files written by the command"
+      ],
+      "required_checks": [
+        "py_compile for touched modules.",
+        "pytest focused CLI test.",
+        "git diff --check."
+      ],
+      "evidence_contract": {
+        "question": "Can a user or agent discover and run the product-shaped survey command?",
+        "baseline": "SurveyBench helper commands that are benchmark-specific.",
+        "primary_criterion": "ra survey build writes the required artifact layout and manifest without overclaiming completion.",
+        "veto_diagnostics": [
+          "Command name is benchmark-specific.",
+          "Skeleton says discovery or source review is complete.",
+          "Command overwrites existing packet without force."
+        ],
+        "not_concluded": [
+          "citation-map automation",
+          "source intake",
+          "claim support",
+          "survey readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M3 can replace pending skeleton sections with real offline/replay-derived citation-map layers.",
+        "M7 may use the supervised workflow command and review queue as the active control surface."
+      ],
+      "stop_conditions": [
+        "Command cannot be invoked from CLI.",
+        "Generated artifacts are unstructured prose only.",
+        "Generated packet overclaims evidence."
+      ]
+    },
+    {
+      "id": "M3_citation_map_builder",
+      "name": "Citation Map Builder",
+      "status": "completed_local_scope_superseded_by_m16",
+      "objective": "Populate backward lineage, forward citations, adjacent clusters, classifications, and source/download status layers.",
+      "entry_conditions": [
+        "M1 contract stable.",
+        "M2 command skeleton available."
+      ],
+      "required_artifacts": [
+        "Citation-map builder module",
+        "Graph export path",
+        "Offline/replay fixture integration",
+        "Negative cases for missing map layers"
+      ],
+      "required_checks": [
+        "SurveyBench citation-map tests pass.",
+        "Negative packets fail with expected metric drops or vetoes."
+      ],
+      "evidence_contract": {
+        "question": "Does ra survey build produce a typed citation map rather than a flat list?",
+        "baseline": "Skeleton citation_map.json.",
+        "primary_criterion": "Required seed, backward, forward, adjacent, classification, and source-status layers are present for offline/replay tasks.",
+        "veto_diagnostics": [
+          "No typed edges.",
+          "No backward or forward layer when fixture exposes it.",
+          "Adjacent papers lack cluster or relevance reason."
+        ],
+        "not_concluded": [
+          "live citation coverage",
+          "scientific priority",
+          "broad field completeness"
+        ]
+      },
+      "handoff_conditions": [
+        "M4 may compose survey-ready packets from populated map and ledgers."
+      ],
+      "stop_conditions": [
+        "Map can pass as flat search output.",
+        "Source-blocked papers lack status."
+      ]
+    },
+    {
+      "id": "M4_evidence_packet_composer",
+      "name": "Evidence Packet Composer",
+      "status": "completed_local_scope_superseded_by_m16",
+      "objective": "Compose candidate, source, classification, claim-support, omission-risk, and writer-facing packet artifacts from builder output.",
+      "entry_conditions": [
+        "Citation-map builder emits typed graph layers."
+      ],
+      "required_artifacts": [
+        "Packet composer",
+        "Writer-facing survey_packet.md",
+        "Claim support and omission-risk ledgers"
+      ],
+      "required_checks": [
+        "Ready-for-prose checks gate unsupported claims.",
+        "SurveyBench packet tests pass."
+      ],
+      "evidence_contract": {
+        "question": "Does the command produce survey-ready evidence without unsupported claims?",
+        "baseline": "Packet skeleton and SurveyBench packet-compose helper.",
+        "primary_criterion": "Every technical claim is anchored or explicitly blocked; omissions are recorded.",
+        "veto_diagnostics": [
+          "Forbidden claim appears as conclusion.",
+          "Technical claim lacks checked anchor.",
+          "Omission risks are missing for known high-risk fixture papers."
+        ],
+        "not_concluded": [
+          "final survey prose quality",
+          "mathematical correctness",
+          "live web coverage"
+        ]
+      },
+      "handoff_conditions": [
+        "M5 may validate command output with offline benchmarks."
+      ],
+      "stop_conditions": [
+        "Packet is prose-only.",
+        "Claim ledger allows metadata-only technical support."
+      ]
+    },
+    {
+      "id": "M5_offline_validation_harness",
+      "name": "Offline Validation Harness",
+      "status": "completed_local_scope_superseded_by_m16",
+      "objective": "Use SurveyBench as support infrastructure to test and iterate on ra survey build.",
+      "entry_conditions": [
+        "Command produces populated packet artifacts."
+      ],
+      "required_artifacts": [
+        "SurveyBench tasks that invoke or mirror ra survey build outputs",
+        "Negative cases for map/source/claim/omission failures",
+        "Validation result records"
+      ],
+      "required_checks": [
+        "Offline/replay tests pass.",
+        "Designed negative cases fail."
+      ],
+      "evidence_contract": {
+        "question": "Does the benchmark catch regressions in the one-command workflow?",
+        "baseline": "Phase 12 deterministic negative cases.",
+        "primary_criterion": "Benchmark failures map to actionable command/workflow gaps.",
+        "veto_diagnostics": [
+          "Benchmark scores do not inspect command artifacts.",
+          "Proxy readability metrics become pass criteria.",
+          "Hidden gold leaks into command output."
+        ],
+        "not_concluded": [
+          "live reliability",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "M6 may add public or sanitized corpora after offline command evidence is stable."
+      ],
+      "stop_conditions": [
+        "Benchmark work is not tied to command behavior.",
+        "Scorer weakening is needed for command to pass."
+      ]
+    },
+    {
+      "id": "M6_public_sanitized_corpus_expansion",
+      "name": "Public And Sanitized Corpus Expansion",
+      "status": "superseded_incomplete_live_scope",
+      "objective": "Extend the workflow to approved public arXiv and local sanitized corpora without committing private or raw source artifacts.",
+      "entry_conditions": [
+        "Offline command validation is stable.",
+        "Boundary approval exists for any live/source/download operation."
+      ],
+      "required_artifacts": [
+        "Public arXiv task manifests",
+        "Sanitized local corpus manifests",
+        "Source/download status reports",
+        "Privacy-safe validation records"
+      ],
+      "required_checks": [
+        "Privacy validation passes.",
+        "No raw PDFs, private source text, or local private paths are committed."
+      ],
+      "evidence_contract": {
+        "question": "Can the command generalize beyond synthetic/replay fixtures under safe source boundaries?",
+        "baseline": "Offline/replay command validation.",
+        "primary_criterion": "Public/sanitized runs produce auditable packets while preserving privacy and source-status honesty.",
+        "veto_diagnostics": [
+          "Raw private artifacts committed.",
+          "Unavailable sources marked inspected.",
+          "Live metadata treated as truth rather than dated coverage signal."
+        ],
+        "not_concluded": [
+          "broad web coverage",
+          "download reliability at scale",
+          "scientific correctness",
+          "product readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "Release evidence may be summarized only with explicit non-claims."
+      ],
+      "stop_conditions": [
+        "Required approval missing.",
+        "Privacy or source-boundary validation fails."
+      ]
+    },
+    {
+      "id": "M7_supervised_review_and_claim_import",
+      "name": "Supervised Review And Claim Import",
+      "status": "completed_superseded_by_m16",
+      "objective": "Use mission_control.json and review_queue.json to drive local claim-review import while preserving explicit approval gates and non-claim boundaries.",
+      "entry_conditions": [
+        "ra survey run-public-source-workflow writes mission_control.json and stops at explicit gates.",
+        "review_queue.json is emitted from existing public-source packet artifacts.",
+        "Benchmark feedback status was PHASE8_PASSED_NEXT_REVIEWED_CLAIM_IMPORT_READY at entry."
+      ],
+      "required_artifacts": [
+        "src/research_assistant/survey/orchestrate.py",
+        "review_queue.json from ra survey run-public-source-workflow",
+        "reviewed_claims.json sidecar from reviewed-claim import",
+        "docs/plans/literature_survey_benchmark_feedback_execution_ledger_2026-07-07.md",
+        "docs/validation/literature_survey_benchmark_feedback_loop_2026-07-07/benchmark_findings.json"
+      ],
+      "required_checks": [
+        "Focused CLI tests for run-public-source-workflow, survey packet, and reviewed-claim import pass.",
+        "Phase 8 UX validation passes with review_queue_report.",
+        "Benchmark feedback summary selects the next non-claim gap after reviewed-claim import.",
+        "git diff --check passes.",
+        "Phase 8 UX validation passes with claim_review_import_report."
+      ],
+      "evidence_contract": {
+        "question": "Can another agent use the supervised command and local review queue to submit reviewed claim rows without treating unreviewed candidates, metadata, or source availability as technical support?",
+        "baseline": "Review queue exists, but LSBFL-002 remains queued_for_claim_review and supported_claim_count remains zero.",
+        "primary_criterion": "A reviewed-claim import schema/validator accepts only reviewed, anchor-mapped, provenance-bearing claim rows and rejects unsafe promotion.",
+        "veto_diagnostics": [
+          "Metadata-only support is accepted.",
+          "Anchor-only support is accepted without explicit review provenance.",
+          "Unreviewed claim candidates are promoted to support.",
+          "Source safety, omission resolution, ready_for_prose, product readiness, or scientific correctness is inferred from claim import.",
+          "Live web/API/download/source/PDF/credential/model-worker action is required."
+        ],
+        "not_concluded": [
+          "source safety",
+          "literature completeness",
+          "final prose readiness",
+          "live coverage",
+          "product readiness",
+          "real-agent reliability",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "Reviewed-claim import sidecar validates one local happy-path reviewed decision and rejection cases without promotion.",
+        "Benchmark feedback moves LSBFL-002 to partial_reviewed_claim_import and selects LSBFL-003 next.",
+        "ready_for_prose remains false until claim, safety, and omission gates are all clear."
+      ],
+      "stop_conditions": [
+        "Import cannot preserve source artifact provenance.",
+        "Import requires live/source/download/model-worker access.",
+        "Import path can mark final prose or source safety ready from reviewed claims alone."
+      ]
+    },
+    {
+      "id": "M8_source_safety_review_import",
+      "name": "Source Safety Review Import",
+      "status": "completed_superseded_by_m16",
+      "objective": "Add the next local or approval-gated source-safety lane so another agent can clear retraction, withdrawal, erratum, and version blockers only with explicit evidence.",
+      "entry_conditions": [
+        "M7 reviewed-claim import surface is validated as a non-promoting sidecar.",
+        "Benchmark feedback selects LSBFL-003 as the next product slice.",
+        "source_safety_status.json contains blocked_or_not_checked rows from the public-source packet."
+      ],
+      "required_artifacts": [
+        "source_safety_status.json from the public-source packet",
+        "review_queue.json source_safety rows",
+        "future reviewed_source_safety.json sidecar or approval packet for public safety lookup",
+        "updated benchmark feedback summary and execution ledger"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover source-safety import or approval packet behavior.",
+        "Phase 8 or successor UX validation verifies source-safety gates are not cleared without evidence.",
+        "Phase 6 packet validation still rejects false safety promotion.",
+        "Benchmark feedback summary advances or records boundary blocker for LSBFL-003.",
+        "git diff --check passes.",
+        "Phase 8 UX validation passes with source_safety_import_report."
+      ],
+      "evidence_contract": {
+        "question": "Can another agent clear or route source-safety blockers through an explicit evidence-bearing lane without treating source availability or metadata as safety?",
+        "baseline": "source_safety_status.json and review_queue.json expose source-safety blockers, but no reviewed source-safety import or approved public lookup lane exists.",
+        "primary_criterion": "A source-safety lane accepts only explicit reviewed evidence or separately approved public lookup evidence and keeps unsafe or unchecked rows blocked.",
+        "veto_diagnostics": [
+          "Source availability is treated as retraction/version safety.",
+          "Metadata-only status clears source safety.",
+          "Unchecked rows are marked checked_clear.",
+          "ready_for_prose, product readiness, literature completeness, or scientific correctness is inferred from safety routing alone.",
+          "Live web/API/download/source/PDF/credential action is run without explicit approval."
+        ],
+        "not_concluded": [
+          "complete retraction coverage",
+          "version correctness at scale",
+          "literature completeness",
+          "final prose readiness",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "Reviewed source-safety import sidecar validates one local happy-path source-safety decision and rejection cases without promotion.",
+        "Benchmark feedback moves LSBFL-003 to partial_reviewed_source_safety_import and selects LSBFL-007 next.",
+        "ready_for_prose remains false until claim, safety, omission, and merge gates are all clear."
+      ],
+      "stop_conditions": [
+        "Safety lane requires unapproved live/API/download/credential access.",
+        "Safety import cannot preserve paper ids, evidence source, reviewer/provenance, and checked date.",
+        "Any path marks final prose ready from safety evidence alone."
+      ]
+    },
+    {
+      "id": "M9_omission_risk_review_import",
+      "name": "Omission Risk Review Import",
+      "status": "completed_superseded_by_m16",
+      "objective": "Add a reviewed omission-risk import lane so another agent can close, defer, or expand omission risks with explicit reviewer rationale.",
+      "entry_conditions": [
+        "M8 reviewed source-safety import surface is validated as a non-promoting sidecar.",
+        "Benchmark feedback selects LSBFL-007 as the next product slice.",
+        "omission_risk.json and review_queue.json contain omission_risk rows."
+      ],
+      "required_artifacts": [
+        "omission_risk.json from the public-source packet",
+        "review_queue.json omission_risk rows",
+        "future reviewed_omission_risks.json sidecar",
+        "updated benchmark feedback summary and execution ledger"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover omission-risk import behavior.",
+        "UX validation verifies omission-risk gates are not closed without reviewer rationale.",
+        "Benchmark feedback summary advances or records boundary blocker for LSBFL-007.",
+        "git diff --check passes.",
+        "Phase 8 UX validation passes with omission_import_report."
+      ],
+      "evidence_contract": {
+        "question": "Can another agent close or route omission risks through an explicit rationale-bearing lane without claiming literature completeness?",
+        "baseline": "omission_risk.json and review_queue.json expose omission risks, but no reviewed omission-risk import exists.",
+        "primary_criterion": "An omission-risk lane accepts only explicit reviewed decisions with rationale and keeps unresolved risks blocked.",
+        "veto_diagnostics": [
+          "Literature completeness is claimed from visibility or import alone.",
+          "Omission risk is closed without reviewer, reviewed_at, decision, reason, and next action when needed.",
+          "Unknown or non-omission queue items are accepted.",
+          "ready_for_prose, product readiness, or scientific correctness is inferred from omission import alone."
+        ],
+        "not_concluded": [
+          "literature completeness",
+          "final prose readiness",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "Reviewed omission import sidecar validates one local happy-path omission decision and rejection cases without completeness promotion.",
+        "Benchmark feedback moves LSBFL-007 to partial_reviewed_omission_import and selects LSBFL-008 next.",
+        "ready_for_prose remains false until reviewed evidence merge and hostile review gates are clear."
+      ],
+      "stop_conditions": [
+        "Omission lane requires unapproved live/API/download/credential access.",
+        "Omission import cannot preserve risk id, reviewer/provenance, rationale, and next action.",
+        "Any path marks final prose ready from omission evidence alone."
+      ]
+    },
+    {
+      "id": "M10_reviewed_evidence_merge_gate",
+      "name": "Reviewed Evidence Merge Gate",
+      "status": "completed_superseded_by_m16",
+      "objective": "Add a merge gate that combines reviewed claim, source-safety, and omission sidecars with provenance and stale-artifact checks before any readiness decision.",
+      "entry_conditions": [
+        "M7/M8/M9 reviewed sidecar import surfaces are validated as non-promoting sidecars.",
+        "Benchmark feedback selects LSBFL-008 as the next product slice.",
+        "Phase 8 validation includes claim_review_import_report, source_safety_import_report, and omission_import_report."
+      ],
+      "required_artifacts": [
+        "reviewed_claims.json sidecar",
+        "reviewed_source_safety.json sidecar",
+        "reviewed_omission_risks.json sidecar",
+        "future reviewed_evidence_status.json merge result",
+        "updated benchmark feedback summary and execution ledger"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover merge behavior and stale sidecar rejection.",
+        "UX validation verifies sidecars remain non-promoting until merge.",
+        "Benchmark feedback summary advances or records boundary blocker for LSBFL-008.",
+        "git diff --check passes.",
+        "Phase 8 UX validation passes with reviewed_evidence_merge_report."
+      ],
+      "evidence_contract": {
+        "question": "Can another agent merge reviewed sidecars into a readiness status without stale artifacts or unsafe promotion?",
+        "baseline": "Reviewed sidecars exist independently, but no merge gate combines them or decides packet readiness.",
+        "primary_criterion": "A merge gate verifies sidecar hashes/provenance and emits exact blockers or readiness without overclaiming.",
+        "veto_diagnostics": [
+          "Stale or queue-mismatched sidecars are accepted.",
+          "ready_for_prose is true while any claim, safety, omission, or hostile-review blocker remains.",
+          "Product readiness, literature completeness, or scientific correctness is inferred from merge plumbing."
+        ],
+        "not_concluded": [
+          "product readiness",
+          "scientific correctness",
+          "real-agent reliability"
+        ]
+      },
+      "handoff_conditions": [
+        "Reviewed evidence merge validates sidecar provenance and emits blocker-preserving reviewed_evidence_status.json.",
+        "Benchmark feedback moves LSBFL-008 to partial_reviewed_evidence_merge and selects LSBFL-009 next.",
+        "ready_for_prose remains false for fixtures with open omission blockers."
+      ],
+      "stop_conditions": [
+        "Merge cannot verify sidecar provenance and hashes.",
+        "Any path marks final prose ready with unresolved blockers."
+      ]
+    },
+    {
+      "id": "M11_resume_orchestration",
+      "name": "Resume Orchestration",
+      "status": "completed_superseded_by_m16",
+      "objective": "Extend run-public-source-workflow so it discovers reviewed sidecars and merge status and emits exact next_action guidance.",
+      "entry_conditions": [
+        "M10 reviewed evidence merge gate is validated as a blocker-preserving local artifact.",
+        "Benchmark feedback selects LSBFL-009 as the next product slice."
+      ],
+      "required_artifacts": [
+        "mission_control.json with reviewed artifact discovery",
+        "next_action.json or equivalent exact next action field",
+        "focused integration tests",
+        "updated benchmark feedback summary and execution ledger"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover resume discovery behavior.",
+        "UX validation verifies exact next action and no hidden live action.",
+        "Benchmark feedback summary advances or records boundary blocker for LSBFL-009.",
+        "git diff --check passes."
+      ],
+      "evidence_contract": {
+        "question": "Can another agent resume from a mission directory and know the exact next safe action without reading phase docs?",
+        "baseline": "Sidecars and merge status exist but run-public-source-workflow does not discover them.",
+        "primary_criterion": "Mission control exposes reviewed sidecar paths/statuses and exact next action while preserving approval gates.",
+        "veto_diagnostics": [
+          "Resume command runs live/API/source/download work implicitly.",
+          "Resume command marks readiness without merge status.",
+          "Resume guidance hides unresolved blockers."
+        ],
+        "not_concluded": [
+          "autonomous end-to-end workflow",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "Mission control exposes reviewed sidecar paths, reviewed_evidence_status.json, and next_action.json.",
+        "Benchmark feedback moves LSBFL-009 to partial_resume_orchestration and selects coverage ledgers next.",
+        "No hidden live/API/source/download actions are performed."
+      ],
+      "stop_conditions": [
+        "Resume discovery cannot be represented without ambiguous state.",
+        "Next safe action requires unapproved live/API/source/download access."
+      ]
+    },
+    {
+      "id": "M12_coverage_ledgers",
+      "name": "Coverage And Snowballing Ledgers",
+      "status": "completed_superseded_by_m16",
+      "objective": "Compose backward, forward, citation metadata, classification, and omitted-paper risk ledgers from existing local packet artifacts without live expansion.",
+      "entry_conditions": [
+        "M11 resume orchestration passes.",
+        "Benchmark feedback selects the coverage/snowballing ledger slice."
+      ],
+      "required_artifacts": [
+        "backward_snowball.json",
+        "forward_snowball.json",
+        "citation_venue_metadata.json",
+        "paper_classifications.json",
+        "omitted_paper_risks.json",
+        "coverage_manifest.json",
+        "ra survey coverage-ledgers"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover coverage-ledgers.",
+        "UX validation passes with coverage_ledgers_report.",
+        "Benchmark feedback advances to hostile review gate.",
+        "git diff --check passes."
+      ],
+      "evidence_contract": {
+        "question": "Can the workflow surface local coverage and snowballing state without inventing completeness or hidden live expansion?",
+        "baseline": "Packet artifacts contain frontiers and omission risks but no dedicated coverage ledgers.",
+        "primary_criterion": "Coverage ledgers are written with metadata-only non-support policies and open omission/frontier blockers preserved.",
+        "veto_diagnostics": [
+          "Live/API/source/download action occurs.",
+          "Citation counts or metadata support technical claims.",
+          "Blocked frontiers are treated as completeness.",
+          "ready_for_prose is true from ledger composition."
+        ],
+        "not_concluded": [
+          "literature completeness",
+          "technical claim support",
+          "source safety",
+          "live web coverage",
+          "final prose readiness",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "Benchmark feedback marks partial_coverage_ledgers and selects hostile review gate."
+      ],
+      "stop_conditions": [
+        "Coverage ledger creation requires unapproved live/API/source/download access.",
+        "Local artifacts cannot represent frontier and omission status unambiguously."
+      ]
+    },
+    {
+      "id": "M13_hostile_review_gate",
+      "name": "Hostile Review Gate",
+      "status": "completed_superseded_by_m16",
+      "objective": "Combine reviewed evidence and coverage ledgers into final hostile-review and readiness blocker artifacts.",
+      "entry_conditions": [
+        "M12 coverage ledgers pass.",
+        "Benchmark feedback selects LSBFL-010."
+      ],
+      "required_artifacts": [
+        "ra survey hostile-review",
+        "hostile_review_result.json",
+        "final_packet_readiness.json"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover hostile-review blocker preservation.",
+        "UX validation passes with hostile_review_report.",
+        "Benchmark feedback advances to mission cleanup.",
+        "git diff --check passes."
+      ],
+      "evidence_contract": {
+        "question": "Can the workflow make a final local gate decision without pretending the literature survey is complete?",
+        "baseline": "Reviewed evidence and coverage ledgers exist, but no single hostile-review artifact consumes both.",
+        "primary_criterion": "Hostile review emits exact blockers and refuses readiness while reviewed evidence, snowball frontiers, or omission risks remain blocked.",
+        "veto_diagnostics": [
+          "ready_for_prose true while blockers remain.",
+          "Product readiness or scientific correctness inferred from local plumbing.",
+          "Live/API/source/download/model-worker action occurs."
+        ],
+        "not_concluded": [
+          "product readiness",
+          "real-agent reliability",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "Benchmark feedback marks partial_hostile_review_gate and selects mission cleanup.",
+        "Final prose readiness remains false for current validation artifacts."
+      ],
+      "stop_conditions": [
+        "Final readiness decision cannot represent blockers unambiguously.",
+        "Resolving blockers requires unapproved live/API/source/download/model work."
+      ]
+    },
+    {
+      "id": "M14_mission_cleanup",
+      "name": "Mission Cleanup",
+      "status": "completed_superseded_by_m16",
+      "objective": "Align mission control, milestone JSON, execution ledgers, and benchmark feedback with actual local capability and remaining approval-bound blockers.",
+      "entry_conditions": [
+        "M13 hostile review gate passes for current blocker gate.",
+        "Benchmark feedback selects LSBFL-011."
+      ],
+      "required_artifacts": [
+        "patched mission-control document",
+        "patched milestone JSON",
+        "updated execution ledger",
+        "updated benchmark feedback ledger",
+        "goal closeout result"
+      ],
+      "required_checks": [
+        "Milestone JSON parses.",
+        "UX validation passes.",
+        "Benchmark feedback summary passes.",
+        "git diff --check passes."
+      ],
+      "evidence_contract": {
+        "question": "Is the single source of truth aligned with actual implemented capability and remaining blockers?",
+        "baseline": "Mission control previously named resume orchestration as active after the lane advanced through hostile review.",
+        "primary_criterion": "Mission control and milestones name completed local surfaces, active blockers, exact next action, and forbidden claims/actions.",
+        "veto_diagnostics": [
+          "Mission control claims final prose readiness.",
+          "Active next action hides approval-bound expansion.",
+          "Milestones contradict validation artifacts."
+        ],
+        "not_concluded": [
+          "product readiness",
+          "literature completeness",
+          "scientific correctness",
+          "final prose readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "Future agents can resume from mission control without rediscovering the local blocker state.",
+        "M15 may replace repeated public-discovery approval gates with a single user-friendly exploratory confirmation while preserving evidence boundaries."
+      ],
+      "stop_conditions": [
+        "Mission state cannot be reconciled with validation artifacts.",
+        "Closing blockers requires unapproved live/API/source/download/model work."
+      ]
+    },
+    {
+      "id": "M15_single_approval_exploratory_discovery_ux",
+      "name": "Single-Approval Exploratory Discovery UX",
+      "status": "completed_local_scope_superseded_by_m16",
+      "objective": "Make run-public-source-workflow ask once for exploratory public discovery, then try all permitted local, public web/API metadata, public archive, source-status, and bounded source/PDF/full-text discovery steps before asking again.",
+      "entry_conditions": [
+        "M14 mission cleanup aligned the local blocker gate with actual implementation.",
+        "User has clarified that RA is for brainstorming and should be exploratory with a friendly approval process."
+      ],
+      "required_artifacts": [
+        "single public-discovery confirmation field in mission_control.json",
+        "next_action.json that asks one ordinary-language confirmation question when discovery is not yet confirmed",
+        "run-public-source-workflow command option or prompt path that records the public-discovery confirmation",
+        "orchestration path that continues through available local/public discovery steps under the recorded confirmation",
+        "focused CLI tests proving the workflow does not require separate OpenAlex/arXiv/source-status/public-archive approvals",
+        "M15 phase result notes under docs/plans/literature_survey_m15_*_result_2026-07-10.md"
+      ],
+      "required_checks": [
+        "Focused CLI tests cover no-confirmation ask, confirmed public metadata search, and evidence non-promotion boundaries.",
+        "Phase 8 UX validation or successor validation verifies one-approval behavior.",
+        "Benchmark feedback summary selects the next true evidence blocker rather than another approval UX blocker.",
+        "Milestone JSON parses.",
+        "git diff --check passes for touched paths."
+      ],
+      "evidence_contract": {
+        "question": "Can RA behave like an exploratory brainstorming assistant that asks once for public discovery and then keeps going through all bounded local/public means?",
+        "baseline": "Current run-public-source-workflow stops at multiple approval-shaped gates for metadata, source intake, and expansion.",
+        "primary_criterion": "A mission with public-discovery confirmation records the scope once and proceeds through available bounded local/public discovery without repeated provider-shaped approvals.",
+        "veto_diagnostics": [
+          "The workflow runs live public discovery before recording confirmation.",
+          "The workflow asks separate approvals for ordinary OpenAlex, arXiv, local cache, public archive, or source-status steps within the same mission.",
+          "The workflow uses credentials, private databases, paid model-worker review, hidden evaluator material, unbounded crawling, or writes outside the mission output directory.",
+          "Metadata, abstracts, source availability, or unreviewed downloaded text are promoted to technical claim support.",
+          "ready_for_prose is true while hostile-review, reviewed-evidence, source-safety, or omission blockers remain."
+        ],
+        "not_concluded": [
+          "final prose readiness",
+          "literature completeness",
+          "scientific correctness",
+          "product readiness",
+          "technical claim support from metadata or source availability alone"
+        ]
+      },
+      "handoff_conditions": [
+        "Future missions can start from an idea or paper and ask one clear public-discovery question.",
+        "After confirmation, next_action.json reports true evidence or implementation blockers instead of repeated public-discovery approvals.",
+        "Confirmed public metadata orchestration exists for the current bounded OpenAlex/arXiv metadata surface.",
+        "Missing source/status is represented as an implementation/artifact blocker covered by the recorded mission confirmation, not a second ordinary approval.",
+        "Hostile-review and reviewed-evidence gates still block final prose until claim/source/omission evidence is reviewed."
+      ],
+      "stop_conditions": [
+        "A safe bounded public-discovery scope cannot be represented as one mission confirmation.",
+        "Implementing the UX requires credentials, private databases, paid model-worker review, hidden evaluator material, or unbounded crawling.",
+        "Tests cannot distinguish exploratory discovery evidence from technical claim support."
+      ]
+    },
+    {
+      "id": "M16_local_integrated_alpha",
+      "name": "Local Integrated Alpha",
+      "status": "passed_local_engineering_git_integration_pending",
+      "objective": "Integrate mission identity, one-confirmation orchestration, exact lineage, citation and omission authority, reviewed packet composition, hostile review, source and claim evidence semantics, and persistent positive/adversarial offline validation.",
+      "entry_conditions": [
+        "M15 single-confirmation orchestration exists.",
+        "The dirty worktree baseline is inventoried and preserved."
+      ],
+      "required_artifacts": [
+        "docs/plans/literature_survey_m16_end_to_end_closure_master_program_2026-07-10.md",
+        "docs/plans/literature_survey_m16_phase10_offline_e2e_result_2026-07-13.md",
+        "docs/plans/literature_survey_m16_phase10_local_close_record_2026-07-13.md",
+        "docs/validation/literature_survey_m16_phase10_2026-07-13/change_manifest.json",
+        "docs/reviews/literature_survey_m16_phase10_implementation_review_verdict_round5_2026-07-13.md"
+      ],
+      "required_checks": [
+        "One positive persistent offline mission reaches the exact terminal and replays byte-identically.",
+        "Ten adversarial missions stop at their exact gates with zero forbidden calls and zero unexpected mutations.",
+        "The frozen direct manifest and transitive inventory replay without mismatches.",
+        "The final independent read-only implementation review agrees."
+      ],
+      "evidence_contract": {
+        "question": "Does the local integrated alpha enforce the declared evidence state machine end to end?",
+        "baseline": "M15 local orchestration plus the preserved dirty-tree inventory.",
+        "primary_criterion": "Phases 0-10 pass their exact local handoffs and the persistent offline matrix passes.",
+        "veto_diagnostics": [
+          "False readiness.",
+          "Stale or foreign authority accepted.",
+          "Confirmation loss or invention.",
+          "Missing or duplicate review decisions accepted.",
+          "Provider, network, model, GPU, or outside-write tripwire fires."
+        ],
+        "not_concluded": [
+          "Git reproducibility",
+          "live reliability",
+          "authenticated human review",
+          "source safety in fact",
+          "claim truth",
+          "literature completeness",
+          "scientific correctness",
+          "product or release readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M17 receives the frozen M16 mission-state contract and the verified requirement that current CLI and mission state require at least one seed.",
+        "M19 remains separately human-gated and cannot be inferred from this pass."
+      ],
+      "stop_conditions": [
+        "Frozen M16 hashes no longer replay.",
+        "A later artifact attempts to reinterpret fixture evidence as live or human evidence."
+      ]
+    },
+    {
+      "id": "M17_idea_topic_bootstrap",
+      "name": "Idea And Topic Bootstrap",
+      "status": "completed_local_engineering_git_integration_pending",
+      "objective": "Allow the north-star command to start honestly from an idea or topic without requiring the user to invent a paper seed, while preserving deterministic mission identity, confirmation, lineage, and exact bootstrap-candidate authority.",
+      "entry_conditions": [
+        "M16 is passed and its frozen hashes match before any M17 product edit.",
+        "The current mismatch is recorded: CLI --seed is required and mission_state rejects an empty seed set although the mission promises idea/topic starts.",
+        "No live provider or Git action is needed for the initial implementation and fixture validation."
+      ],
+      "required_artifacts": [
+        "A reviewed M17 subplan defining topic-only mission identity, bootstrap states, candidate selection, resume, and migration semantics.",
+        "An immutable pre-edit M16 historical snapshot that copies every hash-bound file M17 will change and replays the M16 manifest at the entry cutoff.",
+        "CLI and mission-state support for an explicitly empty initial paper-seed set or another equally honest idea/topic input representation.",
+        "Fixture-backed topic-only and idea-text bootstrap authority with exact selected candidates and nonclaims.",
+        "Focused positive, ambiguity, empty-result, confirmation, resume, stale, and adversarial tests.",
+        "A cumulative M17 successor manifest binding the current M16+M17 product, schemas, tests, fixtures, documentation, and inherited historical snapshot."
+      ],
+      "required_checks": [
+        "Topic-only invocation creates a stable mission before public confirmation without inventing a paper identity.",
+        "After confirmation, bootstrap discovery yields a lineage-bound selected seed candidate set or an exact empty/ambiguous boundary stop.",
+        "Resume preserves the original input mode and rejects changed topic, idea, or selected bootstrap authority.",
+        "Existing explicit identifier/title seed behavior and all M16 evidence boundaries remain unchanged.",
+        "The pre-edit historical snapshot still matches the old M16 hashes, while the current candidate matches the separate M17 successor manifest."
+      ],
+      "evidence_contract": {
+        "question": "Can a user genuinely start the one-command workflow from an idea or topic without a fabricated seed and without weakening mission identity?",
+        "baseline": "M16 requires one or more explicit paper seeds at both CLI and mission-state layers.",
+        "primary_criterion": "Fixture-backed idea/topic missions reach exact bootstrap selection or honest no-candidate/ambiguity terminals, persist stable lineage, and preserve all explicit-seed behavior.",
+        "veto_diagnostics": [
+          "The topic text is silently treated as a paper title or identifier.",
+          "A mission changes identity when bootstrap candidates arrive.",
+          "Discovery occurs before confirmation.",
+          "Empty or ambiguous bootstrap results disappear or become false readiness.",
+          "Existing explicit-seed resume or lineage behavior regresses."
+        ],
+        "not_concluded": [
+          "live topic discovery quality",
+          "literature completeness",
+          "scientific importance",
+          "product readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M18 receives passing explicit-seed and idea/topic local matrices, the immutable M16 historical snapshot, and the cumulative M17 successor manifest.",
+        "Live bootstrap quality remains for M19-M20 and is not inferred from fixtures."
+      ],
+      "stop_conditions": [
+        "A stable topic-only mission identity cannot be represented without breaking supported explicit-seed resume.",
+        "Bootstrap selection cannot distinguish empty, ambiguous, and selected outcomes exactly.",
+        "Implementation would require live execution or Git mutation before the reviewed local contract passes."
+      ]
+    },
+    {
+      "id": "M18_reproducible_git_integration",
+      "name": "Reproducible Git Integration",
+      "status": "completed_local_git_install_reproducibility",
+      "objective": "Define and execute a bounded integration of the cumulative M16+M17 product, schemas, tests, fixtures, documentation, historical evidence, and governing artifacts so an isolated clean checkout reproduces both idea/topic and explicit-paper workflow modes.",
+      "entry_conditions": [
+        "M17 idea/topic bootstrap and the inherited M16 explicit-seed matrix pass under the cumulative M17 successor manifest.",
+        "The immutable M16 historical snapshot replays the old M16 manifest; current working paths are governed by the M17 successor manifest and need not retain pre-M17 hashes.",
+        "A path-complete integration manifest distinguishes product, tests, fixtures, canonical evidence, diagnostic-only roots, and unrelated user work.",
+        "The user separately authorizes the exact staging and commit procedure before any Git mutation."
+      ],
+      "required_artifacts": [
+        "A reviewed path-complete Git integration subplan.",
+        "An exact cumulative include/exclude manifest covering all M16 and M17 runtime, schema, test, fixture, documentation, and evidence dependencies, not only Phase 10 files.",
+        "An isolated clean-checkout or worktree validation report tied to an identified commit.",
+        "Install/import/CLI/full-local-gate logs from the isolated checkout."
+      ],
+      "required_checks": [
+        "The immutable historical snapshot matches the old M16 manifest and the current tree matches the M17 successor manifest before integration.",
+        "Every M17 runtime, schema, test, fixture, and documentation path is included or explicitly justified as non-runtime historical evidence.",
+        "No diagnostic-only or unrelated dirty path is included.",
+        "A clean checkout installs without depending on untracked files.",
+        "The clean checkout passes topic/idea bootstrap and explicit-seed E2E plus full unit, CLI, script, static, and diff gates."
+      ],
+      "evidence_contract": {
+        "question": "Can the completed local alpha be reproduced from Git without depending on the current dirty workspace?",
+        "baseline": "M16 passed on a heavily dirty, partly untracked worktree and M17 creates a cumulative successor after preserving the historical M16 bytes it changes.",
+        "primary_criterion": "An identified clean checkout contains every cumulative M16+M17 dependency and passes both input modes plus the predeclared local gate matrix.",
+        "veto_diagnostics": [
+          "An untracked dependency is required.",
+          "Unrelated user work or diagnostic-only evidence is staged.",
+          "The clean checkout changes the frozen M16 semantics.",
+          "Any destructive Git operation is required."
+        ],
+        "not_concluded": [
+          "live behavior",
+          "human review quality",
+          "scientific correctness",
+          "product readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M19 receives an immutable clean-checkout commit and passing local manifest.",
+        "No live approval is implied by Git integration."
+      ],
+      "stop_conditions": [
+        "The exact integration set cannot be separated from unrelated user work.",
+        "Clean-checkout validation fails for a missing or divergent dependency.",
+        "The required Git mutation has not been explicitly authorized."
+      ]
+    },
+    {
+      "id": "M19_bounded_live_metadata_validation",
+      "name": "Bounded Live Metadata Validation",
+      "status": "completed_bounded_live_metadata_engineering",
+      "objective": "Converge the transport-hardening plan and run one explicitly approved, one-shot, metadata-only OpenAlex/arXiv integration smoke with closed HTTP, time, byte, retry, redirect, proxy, IPC, artifact, and write boundaries.",
+      "entry_conditions": [
+        "M18 clean-checkout authority exists.",
+        "The dedicated transport/supervisor hardening subplan, code, tests, hashes, and parent Phase 11 plan receive independent AGREE verdicts.",
+        "The user gives fresh exact-scope approval after all hashes and endpoints are frozen."
+      ],
+      "required_artifacts": [
+        "Reviewed Phase 11 hardening subplan and result.",
+        "Final reviewed Phase 11 parent plan and exact approval artifact.",
+        "One-shot request ledger, run manifest, boundary classification, provider outcome, and result review."
+      ],
+      "required_checks": [
+        "No network occurs during preflight or local hardening tests.",
+        "The one approved launch stays inside exact endpoint, query, request, byte, time, process, and write caps.",
+        "Boundary validity is classified separately from provider availability and result counts.",
+        "There is no automatic rerun after any outcome."
+      ],
+      "evidence_contract": {
+        "question": "Does the reviewed metadata transport stay inside its exact boundary, and what integration outcome occurs for this one attempt?",
+        "baseline": "M16 fixture-backed V2 metadata behavior from a reproducible checkout.",
+        "primary_criterion": "The boundary is valid and the attempt produces a replay-valid available or honest unavailable provider outcome.",
+        "veto_diagnostics": [
+          "Unapproved endpoint, method, query, proxy, redirect, retry, request, byte, time, process, or write behavior.",
+          "Missing or ambiguous approval.",
+          "Provider output cannot be represented by the closed schema."
+        ],
+        "not_concluded": [
+          "source retrieval",
+          "citation recall",
+          "provider reliability beyond one attempt",
+          "claim support",
+          "literature completeness",
+          "product readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M20 receives a reviewed transport primitive and one bounded live metadata result.",
+        "Source, PDF/full-text, and broader citation routes remain unauthorized."
+      ],
+      "stop_conditions": [
+        "Any preflight invariant or exact hash fails.",
+        "The plan does not converge after the declared review cap.",
+        "Fresh exact live approval is absent."
+      ]
+    },
+    {
+      "id": "M20_live_discovery_and_citation_frontier",
+      "name": "ArXiv Source-Grounded Backward Discovery",
+      "status": "completed_m20_arxiv_source_grounded_backward_discovery",
+      "objective": "Establish bounded live arXiv source intake for the exact retained seed, extract canonical backward-reference candidates, classify their unreviewed state, and preserve explicit omission risks and deterministic replay without requiring forward-citation metadata.",
+      "entry_conditions": [
+        "M19 exact seed identity evidence exists and is locally replayable.",
+        "The arXiv-only governance migration and 500 MB attempt plan control this milestone.",
+        "Focused and related local tests, compile, static boundary scans, JSON checks, and skeptical audit pass before the one authorized invocation."
+      ],
+      "required_artifacts": [
+        "One fresh versioned evidence root with run manifest, route ledger, retained accepted arXiv source body, and artifact inventory.",
+        "Combined backward evidence and complete preliminary candidate classifications.",
+        "Separate source-support, citation/venue, backward-snowball, forward-snowball, claim-support, and omitted-paper-risk ledgers.",
+        "Offline replay record tied to the exact retained source bytes.",
+        "Terminal result and M20 close or failure record."
+      ],
+      "required_checks": [
+        "Exactly one arXiv source request is dispatched and no credential interface or additional route exists.",
+        "Source and final evidence-root sizes each remain at or below 500,000,000 bytes.",
+        "Archive paths, types, members, declared expansion, relevant-member bytes, and candidate count remain inside the reviewed caps.",
+        "At least one canonical DOI/arXiv backward candidate is retained and every candidate remains NOT_CHECKED with SOURCE_GAP_BLOCKER until primary-source inspection.",
+        "Forward coverage is unavailable_out_of_scope with blocking=false and is never represented as zero or complete.",
+        "Raw source is confined to the accepted-body location and deterministic offline replay passes."
+      ],
+      "evidence_contract": {
+        "question": "Can exact public arXiv seed source bytes yield safe, replayable backward-reference candidates and an honest omission-risk record under the revised G3 scope?",
+        "baseline": "M19 exact seed identity plus local adversarial arXiv archive fixtures; the earlier 20 MB source attempt is resource-boundary evidence only.",
+        "primary_criterion": "The retained exact seed source passes bounded archive inspection, yields a non-empty canonical backward set with complete preliminary classifications and scholarly ledgers, confines raw bytes, and passes offline replay.",
+        "veto_diagnostics": [
+          "Identity, HTTPS/redirect, content type, response/root, archive, member, expansion, path/type, identifier, raw-confinement, or replay validation fails.",
+          "The backward candidate layer is empty or a candidate lacks an explicit preliminary classification and next action.",
+          "Unavailable forward coverage is fabricated as zero, complete, or blocking."
+        ],
+        "not_concluded": [
+          "forward-citation coverage",
+          "literature completeness",
+          "candidate relevance",
+          "primary technical support",
+          "retraction or version safety",
+          "scientific correctness"
+        ]
+      },
+      "handoff_conditions": [
+        "On a pass, revised M20/G3 closes and M21 planning receives the exact retained seed source, candidate classifications, and omission ledgers.",
+        "Forward coverage remains a visible non-blocking limitation and is not reintroduced as a prerequisite.",
+        "M21 is refreshed and reviewed but not executed under the M20 authorization."
+      ],
+      "stop_conditions": [
+        "A declared scientific or safety veto fires during the single invocation.",
+        "The evidence root is invalid, corrupt, over cap, or cannot be replayed.",
+        "The single authorized invocation completes with any terminal outcome; no retry or rerun follows."
+      ]
+    },
+    {
+      "id": "M21_live_source_status_and_anchor_intake",
+      "name": "Live Source Status And Anchor Intake",
+      "status": "completed_m21_g4_six_parsed_one_explicit_source_gap",
+      "objective": "Implement reviewed production source-status and capped public source/PDF/full-text transports that create mission-local records and checked primary technical anchors while preserving quarantine and source-gap semantics.",
+      "entry_conditions": [
+        "M20 revised-scope close authority exists with one exact retained seed source, 62 preliminary backward candidates, 195 identifier-free bibliography units, six scholarly ledgers, and passing replay.",
+        "A separate reviewed and approved source-access plan names domains, artifact types, licenses, caps, parsers, write root, retention, and privacy handling."
+      ],
+      "required_artifacts": [
+        "Production MissionSourceCapability adapters and closed outcome schemas.",
+        "Mission-local source/status records with content hashes, versions, provenance, and license/access outcomes.",
+        "Anchor inventories for sections, equations, theorems, and derivations where genuinely available.",
+        "Quarantine, unavailable, parser-failure, and source-gap records."
+      ],
+      "required_checks": [
+        "No source action occurs outside approved domains, types, caps, or mission root.",
+        "Unavailable or unparsed material cannot become inspected evidence.",
+        "Technical anchors replay to exact source bytes and versions.",
+        "Parser output is not promoted to correctness without human checking."
+      ],
+      "evidence_contract": {
+        "question": "Can selected real papers yield exact source-status and checked-anchor candidates through bounded mission-local transports?",
+        "baseline": "M16 injectable fixture source capability and local anchor contracts.",
+        "primary_criterion": "Each selected source has an exact honest outcome and every admitted anchor binds to inspected bytes and location.",
+        "veto_diagnostics": [
+          "Outside-root write or unapproved retrieval.",
+          "Wrong version or stale source accepted.",
+          "Unavailable or parser-only content represented as checked support.",
+          "Quarantine or retraction signal ignored."
+        ],
+        "not_concluded": [
+          "claim truth",
+          "mathematical correctness",
+          "source safety without review",
+          "literature completeness"
+        ]
+      },
+      "handoff_conditions": [
+        "M22 receives real, hash-bound source observations and anchor candidates plus all source gaps.",
+        "No review decision is synthesized by transport code."
+      ],
+      "stop_conditions": [
+        "Source rights, privacy, or access boundary is unclear.",
+        "The exact source version cannot be established.",
+        "The parser cannot preserve auditable source locations."
+      ]
+    },
+    {
+      "id": "M22_human_attested_review_and_real_missions",
+      "name": "Human-Attested Review And Real Missions",
+      "status": "ready_for_genuine_human_participation",
+      "objective": "Provide an explicit operator workflow for genuine human claim, source-safety, omission, and workflow-blocker decisions, then execute a predeclared representative real-mission matrix through merge, reviewed packet, hostile review, and terminal state.",
+      "entry_conditions": [
+        "M21 real source observations and anchors exist.",
+        "The human-review identity, attestation, conflict-of-interest, correction, and audit-log policy is approved.",
+        "Mission topics, seeds, caps, success criteria, vetoes, and human roles are predeclared before results."
+      ],
+      "required_artifacts": [
+        "Operator-facing review UI or documented CLI/form workflow with immutable attestation receipts.",
+        "Human claim, source-safety, omission, and workflow-blocker decision sets.",
+        "At least one full real idea/topic mission plus predeclared identifier, title, sparse-source, provider-partial, and blocked-evidence cases.",
+        "Per-mission manifests, result notes, uncertainty/nonclaim tables, and independent audits."
+      ],
+      "required_checks": [
+        "Fixture/model decisions cannot impersonate human attestation.",
+        "A predeclared real idea/topic start traverses the production bootstrap route and is not substituted by a title seed.",
+        "Every required queue item has exactly one current decision and reviewer identity.",
+        "At least one real mission reaches terminal_ready_for_reviewed_prose_within_recorded_scope without bypassing a veto.",
+        "Other missions record honest terminal or boundary stops; provider failure alone does not invalidate the harness.",
+        "A second operator can follow the handoff without reconstructing hidden state."
+      ],
+      "evidence_contract": {
+        "question": "Can real evidence plus genuine human decisions drive the workflow to an auditable reviewed packet or honest stop?",
+        "baseline": "M16 fixture-labelled decisions and M21 real source/anchor evidence.",
+        "primary_criterion": "The predeclared mission matrix preserves exact lineage and review authority, with at least one successful within-scope idea/topic-start reviewed packet and no false readiness.",
+        "veto_diagnostics": [
+          "Model or fixture output is labelled human.",
+          "A technical claim lacks a checked primary anchor or project derivation.",
+          "A source-safety, omission, or workflow blocker is bypassed.",
+          "Results are used to change success criteria after observation."
+        ],
+        "not_concluded": [
+          "literature completeness",
+          "universal scientific correctness",
+          "autonomous review",
+          "provider reliability at scale",
+          "production readiness"
+        ]
+      },
+      "handoff_conditions": [
+        "M23 receives a clean-install real-mission packet, operator evidence, known limitations, and failure-recovery record.",
+        "Any unresolved serious blocker remains a documented product limitation."
+      ],
+      "stop_conditions": [
+        "No genuine human reviewer is available for the declared decisions.",
+        "Required evidence cannot be inspected or cited at the needed granularity.",
+        "The mission matrix cannot distinguish harness invalidity from a candidate mission failure."
+      ]
+    },
+    {
+      "id": "M23_north_star_acceptance_and_operational_closeout",
+      "name": "North-Star Acceptance And Operational Closeout",
+      "status": "pending",
+      "objective": "Make the clean-install one-command workflow usable by another operator, verify bounded recovery and documentation, reconcile all control artifacts, and close the north-star mission only within its explicit exploratory scope.",
+      "entry_conditions": [
+        "M22 has at least one successful human-reviewed real mission and a representative set of honest boundary outcomes.",
+        "All known high-severity correctness and boundary defects are resolved or explicitly declared as release blockers."
+      ],
+      "required_artifacts": [
+        "Updated README, installation, quickstart, operator-review, troubleshooting, privacy, and recovery documentation.",
+        "Independent documentation-only clean-install acceptance from an idea/topic start to terminal_ready_for_reviewed_prose_within_recorded_scope, plus separate acceptance cases for honest boundary stops.",
+        "Release manifest, compatibility matrix, known-limitations register, and final mission close record.",
+        "Reconciled mission control, milestone JSON, reset memo, and product capability statement."
+      ],
+      "required_checks": [
+        "A new operator can install and discover the command from documentation alone.",
+        "The new operator takes an idea/topic start through production bootstrap and reaches the reviewed terminal without hidden manual reconstruction.",
+        "The workflow asks one bounded discovery confirmation and does not hide later genuine human review boundaries.",
+        "Resume, interruption, provider-partial, source-gap, review correction, and stale-artifact recovery are demonstrated.",
+        "The final capability statement matches code and evidence exactly."
+      ],
+      "evidence_contract": {
+        "question": "Has the north-star exploratory workflow become reproducible, usable, and honestly bounded for another operator?",
+        "baseline": "M22 engineering and real-mission evidence without final operator/release closeout.",
+        "primary_criterion": "Independent documentation-only clean-install acceptance takes an idea/topic start to terminal_ready_for_reviewed_prose_within_recorded_scope; separate cases reach their exact expected boundaries; all control artifacts agree.",
+        "veto_diagnostics": [
+          "Hidden manual state or undocumented command is required.",
+          "A known serious correctness or boundary defect is omitted.",
+          "Documentation claims completeness, scientific correctness, autonomous review, or production scale without evidence.",
+          "Mission-control and machine-readable milestones disagree."
+        ],
+        "not_concluded": [
+          "literature completeness",
+          "scientific correctness for all claims or domains",
+          "unattended production operation",
+          "provider exhaustiveness",
+          "permission for credentials, private, paid, or unbounded sources"
+        ]
+      },
+      "handoff_conditions": [
+        "The north-star mission may be marked accomplished only when this milestone passes and the final close record names its exact scope and nonclaims."
+      ],
+      "stop_conditions": [
+        "Independent acceptance cannot reproduce the documented workflow.",
+        "A high-severity evidence, privacy, review-authenticity, or boundary defect remains.",
+        "The requested capability would require expanding the north-star scope without a new mission decision."
+      ]
+    }
+  ]
+}

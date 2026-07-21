@@ -1,0 +1,43 @@
+{
+  "endpoint": "source-status",
+  "request_id": "source-status-transport-hmc",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "statuses": [
+    {
+      "paper_key": "thmc_seed_001",
+      "reason": null,
+      "source_status": "available_fixture"
+    },
+    {
+      "paper_key": "thmc_ref_001",
+      "reason": null,
+      "source_status": "metadata_only_fixture"
+    },
+    {
+      "paper_key": "thmc_ref_002",
+      "reason": null,
+      "source_status": "metadata_only_fixture"
+    },
+    {
+      "paper_key": "thmc_cite_001",
+      "reason": null,
+      "source_status": "metadata_only_fixture"
+    },
+    {
+      "paper_key": "thmc_adj_001",
+      "reason": null,
+      "source_status": "metadata_only_fixture"
+    },
+    {
+      "paper_key": "thmc_proxy_001",
+      "reason": "benchmark proxy row is not checked source support",
+      "source_status": "metadata_only_fixture"
+    },
+    {
+      "paper_key": "thmc_noise_001",
+      "reason": "false-positive topic hit",
+      "source_status": "metadata_only_fixture"
+    }
+  ],
+  "task_id": "transport_hmc_dsge_replay"
+}

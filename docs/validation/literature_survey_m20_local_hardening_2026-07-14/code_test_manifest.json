@@ -1,0 +1,22 @@
+{
+  "schema_version": "ra-survey-m20a-code-test-manifest-v1",
+  "status": "blocked_review_nonconvergence",
+  "baseline_head": "ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5",
+  "files": [
+    {
+      "path": "src/research_assistant/survey/discovery_capability.py",
+      "sha256": "ceea83a8efcfb21d40533b0f42ff75e8b4cc0d0131916fb080a77ca2278189ba",
+      "role": "route_independent_runtime_candidate"
+    },
+    {
+      "path": "tests/unit/test_literature_survey_m20_discovery.py",
+      "sha256": "ce6cae516b0427ee1fa214ec64d2b84487f750581e5e7629b71056ebe120bd5c",
+      "role": "catching_and_automaton_tests"
+    }
+  ],
+  "candidate_automaton_sha256": "4ef966fd41b7544e30e76fb5a51595c49bdf97167fffab47cff06ca89f756775",
+  "candidate_automaton_authoritative": false,
+  "permitted_tuple_count": 40,
+  "forbidden_tuple_count": 254,
+  "forbidden_tuples_exhaustively_tested": false
+}

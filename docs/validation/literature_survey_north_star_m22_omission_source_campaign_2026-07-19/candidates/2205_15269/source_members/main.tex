@@ -1,0 +1,1888 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2023_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+% \input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+
+
+    %  \usepackage[nonatbib]{neurips_2022}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{changepage}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[ruled,vlined]{algorithm2e}
+% \bibliographystyle{unsrtnat}
+\usepackage{wasysym}
+\usepackage{mathtools}
+\usepackage{wrapfig}
+\usepackage{multirow}
+\usepackage{wasysym}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{caption}
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argsup}{arg\,sup}
+\DeclareMathOperator*{\arginf}{arg\,inf}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\CVar}{CVar}
+\DeclareMathOperator{\Dist}{Dist}
+\DeclareMathOperator{\Cost}{Cost}
+\DeclareMathOperator{\Proj}{Proj}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+
+\everypar{\looseness=-1}
+
+\allowdisplaybreaks
+
+\iclrfinalcopy
+
+
+
+
+\title{Kernel  Neural Optimal Transport}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Alexander Korotin \\
+Skolkovo Institute of Science and Technology\\
+Artificial Intelligence Research Institute\\
+Moscow, Russia \\
+\texttt{a.korotin@skoltech.ru} \\
+\And
+Daniil Selikhanovych \\
+Skolkovo Institute of Science and Technology \\
+Moscow, Russia \\
+\texttt{selikhanovychdaniil@gmail.com} \\
+\AND
+Evgeny Burnaev \\
+Skolkovo Institute of Science and Technology\\
+Artificial Intelligence Research Institute\\
+Moscow, Russia \\
+\texttt{e.burnaev@skoltech.ru}
+}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\vspace{-6mm}\begin{abstract}
+We study the Neural Optimal Transport (NOT) algorithm which uses the general optimal transport formulation and learns stochastic transport plans. We show that NOT with the weak quadratic cost may learn fake plans which are not optimal. To resolve this issue, we introduce kernel weak quadratic costs. We show that they provide improved theoretical guarantees and practical performance. We test NOT with kernel costs on the unpaired image-to-image translation task.
+\end{abstract}
+
+\begin{figure}[!h]\vspace{-2mm}
+\hspace{-9mm}\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_female_anime_128.png}
+\vspace{-3mm}\caption{\centering Celeba (female) $\rightarrow$ anime, $128\times 128$.}
+\label{fig:celeba-anime-128}
+\end{subfigure}\hspace{2mm}
+\begin{subfigure}[b]{0.54\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_128.png}
+\vspace{-3mm}\caption{\centering Outdoor $\rightarrow$ church, $128\times 128$.}
+\label{fig:outdoor-church-128}
+\end{subfigure}
+
+\vspace{-2mm}\caption{Unpaired image-to-image translation (one-to-many) by Kernel Neural Optimal Transport.}
+\label{fig:anime-church}\vspace{-3mm}
+\end{figure}
+
+
+\vspace{-2mm}\section{Introduction}
+\label{sec-intro}
+
+\vspace{-2.5mm}Neural methods have become widespread in Optimal Transport (OT) starting from the introduction of the large-scale OT \citep{genevay2016stochastic,seguy2018large} and the Wasserstein Generative Adversarial Networks \citep{arjovsky2017wasserstein} (WGANs). Most existing methods employ the \textbf{OT cost} as the loss function to update the generator in GANs \citep{gulrajani2017improved,sanjabi2018convergence,petzka2018on}. In contrast to these approaches, \citep{korotin2023neural,rout2022generative,daniels2021score,fan2022scalable,korotin2023neural} have recently proposed scalable neural methods to compute the \textbf{OT plan} (or map) and use it directly as the generative model.\clearpage
+
+\vspace{-3mm}In this paper, we focus on the Neural Optimal Transport (NOT) algorithm \citep{korotin2023neural}. It is capable of learning optimal deterministic (one-to-one) and stochastic (one-to-many) maps and plans for quite general \textbf{strong} and \textbf{weak} \citep{gozlan2017kantorovich,gozlan2020mixture,backhoff2019existence} transport costs. In practice, the authors of NOT test it on the unpaired image-to-image translation task \citep[\wasyparagraph 5]{korotin2023neural} with the \textit{weak quadratic cost} \citep[\wasyparagraph 5.2]{alibert2019new}.
+
+\vspace{-1mm}\textbf{Contributions.} We conduct the theoretical and empirical analysis of the saddle point optimization problem of NOT algorithm for the weak quadratic cost. We show that it may have a lot of \textit{fake solutions} which do not provide an OT plan. We show that NOT indeed might recover them (\wasyparagraph\ref{sec-issues-w2}). We propose \textit{weak kernel quadratic costs} and prove that they solve this issue (\wasyparagraph\ref{sec-kernel-w2}). Practically, we show how NOT with kernel costs performs on the \textit{unpaired image-to-image translation} task (\wasyparagraph\ref{sec-evaluation}).
+
+\vspace{-1mm}\textbf{Notations.} We use $\mathcal{X},\mathcal{Y},\mathcal{Z}$ to denote Polish spaces and $\mathcal{P}(\mathcal{X}), \mathcal{P}(\mathcal{Y}),\mathcal{P}(\mathcal{Z})$ to denote the respective sets of probability distributions on them. For a distribution $\mathbb{P}$, we denote its mean and covariance matrix by $m_{\mathbb{P}}$ and $\Sigma_{\mathbb{P}}$, respectively. We denote the set of probability distributions on $\mathcal{X} \times \mathcal{Y}$ with marginals $\mathbb{P}$ and $\mathbb{Q}$ by $\Pi(\mathbb{P},\mathbb{Q})$.
+For a measurable map $T:  \mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$ (or $T_{x}:\mathcal{Z}\rightarrow\mathcal{Y}$), we denote the associated push-forward operator by $T\sharp$ (or $T_{x}\sharp$). We use $\mathcal{H}$ to denote a Hilbert space (feature space). Its inner product is $\langle\cdot,\cdot\rangle_{\mathcal{H}}$, and $\|\cdot\|_{\mathcal{H}}$ is the corresponding norm. For a function $u:\mathcal{Y}\rightarrow\mathcal{H}$ (feature map), we denote the respective positive definite symmetric (PDS) kernel by $k(y,y')\stackrel{def}{=}\langle u(y),u(y')\rangle_{\mathcal{H}}$. A PDS kernel $k:\mathcal{Y}\times\mathcal{Y}\rightarrow\mathbb{R}$ is called characteristic if the kernel mean embedding $\mathcal{P}(\mathcal{Y})\ni\mu\mapsto u(\mu)\stackrel{def}{=}\int_{\mathcal{X}}u(y)d\mu(y)\in\mathcal{H}$ is a one-to-one mapping. For a function $\phi: \mathbb{R}^D\rightarrow \mathbb{R}\cup\{\infty\}$, we denote its convex conjugate by $\overline{\phi}(y) \stackrel{def}{=} \sup_{x\in\mathbb{R}^{D}}\{\langle x,y \rangle- \phi\left(x\right)\}$. 
+% It is convex, even if $\phi$ is not.
+
+\vspace{-3mm}\section{Background on Optimal Transport}
+\label{sec-background-ot}
+\vspace{-2mm}\textbf{Strong OT formulation}. For distributions $\mathbb{P}\in\mathcal{P}(\mathcal{X})$, $\mathbb{Q}\in \mathcal{P}(\mathcal{Y})$ and a cost function $c:\mathcal{X}\times\mathcal{Y}\rightarrow\mathbb{R}$, Kantorovich's \citep{villani2008optimal} primal formulation of the optimal transport cost (Figure \ref{fig:strong-ot}) is
+\begin{equation}\text{Cost}(\mathbb{P},\mathbb{Q})\stackrel{\text{def}}{=}\inf_{\pi\in\Pi(\mathbb{P},\mathbb{Q})}\int_{\mathcal{X}\times\mathcal{Y}}c(x,y)d\pi(x,y),
+\label{ot-primal-form}
+\end{equation}
+\vspace{-0.5mm}where the minimum is taken over all transport plans $\pi$, i.e., distributions on $\mathcal{X}\times\mathcal{Y}$ whose marginals are $\mathbb{P}$ and $\mathbb{Q}$. The optimal $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ is called the optimal transport \textit{plan}. A popular example of an OT cost for $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$ is the Wasserstein-2 ($\mathbb{W}_{2}^{2}$), i.e., formulation \eqref{ot-primal-form} for $c(x,y)=\frac{1}{2}\|x-y\|^{2}$.
+\begin{figure}[!h]
+\vspace{-2mm}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{pics/OT_plan_def_v2.png}
+\caption{\centering Strong OT formulation \eqref{ot-primal-form}.}
+\label{fig:strong-ot}
+\end{subfigure}
+% \hspace{2mm}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{pics/OT_plan_weak_orange_def_v2.png}
+\caption{\centering Weak OT formulation \eqref{ot-primal-form-weak}.}
+\label{fig:weak-ot}
+\end{subfigure}
+
+\vspace{-2mm}\caption{Strong (Kantorovich's) and weak \citep{gozlan2017kantorovich} optimal transport formulations.}\vspace{-1mm}
+\end{figure}
+
+\vspace{-2mm}\textbf{Weak OT formulation}. Let ${C:\mathcal{X}\times\mathcal{P}(\mathcal{Y})\rightarrow\mathbb{R}}$ be a \textit{weak} cost \citep{gozlan2017kantorovich}, i.e., a function which takes a point $x\in\mathcal{X}$ and a distribution of $y\in\mathcal{Y}$  as inputs. The weak OT cost between $\mathbb{P},\mathbb{Q}$ is
+\begin{equation}\text{Cost}(\mathbb{P},\mathbb{Q})\stackrel{\text{def}}{=}\inf_{\pi\in\Pi(\mathbb{P},\mathbb{Q})}\int_{\mathcal{X}}C\big(x,\pi(\cdot|x)\big)d\pi(x),
+\label{ot-primal-form-weak}
+\end{equation}
+where $\pi(\cdot|x)$  denotes the conditional distribution (Figure \ref{fig:weak-ot}). Weak OT \eqref{ot-primal-form-weak} subsumes strong OT formulation \eqref{ot-primal-form} for $C(x,\mu)=\int_{\mathcal{Y}}c(x,y)d\mu(y)$. An example of a weak OT cost for $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$ is the $\gamma$-weak ($\gamma\!\geq\! 0$) Wasserstein-2 ($\mathcal{W}_{2,\gamma}$), i.e., formulation \eqref{ot-primal-form-weak} with the $\gamma$-weak quadratic cost \vspace{-1mm}
+\begin{eqnarray}
+    C_{2,\gamma}\big(x,\mu\big)\stackrel{def}{=}  \int_{\mathcal{Y}}\frac{1}{2}\|x-y\|^{2}d\mu(y)-\frac{\gamma}{2}\text{Var}(\mu)=\!
+    \int_{\mathcal{Y}}\frac{1}{2}\|x-\!\int_{\mathcal{Y}}y\hspace{0.5mm}d\mu(y)\|^{2}d\mu(y)+\frac{1-\gamma}{2}\text{Var}(\mu),
+    \label{weak-w2-cost}
+\end{eqnarray}
+where $\Var(\mu)$ denotes the variance of $\mu$:\vspace{-1.5mm}
+\begin{equation}
+    \Var(\mu)\stackrel{def}{=}\int_{\mathcal{Y}}\|y-\int_{\mathcal{Y}}y'd\mu(y')\|^{2}d\mu(y)=\frac{1}{2}\int_{\mathcal{Y}\times\mathcal{Y}}\|y-y'\|^{2}d\mu(y)d\mu(y').
+    \label{var-def}
+    \vspace{-1mm}
+\end{equation}
+\vspace{-1mm}For $\gamma=0$, the transport cost \eqref{weak-w2-cost} is strong, i.e., $\mathbb{W}_{2}=\mathcal{W}_{2,0}$.
+
+If the cost $C(x,\mu)$ is lower bounded, lower-semicontinuous and convex in the second argument, then we say that it is \textit{appropriate}. For appropriate costs, the minimizer $\pi^{*}$ of \eqref{ot-primal-form-weak} always exists \citep[\wasyparagraph 1.3.1]{backhoff2019existence}. Since $\Var(\mu)$ is concave and non-negative, cost \eqref{weak-w2-cost} is appropriate when $\gamma\in [0,1]$. For appropriate costs the \eqref{ot-primal-form-weak} admits the following dual formulation:\vspace{-1.5mm}
+\begin{equation}
+    \text{Cost}(\mathbb{P},\mathbb{Q})=\sup_{f}\int_{\mathcal{X}} f^{C}(x)d\mathbb{P}(x)+\int_{\mathcal{Y}} f(y)d\mathbb{Q}(y),
+    \label{ot-weak-dual}
+\end{equation}
+
+\vspace{-2.5mm}where $f$ are upper-bounded, continuous and  not rapidly decreasing functions, see \citep[\wasyparagraph 1.3.2]{backhoff2019existence}, and ${f^{C}(x)\!\stackrel{\text{def}}{=}\!\inf_{\mu\in\mathcal{P}(\mathcal{Y})}\lbrace C(x,\mu)\!-\!\int_{\mathcal{Y}}f(y)d\mu(y)\rbrace}$ is the weak $C$-transform.
+% \begin{equation}
+% \label{c-transform}
+% \end{equation}
+% The $\gamma$-weak quadratic cost satisfies the resuirements for $\gamma\in [0,1]$.
+
+% \textbf{Martingales.} For a pair ($X_{0},X_{1}$) of $\mathbb{R}^{D}$-valued random variables with finite second moment we say that $(X_0,X_{1})$ is martingale if $\mathbb{E}(X_{1}\vert X_0=x)=x$. For a pair of probability distributions $\mathbb{P}_{0},\mathbb{P}_{1}\in\mathbb{P}_{2}(\mathbb{R}^{D})$ a necessary and sufficient condition of existence of a martingale ($X_{0},X_{1}$) with marginals $X_{0}\Dist\mathbb{P}_{0}$ and $X_{1}\Dist\mathbb{P}_{1}$ is that $\mathbb{P}_{0}$ preceedes $\mathbb{P}_{1}$ is the convex order \citep{strassen1965existence,leskela2017conditional}, i.e., $\mathbb{P}_{0}\preceq\mathbb{P}_{1}$.
+
+\vspace{-0.5mm}\begin{wrapfigure}{r}{0.45\textwidth}
+  \vspace{-6mm}\begin{center}
+    \includegraphics[width=\linewidth]{pics/stochastic_OT_map_v2.png}
+  \end{center}\vspace{-2.4mm}
+  \caption{\centering Implicit representation of a transport plan via function $T:\mathcal{X}\!\times\!\mathcal{Z}\rightarrow\mathcal{Y}$.}
+  \label{fig:stochastic-map}
+  \vspace{-3mm}
+\end{wrapfigure} \textbf{Neural Optimal Transport (NOT)}. In \citep{korotin2023neural}, the authors propose an algorithm to \textit{implicitly} learn an OT plan $\pi^{*}$ with neural nets (Figure \ref{fig:stochastic-map}).
+%  by generating conditional distributions $\pi{*}(y|x)$ for all $x\in\mathcal{X}$
+They introduce a (latent) atomless distribution $\mathbb{S}\in\mathcal{P}(\mathcal{Z})$, e.g., $\mathcal{Z}=\mathbb{R}^{Z}$ and $\mathbb{S}=\mathcal{N}(0,I_{Z})$, and search for a function $T^{*}:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$ (\textit{stochastic OT map}) which satisfies $T^{*}_{x}\sharp\mathbb{S}=\pi^{*}(y|x)$ for some OT plan $\pi^{*}$. That is, given $x\in\mathcal{X}$, function $T^{*}$ pushes the distribution $\mathbb{S}$ to the \textit{conditional distribution} $\pi^{*}(y|x)$ of an OT plan $\pi^{*}$. In particular, $T^{*}$ satisfies the distribution-preserving condition $T^{*}\sharp(\mathbb{P}\!\times\!\mathbb{S})=\mathbb{Q}$. To get $T^{*}$, the authors use \eqref{ot-weak-dual} to derive an equivalent dual form:
+\begin{equation}
+    \text{Cost}(\mathbb{P},\mathbb{Q})=\sup_{f}\inf_{T}\int_{\mathcal{X}} \left( C\big(x,T_{x}\sharp\mathbb{S}\big)-\int_{\mathcal{Z}} f\big(T_{x}(z)\big) d\mathbb{S}(z)\right) d\mathbb{P}(x)+\int_{\mathcal{Y}} f(y)d\mathbb{Q}(y),\hspace{-3mm}
+    \label{L-def}
+\end{equation}
+where the $\inf$ is taken over measurable functions $T:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$. The functional under $\sup_{f}\inf_{T}$ is denoted by $\mathcal{L}(f,T)$. For every optimal potential $f^{*}\in\argsup_{f}\inf_{T}\mathcal{L}(f,T)$, it holds that
+\begin{equation}
+T^{*}\in\arginf\nolimits_{T}\mathcal{L}(f^{*},T),
+\label{T-in-arginf}
+\end{equation}
+see \citep[Lemma 4]{korotin2023neural}. Consequently, one may extract optimal maps $T^{*}$ from optimal saddle points $(f^{*},T^{*})$ of problem \eqref{L-def}. In practice, saddle point problem \eqref{L-def} can be approached with neural nets $f_{\omega},T_{\theta}$ and the stochastic gradient descent-ascent \citep[Algorithm 1]{korotin2023neural}.
+
+The limitation \citep[\wasyparagraph 6]{korotin2023neural} of NOT algorithm is that $\arginf_{T}$ set of $f^{*}$ in \eqref{T-in-arginf} may contain not only optimal transport maps but other functions as well. As a result, the function $T^{*}$ recovered from a saddle point $(f^{*},T^{*})$ may be not an optimal stochastic map. In this paper, we show that for the $\gamma$-weak quadratic cost \eqref{weak-w2-cost} this may be \underline{\textit{problematic}}: the $\arginf_{T}$ sets might contain \textit{fake} solutions $T^{*}$ (\wasyparagraph\ref{sec-issues-w2}). To resolve the issue, we propose kernel $\gamma$-weak quadratic costs (\wasyparagraph\ref{sec-kernel-w2}).
+
+\vspace{-0.5mm}\textbf{Convex order}. For two probability distributions $\mathbb{P},\mathbb{Q}$ on $\mathbb{R}^{D}$, we write $\mathbb{P}\preceq\mathbb{Q}$ if for all convex functions $h:\mathbb{R}^{D}\rightarrow\mathbb{R}$ it holds $\int h(x)d\mathbb{P}(x)\leq \int h(x)d\mathbb{Q}(x)$.
+The relation "$\preceq$" is a partial order, i.e., not all $\mathbb{P},\mathbb{Q}$ are comparable.
+If $\mathbb{P}\preceq\mathbb{Q}$, then $m_{\mathbb{P}}=m_{\mathbb{Q}}$ and $\Sigma_{\mathbb{P}}\preceq\Sigma_{\mathbb{Q}}$ \citep[Lemma 3]{scarsini1998multivariate}.
+If $\mathbb{P},\mathbb{Q}$ are Gaussians, $\mathbb{P}\preceq\mathbb{Q}$ holds if and only if $m_{\mathbb{P}}=m_{\mathbb{Q}}$ and $\Sigma_{\mathbb{P}}\preceq\Sigma_{\mathbb{Q}}$ \citep[Theorem 4]{scarsini1998multivariate}.
+For $\mathbb{P},\mathbb{Q}$, we define the \textit{projection} of $\mathbb{P}$ onto the convex set of distributions which are $\preceq\mathbb{Q}$ as
+\begin{equation}
+    \Proj_{\preceq \mathbb{Q}}(\mathbb{P})=\arginf\nolimits_{\mathbb{P}'\preceq\mathbb{Q}}\mathbb{W}_{2}^{2}(\mathbb{P},\mathbb{P}').
+    \label{conv-proj}
+\end{equation}
+The infimum is attained uniquely \citep[Proposition 1.1]{gozlan2020mixture}. There exists a  $1$-Lipschitz, continuously diffirentiable and convex function $\phi:\mathbb{R}^{D}\rightarrow\mathbb{R}$ satisfying $\Proj_{\preceq \mathbb{Q}}(\mathbb{P})=\nabla\phi\sharp\mathbb{P}$, see \citep[Theorem 1.2]{gozlan2020mixture} for details.
+
+
+\vspace{-0.5mm}\begin{wrapfigure}{r}{0.45\textwidth}
+  \vspace{-9mm}\begin{center}
+    \includegraphics[width=\linewidth]{pics/OT_bar_proj.png}
+  \end{center}
+  \vspace{-2mm}\caption{\centering Every optimal restricted potential $\phi^{*}$ satisfies $\nabla\phi^{*}\sharp\mathbb{P}=\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})\preceq\mathbb{Q}$.}\label{fig:projection}\vspace{-4mm}
+\end{wrapfigure}\textbf{Weak OT with the quadratic cost} ($\gamma>0$). For the $\gamma$-weak  quadratic cost \eqref{weak-w2-cost} on $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$, \citep[\wasyparagraph 5]{gozlan2020mixture}, \citep[\wasyparagraph 5.2]{alibert2019new} prove that there exists a continuously differentiable convex function $\phi^*:\mathbb{R}^{D}\rightarrow\mathbb{R}$  such that $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ is optimal if and only if $\int_{\mathcal{Y}}y\hspace{0.5mm}d\pi^{*}(y|x)=\nabla\phi^{*}(x)$ holds true $\mathbb{P}$-almost surely. In general, $\pi^{*}$ is \textit{not unique}. We say that $\phi^{*}$ is an \textit{optimal restricted potential}. It may be not unique as a function $\mathbb{R}^{D}\rightarrow\mathbb{R}$, but $\nabla\phi^{*}$ is uniquely defined $\mathbb{P}$-almost everywhere. It holds true that $\nabla\phi^{*}$ is $\frac{1}{\gamma}$-Lipschitz; $\nabla\phi^{*}\sharp\mathbb{P}=\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})$; it is the OT map between $\mathbb{P}$ and $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})$ for the strong quadratic cost (Figure \ref{fig:projection}). The function $\phi^{*}$ maximizes the dual form alternative to \eqref{ot-weak-dual}:
+% Importantly, $\phi^{*}$ minimizes
+\begin{eqnarray}
+\mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\hspace{-3mm}\max_{\phi\in \text{\normalfont Cvx}(\frac{1}{\gamma})}\bigg[\int_{\mathcal{X}} \frac{\|x\|^{2}}{2}d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\frac{\|y\|^{2}}{2}d\mathbb{Q}(x)\!-\!\bigg(\int_{\mathcal{X}}\phi(x)d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\overline{\phi}(y)d\mathbb{Q}(y)\bigg)\bigg],
+\label{dual-barycentric}
+\end{eqnarray} 
+where $\text{Cvx}(\frac{1}{\gamma})$ denotes the set of $\frac{1}{\gamma}$-smooth convex functions $\phi:\mathbb{R}^{D}\rightarrow\mathbb{R}.$
+% The duality formula \eqref{dual-barycentric} coincides with the usual one \eqref{ot-weak-dual}. To obtain \eqref{dual-barycentric}, one has to restrict potentials $f$ in \eqref{ot-weak-dual} to $f(y)=\frac{1}{2}\|y\|^{2}-\overline{\phi}(x)$, where $\phi$ are $\frac{1}{\gamma}$-smooth convex functions, i.e., $\overline{\phi}$ are their $\gamma$-strongly convex conjugates.
+Duality formula \eqref{dual-barycentric} appears in \citep[\wasyparagraph 5.2]{alibert2019new}, \citep[Theorem 1.2 \& \wasyparagraph 5]{gozlan2020mixture} but with different parametrization. In Appendix \ref{sec-restricted-duality}, for completeness of the exposition, we \underline{derive} \eqref{dual-barycentric} from the results of \citep{gozlan2020mixture} by the change of variables.
+
+% Let $\pi^{*}$ be any optimal transport plan. The OT cost is expressed as a function of $\phi^{*}$ as follows:
+% \begin{equation}
+%     \mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\frac{1}{2}\int_{\mathcal{X}}\|x-\nabla\phi^{*}(x)\|^{2}d\mathbb{P}(x)+\frac{1-\gamma}{2}\underbrace{\int_{\mathcal{X}}\Var\big(\pi^{*}(y|x)\big)d\mathbb{P}(x)}_{\stackrel{def}{=}\CVar(\pi^{*})}
+%     \label{w2-weak-cost-psi}
+% \end{equation}
+% All the optimal plans share the same $\nabla\phi^{*}$ $\mathbb{P}$-almost everywhere. Consequently, the second term in \eqref{w2-weak-cost-psi} has the same value for all $\pi^{*}$. We call this term by the \textit{conditional variance}.
+% and note that
+% \begin{eqnarray}
+%     \CVar(\pi^{*})=\int_{\mathcal{X}}\bigg[\int_{\mathcal{Y}}\|y\|^{2}d\pi^{*}(y|x)-\|\underbrace{\int_{\mathcal{Y}}y\hspace{0.5mm}d\pi^{*}(y|x)}_{=\nabla\phi^{*}(x)}\|^{2}\bigg]d\mathbb{P}(x)=
+%     \nonumber
+%     \\
+%     \int_{\mathcal{Y}}\|y\|^{2}d\mathbb{Q}(y)-\int_{\mathcal{X}}\|\nabla\phi^{*}(x)\|^{2}d\mathbb{P}(x),
+%     \label{cvar-expr}
+% \end{eqnarray}
+% i.e., $ \CVar(\pi^{*})$ equals to the difference of second moments of $\mathbb{Q}$ and $\nabla\phi^{*}\sharp\mathbb{P}=\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})$.
+
+% In \citep{gozlan2020mixture,backhoff2019existence}, the authors discuss how the optimal plans $\pi^{*}$ are structured beyond the first conditional moment which satisfies $\nabla\phi^{*}(x)=\int_{\mathcal{Y}}y\hspace{0.5mm}d\pi(y|x)$. They prove that the "remaining" part of $\pi^{*}$ forms a martingale coupling. We recall this particular fact only for completeness and are not going to use it.
+
+% \section{Characterization of Optimal Transport Plans}
+
+% \subsection{Barycentric Mappings and Martingales}
+% \label{sec-bar-decomposition}
+
+% In this subsection, we show that a transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ can be represented as a martingale coupling stick to a deterministic map (barycentric projection). The theoretical insights of this subsection are necessary for the subsequent analysis of optimal transport plans.
+
+% For a transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$, we define its \textit{barycentric projection} $\overline{T}:\mathbb{R}^{D}\rightarrow\mathbb{R}^{D}$ by
+% \begin{equation}
+% \overline{T}(x)\stackrel{def}{=}\int yd\pi(y|x).
+% \end{equation}
+% Additionally, we define $\overline{\mathbb{T}}\stackrel{def}{=}\overline{T}\sharp\mathbb{P}$.
+% % and the conditional variance of $\pi$ by \qquad\text{and}\qquad \CVar(\pi)=\int \Var\big(\pi(y|x)\big)d\pi(x).
+% % \begin{proposition}$\CVar(\pi)=\Var(\mathbb{Q})-\Var(\overline{\mathbb{T}})$, where $\overline{\mathbb{T}}\stackrel{def}{=}\overline{T}\sharp \mathbb{P}$.
+% % \end{proposition}
+% Let $(X,Y)\Dist \pi$ be a pair of $\mathbb{R}^{D}$-valued random vectors. 
+% % We define the joint distribution of $\big(\overline{T}(X),Y\big)$ by $\pi_{\overline{T}}$.
+% \begin{proposition}$\big(\overline{T}(X),Y\big)$ is a martingale and its marginal distributions $\overline{\mathbb{T}}, \mathbb{Q}$ satisfy $\overline{\mathbb{T}}\preceq \mathbb{Q}$.\label{prop-is-martingale}\end{proposition}
+
+% \begin{proposition}
+% $\CVar(\pi)=\mathbb{E}\|T(X)-Y\|^{2}=\Var\mathbb{Q}-\Var\overline{\mathbb{T}}$.
+% \end{proposition}
+
+% % We say that the pair $(\overline{T},\pi_{\overline{T}})$ is the \textit{barycentric decomposition} of a transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$.
+% % , in particular, $\mu_{\overline{\mathbb{T}}}=\mu_{\mathbb{Q}}$, $\Sigma_{\overline{\mathbb{T}}}\preceq\Sigma_{\mathbb{Q}}$ and $\Var(\overline{\mathbb{T}})\leq\Var(\mathbb{Q})$.
+
+% Our following lemma explains that the $\gamma$-weak quadratic cost of a plan $\pi$ depends only on the barycentric projection $\overline{T}$, i.e., the expectations of $\pi(y|x)$. The other moments of $\pi(y|x)$ play no role. 
+
+% \begin{lemma}[Transport cost through the barycentric projection]For $\gamma\geq 0$ it holds
+% \begin{eqnarray}\mathcal{W}_{2,\gamma}^{2}(\pi)=\frac{1}{2}\int \|x-\overline{T}(x)\|^{2}d\mathbb{P}(x)+\frac{1-\gamma}{2}\big(\Var{\mathbb{Q}}-\Var\overline{\mathbb{T}}\big).
+% \end{eqnarray}
+% \label{lemma-w2-through-bar}
+% \end{lemma}
+% For completeness of the exposition, we also discuss the inverse problem. Given a map $\overline{T}:\mathbb{R}^{D}\rightarrow\mathbb{R}^{D}$, can we provide a transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ whose barycentric projection is $\overline{T}$?
+% % We already know that $\overline{\mathbb{T}}=\overline{T}\sharp\mathbb{P}\preceq \mathbb{Q}$ is a necessary condition, otherwise no martingale with marginals $\math$. The lemma below shows it is also a sufficient condition.
+
+% \begin{lemma}[Completion of transport plans]
+% For a map $\overline{T}:\mathbb{R}^{D}\rightarrow\mathbb{R}^{D}$ there exists a transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ whose barycentric projection is $\overline{T}$ if and only if $\overline{T}\sharp\mathbb{P}\preceq \mathbb{Q}$.
+% \end{lemma}
+% \begin{proof}It follows from Proposition \ref{prop-is-martingale} that $\overline{T}\sharp\mathbb{P}\preceq \mathbb{Q}$ is a necessary condition. Now we prove that it is sufficient. Let $X'\Dist\mathbb{P}$ be a random variable. Note that the pair $\big(X',T(X')\big)$ of random variables has $\mathbb{P}$ and $\overline{\mathbb{T}}=\overline{T}\sharp\mathbb{P}$ as marginal distributions. Since $\overline{\mathbb{T}}\preceq\mathbb{Q}$, there exists a martingale $(Y_{0}, Y_{1})$ with marginals $\overline{\mathbb{T}},\mathbb{Q}$, respectively. By \citep[\wasyparagraph 1, Gluing lemma]{villani2008optimal}, there exists at least one triplet of random variables $(X,X'',Y)$ such that $X''=\overline{T}(X)$ and the joint distribution of $(X'',Y)$ matches that of $(Y_{0}, Y_{1})$. Let $\pi$ be the joint distribution of $(X,Y)$ and note that by construction its marginals are $\mathbb{P}$ and $\mathbb{Q}$, respectively, i.e., $\pi\in\Pi(\mathbb{P},\mathbb{Q})$. In particular, we have
+% $$\mathbb{E}(Y|X=x)=\mathbb{E}\big(Y|X=x,X''=\overline{T}(x)\big)=\mathbb{E}\big(Y|X''=\overline{T}(x)\big)=\overline{T}(x),$$
+% i.e., $\overline{T}$ is indeed a barycentric projection of the plan $\pi$.
+% \end{proof}
+% Therefore, a map satisfying $\overline{T}\sharp\mathbb{P}\preceq\mathbb{Q}$ can be "glued" to a martingale with marginals $\overline{\mathbb{T}}$ and $\mathbb{Q}$. The characterization of such martingales is a general question of the probability theory. There may exist more than one martingale with given marginals, even if the marginals are Gaussian distributions \citep{hamza2007family}. Particular theoretical constructions for the martingales in general case are given, e.g., in \citep{madan2002making}.
+
+% \subsection{Characterization of Optimal Plans}
+
+% In this subsection, we show that all the optimal transport plans $\pi^{*}\in(\mathbb{P},\mathbb{Q})$ for the $\gamma$-weak ($\gamma>0$) quadratic cost share the same barycentric projection $\overline{T^{*}}$. We prove that it is a gradient $\nabla\phi^{*}$ of a continuously differentiable convex function $\phi^{*}:\mathbb{R}^{D}\rightarrow\mathbb{R}$ which is $\frac{1}{\gamma}$-Lipschitz. Importantly, we show this function can be extracted from the optimal potential in the dual formulation for $\mathcal{W}_{2,\gamma}^{2}$.
+
+% \begin{theorem}[Expressing the optimal transport cost via the projection]
+% For $\gamma> 0$ it holds
+% \begin{equation}\mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\big[\gamma\cdot\inf_{\mathbb{P}'\preceq \mathbb{Q}}\mathbb{W}_{2}^{2}(\gamma^{-1}\sharp\mathbb{P},\mathbb{P}')\big]+\frac{1-\gamma}{2\gamma}\int\|x\|^{2}d\mathbb{P}(x)+\frac{1-\gamma}{2}\int\|y\|^{2}d\mathbb{Q}(x).
+% \label{w2-through-projection}
+% \end{equation}
+% \end{theorem}
+
+% \begin{corollary}
+% By the properties of \eqref{conv-proj}, the $\inf$ is attained uniquely at $\mathbb{P}^{*}\stackrel{def}{=}\Proj_{\preceq\mathbb{Q}}(\gamma^{-1}\sharp\mathbb{P})$.
+% \end{corollary}
+% Our theorem states that to compute $\mathcal{W}_{2,\gamma}^{2}$, one has to project $\gamma^{-1}\sharp\mathbb{P}$ onto the set of distributions which are $\preceq \mathbb{Q}$, and compute the Wasserstein-2 distance from the projection to $\mathbb{P}$. When $\gamma=1$, it recovers the identity $\mathcal{W}_{2,1}^{2}(\mathbb{P},\mathbb{Q})=\inf_{\mathbb{P}'\preceq\mathbb{Q}}\mathbb{W}_{2}^{2}(\mathbb{P},\mathbb{P}')$ which is explored in \citep[Remark 1.1]{gozlan2020mixture}, \citep[Equation 1.6]{backhoff2019existence}.
+% \begin{corollary}(Expressing $\mathcal{W}_{2,\gamma}^{2}$ through $\mathcal{W}_{2,1}^{2}$). For $\gamma>0$ it holds
+% \begin{equation}
+%     \mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\gamma\cdot\mathcal{W}_{2,1}^{2}(\gamma^{-1}\sharp\mathbb{P},\mathbb{Q})+\frac{1-\gamma}{2\gamma}\int\|x\|^{2}d\mathbb{P}(x)+\frac{1-\gamma}{2}\int\|y\|^{2}d\mathbb{Q}(x).
+%     \label{eq-w2g-throguh-w21}
+% \end{equation}
+% \end{corollary}
+% We are going to rely on the results of \citep{backhoff2019existence,gozlan2020mixture} which characterize the optimal plans for $\gamma=1$ to derive a characterization of plans for all $\gamma>0$. Our key idea is to consider is to consider representation \eqref{eq-w2g-throguh-w21} of $\mathcal{W}_{2,\gamma}^{2}$ through the $\mathcal{W}_{2,1}^{2}(\gamma^{-1}\sharp\mathbb{P},\mathbb{Q})$ which follows from our  Theorem \ref{w2-through-projection}. We prove the following results:
+
+% \begin{lemma}[Duality for $\gamma\geq 1$]The dual form \eqref{ot-weak-dual} holds not only for $\gamma\in [0,1]$, but for all $\gamma\geq 0$, .
+ 
+% \label{lemma-ext-duality}
+% \end{lemma}
+
+
+% \begin{theorem}[Alternative dual formulation]
+% \begin{eqnarray}
+% \mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\inf_{\phi\in \text{\normalfont Cvx}[0,\gamma^{-1}]}\bigg[\int\phi(x)d\mathbb{P}(x)+\int\overline{\phi}(x)d\mathbb{Q}(y)\bigg]+\bigg[\int \frac{\|x\|^{2}}{2}d\mathbb{P}(x)+\int\frac{\|y\|^{2}}{2}d\mathbb{Q}(x)\bigg].
+% \label{dual-barycentric}
+% \end{eqnarray} 
+% \label{thm-dual-convex}
+% \end{theorem}
+
+% \begin{theorem}[Characterization of optimal plans] For any $\gamma>0$ it holds:
+% \begin{enumerate}[leftmargin=0.5cm]
+%     \item There exists a convex and continuously differentiable $\phi^{*}:\mathbb{R}^{D}\rightarrow\mathbb{R}$ such that ${\nabla\phi^{*}\sharp\mathbb{P}=\mathbb{P}^{*}}$. Moreover, the gradient $\nabla\phi^{*}$ is $\frac{1}{\gamma}$-Lipschitz.
+%     \item A transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ is optimal iff $\nabla\phi^{*}$ is its barycentric projection, i.e., $\nabla\phi^{*}=\overline{T}$ holds $\mathbb{P}$-almost everywhere.
+% \end{enumerate}
+% \end{theorem}
+% We say that the gradient $\nabla\phi^{*}$ is the optimal barycentric projection. It is unique $\mathbb{P}$-almost everywhere. However, its (convex) antiderivative $\phi^{*}$ is not unique.
+% % For example, it may be shifted by a contant, e.g., $\phi^{*}+c$ provides the same barycentric projection.
+
+% \begin{theorem}[Extraction of the optimal barycentric projection] For $\gamma>0$ it holds:
+% The $\inf$ is attained; the gradient $\nabla\phi^{*}$ of every $\phi^{*}$ attaining the $\inf$ is the optimal barycentric projection. 
+% % Note that $\phi\in\text{\normalfont Cvx}(\gamma^{-1})$ is equivalent to $\gamma$-strong convexity of $\overline{\phi}$. 
+% \label{thm-dual}
+% \end{theorem}
+
+
+% The theorems above state that all the optimal plans $\pi^{*}$ share the same barycentric projection $\nabla\phi^{*}$. This optimal projection can be recovered as the solution of the dual problem \eqref{dual-barycentric}. An important observation is that $\nabla\phi^{*}$ is a $\gamma$-Lipschitz function. When $\gamma\rightarrow\infty$, the optimal barycentric map becomes more contractive. In particular, we have the following proposition.
+
+% \begin{proposition}[The variance of the barycentric distribution decreases with $\gamma\rightarrow\infty$] Let ${\gamma_{2}\geq \gamma_{1}>0}$. Let $\nabla\phi_{1}^{*},\nabla\phi_{2}^{*}$ be the optimal barycentric mappings for $\gamma_{1},\gamma_{2}$ respectively. Define $\mathbb{P}^{*}_{1}\stackrel{def}{=}\nabla\phi_{1}^{*}\sharp\mathbb{P}$, $\mathbb{P}^{*}_{2}\stackrel{def}{=}\nabla\phi_{2}^{*}\sharp\mathbb{P}$. Then it holds $\Var(\mathbb{P}_{1}^{*})\geq \Var(\mathbb{P}_{2}^{*})$.
+% \end{proposition}
+% \begin{corollary}
+% Let $\pi^{*}_{1}$, $\pi^{*}_{2}$ be optimal plans for ${\gamma_{2}\geq \gamma_{1}>0}$. Then $\CVar(\pi_{1}^{*})\leq \CVar(\pi_{2}^{*})$.
+% \end{corollary}
+
+% The corollary theoretically shows that the increase of $\gamma$ leads to the increase of the conditional variance of the optimal plan. This effect has been observed empirically in \citep[Appendix A]{korotin2023neural}.
+
+% Interestingly, our Theorem \ref{thm-dual} yields that existing numerical procedures for OT with the quadratic cost transport can be straightforwardly adapted to solve \eqref{dual-barycentric}. Indeed, \citep{taghvaei20192,makkuva2020optimal,korotin2021wasserstein} provide algorithms based on input convex neural networks (ICNNs, see \citep{amos2017input}) to optimize a similar objective to \eqref{dual-barycentric} as well as provide ways to restrict optimization to strongly convex functions \citep[Appendix B.2]{korotin2021wasserstein}. However, these algorithms do not answer how to reconstruct the entire OT plan given its barycentric projection $\nabla\phi^{*}$.
+
+% \subsection{Gaussian Case}
+% \begin{theorem}[Gaussian optimal transport]
+% Let $\gamma>0$. Assume that $\mathbb{P},\mathbb{Q}$ are non-singular Gaussian distributions, i.e., $\Sigma_{\mathbb{P}},\Sigma_{\mathbb{Q}}\succ 0$. The optimal barycentric projection between $\mathbb{P},\mathbb{Q}$ is linear and is given by
+% $\nabla\phi^{*}(x)=A^{*}x+(m_{\mathbb{Q}}-m_{\mathbb{P}})$, where
+% \begin{equation}
+% A^{*}=\argmin_{0\prec A\preceq \gamma^{-1}}\big[\frac{1}{2}\Tr (\Sigma_{\mathbb{P}})^{\frac{1}{2}}A(\Sigma_{\mathbb{P}})^{\frac{1}{2}}+\frac{1}{2}\Tr (\Sigma_{\mathbb{Q}})^{\frac{1}{2}}A^{-1}(\Sigma_{\mathbb{Q}})^{\frac{1}{2}}\big].
+%     \label{gaussian-solution}
+% \end{equation}\label{thm-gaussian}\end{theorem}
+% In Appendix Z, we show that problem \eqref{gaussian-solution} admits an analytical solution for certain $\Sigma_{\mathbb{P}},\Sigma_{\mathbb{Q}},\gamma$. In the general case, the problem can be approached numerically. Indeed, the constraint $0\prec A\preceq \gamma^{-1}$ is equivalent to $A^{-1}\succeq\gamma$. Due to this, one may define $B=A^{-1}-\gamma$ and optimize \eqref{gaussian-solution} over the manifold of positive semi-definite matrices to derive $B^{*}$ and get $A^{*}=(B^{*}+\gamma)^{-1}$.
+
+% Our Theorem \ref{thm-gaussian} derives the barycentric projection of optimal plans $\pi^{*}$ but does not study how the rest part (martingale) of the plan behaves. The following proposition shows an existence of the optimal transport plan $\pi^{*}$ which is Gaussian distribution on $\mathbb{R}^{D}\times\mathbb{R}^{D}$.
+
+% \begin{proposition}[Gaussian optimal plan]
+% Let $X\Dist\mathbb{P}, Z\Dist\mathcal{N}(0,I_{d})$ be two independent random variables. Let $Y=A^{*} X+(\Sigma_{\mathbb{Q}}-A^{*}\Sigma_{\mathbb{P}}A^{*})^{\frac{1}{2}}\hspace{1mm}Z$. Then the joint distribution $\pi^{*}$ of the pair $(X,Y)$ is the unique Gaussian optimal plan. Its covariance matrix is given by
+% \begin{equation}
+%     \Sigma_{\pi^{*}}=\begin{pmatrix}
+%     \Sigma_{\mathbb{P}} & \Sigma_{\mathbb{P}}^{\frac{1}{2}}A^{*}\Sigma_{\mathbb{P}}^{\frac{1}{2}} \\
+%     \Sigma_{\mathbb{P}}^{\frac{1}{2}}A^{*}\Sigma_{\mathbb{P}}^{\frac{1}{2}} & \Sigma_{\mathbb{Q}}
+%     \end{pmatrix}
+%     \nonumber
+% \end{equation}
+% The conditional distribution is $\pi^{*}(y|x)=\mathcal{N}(A^{*}x+(m_{\mathbb{Q}}-m_{\mathbb{P}}), \Sigma_{\mathbb{Q}}-A^{*}\Sigma_{\mathbb{P}}A^{*})$.
+% \label{gaussian-plan}
+% \end{proposition}
+% There might exist optimal plans $\pi^{*}$ which are not Gaussian. Inspired by \citep{hamza2007family}, we prove the following
+% \begin{proposition}[Non-Gaussian optimal plans]
+% Let $A$ be a random symmetric $\mathbb{R}^{D}\times\mathbb{R}^{D}$ matrix satisfying $A\succeq 0$, $\Sigma_{\mathbb{Q}}\succeq A\Sigma_{\mathbb{P}}A$ and $\mathbb{E}A=A^{*}$. Let $X\Dist\mathbb{P}, Z\Dist\mathcal{N}(0,I_{d})$ be random vectors. Assume that $X,Z,A$ are independent. Put $Y=A X+(\Sigma_{\mathbb{Q}}-A\Sigma_{\mathbb{P}}A)^{\frac{1}{2}}\hspace{1mm}Z$. Then the joint distribution $\pi^{*}$ of the pair $(X,Y)$ is an optimal plan.
+% \label{non-gaussian-plan}
+% \end{proposition}
+% If $A\equiv A^{*}$, plan $\pi^{*}$ is Gaussian (Proposition \ref{gaussian-plan}). We show an example of a non-Gaussian plan.
+
+% \begin{example}
+% Consider $D=1$, $\gamma=1$. Let $\mathbb{P}=\mathcal{N}(0,1)$, $\mathbb{Q}=\mathcal{N}(0,2)$. Since $\mathbb{P}\preceq \mathbb{Q}$, it holds $\mathbb{P}^{*}=\Proj_{\mathbb{Q}}(\mathbb{P},\mathbb{Q})=\mathbb{P}$. Consequently, $\nabla\phi^{*}(x)=x$, i.e., the barycentric projection is the identity mapping, $A^{*}=1$. In proposition \ref{non-gaussian-plan}, let $A$ take values $\{\frac{1}{10}, \frac{19}{10}\}$ with probabilities $\{\frac{1}{2}, \frac{1}{2}\}$. We visualize the plan $\pi^{*}$ and the Gaussian plan in Figures U, U, respectively.
+% \end{example}
+
+% Our proposition \ref{non-gaussian-plan} constructs optimal plans $\pi^{*}$. We do not know whether the method produces all the existing optimal plans $\pi^{*}$. Studying this question is a promising avenue for the future research.
+
+% Our Theorem \ref{thm-gaussian} provides the optimal barycentric projection $\overline{T}=\nabla\phi^{*}$. From the discussion in \eqref{ec-bar-decomposition}, to build an optimal plan, one has to provide a martingale with marginals $\mathbb{P}^{*}=\nabla\phi^{*}\sharp\mathbb{P}$ and $\mathbb{Q}$. 
+
+\vspace{-2mm}\section{Solving Issues of Neural Optimal Transport}
+
+\vspace{-2mm}In what follows, we consider $\mathcal{X}=\mathcal{Y}\subset\mathbb{R}^{D}$. In \wasyparagraph\ref{sec-issues-w2}, we theoretically derive that $\arginf_{T}$ sets \eqref{T-in-arginf} for the $\gamma$-weak quadratic cost \eqref{weak-w2-cost} may indeed contain functions which are not stochastic OT maps. In \wasyparagraph\ref{sec-kernel-w2}, we introduce kernel weak quadratic costs and prove that they do not suffer from this issue, i.e., all functions in sets $\arginf_{T}$ for all optimal $f^{*}$ are stochastic OT maps. In \wasyparagraph\ref{sec-practical-aspects}, we discuss the practical aspects of learning with kernels. We give the \underline{\textit{proofs}} of all the statements in Appendix \ref{sec-proofs}.
+
+\vspace{-2mm}\subsection{Fake Solutions for the Weak Quadratic Cost}
+\label{sec-issues-w2}
+
+\vspace{-1.5mm}In this subsection, we consider $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$. We show that $\arginf_{T}\mathcal{L}(f^{*},T)$ sets \eqref{T-in-arginf} of optimal potentials $f^{*}$ in \eqref{ot-weak-dual} for the $\gamma$-weak quadratic cost \eqref{weak-w2-cost}, in general, may contain functions $T$ which are not stochastic OT maps. 
+We call such $T$ \textit{fake solutions}. To show why one should be concerned about fake solutions, we emphasize their key defect below.
+\vspace{-0.1mm}\begin{lemma}[Fake solutions are not distribution-preserving] Let $f\in\argsup_{f}\inf_{T}\mathcal{L}(f,T)$ and $T^{\dagger}\in \arginf_{T}\mathcal{L}(f^{*},T)$ be a fake solution. Then it holds that $T^{\dagger}\sharp(\mathbb{P}\times\mathbb{S})\neq \mathbb{Q}$.
+\label{lemma-fake-problem}
+\end{lemma}
+
+\vspace{-2mm}Throughout the section, we assume that $\mathbb{P},\mathbb{Q}$ have finite second moments. We analyse the potentials of the form $f^{*}(y)=\frac{1}{2}\|y\|^{2}-\overline{\phi^{*}}(y)$, where $\phi^{*}:\mathbb{R}^{D}\rightarrow\mathbb{R}$ is an optimal restricted potential. To begin with, we show that such potentials are indeed optimal potentials for dual forms \eqref{ot-weak-dual} and \eqref{L-def}.
+\begin{lemma}[Optimal restricted potentials provide dual form maximizers] Let $\phi^{*}:\mathbb{R}^{D}\rightarrow\mathbb{R}$ be an optimal restricted potential. Assume that $\overline{\phi^{*}}$ takes only finite values. Then $f^{*}(y)\stackrel{def}{=}\frac{1}{2}\|y\|^{2}-\overline{\phi^{*}}(y)$ maximizes dual formulations \eqref{ot-weak-dual} and \eqref{L-def}.
+\label{lemma-restricted-to-f}\vspace{-2mm}
+\end{lemma}
+For a convex $\psi:\mathbb{R}^{D}\rightarrow\mathbb{R}$, we denote the area around point $y\in\mathbb{R}^{D}$ in which $\psi$ is linear by
+\begin{equation}U_{\psi}(y)=\{y'\in \mathbb{R}^{D}\mbox{ such that }\forall x\in\partial_{y}\psi(y)\mbox{ it holds } \psi(y')=\psi(y)+\langle x,y'-y\rangle\}\supseteq \{y\}.\label{u-def}\end{equation}
+\begin{proposition}[Convexity of sets of local linearity of a convex function]Set $U_{\psi}(y)$ is convex.
+\label{prop-u-convex}\vspace{-2mm}\end{proposition}
+Our following theorem provides a full characterization of the $\arginf_{T}\mathcal{L}(f^{*},T)$ sets in view.
+\begin{theorem}[Characterization of saddle points with optimal restricted $f^{*}$] Let $f^{*}(y)=\frac{\|y\|^{2}}{2}-\overline{\phi^{*}}(y)$, where $\phi^{*}$ is an optimal restricted potential. Assume that $\overline{\phi^{*}}$ takes only finite values. Then it holds true that $\arginf_{T}\mathcal{L}(f^{*},T)$ is a {\textbf{convex set}} and
+\begin{equation}T^{\dagger}\!\in\! \arginf_{T}\mathcal{L}(f^{*},T)\Leftrightarrow 
+\begin{cases}
+   \int_{\mathcal{Z}} T_{x}^{\dagger}(z)d\mathbb{S}(z)=\nabla\phi^{*}(x)\hspace{1mm}\mbox{ holds true}\hspace{1mm} \mathbb{P}\mbox{-almost everywhere};\\
+    T_{x}^{\dagger}(z)\in U_{\psi}\big(\nabla\phi^{*}(x)\big) \hspace{1mm}\text{holds true }\hspace{1mm}\mathbb{P}\!\times\!\mathbb{S}\mbox{-almost everywhere},
+            \end{cases}
+\label{characterization-arginf}
+\vspace{-2mm}
+\end{equation}
+where $\psi(y)\stackrel{def}{=}\overline{\phi^{*}}(y)-\frac{\gamma}{2}\|y\|^{2}.$ Note that $\psi$ is convex since $\phi^{*}$ is $\frac{1}{\gamma}$-smooth \citep{kakade2009duality}.
+\label{lemma-characterization}\vspace{-3mm}
+\end{theorem}
+We define the \textit{optimal barycentric projection} $\overline{T^{*}_{x}}(z)\stackrel{def}{=}\nabla\phi^{*}(x)$ for $(x,z)\!\in\!\mathcal{X}\!\times\!\mathcal{Z}$; it does not depend on $z\!\in\!\mathcal{Z}$. The function depends on the choice of optimal $\phi^{*}$; we are interested only in its values in the support of $\mathbb{P}$, where $\nabla\phi^{*}$ is unique (\wasyparagraph\ref{sec-background-ot}). From definition \eqref{u-def}, we see that $\nabla\phi^{*}(x)\in U_{\psi}\big(\nabla\phi^{*}(x)\big)$ and $\overline{T^{*}}$ satisfies both conditions on the right side of \eqref{characterization-arginf}. Thus, we have $\overline{T^{*}}\in\arginf_{T}\mathcal{L}(f^{*},T)$. 
+\begin{lemma}[The barycentric projection is not always a stochastic OT map] \label{lemma-is-bar-optimal}The following holds true
+\begin{equation}\overline{T^{*}} \mbox{ is a stochastic OT map }\stackrel{(a)}{\Longleftrightarrow} \Proj_{\preceq\mathbb{Q}}\big(\frac{1}{\gamma}\sharp\mathbb{P}\big)=\mathbb{Q}\stackrel{(b)}{\Longrightarrow}  \overline{T^{*}} \mbox{ is the unique stochastic OT map.}\nonumber
+\vspace{-2mm}\end{equation}
+\end{lemma}
+We use the word \textit{stochastic} but $\overline{T^{*}}$ is actually deterministic since it does not depend on $z$. From our Lemma \ref{lemma-is-bar-optimal}, we derive that if $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})\neq \mathbb{Q}$, it holds that $(f^{*},\overline{T^{*}})$ is a fake saddle point.
+
+% Thanks to \citep[Lemma 4]{korotin2023neural}, we know that any optimal stochastic transport map $T^{*}\in \arginf_{T}\mathcal{L}(f^{*},T)$.
+% Recall that $\overline{T^{*}}$ denotes the optimal barycentric projection (shared by all the optimal plans). We have
+% \begin{corollary}[Barycentric projection is a minimizer] \label{cor-bar-contained}Define $\overline{T^{*}}(x,z)\stackrel{def}{=}\nabla\phi^{*}(x)$. It holds
+% \begin{equation}\overline{T^{*}}\in \arginf_{T}\mathcal{L}(f^{*},T).
+% \label{bar-in-arginf}
+% \end{equation}
+% \end{corollary}
+% \begin{lemma}[Barycentric projection is not always an optimal stochastic map]It holds
+% \begin{eqnarray}\overline{T^{*}}\mbox{ is a stochastic optimal transport map}\Leftrightarrow \Proj_{\preceq \mathbb{Q}}(\gamma^{-1}\sharp\mathbb{P})=\mathbb{Q}.
+% \label{T-bar-optimality}
+% \end{eqnarray}
+% Moreover, if conditions \eqref{T-bar-optimality} hold, $\overline{T^{*}}$ is the \underline{unique} stochastic OT map.
+% \end{lemma}
+\begin{corollary}[Existence of fake saddle points]  Assume that $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})\neq \mathbb{Q}$. Then problem \eqref{L-def} has optimal saddle points $(f^{*},T^{*})$ in which $T^{*}$ is not a stochastic OT map.
+\label{corollary-existence-fake}
+\vspace{-2mm}
+\end{corollary}
+Beside $\overline{T^{*}}$, our Theorem \ref{lemma-characterization} can be used to construct arbitrary many fake solutions which are not OT maps. Let $T^{*}$ be \textit{any} stochastic OT map and $T^{\dagger}\in\arginf_{T}\mathcal{L}(f^{*},T)$ satisfy $T^{\dagger}\neq T^{*}$ and $\Var\big(T^{\dagger}\sharp(\mathbb{P}\!\times\!\mathbb{S})\big)\leq \Var(\mathbb{Q})$. For example, $T^{\dagger}$ may be another stochastic OT map or the optimal barycentric projection $\overline{T^{*}}$. For any $\alpha\in (0,1)$ consider $T^{\alpha}=\alpha T^{*}+(1-\alpha)T^{\dagger}\in\arginf_{T}\mathcal{L}(f^{*},T)$.
+\begin{proposition}[Interpolant is not a stochastic OT map] Assume that $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})\neq \mathbb{Q}$. Then $T^{\alpha}\sharp(\mathbb{P}\times\mathbb{S})\neq \mathbb{Q}$. Consequently, $T^{\alpha}$ is not a stochastic OT map between $\mathbb{P}$ and $\mathbb{Q}$.
+\label{prop-interpolant}
+\vspace{-2mm}
+\end{proposition}
+It follows that a \textit{necessary} condition for non-existence of fake saddle points is $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})=\mathbb{Q}$.
+% Our following Proposition \eqref{prop-gamma-greater} provides an intuitive explanation what does this condition mean.
+% \begin{proposition}[Exact projection property] Let $\mathbb{P}_{0}$, $\mathbb{Q}_{0}$ be centered copies of $\mathbb{P},\mathbb{Q}$. The equality
+% $\Proj_{\preceq\mathbb{Q}}(\gamma^{-1}\sharp\mathbb{P})= \mathbb{Q}$ holds if and only if $ \gamma\sharp\mathbb{Q}_{0}\preceq\mathbb{P}_{0}$, i.e., $\mathbb{P}_{0}$ is "more disperse" than $\gamma\sharp\mathbb{Q}_{0}$.
+% \label{prop-gamma-greater}
+% \end{proposition}
+% That is, to avoid fake solutions it is necessary for $\mathbb{P}$ to be "$\gamma$-times more disperse" than $\mathbb{Q}$.
+This requirement is very restrictive and naturally prohibits using large values of $\gamma$. Also, due to our Lemma \ref{lemma-is-bar-optimal}, the OT plan between $\mathbb{P},\mathbb{Q}$ must be deterministic. From the practical point of view, this requirement means that there will be no diversity in samples $T_{x}^{*}(z)$ for a fixed $x$ and  $z\sim\mathbb{S}$.
+
+\begin{figure}[!t]
+\hspace{-6mm}\begin{subfigure}[b]{0.2775\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_input.png}
+\vspace{-2mm}\caption{\centering \vspace{0.5mm}Input and target\newline distributions $\mathbb{P}$ and $\mathbb{Q}$.}
+\label{fig:toy-input-output}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_bar_0.5.png}
+\vspace{-2mm}\caption{\centering Fitted map $\hat{T}_{x}(z)$\newline for $\gamma=\frac{1}{2}$.}
+\label{fig:gamma-0.5}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_bar_0.75.png}
+\vspace{-2mm}\caption{\centering Fitted map $\hat{T}_{x}(z)$\newline for $\gamma=\frac{3}{4}$.}
+\label{fig:gamma-0.75}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_bar_1.png}
+\vspace{-2mm}\caption{\centering Fitted map $\hat{T}_{x}(z)$\newline for $\gamma=1$.}
+\label{fig:gamma-1}
+\end{subfigure}
+\vspace{-6mm}
+\caption{Stochastic maps $\widehat{T}$ between $\mathbb{P}$ and $\mathbb{Q}$ fitted by NOT algorithm with costs $C_{2,\gamma}$ for various $\gamma$.}
+\label{fig:toy-divergence}
+\vspace{-7mm}
+\end{figure}
+
+On the other hand, if $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})\neq \mathbb{Q}$, i.e., $\mathbb{P}$ is not $\gamma$-\textit{times more disperse} than $\mathbb{Q}$, the optimization may indeed converge to fake solutions. To show this, we consider the following example.
+
+\vspace{-0.5mm}\underline{\textbf{Toy 2D example}}. We consider $\mathbb{P}=\mathcal{N}(0,[\frac{1}{2}]^2 I_{2})$, $\mathbb{Q}=\mathcal{N}(0,I_{2})$ (Figure \ref{fig:toy-input-output}) and run NOT \citep[Algorihm 1]{korotin2023neural} for  $\gamma\!\in\!\{\!\frac{1}{2},\frac{3}{4},1\!\}$-weak quadratic costs $C_{2,\gamma}$. We show the learned stochastic maps $\hat{T}_{x}(z)$ and their barycentric projections $\overline{T}(x)\stackrel{def}{=}\int_{\mathcal{Z}}\widehat{T}_{x}(z)d\mathbb{S}(z)$ in Figures \ref{fig:gamma-0.5}, \ref{fig:gamma-0.75}, \ref{fig:gamma-1}.
+
+\vspace{-0.5mm}\textbf{Good case}. When $\gamma\leq\frac{1}{2}$, we have $\frac{1}{\gamma}\sharp\mathbb{P}=\mathcal{N}(0,[\frac{1}{2\gamma}]^2 I_{2})$ with $\frac{1}{2\gamma}\geq 1$. Since the distributions $\frac{1}{\gamma}\sharp\mathbb{P}$ and $\mathbb{Q}$ are Gaussians and $\Sigma_{\mathbb{Q}}\preceq\Sigma_{\frac{1}{\gamma}\sharp\mathbb{P}}$,  we conclude that $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})=\mathbb{Q}$ \citep[Corollary 2.1]{gozlan2020mixture}. Next, we use our Lemma \ref{lemma-is-bar-optimal} and derive that the OT plan is unique, deterministic and equals the barycentric projection. The latter is the OT map between $\mathbb{P}$ and $\mathbb{Q}$ for the quadratic cost. It is given by  $\nabla\phi^{*}(x)=2x$ \citep[Theorem 2.3]{alvarez2016fixed}. In Figure \ref{fig:gamma-0.5} (when $\gamma=\frac{1}{2}$), we have $\widehat{T}_{x}(z)=\overline{T}(x)\approx 2x=\nabla\phi^{*}(x)$ and $\widehat{T}\sharp(\mathbb{P}\!\times\!\mathbb{S})\approx\mathbb{Q}$. Thus, NOT \underline{\textit{correctly learns}} the (unique and deterministic) OT plan.
+
+\vspace{-0.5mm}\textbf{Bad case}. When $\gamma>\frac{1}{2}$, we have $\frac{1}{\gamma}\sharp\mathbb{P}=\mathcal{N}(0,[\frac{1}{2\gamma}]^2 I_{2})$ with $\frac{1}{2\gamma}<1$. Since $\frac{1}{\gamma}\sharp\mathbb{P}$ and $\mathbb{Q}$ are Gaussians and $\Sigma_{\mathbb{Q}}\succeq\Sigma_{\frac{1}{\gamma}\sharp\mathbb{P}}$, we conclude that $\frac{1}{\gamma}\mathbb{P}\preceq\mathbb{Q}$ (recall \wasyparagraph\ref{sec-background-ot}). Thus, $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})=\frac{1}{\gamma}\sharp\mathbb{P}\neq \mathbb{Q}$ by definition of the projection \eqref{conv-proj}.
+% The OT plan is non-deterministic.
+The optimal barycentric projection is the OT map between Gaussians $\mathbb{P}$ and $\frac{1}{\gamma}\sharp\mathbb{P}$ for the quadratic cost. It is given by $\nabla\phi^{*}(x)=\frac{1}{\gamma} x$ \citep[Theorem 2.3]{alvarez2016fixed}. In Figures \ref{fig:gamma-0.75} and \ref{fig:gamma-1}, we see that the learned  $\overline{T}(x)\approx\frac{1}{\gamma} x$, i.e., $\widehat{T}$ captures the conditional expectation of $\pi^{*}(y|x)$ shared by all OT plans $\pi^{*}$ (\wasyparagraph\ref{sec-background-ot}). However, $\widehat{T}\sharp(\mathbb{P}\!\times\!\mathbb{S})\neq\mathbb{Q}$ and NOT \underline{\textit{fails to learn}} an OT plan.
+
+\vspace{-1mm}Importantly, we found that when $\gamma>\frac{1}{2}$ (Figures \ref{fig:gamma-0.75}, \ref{fig:gamma-1}), the transport map $\hat{T}$ extremely \textit{fluctuates} during the optimization rather than converges to a solution. In Figure \ref{fig:toy-fluctuation},  we visualize the evolution of $\widehat{T}$ during training (for $\gamma=1$). In all the cases, the barycentric projection $\overline{T}(x)\approx x=\nabla\phi^{*}(x)$ is almost correct. However, the "remaining" part of $\widehat{T}$ is literally \underline{random}.
+% This is not a coincidence, and our theory explains that such $\widehat{T}$ are indeed fake solutions.
+To explain the behavior, we integrate $\nabla\phi^{*}(x)=x$ and get that $\phi^{*}(x)=\frac{1}{2}\|x\|^{2}$ is an optimal restricted potential.
+We derive $\psi(y)=\overline{\phi^{*}}(y)-\frac{1}{2}\|y\|^{2}=\frac{1}{2}\|y\|^{2}-\frac{1}{2}\|y\|^{2}\equiv 0\Longrightarrow U_{\psi}(y)=U_{0}(y)\equiv\mathbb{R}^{D}\mbox{ for every }y\in\mathbb{R}^{D}.$
+From our Theorem \ref{lemma-characterization} it follows that
+$T^{\dagger}\!\in\! \arginf_{T}\mathcal{L}(f^{*},T) \Leftrightarrow \int_{\mathcal{Z}} T_{x}^{\dagger}(z)d\mathbb{S}(z)=\nabla\phi^{*}(x)=x$ holds $\mathbb{P}$-almost everywhere.
+Thus, a function $T^{\dagger}$ recovered from \eqref{L-def} may be literally any function which captures the first conditional moment of a plan  $\pi^{*}(y|x)$. This agrees with our practical observations.
+\begin{figure}[!t]
+\hspace{-6mm}\begin{subfigure}[b]{0.277\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_gamma_1_step_1.png}
+\vspace{-2mm}\caption{\centering Iteration 10k.}
+\label{fig:iter-10000}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_gamma_1_step_2.png}
+\vspace{-2mm}\caption{\centering Iteration 10k+100.}
+\label{fig:iter-10100}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_gamma_1_step_3.png}
+\vspace{-2mm}\caption{\centering Iteration 10k+200.}
+\label{fig:iter-10200}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy_gamma_1_step_4.png}
+\vspace{-2mm}\caption{\centering Iteration 10k+300.}
+\label{fig:iter-10300}
+\end{subfigure}
+\caption{\vspace{-2mm}The evolution of the learned transport map $\widehat{T}$ during training on a toy 2D example ($\gamma=1$).}
+\label{fig:toy-fluctuation}
+\vspace{-4.3mm}
+\end{figure}
+In Appendix \ref{sec-toy-example-fake-extra}, we give an \underline{additional toy example} illustrating the issue with fake solutions.
+
+% \subsection{Is the Existence of Fake Solutions a Problem? A Discussion}
+% \label{sec-w2-discussion}
+
+\vspace{-0.5mm}Our results show that the $\gamma$-weak quadratic cost $C_{2,\gamma}$ may be not a good choice for NOT algorithm due to fake solutions.
+% Below we provide an \textbf{discussion} whether fake solutions are indeed practically problematic and whether they can be avoided by common deep learning tricks.
+However, prior works on OT \citep{korotin2023neural,rout2022generative,fan2022scalable,gazdieva2022optimal,korotin2022wasserstein} use strong/weak quadratic costs and show promising practical performance. \textit{Should we really care about solutions being fake?}
+
+\vspace{-0.5mm}\textbf{Yes}. First, fake solutions $T^{*}\in\arginf_{T}\mathcal{L}(f^{*},T)$ do not satisfy $T^{*}\sharp(\mathbb{P}\!\times\!\mathbb{S})\neq \mathbb{Q}$, i.e., they are \textit{not distribution preserving} (Lemma \ref{lemma-fake-problem}). Second, our analysis suggests that fake solutions might be one of the \textit{causes} for the training instabilities reported in related works \citep[Appendix D]{korotin2023neural}, \citep[\wasyparagraph 4]{korotin2021neural}: the map $\widehat{T}$ may fluctuate between fake solutions rather than converge. 
+% Thus, the fitted map $T$ might even fail to match the true statistics of target data distribution $\mathbb{Q}$.
+% In certain practical cases it is undesired, e.g., in potential medical applications. Failing to learn data statistics of $\mathbb{Q}$ (and learning some other ones instead), e.g., in the super-resolution of MRI images ($\mathbb{P}$ are low-resolution scans, $\mathbb{Q}$ are high-resolution scans), might lead to a wrong diagnosis made by a doctor due to SR algorithm drawing inexistent details on the scan.
+    % Thus, it is essential to emphasize and alleviate the issue with fake solutions.
+    
+    
+% \underline{\textbf{Q2: Pre-processing}}. \textit{The analysis suggests that to avoid fake solutions one needs $\mathbb{Q}\preceq\gamma^{-1}\sharp\mathbb{P}$. Why not to simply scale one of the distributions $\mathbb{P},\mathbb{Q}$, e.g., multiply by a constant, to satisfy this condition?}
+    
+% \textbf{A2:} First, not for all $\mathbb{P},\mathbb{Q}$ there exists scale factor $\beta>0$ so that $\beta\sharp\mathbb{Q}_{0}\preceq\gamma^{-1}\sharp\mathbb{P}_{0}$. When $\mathbb{P}=\mathcal{N}(0,1)$ and $\mathbb{Q}=\delta_{0}$ for all $\beta>0$ it holds that $\beta\sharp\mathbb{Q}\equiv \mathbb{Q}$ is not greater than $\gamma^{-1}\sharp\mathbb{P}$ in convex order. Second, scaling $\mathbb{P},\mathbb{Q}$ may change the OT plan. Consider $\mathbb{P}=\mathcal{N}(0,\frac{1}{2}),\mathbb{Q}=\mathcal{N}(0,1)$ and $\gamma=1$. It holds $\mathbb{P}\preceq \mathbb{Q}$; the OT plan between them is \textit{non-deterministic}. However, when one uses $\beta\sharp\mathbb{Q}$ with $\beta=\frac{1}{2}$ to get $\beta\mathbb{Q}\preceq\mathbb{P}$, it holds that $\mathbb{P}=\frac{1}{2}\sharp\mathbb{Q}$; the OT plan is the \textit{deterministic} identity map.
+
+% \underline{\textbf{Q3: Random restarts.}} \textit{The optimal maps $T^{*}$ are contained in the $\arginf_{T}$ sets \eqref{T-in-arginf}. Why not to randomly restart the NOT algorithm, e.g., with different random seeds, to get an optimal map?} 
+    
+    % (style transfer \citep{korotin2023neural}, image restoration \citep{rout2022generative,gazdieva2022optimal}, etc.).
+    
+% \textbf{A3:} For general $\mathbb{P},\mathbb{Q}$, it is unclear how to check whether the learned stochastic map $\widehat{T}$ is optimal and, in particular, whether it is distribution-preserving, i.e., it satisfies $\widehat{T}\sharp(\mathbb{P}\!\times\!\mathbb{S})=\mathbb{Q}$. Besides, it might be time-consuming to do multiple restarts in large-scale generative modeling tasks.
+
+\vspace{-2mm}\subsection{Kernel Weak Quadratic Cost Removes Fake Saddle Points}
+\label{sec-kernel-w2}
+\vspace{-2mm}In this section, we introduce kernel weak quadratic costs which generalize weak quadratic cost \eqref{weak-w2-cost}. We prove that for characteristic kernels the costs completely resolve the ambiguity of $\arginf_{T}$ sets.
+% As in the previous subsection, we consider $\mathcal{X}=\mathcal{Y}=\mathbb{R}^{D}$.
+
+Henceforth, we assume that $\mathcal{X}\!=\!\mathcal{Y}\!\subset\! \mathbb{R}^{D}$ are compact sets. Let $\mathcal{H}$ be a Hilbert space (feature space). Let $u:\mathcal{X}\rightarrow\mathcal{H}$ be a function (feature map).
+We define the $\gamma$-weak quadratic cost between features:
+\begin{equation}
+    C_{u,\gamma}(x,\mu)\stackrel{def}{=}\frac{1}{2}\int_{\mathcal{Y}}\|u(x)-u(y)\|^{2}_{\mathcal{H}}d\mu(y)-\frac{\gamma}{2}\cdot\bigg[\frac{1}{2}\int_{\mathcal{Y}\times\mathcal{Y}}\hspace{-3mm}\|u(y)-u(y')\|_{\mathcal{H}}^{2}d\mu(y)d\mu(y')\bigg].
+    \label{u-cost}
+    \vspace{-1mm}
+\end{equation}
+% Solving OT problem \eqref{ot-primal-form-weak} with feature cost \eqref{u-cost} in the ambient space $\mathcal{X}$ can be equivalently reformulated as solving the OT problem between $u\sharp\mathbb{P},u\sharp\mathbb{Q}$ for the $\gamma$-weak quadratic cost $C_{2,\gamma}$ (w.r.t. $\|\cdot\|_{\mathcal{H}}$) in the feature space $\mathcal{H}$. For completeness of the exposition, we formalize this statement.
+% \begin{lemma}[Relation between OT in the ambient and the feature spaces] The following holds:
+% \begin{enumerate}[leftmargin=3mm]
+%     \item If a plan $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ is an OT plan for the feature cost $C_{u,\gamma}$ then the plan $(u,u)\sharp\pi^{*}$ is optimal for $u\sharp\mathbb{P},u\sharp\mathbb{Q}$ and the $\gamma$-weak quadratic cost $C_{2,\gamma}$ in $\mathcal{H}$.
+% \end{enumerate}
+
+% \end{lemma}
+% Or following lemma shows that solving the OT problem between $\mathbb{P},\mathbb{Q}$ with cost $C_{k,\gamma}$ in the ambient space $\mathbb{R}^{D}$ is (almost) equivalent to solving the OT problem between $u\sharp\mathbb{P}$ and $u\sharp\mathbb{Q}$ in the feature space $\mathcal{H}$ with 
+
+% When cost \eqref{u-cost} is used in \eqref{ot-primal-form-weak}, the first term stimulates the transport plan to minimally change the features of input point $x\in\mathcal{X}$, while the second variance term suggest that the plan should be disperse in features.
+
+% Interestingly, the weak OT problem \eqref{ot-primal-form-weak} with cost \eqref{u-cost} boils down to OT with the quadratic cost \eqref{weak-w2-cost} between $u$-embedded copies of $\mathbb{P}$, $\mathbb{Q}$.
+
+\vspace{-2mm}We denote the PDS kernel $k:\mathcal{Y}\times\mathcal{Y}\rightarrow\mathbb{R}$ with the feature map $u$ by $k(y,y')\stackrel{def}{=}\langle u(y),u(y')\rangle_{\mathcal{H}}$. Cost \eqref{u-cost} can be computed without knowing the map $u$, i.e., it is enough to know the PDS kernel $k$. By using $\|u(y)-u(y')\|_{\mathcal{H}}^{2}=k(y,y)-2k(y,y')+k(y',y')$, we obtain the equivalent form of \eqref{u-cost}:
+\begin{equation}
+    \hspace{-1mm}C_{k,\gamma}(x,\mu)\!\stackrel{def}{=}\!\frac{1}{2}k(x,x)+\frac{1\!-\!
+    \gamma}{2}\!\int_{\mathcal{Y}}\!k(y,y)d\mu(y)-\!
+    \int_{\mathcal{Y}}\hspace{-1mm}\!k(x,y)d
+    \mu(y)+
+    \frac{\gamma}{2}\int_{\mathcal{Y}\times \mathcal{Y}}\hspace{-4mm}k(y,y')d\mu(y)d\mu(y').\hspace{-1mm}
+    \label{k-cost}
+    \vspace{-1mm}
+\end{equation}
+We call \eqref{u-cost} and \eqref{k-cost} the $\gamma$-\textit{weak kernel cost}. The $\gamma$-weak quadratic cost \eqref{weak-w2-cost} is its particular case for $\mathcal{H}=\mathbb{R}^{D}$ and $u(x)=x$. The respective kernel $k(x,y)=\langle u(x),u(y)\rangle=\langle x,y\rangle$ is bilinear.
+\begin{lemma}[Weak kernel costs are appropriate] Let $k$ be a continuous PDS kernel and $\gamma\in [0,1]$. Then the cost $C_{k,\gamma}(x,\mu)$ is convex, lower semi-continuous and lower bounded in $\mu$.
+\label{lemma-appropriate-k}
+\vspace{-2mm}
+\end{lemma}
+\begin{figure}[!t]
+\vspace{-1mm}\hspace{-5.5mm}\begin{subfigure}[b]{0.51\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbags_shoes_128_1.png}
+\vspace{-2mm}\caption{\centering Handbag $\rightarrow$ shoes, $128\times 128$.}
+\label{fig:handbag-shoes-128}
+\end{subfigure}\hspace{2mm}
+\begin{subfigure}[b]{0.51\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/shoes_handbags_128_1.png}
+\vspace{-2mm}\caption{\centering Shoes $\rightarrow$ handbags, $128\times 128$.}
+\label{fig:shoes-handbag-128}
+\end{subfigure}
+% \vspace{-2mm}
+\caption{Unpaired one-to-many translation with kernel Neural Optimal Transport (NOT).}
+\label{fig:handbags-shoes}\vspace{-5mm}
+\end{figure}
+\begin{corollary}[Existence and duality for kernel costs]
+Let $k$ be a continuous PDS kernel and $\gamma\in [0,1]$. Then an OT plan $\pi^{*}$ for cost $C_{k,\gamma}(x,\mu)$ exists and duality formulas \eqref{ot-weak-dual} and \eqref{L-def} hold true.
+\vspace{-2mm}
+\end{corollary}
+% Thanks to our Lemma \eqref{lemma-convexity-k}, we conclude that an optimal plan $\pi^{*}$  which minimizes \eqref{ot-primal-form-weak} exists and the duality formula \eqref{ot-weak-dual} holds for cost $C_{k,\gamma}$. Consequently, the NOT algorithm \eqref{L-def} can be applied to implicitly compute $\pi^{*}$ in practice.
+We focus on characteristic kernels $k$ and show that they resolve the ambiguity in $\arginf_{T}$ sets.
+
+\begin{lemma}[Uniqueness of the optimal plan for characteristic kernel costs] Let $k$ be a characteristic PDS kernel and $\gamma\in (0,1]$. Then the OT plan $\pi^{*}$ for cost $C_{k,\gamma}(x,\mu)$ is unique.
+\label{lemma-unique-plan}
+\end{lemma}
+
+\begin{theorem}[Optimality of stochastic functions in all optimal saddle points]Let $k$ be a continuous characteristic PDS kernel and $\gamma\in (0,1]$. Consider weak OT problem \eqref{ot-primal-form-weak} with cost $C_{k,\gamma}$ and its dual problem \eqref{ot-weak-dual}.
+For any optimal potential $f^{*}\in\argsup_{f}\inf_{T}\mathcal{L}(f,T)$ it holds that
+\begin{equation}T^{*}\!\in\! \arginf\nolimits_{T}\mathcal{L}(f^{*},T)\Longleftrightarrow 
+T^{*}_{x}\sharp\mathbb{S}=\pi^{*}(y|x)\mbox{ holds true }\mathbb{P}\mbox{-almost surely for all }x\in\mathcal{X}\mbox{ },
+\end{equation}
+i.e., \underline{every} optimal saddle point $(f^{*},T^{*})$ provides a stochastic OT map $T^{*}$.
+\label{thm-resolved-kernel}
+\vspace{-1mm}
+\end{theorem}
+Bilinear kernel $k(x,y)=\langle x,y\rangle$ is not characteristic and is not covered by our Theorem \ref{thm-resolved-kernel}; its respective $\gamma$-weak quadratic cost $C_{2,\gamma}$ suffers from fake solutions (\wasyparagraph\ref{sec-issues-w2}). In the next subsection, we give examples of practically interesting kernels $k(x,y)$ which are ideologically similar to the bilinear but are characteristic. Consequently, their respective costs $C_{k}$ do not have ambiguity in $\arginf_{T}$ sets.
+
+\vspace{-2mm}\subsection{Practical Aspects of Learning with Kernel Costs}
+\label{sec-practical-aspects}
+
+\vspace{-1mm}\textbf{Optimization.} To learn the stochastic OT map $T^{*}$ for kernel cost \eqref{k-cost}, we use NOT's training procedure \citep[Algorithm 1]{korotin2023neural}. It requires stochastic estimation of $C_{k,\gamma}(x,T_{x}\sharp\mathbb{S})$ to compute the corresponding term in \eqref{L-def}. Similar to the $\gamma$-weak quadratic cost \citep[Equation 23]{korotin2023neural}, it is possible to derive the following \textit{unbiased} Monte-Carlo estimator $\widehat{C}_{k,\gamma}$ for $x\in\mathcal{X}$ and a batch $Z\sim\mathbb{S}$ ($|Z|\geq 2$):\vspace{-2mm}
+\begin{eqnarray}
+    \widehat{C}_{k,\gamma}\big(x,T_{x}(Z)\big)=\frac{1}{2}k(x,x)+\frac{1\!-\!
+    \gamma}{2|Z|}\sum_{z\in Z}k\big(T_{x}(z),T_{x}(z)\big)-
+    \nonumber
+    \\
+    \frac{1}{|Z|}\sum_{z\in Z}k(x,T_{x}(z))+
+    \frac{\gamma}{2|Z|(|Z|-1)}\sum_{z\neq z'}k\big(T_{x}(z),T_{x}(z')\big)\approx C_{k,\gamma}(x,T_{x}\sharp\mathbb{S}).
+    \label{kernel-estimator}
+    \vspace{-1mm}
+\end{eqnarray}
+The time complexity of estimator \eqref{kernel-estimator} is $O(|Z|^{2})$ since it requires considering pairs $z,z'$ in batch to estimate the variance term. Specifically for the bilinear kernel $k(y,y')=\langle y,y'\rangle$, the variance can be estimated in $O(|Z|)$ operations \citep[Equation 23]{korotin2023neural}, but NOT algorithm may suffer from fake solutions (\wasyparagraph\ref{sec-issues-w2}).
+
+\begin{figure}[!t]
+\vspace{-1mm}\hspace{-5.5mm}\begin{subfigure}[b]{0.51\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/dtd_shoes_128.png}
+\vspace{-2mm}\caption{\centering Texture $\rightarrow$ shoes, $128\times 128$.}
+\label{fig:dtd-shoes-128}
+\end{subfigure}\hspace{2mm}
+\begin{subfigure}[b]{0.51\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/dtd_handbags_128.png}
+\vspace{-2mm}\caption{\centering Texture $\rightarrow$ handbags, $128\times 128$.}
+\label{fig:dtd-handbag-128}
+\end{subfigure}
+\caption{Unpaired one-to-many translation with kernel Neural Optimal Transport (NOT).}\label{fig:textures}\vspace{-5mm}
+\end{figure}
+\textbf{Kernels.} Consider the family of distance-induced kernels ${k(x,y)\!=\!\frac{1}{2}\|x\|^{\alpha}\!+\!\frac{1}{2}\|y\|^{\alpha}\!-\!\frac{1}{2}\|x-y\|^{\alpha}}$. For these kernels, we have $\|u(x)-u(x')\|_{\mathcal{H}}^{2}=\|x-x'\|^{\alpha}$, i.e., \eqref{u-cost}, \eqref{k-cost} can be expressed as
+\begin{equation}C_{k,\gamma}(x,\mu)=C_{u,\gamma}(x,\mu)=\frac{1}{2}\int_{\mathcal{Y}}\|x-y\|^{\alpha}d\mu(y)-\frac{\gamma}{2}\cdot\bigg[\frac{1}{2}\int_{\mathcal{Y}\times\mathcal{Y}}\hspace{-1mm}\|y-y'\|^{\alpha}d\mu(y)d\mu(y')\bigg].
+\label{energy-based-cost}
+\end{equation}
+For $\alpha=2$ the kernel is bilinear, i.e., $k(x,y)=\langle x,y\rangle$; it is PDS but not characteristic and \eqref{energy-based-cost} simply becomes the $\gamma$-weak quadratic cost \eqref{weak-w2-cost}. In the experiments (\wasyparagraph\ref{sec-evaluation}), we focus on the case $\alpha=1$; it yields a PDS and characteristic kernel \citep[Definition 13 \& Proposition 14]{sejdinovic2013equivalence}. 
+% Note that \eqref{energy-based-cost} is a similar expression to the $\gamma$-weak quadratic cost \eqref{weak-w2-cost}, but $\|\cdot\|^{2}$ is replaced by $\|\cdot\|$.
+
+\vspace{-1mm}\section{Related Work}
+\vspace{-0.3mm}In deep learning, \textbf{OT costs} are primarily used as losses to train generative models. Such approaches are called Wasserstein GANs \citep{arjovsky2017towards}; they are \textbf{\underline{not related}} to our paper since they only compute OT costs but not OT plans. Below we discuss methods to compute \textbf{OT plans}.
+
+\textbf{Existing OT solvers.} NOT \citep{korotin2023neural} is \underline{the only} parametric algorithm which is capable of computing OT plans for \underline{\textit{weak}} costs \eqref{ot-primal-form-weak}. Although NOT is generic, the authors tested it only with the $\gamma$-weak quadratic cost \eqref{weak-w2-cost}. The core of NOT is saddle point formulation \eqref{L-def} which subsumes analogs \citep[Eq. 9]{korotin2021neural}, \citep[Eq. 14]{rout2022generative}, \citep[Eq. 11]{fan2022scalable}, \citep[Eq. 11]{henry2019martingale}, \citep[Eq. 10]{gazdieva2022optimal}, \citep[Eq. 7]{korotin2022wasserstein} for \textit{strong} costs \eqref{ot-primal-form}. For the strong quadratic cost, \citep{makkuva2020optimal}, \citep[Eq. 2.2]{taghvaei20192}, \citep[Eq. 10]{korotin2021wasserstein} consider analogous to \eqref{dual-barycentric} formulations restricted to convex potentials; they use Input Convex Neural Networks (ICNNs \citep{amos2017input}) to approximate the potentials. ICNNs are popular in OT \citep{korotin2021continuous,mokrov2021large,huang2020convex,alvarez-melis2022optimizing,bunne2022proximal} but recent studies \citep{korotin2021neural,korotin2022wasserstein,fan2022variational} show that OT algorithms based on them underperform compared to unrestricted formulations such as NOT.
+
+In \citep{genevay2016stochastic,seguy2018large,daniels2021score}, the authors propose neural algorithms for $f$-divergence \textit{regularized} costs \citep{genevay2019entropy}. The first two methods suffer from bias in high dimensions \citep[\wasyparagraph 4.2]{korotin2021neural}.
+Algorithm \citep{daniels2021score} alleviates the bias but is not end-to-end and is computationally expensive due to using the Langevin dynamics.
+
+\vspace{-1mm}There also exist GAN-based \citep{goodfellow2014generative} methods
+\citep{lu2020large,xie2019scalable,gonzalez2022gan} to learn OT plans (or maps) for \textit{strong} costs. However, they are harder to set up in practice due to the large amount of tunable hyperparameters.
+
+\textbf{Kernels in OT.} In \citep{zhang2019optimal,oh2020novel}, the authors propose a \textbf{strong} kernel $\mathbb{W}_{2}$ distance and an algorithm to approximate the transport map under the Gaussianity assumption on $\mathbb{P},\mathbb{Q}$. In \citep{li2021hilbert}, the authors generalize Sinkhorn divergences \citep{genevay2019sample} to Hilbert spaces. These papers consider discrete OT formulations and data-to-data matching tasks; they do not use neural networks to approximate the OT map.
+
+% Besides the above-mentioned approaches, there exist several GAN-based \citep{goodfellow2014generative} approaches to learn OT maps, but only for \textbf{strong} costs.
+
+
+
+% \textbf{Kernel methods.} Common machine learning methods, e.g., SVMs for classification, Gaussian Processes for regression, Kernel PCA for data visualization, etc., employ kernel to enrich the feature space and build a more expressive model. In our case, we do not care about the feature space but use kernels as a tool to resolve the issues with fake solutions of the quadratic cost.
+
+\vspace{-2mm}\section{Evaluation}
+\label{sec-evaluation}
+\vspace{-1mm}In Appendix \ref{sec-toy-1D}, we learn OT between \underline{\textit{toy 1D distributions}} and perform comparisons with discrete OT. In Appendix \ref{sec-toy}, we conduct tests on \underline{\textit{toy 2D distributions}}. In this section, we test our algorithm on an \underline{\textit{unpaired image-to-image translation}} task. We perform \underline{\textit{comparison}} with principal translation methods in Appendix \ref{sec-exp-comparison}. The code is written in \texttt{PyTorch} framework and is available at\vspace{-2mm}
+\begin{center}
+\url{https://github.com/iamalexkorotin/KernelNeuralOptimalTransport}
+\end{center}
+% together with the trained translation networks. 
+
+\vspace{-2mm}\textbf{Image datasets.} We test the following datasets as $\mathbb{P},\mathbb{Q}$: aligned anime faces\footnote{\url{kaggle.com/reitanaka/alignedanimefaces}}, celebrity faces \citep{liu2015faceattributes}, shoes \citep{yu2014fine}, Amazon handbags, churches from LSUN dataset \citep{yu2015lsun}, outdoor images from the MIT places database \citep{zhou2014learning}, describable textures \citep{cimpoi14describing}. The size of datasets varies from 5K to 500K images. 
+
+\textbf{Train-test split.} We pick 90\% of each dataset for unpaired training. The rest 10\% are considered as the test set. All the results presented here are \textit{exclusively} for test images, i.e., \textit{unseen data}.
+
+\textbf{Transport costs.} We focus on the $\gamma$-weak cost for the kernel $k(x,y)=\frac{1}{2}\|x\|+\frac{1}{2}\|y\|-\frac{1}{2}\|x-y\|$. For completeness, we test \underline{\textit{other popular PDS kernels}} in Appendix \ref{sec-different-kernels}.
+
+Other \textbf{training details} (optimizers, architectures, pre-processing, etc.) are given in Appendix \ref{sec-details}.
+
+We learn stochastic OT maps between various pairs of datasets. We rescale images to $128\times 128$ and use $\gamma=\frac{1}{3}$ in the experiments with the kernel cost. Additionally, in Appendix \ref{sec-variance-similarity} we analyse how \textit{\underline{varying parameter $\gamma$}}  affects the diversity of generated samples.
+We provide the qualitative results in Figures \ref{fig:anime-church}, \ref{fig:handbags-shoes} and \ref{fig:textures}; \underline{\textit{extra results}} are in Appendix \ref{sec-extra-results}. Thanks to the first term in \eqref{energy-based-cost}, our translation map $\hat{T}_{x}(z)$ tries to minimally change the image content $x$ in the pixel space. At the same time, the second term (kernel variance) in \eqref{energy-based-cost} enforces the map to produce diverse outputs for different $z\sim\mathbb{S}$.
+
+\begin{wraptable}{r}{7.3cm}
+\vspace{-1mm}\centering
+\scriptsize
+\begin{tabular}{|c|c|c|c|}
+ \toprule
+\makecell{\textbf{Datasets}\\($128\!\times\!128$)} & \makecell{$C_{2,0}$\\(strong) 
+% \\\citep[\wasyparagraph 5.2]{korotin2023neural}
+} & \makecell{$C_{2,\gamma}$\\ (weak)
+% \\ \citep[\wasyparagraph 5.3]{korotin2023neural}
+} & \makecell{$C_{k,\gamma}$\\(weak)\\ \textbf{Ours}} \\ \midrule
+Handbags $\rightarrow$ shoes & 35.7 & 33.9 $\pm$ 0.2 & \textbf{26.7} $\pm$ 0.06  \\ \midrule
+Shoes $\rightarrow$ handbags & 39.8 & $-$ & \textbf{29.51} $\pm$ 0.19 \\  \midrule
+Outdoor $\rightarrow$ church & 25.5 & 25.97 $\pm$ 0.14 & \textbf{15.16} $\pm$ 0.03 \\ \midrule
+Celeba (f) $\rightarrow$ anime & 38.73 & 28.21 $\pm$ 0.12 & \textbf{21.96} $\pm$ 0.07 \\ \bottomrule
+\end{tabular}
+\caption{\centering Test \textbf{FID}$\downarrow$ of NOT with various costs.}\label{table-fid}\vspace{-5mm}
+\end{wraptable}We provide quantitative comparison with NOT with the $\gamma$-weak quadratic cost $C_{2,\gamma}$. We compute FID score \citep{heusel2017gans} between the mapped input test subset and the output test subset (Table \ref{table-fid}). For $C_{2,\gamma}$, we use the pre-trained models provided by the authors of NOT \citep[\wasyparagraph 5]{korotin2023neural}.\footnote{\url{https://github.com/iamalexkorotin/NeuralOptimalTransport}} We observe that FID of NOT with kernel cost $C_{k,\gamma}$ is better than that of NOT with cost $C_{2,\gamma}$. We show qualitative examples in
+% Figure \ref{fig:not-comparison} and give \underline{\textit{extra examples}} in 
+Appendix \ref{sec-not-extra-comparison}. In Appendix \ref{sec-exp-fluctuation}, we perform a detailed comparison of NOT's \underline{\textit{training stability}} with the weak quadratic and kernel costs.
+
+\vspace{-2mm}\section{Discussion}
+\label{sec-discussion}
+
+\vspace{-2mm}\textbf{Potential impact.} Neural OT methods and their usage in generative models constantly advance. We expect our proposed weak kernel quadratic costs to improve applications of OT to unpaired learning. In particular, we hope that our theoretical analysis provides better understanding of the performance. 
+
+\textbf{Limitations (theory).} In our Theorem \ref{thm-resolved-kernel}, we implicitly assume the existence a maximizer $f^{*}$ of dual form \eqref{ot-weak-dual} for kernel costs $C_{k,\gamma}$. Deriving precise conditions for existence of such maximizers is a challenging question. We hope that this issue will be addressed in the future theoretical OT research.
+
+\textbf{Limitations (practice).} Applying kernel costs to domains of different nature (\textit{RGB images} $\rightarrow$ \textit{depth maps}, \textit{infrared images} $\rightarrow$ \textit{RGB images}) is not straightforward as it might require selecting meaningful \textit{shared} features $u$ (or kernel $k$). Studying this question is a promising avenue for the future research.
+
+\textbf{Reproducibility.} We provide the source code for all experiments and release the checkpoints for all models of \wasyparagraph\ref{sec-evaluation}. The details are given in \texttt{README.MD} in the official repository.
+
+\texttt{ACKNOWLEDGEMENTS.} The work was supported by the Analytical center under the RF Government (subsidy agreement 000000D730321P5Q0002, Grant No. 70-2021-00145 02.11.2021).
+
+
+% \bibliographystyle{plain}
+% \bibliography{references}
+
+
+\bibliography{references}
+\bibliographystyle{iclr2023_conference}
+
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newpage
+% \section*{Checklist}
+
+% \begin{enumerate}
+
+
+% \item For all authors...
+% \begin{enumerate}
+%   \item Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope? \newline\answerYes{See \wasyparagraph\ref{sec-intro}.}
+%   \item Did you describe the limitations of your work?
+%   \newline\answerYes{See \wasyparagraph\ref{sec-discussion}.}
+%   \item Did you discuss any potential negative societal impacts of your work?
+% \newline\answerNA{}
+% % \answerNo{The potential societal impact is the same as that of any related work in the field of generative modeling. Namely, the advancement in the field may affect some jobs, e.g., those which are related to image processing and design.}
+%   \item Have you read the ethics review guidelines and ensured that your paper conforms to them?
+%     \answerYes{}
+% \end{enumerate}
+
+
+% \item If you are including theoretical results...
+% \begin{enumerate}
+%   \item Did you state the full set of assumptions of all theoretical results?
+%     \newline\answerYes{All the assumptions are stated in the main text.}
+%         \item Did you include complete proofs of all theoretical results?
+%     \newline\answerYes{All the proofs are given in the main text.}
+% \end{enumerate}
+
+
+% \item If you ran experiments...
+% \begin{enumerate}
+%   \item Did you include the code, data, and instructions needed to reproduce the main experimental results (either in the supplemental material or as a URL)?
+% \newline\answerYes{The code and the instructions are included in the supplementary material. The datasets that we use are publicly available.}
+%   \item Did you specify all the training details (e.g., data splits, hyperparameters, how they were chosen)?
+%     \newline\answerYes{See \wasyparagraph\ref{sec-evaluation} and the supplementary material (appendices + code).}
+%     \item Did you report error bars (e.g., with respect to the random seed after running experiments multiple times)?
+%     \newline\answerNo{Due to the well-known high computational complexity of learning generative models, we run most experiments (both with our method and alternatives) only once.}
+%     \item Did you include the total amount of compute and the type of resources used (e.g., type of GPUs, internal cluster, or cloud provider)?
+%     \newline\answerYes{See the discussion in section \wasyparagraph\ref{sec-discussion}}.
+% \end{enumerate}
+
+
+% \item If you are using existing assets (e.g., code, data, models) or curating/releasing new assets...
+% \begin{enumerate}
+%   \item If your work uses existing assets, did you cite the creators?
+%   \newline\answerYes{See \wasyparagraph\ref{sec-evaluation}}.
+%   \item Did you mention the license of the assets?
+%   \newline\answerNo{We refer to the datasets' public pages}.
+%   \item Did you include any new assets either in the supplemental material or as a URL?
+%   \newline\answerNA{}
+%   \item Did you discuss whether and how consent was obtained from people whose data you're using/curating?
+%   \newline\answerNA{}
+%   \item Did you discuss whether the data you are using/curating contains personally identifiable information or offensive content?
+%   \newline\answerNo{For the CelebA faces dataset, we refer to the original dataset authors publication.}
+% \end{enumerate}
+
+
+% \item If you used crowdsourcing or conducted research with human subjects...
+% \begin{enumerate}
+%   \item Did you include the full text of instructions given to participants and screenshots, if applicable?
+%   \newline\answerNA{}
+%   \item Did you describe any potential participant risks, with links to Institutional Review Board (IRB) approvals, if applicable?
+%   \newline\answerNA{}
+%   \item Did you include the estimated hourly wage paid to participants and the total amount spent on participant compensation?
+%   \newline\answerNA{}
+% \end{enumerate}
+
+% \end{enumerate}
+
+% \clearpage
+% \appendix
+
+\clearpage
+\section{Toy Experiments in 1D and comparison with Discrete OT}
+\label{sec-toy-1D}
+
+\vspace{-2mm}In this section, we learn transport plans between various pairs of toy 1D distributions and compare them with the discrete optimal transport (DOT) considered as the \underline{ground truth}. We use the distance-induced kernel and consider $\gamma\in \{1,10\}$. All the rest training details (fully-connected architectures, optimizers, etc.) match those of \citep[Appendix C]{korotin2023neural}. We consider \textit{Gaussian} $\mathcal{N}(0,1)$ $\rightarrow$ \textit{Mixture of 2 Gaussians} and \textit{Mixture of 3 Gaussians} $\rightarrow$ \textit{Mixture of 2 Gaussians}.
+
+\vspace{-1mm}In Figure \ref{fig:toy-1d}, we visualize the pairs $\mathbb{P},\mathbb{Q}$ (1st and 2nd columns), the plan $\hat{\pi}$ learned by Kernel NOT (3rd column) and the plan $\pi^{*}$ learned by DOT (4th column). To compute DOT, we sample $10^{3}$ random points $x\sim\mathbb{P},y\sim\mathbb{Q}$ and compute a discrete plan by \texttt{ot.optim.cg} solver from Python OT (POT) library \url{https://pythonot.github.io/}. Our learned plan $\hat{\pi}$ and DOT's plan $\pi^{*}$ nearly match. Note also that, as one may expect, with the increase of $\gamma$ from $1$ to $10$, the conditional variance of the plan increases and for \textbf{very} high $\gamma=10$ it becomes similar to the trivial plan $\mathbb{P}\times\mathbb{Q}$. This is analogous to the entropic optimal transport, see, e.g., \citep[Figure 4.2]{peyre2019computational}.
+\begin{figure}[!h]
+\vspace{-3mm}
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.995\linewidth]{pics/1to2_1.png}
+\caption{\vspace{-1mm}\centering  Gaussian $\mathcal{N}(0,1)$ $\rightarrow$ Mixture of 2 Gaussians, $\gamma=1$.}
+\label{fig:toy-1d-1to2-1}
+\end{subfigure}
+\vspace{-4mm}
+
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.995\linewidth]{pics/1to2_10.png}
+\caption{\vspace{-1mm}\centering  Gaussian $\mathcal{N}(0,1)$ $\rightarrow$ Mixture of 2 Gaussians, $\gamma=10$.}
+\label{fig:toy-1d-1to2-10}
+\end{subfigure}
+\vspace{-4mm}
+
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.995\linewidth]{pics/3to2_1.png}
+\caption{\vspace{-1mm}\centering  Mixture of 3 Gaussians $\rightarrow$ Mixture of 2 Gaussians, $\gamma=1$.}
+\label{fig:toy-1d-3to2-1}
+\end{subfigure}
+\vspace{-4mm}
+
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-7mm}\includegraphics[width=0.995\linewidth]{pics/3to2_10.png}
+\caption{\vspace{-3mm}\centering  Mixture of 3 Gaussians $\rightarrow$ Mixture of 2 Gaussians, $\gamma=10$.}
+\label{fig:toy-1d-3to2-10}
+\end{subfigure}
+\caption{Stochastic plans (3rd and 4th columns) between toy 1D distributions (1st and 2nd columns) learned by our Kernel NOT (3rd column) and discrete OT with the weak kernel cost (4th column).}
+\label{fig:toy-1d}\vspace{-18mm}
+\end{figure}
+
+\clearpage
+
+\section{Toy Experiments in 2D}
+\label{sec-toy}
+
+In this section, we learn transport maps between various common pairs of toy 2D distributions. We use the distance-induced kernel and $\gamma=1$. All the rest training details (fully-connected architectures, optimizers, etc.) exactly match those of \citep[Appendix B]{korotin2023neural}. We consider \textit{Gaussian} $\mathcal{N}(0,\frac{1}{2}I_{2})$ $\rightarrow$ \textit{Gaussian} $\mathcal{N}(0,I_{2})$ (the same experiment as in Figures \ref{fig:gamma-1} and \ref{fig:toy-fluctuation}), \textit{Gaussian} $\mathcal{N}(0,[\frac{1}{2}]^2 I_{2})$ $\rightarrow$ \textit{Mixture of 8 Gaussians} and \textit{Gaussian} $\mathcal{N}(0,[\frac{1}{2}]^2 I_{2})$ $\rightarrow$ \textit{Swiss roll} as $\mathbb{P},\mathbb{Q}$ pairs. In Figure \ref{fig:toy-extra}, we provide the learned stochastic (one-to-many) maps. Since the \underline{ground truth OT maps} for kernel costs \underline{are not known}, we provide only \textit{qualitative results}.
+
+\begin{figure}[!h]
+\vspace{-1mm}
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-5mm}\includegraphics[width=0.995\linewidth]{pics/energy_toy_gaussian.png}
+\caption{\centering Gaussian $\mathcal{N}(0,[\frac{1}{2}]^2 I_{2})$ $\rightarrow$ Gaussian $\mathcal{N}(0,I_{2})$.}
+\end{subfigure}
+\vspace{-2mm}
+
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-6mm}\includegraphics[width=0.995\linewidth]{pics/energy_toy_8gaussian.png}
+\caption{\centering  Gaussian $\mathcal{N}(0,[\frac{1}{2}]^2 I_{2})$ $\rightarrow$ Mixture of 8 Gaussians.}
+\end{subfigure}
+
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-6mm}\includegraphics[width=0.995\linewidth]{pics/energy_toy_swiss.png}
+\caption{\centering  Gaussian $\mathcal{N}(0,\frac{1}{2}I_{2})$ $\rightarrow$ Swiss roll.}
+\end{subfigure}
+\begin{subfigure}[b]{1.04\linewidth}
+\centering
+\hspace{-6mm}\includegraphics[width=0.995\linewidth]{pics/energy-toy-4mix-cube.png}
+\caption{\centering  Mixture of 4 Gaussians $\rightarrow$ Uniform.}
+\label{fig:toy-4mix-kernel}
+\end{subfigure}
+\vspace{-4mm}
+\caption{Stochastic (one-to-many) maps learned between toy 2D distributions by Kernel NOT.}
+\label{fig:toy-extra}
+% \vspace{-5mm}
+\end{figure}
+
+\clearpage
+\section{Additional Toy 2D Example}
+\label{sec-toy-example-fake-extra}
+
+In this section, we provide an additional toy 2D example demonstrating the issue with fake solutions for the weak quadratic cost. We consider a mixture of 4 Gaussians as $\mathbb{P}$ and the uniform distribution on a square as $\mathbb{Q}$. We train NOT with the $\gamma$-weak quadratic cost for $\gamma=0,\frac{1}{2},1$ and report the results in Figure \ref{fig:toy-divergence-2}. For $\gamma=0$ (Figure \ref{fig:gamma-0-2}), we see that NOT with the weak quadratic cost\footnote{In this case, the cost is the \textbf{strong} quadratic cost.} learns the target distribution. However, when $\gamma=\frac{1}{2}$ (Figure \ref{fig:gamma-0.5-2}) and $\gamma=1$ (Figure \ref{fig:gamma-1-2}), the method does not converge and yields fake solutions. In addition, in Figure \ref{fig:toy-fluctuation-2}, we show that for $\gamma=1$ the method notably fluctuates between the fake solutions. This is analogous to the toy example with Gaussians in \wasyparagraph\ref{sec-issues-w2}, see Figure \ref{fig:toy-fluctuation}. For completeness, we run NOT with our proposed kernel cost \eqref{energy-based-cost} on this pair $(\mathbb{P},\mathbb{Q})$ and $\gamma=1$ and show that it learns the distribution $\mathbb{Q}$, see Figure \ref{fig:toy-4mix-kernel}.
+
+\begin{figure}[!h]
+\hspace{-6mm}\begin{subfigure}[b]{0.2775\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_input.png}
+\vspace{-2mm}\caption{\centering \vspace{0.5mm}Input and target\newline distributions $\mathbb{P}$ and $\mathbb{Q}$.}
+% \label{fig:toy-input-output}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_bar_0.png}
+\vspace{-2mm}\caption{\centering Fitted map $\hat{T}_{x}(z)$\newline for $\gamma=0$.}
+\label{fig:gamma-0-2}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_bar_0.5.png}
+\vspace{-2mm}\caption{\centering Fitted map $\hat{T}_{x}(z)$\newline for $\gamma=\frac{1}{2}$.}
+\label{fig:gamma-0.5-2}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_bar_1.png}
+\vspace{-2mm}\caption{\centering Fitted map $\hat{T}_{x}(z)$\newline for $\gamma=1$.}
+\label{fig:gamma-1-2}
+\end{subfigure}\vspace{-2mm}
+\caption{Stochastic maps $\widehat{T}$ between $\mathbb{P}$ and $\mathbb{Q}$ fitted by NOT with costs $C_{2,\gamma}$ for various $\gamma$.}
+\label{fig:toy-divergence-2}\vspace{-4mm}
+\end{figure}
+
+\begin{figure}[!h]
+\hspace{-6mm}\begin{subfigure}[b]{0.277\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_gamma_1_step_1.png}
+\vspace{-2mm}\caption{\centering Iteration 10k.}
+\label{fig:iter-10000-2}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_gamma_1_step_2.png}
+2\vspace{-2mm}\caption{\centering Iteration 10k+100.}
+\label{fig:iter-10100-2}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_gamma_1_step_3.png}
+\vspace{-2mm}\caption{\centering Iteration 10k+200.}
+\label{fig:iter-10200-2}
+\end{subfigure}
+\begin{subfigure}[b]{0.25\linewidth}
+\centering
+\includegraphics[width=\linewidth]{pics/weak_mse_toy2_gamma_1_step_4.png}
+\vspace{-2mm}\caption{\centering Iteration 10k+300.}
+\label{fig:iter-10300-2}
+\end{subfigure}
+\caption{The evolution of the learned transport map $\widehat{T}$ during training on a toy 2D example ($\gamma=1$).}
+\label{fig:toy-fluctuation-2}
+\vspace{-4mm}
+\end{figure}
+
+\section{Variance-Similarity Trade-off}
+\label{sec-variance-similarity}
+
+In this section, we study how parameter $\gamma$ affects the resulting learned transport map. In \citep[Appendix A]{korotin2023neural}, the authors empirically show that for the $\gamma$-weak quadratic cost $C_{2,\gamma}$ the variety of samples $T_{x}(z)$ produced for a fixed $x$ and $z\sim\mathbb{S}$ increases with the increase of $\gamma$, but their similarity to $x$ decreases. We formalize this statement and generalize it for kernel costs $C_{k,\gamma}$.
+
+For a plan $\pi$, we define its (feature) \textit{conditional variance} and (the square of) input-output \textit{distance} by
+\begin{equation}\CVar_{u}(\pi)\!\stackrel{def}{=}\!\int_{\mathcal{X}}\!\Var\big(u\sharp\pi(y|x)\big)d\mathbb{\pi}(x)\quad\text{and}\quad\Dist_{u}^{2}(\pi)\!\stackrel{def}{=}\!\int_{\mathcal{X}\times\mathcal{Y}}\hspace{-4mm}\|u(x)-u(y)\|_{\mathcal{H}}^{2}d\pi(x,y),
+\label{kernel-var-def}
+\end{equation}
+respectively. Recall that $\Var\big(u\sharp\pi(y|x)\big)=\int_{\mathcal{Y}\times\mathcal{Y}}\|u(y)-u(y')\|_{\mathcal{H}}^{2}d\pi(y|x)d\pi(y'|x)$. We note that the $\gamma$-weak kernel cost of a plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ is given by
+\begin{equation}\text{Cost}_{k,\gamma}(\pi)=\frac{1}{2}\Dist_{u}(\pi)-\frac{\gamma}{2}\CVar_{u}(\pi).
+\label{cost-through-var-dist}
+\end{equation}
+Our following proposition explains the behaviour of the above mentioned values for OT plans.
+
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.215\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_shoes_64_gamma=0.png}
+\caption{$\gamma=0$}
+\label{fig:diversity-gamma-0}
+\end{subfigure}
+\begin{subfigure}[b]{0.1875\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_shoes_64_gamma=0.33.png}
+\caption{$\gamma=\frac{1}{3}$}
+\label{fig:diversity-gamma-0.33}
+\end{subfigure}
+\begin{subfigure}[b]{0.1875\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_shoes_64_gamma=0.66.png}
+\caption{$\gamma=\frac{2}{3}$}
+\label{fig:diversity-gamma-0.66}
+\end{subfigure}
+\begin{subfigure}[b]{0.1875\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_shoes_64_gamma=1.png}
+\caption{$\gamma=1$}
+\label{fig:diversity-gamma-1}
+\end{subfigure}
+\begin{subfigure}[b]{0.1875\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_shoes_64_gamma=1.33.png}
+\caption{$\gamma=\frac{4}{3}$}
+\label{fig:diversity-gamma-1.33}
+\end{subfigure}
+\caption{\textit{Texture} $\rightarrow$ \textit{shoes} ($64\times 64$) translation with the $\gamma$-weak kernel cost for various values $\gamma$.}
+\label{fig:variance-similarity}
+\end{figure*}
+\begin{table}[!h]
+\centering
+\small
+\begin{tabular}{|c|c|c|c|c|c|}
+ \toprule
+  & $\gamma=0$ & $\gamma=\frac{1}{3}$ & $\gamma=\frac{2}{3}$ & $\gamma=1$ & $\gamma=\frac{4}{3}$ \\
+  \midrule
+ $\CVar_{u}(\widehat{\pi}_{\gamma})$ & 0.72 & 15.2 & 16.28 & 17.86 & 18.26 \\
+  \midrule
+$\Dist^{2}_{u}(\widehat{\pi}_{\gamma})$  &  46.6 & 48.13 & 48.75 & 49.87 & 51.24 \\
+  \midrule
+$\Cost_{k,\gamma}(\widehat{\pi}_{\gamma})$  & 23.3 & 21.56 & 19.0 & 16.01 & 13.48 \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+\captionsetup{justification=centering}
+\caption{The values of $\CVar(\widehat{\pi}_{\gamma})$,  $\Dist(\widehat{\pi}_{\gamma})$ and $\Cost_{k,\gamma}(\widehat{\pi}_{\gamma})$ of learned plans $\widehat{\pi}_{\gamma}\approx \pi_{\gamma}^{*}$ with \\different values of $\gamma$ on \textit{texture} $\rightarrow$ \textit{shoes} ($64\times 64$) translation with the kernel quadratic cost.}\label{table-cvar}\vspace{-7mm}
+\end{table}
+
+\begin{proposition}[Behavior of the conditional variance and input-output distance]
+
+Let $\pi_{\gamma}^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ be an OT plan for $\gamma$-weak kernel cost. Then for $\gamma_{2}>\gamma_{1}\geq 0$ it holds true
+\begin{equation}
+\CVar_{u}(\pi_{\gamma_{1}}^{*})\leq\CVar_{u}(\pi_{\gamma_{2}}^{*})\quad\text{and}\quad \Dist_{u}(\pi_{\gamma_{1}}^{*})\leq\Dist_{u}(\pi_{\gamma_{2}}^{*}),
+\label{cvar-sim-behaviour}
+\end{equation}
+i.e., for larger $\gamma$, the OT plan $\pi^{*}_{\gamma}$ on average for each $x$ yields more conditionally diverse samples $\pi^{*}(y|x)$ but they are less close to $x$ in features w.r.t. $\|\cdot\|_{\mathcal{H}}^{2}$. The OT cost is non-increasing, i.e.,
+\label{prop-var-sim}\begin{equation}
+    \Cost_{k,\gamma_{1}}(\pi_{\gamma_{1}}^{*})\geq \Cost_{k,\gamma_{1}}(\pi_{\gamma_{2}}^{*}).
+    \label{ot-cost-non-increasing}
+\end{equation}\end{proposition}The proof is given in Appendix \ref{sec-proofs}. We empirically check the proposition by training OT maps for $C_{k,\gamma}$ for \textit{texture} $\rightarrow$ \textit{shoes} translation ($64\!\times\!64$), distance-induced $k$ (\wasyparagraph\ref{sec-evaluation}) and $\gamma\in\{0,\frac{1}{3},\frac{2}{3},1,\frac{4}{3}\}$, see Figure \ref{fig:variance-similarity} and Table \ref{table-cvar}. We observe the increase of the variety of samples with the increase of $\gamma$. At the same time, with the increase of $\gamma$, output samples become less similar to the inputs.
+
+\vspace{-2mm}\section{Experiments with Different Kernels}
+\label{sec-different-kernels}
+
+We empirically test several popular kernels on \textit{texture} $\rightarrow$ \textit{handbag} translation ($64\!\times\!64$), $\gamma=\frac{1}{3}$. We consider bilinear, distance-based, Gaussian and Laplacian kernels. The three latter kernels are characteristic. The quantitative and qualitative results are given in Figure \ref{fig:different-kernels}.
+
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.49\linewidth}
+\centering\vspace{-2mm}
+\includegraphics[width=0.97\linewidth]{pics/dtd_handbag_64_weak_mse.png}
+\caption{\centering Bilinear $k(y,y')=\langle y,y'\rangle$ \citep{korotin2023neural},\newline FID $=18.79\pm 0.08$.}
+\label{fig:bilinear-kernel}
+\end{subfigure}
+\begin{subfigure}[b]{0.49\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_handbag_64_energy.png}
+\caption{\centering Distance $k(y,y')\!=\!\frac{1}{2}\|y\|\!+\!\frac{1}{2}\|y'\|\!-\!\frac{1}{2}\|y'-y\|$,\newline \vspace{1mm}FID $=\textbf{16.13}\pm0.1$.}
+\label{fig:energy-kernel}
+\end{subfigure}
+
+\vspace{3mm}\begin{subfigure}[b]{0.49\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_handbag_64_gaussian.png}
+\caption{\centering Gaussian  $k(y,y')=\exp(-\frac{\|y-y'\|^{2}}{2D})$,\newline FID $=20.89\pm 0.09$.}
+\label{fig:gaussian-kernel}
+\end{subfigure}
+\begin{subfigure}[b]{0.49\linewidth}
+\centering
+\includegraphics[width=0.97\linewidth]{pics/dtd_handbag_64_laplacian.png}
+\caption{\centering Laplacian  $k(y,y')=\exp(-\frac{\|y-y'\|}{2D})$,\newline FID $=20\pm 0.09$.}
+\label{fig:laplacian-kernel}
+\end{subfigure}
+\caption{\textit{Texture} $\rightarrow$ \textit{handbags} ($64\times 64$) translation with the different $\gamma$-weak kernel costs.}
+\label{fig:different-kernels}\vspace{-3mm}
+\end{figure*}
+
+
+For the kernels in view, the squared feature distance can be expressed as $\|u(x)-u(y)\|^{2}_{\mathcal{H}}=h(\|x-y\|)$ for some increasing function $h:\mathbb{R}_{+}\rightarrow\mathbb{R}_{+}$. Due to this, all the stochastic transport maps try to preserve the input content in the pixel space. According to FID, the distance-based kernel performs better than the bilinear one, which agrees with the results in \wasyparagraph\ref{sec-evaluation}. Interestingly, both Gaussian and Laplacian kernels are slightly outperformed by the bilinear kernel. We do not know why this happens, but we presume that this might be related to their boundness ($0<k(x,y)\leq 1$) and $\exp$ operation.
+
+% \section{Comparison with One-to-Many Image-to-Image Translation Methods}
+
+% \begin{table}[!h]
+% \centering
+% \small
+% \begin{tabular}{|c|c|c|}
+%  \toprule
+%  & $\CVar_{k}(\pi_{\gamma}^{*})$ & $\Dist_{k}(\pi_{\gamma}^{*})$  \\ \midrule
+% $\gamma=0$ & 0 & 0  \\ \midrule
+% $\gamma=\frac{1}{3}$  & 0 & $-$  \\  \midrule
+% $\gamma=\frac{2}{3}$ & 0 & 0  \\ \midrule
+% $\gamma=1$ & 38.73 & 0 $\pm$ 0  \\\midrule
+% $\gamma=\frac{4}{3}$ & 38.73 & 0 $\pm$ 0  \\ \bottomrule
+% \end{tabular}
+% \vspace{2mm}
+% \caption{.}\label{table-fid}
+% \end{table}
+
+
+\section{Restricted Duality for the Weak Quadratic Cost}
+\label{sec-restricted-duality}
+In this section, we derive duality formula \eqref{dual-barycentric} for the $\gamma$-weak quadratic cost. First, we derive formula \eqref{dual-barycentric} for $\gamma=1$ by using \citep[Theorems 1.1, 1.2]{gozlan2020mixture}. Next, following the discussion in \citep[\wasyparagraph 5.2]{gozlan2020mixture}, we generalize duality formula \eqref{dual-barycentric} to arbitrary $\gamma>0$. We note that the constants in our derivations differ from those in \citep{gozlan2020mixture} since our quadratic cost $C_{2,\gamma}$ differs by a constant multiplicative factor.
+
+\textbf{Part 1} ($\gamma=1$). From \citep[Theorems 1.1, 1.2]{gozlan2020mixture} it follows that there exists a lower-semi-continuous and convex function $v^{*}:\mathbb{R}^{D}\rightarrow\mathbb{R}\cup\{\infty\}$ which maximizes the following expression:
+\begin{equation}
+    \mathcal{W}_{2,1}^{2}(\mathbb{P},\mathbb{Q})=\max_{v\in\text{ l.s.c. Cvx}}\bigg[\int_{\mathcal{X}}\inf_{y\in\mathbb{R}^{D}}\big[v(y)+\frac{1}{2}\|x-y\|^{2}\big] d\mathbb{P}(x)-\int_{\mathcal{Y}}v(y) d\mathbb{Q}(y)\bigg].
+    \label{w21-dual}
+\end{equation}
+Importantly, $\phi^{*}(x)\stackrel{def}{=}\overline{(\frac{\|\cdot\|^{2}}{2}+v^{*})}(x)$ is the optimal restricted potential, i.e., $\nabla\phi^{*}$ implements the projection of $\mathbb{P}$ to $\mathbb{Q}$ and is a $1$-smooth convex function.
+
+We consider the change of variables $\phi(x)=\overline{(\frac{\|\cdot\|^{2}}{2}+v)}(x)$ in \eqref{w21-dual}. Since $\frac{\|y\|^{2}}{2}+v(y)$ is $1$-strongly convex, its conjugate $\phi(x)$ is $1$-smooth. From the lower-semi-continuity of $v$ it follows that
+\begin{equation}
+    \overline{\phi}(y)=\overline{\overline{\big(\frac{\|\cdot\|^{2}}{2}+v\big)}}(y)=\big(\frac{\|\cdot\|^{2}}{2}+v\big)(y)=\frac{1}{2}\|y\|^{2}+v(y)\Longrightarrow -v(y)=\frac{1}{2}\|y\|^{2}-\overline{\phi}(y).
+    \label{v-through-phi-conj}
+\end{equation}
+We derive
+\begin{eqnarray}
+    \inf_{y\in\mathbb{R}^{D}}\big[v(y)+\frac{1}{2}\|x-y\|^{2}\big]=\frac{1}{2}\|x\|^{2}+\inf_{y\in\mathbb{R}^{D}}\big[\phi(y)-\langle x,y\rangle\big]=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}-\sup_{y\in\mathbb{R}^{D}}\big[\langle x,y\rangle-\phi(y)\big]=\frac{1}{2}\|x\|^{2}-\overline{\phi}(x).
+    \label{inf-through-conjugate}
+\end{eqnarray}
+We substitute \eqref{v-through-phi-conj} and \eqref{inf-through-conjugate} to \eqref{w21-dual} and obtain
+\begin{eqnarray}
+\mathcal{W}_{2,1}^{2}(\mathbb{P},\mathbb{Q})=\hspace{-3mm}\max_{\phi\in \text{\normalfont Cvx}(1)}\bigg[\int_{\mathcal{X}} \frac{\|x\|^{2}}{2}d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\frac{\|y\|^{2}}{2}d\mathbb{Q}(x)\!-\!\bigg(\int_{\mathcal{X}}\phi(x)d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\overline{\phi}(y)d\mathbb{Q}(y)\bigg)\bigg].
+\label{dual-barycentric-w21}
+\end{eqnarray}
+We only need to note that \eqref{dual-barycentric-w21} exactly matches the desired \eqref{dual-barycentric} for $\gamma=1$.
+
+\textbf{Part 2} (arbitrary $\gamma>0$). In \citep[\wasyparagraph 5.2]{gozlan2020mixture}, the authors show that the OT problem between $\mathbb{P}$ and $\mathbb{Q}$ for the $\gamma$-weak cost becomes the OT problem between $\frac{1}{\gamma} \mathbb{P}$ and $\mathbb{Q}$ for the $1$-weak cost. It holds
+\begin{equation}\mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\big[\gamma\cdot\hspace{-20mm}\underbrace{\inf_{\mathbb{P}'\preceq \mathbb{Q}}\mathbb{W}_{2}^{2}(\frac{1}{\gamma} \sharp\mathbb{P},\mathbb{P}')}_{=\mathcal{W}_{2,1}^{2}(\frac{1}{\gamma} \sharp\mathbb{P},\mathbb{Q})\mbox{,\scriptsize\hspace{1mm}see \citep[Thm. 1.4]{backhoff2019existence}}}\hspace{-20mm}\big]+\frac{1-\gamma}{2\gamma}\int_{\mathcal{X}}\|x\|^{2}d\mathbb{P}(x)+\frac{1-\gamma}{2}\int_{\mathcal{Y}}\|y\|^{2}d\mathbb{Q}(x).
+\label{w2-through-projection}
+\end{equation}
+Moreover, $\phi^{*}(x)$ is the optimal restricted potential for $\gamma$-weak cost between $\mathbb{P},\mathbb{Q}$ if and only if $\phi^{*}_{1}(x)=\gamma\phi^{*}(\gamma ^{-1}x)$ is the optimal restricted potential between $\frac{1}{\gamma} \sharp\mathbb{P}$ and $\mathbb{Q}$ for the $1$-weak quadratic cost. Note that $\nabla\phi^{*}(x)=\nabla\phi^{*}_{1}(\frac{1}{\gamma} x)$, i.e., $\nabla\phi^{*}(x)$ first scales $x\sim\mathbb{P}$ by $\frac{1}{\gamma} $ and then implements projection $\nabla\phi_{1}^{*}$ of $\frac{1}{\gamma} \sharp\mathbb{P}$ to $\mathbb{Q}$. In particular, the function $\phi^{*}$ is $\frac{1}{\gamma}$-Lipschitz.
+
+We reparameterize the duality formula \eqref{dual-barycentric-w21} for distributions $\frac{1}{\gamma} \sharp\mathbb{P}$ and $\mathbb{Q}$ as follows:
+\begin{eqnarray}
+    \mathcal{W}_{2,1}^{2}(\frac{1}{\gamma} \sharp\mathbb{P},\mathbb{Q})=\hspace{-3mm}\max_{\phi_{1}\in \text{\normalfont Cvx}(1)}\bigg[\int_{\mathcal{X}} \frac{\|x\|^{2}}{2}d\big(\frac{1}{\gamma} \sharp\mathbb{P}\big)(x)\!+\!\int_{\mathcal{Y}}\frac{\|y\|^{2}}{2}d\mathbb{Q}(x)\!-
+    \nonumber
+    \\
+    \bigg(\int_{\mathcal{X}}\phi_{1}(x)d\big(\frac{1}{\gamma} \sharp\mathbb{P}\big)(x)\!+\!\int_{\mathcal{Y}}\overline{\phi_{1}}(y)d\mathbb{Q}(y)\bigg)\bigg]=
+    \nonumber
+    \\
+    \max_{\phi_{1}\in \text{\normalfont Cvx}(1)}\bigg[\frac{1}{\gamma^{2}}\int_{\mathcal{X}} \frac{\|x\|^{2}}{2}d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\frac{\|y\|^{2}}{2}d\mathbb{Q}(x)\!-
+    \bigg(\int_{\mathcal{X}}\phi_{1}(\frac{1}{\gamma} x)d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\overline{\phi_{1}}(y)d\mathbb{Q}(y)\bigg)\bigg]=
+    \label{dual-change-of-var}
+    \\
+    \max_{\phi\in \text{\normalfont Cvx}(\frac{1}{\gamma} )}\bigg[\frac{1}{\gamma^{2}}\int_{\mathcal{X}} \frac{\|x\|^{2}}{2}d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\frac{\|y\|^{2}}{2}d\mathbb{Q}(x)\!-
+    \frac{1}{\gamma}\bigg(\int_{\mathcal{X}}\phi(x)d\mathbb{P}(x)\!+\!\int_{\mathcal{Y}}\overline{\phi}(y)d\mathbb{Q}(y)\bigg)\bigg].
+    \label{dual-one-to-gamma}
+\end{eqnarray}
+In transition from \eqref{dual-change-of-var} to \eqref{dual-one-to-gamma}, we use the change of variables for $\phi(x)=\gamma\phi_{1}(\frac{1}{\gamma} x)$ known as the \textit{right scalar multiplication}. It yields $\overline{\phi}(y)=\gamma\overline{\phi_{1}}(y)$. 
+
+To finish the derivation of dual form \eqref{dual-barycentric}, we simply substitute \eqref{dual-one-to-gamma} to
+\eqref{w2-through-projection}.
+\section{Proofs}
+\label{sec-proofs}
+
+\begin{proof}[Proof of Lemma \ref{lemma-fake-problem}] Assume the opposite, i.e., $T^{\dagger}\sharp(\mathbb{P}\times\mathbb{S})=\mathbb{Q}$. Then $T^{\dagger}$ implicitly represents some transport plan $\pi^{\dagger}\in\Pi(\mathbb{P},\mathbb{Q})$ between $\mathbb{P}$ and $\mathbb{Q}$. By the definition of $f^{*}$, $T^{\dagger}$ and \eqref{L-def}, it holds
+\begin{eqnarray}
+\text{Cost}(\mathbb{P},\mathbb{Q})=\mathcal{L}(f^{*},T^{\dagger})=
+\nonumber
+\\
+\int_{\mathcal{X}}C(x,T^{\dagger}_{x}\sharp\mathbb{S})d\mathbb{P}(x)-\int_{\mathcal{X}}\int_{\mathcal{Z}}f^{*}\big(T^{\dagger}_{x}(z)\big)d\mathbb{S}(z)d\mathbb{P}(x)+\int_{\mathcal{Y}}f^{*}(y)d\mathbb{Q}(y)=
+\label{before-change-var}
+\\
+\int_{\mathcal{X}}C(x,T^{\dagger}_{x}\sharp\mathbb{S})d\mathbb{P}(x)-\int_{\mathcal{Y}}f^{*}(y)d\mathbb{Q}(y)+\int_{\mathcal{Y}}f^{*}(y)d\mathbb{Q}(y)=
+\label{after-change-var}
+\\
+\int_{\mathcal{X}}C(x,T^{\dagger}_{x}\sharp\mathbb{S})d\mathbb{P}(x)=\int_{\mathcal{X}}C(x,\pi^{\dagger}(\cdot|x))d\pi^{\dagger}(x),
+\label{fake-plan-is-optimal}
+\end{eqnarray}
+where in transition between lines \eqref{before-change-var} and \eqref{after-change-var}, we use the change of variables formula for $y=T_{x}^{\dagger}(z)$ and the equality $T^{\dagger}\sharp(\mathbb{P}\times\mathbb{S})=\mathbb{Q}$. From \eqref{fake-plan-is-optimal} we see that the cost of the plan $\pi^{\dagger}\in\Pi(\mathbb{P},\mathbb{Q})$ equals the optimal cost $\text{Cost}(\mathbb{P},\mathbb{Q})$. As a result, it is an optimal plan by definition. In turn, $T^{\dagger}$ is an stochastic OT map but not a fake solution. This is a contradiction. Thus, it holds that $T^{\dagger}\sharp(\mathbb{P}\times\mathbb{S})\neq\mathbb{Q}$.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{lemma-restricted-to-f}] We compute the $C$-transform of $f^{*}(y)=\frac{\|y\|^{2}}{2}-\overline{\phi^{*}}(x)$. We have
+\begin{eqnarray}
+    (f^{*})^{C}(x)=\inf_{\mu\in\mathcal{P}(\mathcal{Y})}\big[C_{2,\gamma}(x,\mu)-\int_{\mathcal{Y}}f^{*}(y)d\mu(y)\big]=
+    \nonumber
+    \\
+    \inf_{\mu\in\mathcal{P}(\mathcal{Y})}\bigg[\frac{1}{2}\int_{\mathcal{Y}}\|x-y\|^{2}d\mu(y)-\frac{\gamma}{2}\Var(\mu)-\int_{\mathcal{Y}}\big[\frac{\|y\|^{2}}{2}-\overline{\phi^{*}}(y)\big]d\mu(y)\bigg]=
+    \nonumber
+    \\
+    \inf_{\mu\in\mathcal{P}(\mathcal{Y})}\bigg[\frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Y}}y\hspace{.5mm}d\mu(y)\rangle+\frac{1}{2}\int_{\mathcal{Y}}\|y\|^{2}d\mu(y)-\frac{\gamma}{2}\Var(\mu)-\int_{\mathcal{Y}}\big[\frac{\|y\|^{2}}{2}-\overline{\phi^{*}}(y)\big]d\mu(y)\bigg]=
+    \nonumber
+    \\
+    \inf_{\mu\in\mathcal{P}(\mathcal{Y})}\bigg[\frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Y}}y\hspace{.5mm}d\mu(y)\rangle-\frac{\gamma}{2}\Var(\mu)+\int_{\mathcal{Y}}\overline{\phi^{*}}(y)d\mu(y)\bigg]=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}+\inf_{\mu\in\mathcal{P}(\mathcal{Y})}\bigg[\int_{\mathcal{Y}}\big(\overline{\phi^{*}}(y)-\langle x,y\rangle\big)d\mu(y)-\frac{\gamma}{2}\Var(\mu)\bigg]=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}+\inf_{\mu\in\mathcal{P}(\mathcal{Y})}\bigg[\int_{\mathcal{Y}}\big(\overline{\phi^{*}}(y)-\frac{\gamma}{2}\|y\|^{2}-\langle x,y\rangle\big)d\mu(y)+\frac{\gamma}{2}\left\|\int_{\mathcal{Y}}y\hspace{.5mm}d\mu(y)\right\|^{2}\bigg].
+    \label{c-transform-restricted}
+\end{eqnarray}
+Pick any $\mu\in\mathcal{P}(\mathcal{Y})$ and denote its expectation by $m=\int_{\mathcal{Y}}y\hspace{.5mm}d\mu(y)$. Since $\phi^{*}$ is $\frac{1}{\gamma}$-smooth, it holds that $\overline{\phi^{*}}$ is $\gamma$-strongly convex, i.e., $\overline{\phi^{*}}(y)-\frac{\gamma}{2}\|y\|^{2}-\langle x,y\rangle$ is convex. We use the Jensen's inequality:
+\begin{equation}
+    \int_{\mathcal{Y}}\big(\overline{\phi^{*}}(y)-\frac{\gamma}{2}\|y\|^{2}-\langle x,y\rangle\big)d\mu(y)\geq \overline{\phi^{*}}(m)-\frac{\gamma}{2}\|m\|^{2}-\langle x,m\rangle.
+    \label{jensen-expect}
+\end{equation}
+Therefore, we may restrict the feasible set of $\inf$ in \eqref{c-transform-restricted} to Dirac distributions $\delta_{m}$, $m\in\mathcal{Y}$. That is,
+\begin{eqnarray}
+    (f^{*})^{C}(x)=\frac{1}{2}\|x\|^{2}+\inf_{m\in\mathcal{Y}}\bigg[\overline{\phi^{*}}(m)-\frac{\gamma}{2}\|m\|^{2}-\langle x,m\rangle+\frac{\gamma}{2}\left\|m\right\|^{2}\bigg]=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}+\inf_{m\in\mathcal{Y}}\bigg[\overline{\phi^{*}}(m)-\langle x,m\rangle\bigg]=\frac{1}{2}\|x\|^{2}-\underbrace{\sup_{m\in\mathcal{Y}}\bigg[\langle x,m\rangle-\overline{\phi^{*}}(m)\bigg]}_{=\overline{\overline{\phi^{*}}}(x)}=\frac{1}{2}\|x\|^{2}-\phi^{*}(x),
+    \label{f-c-through-conjugate}
+\end{eqnarray}
+where $\overline{\overline{\phi^{*}}}(x)=\phi^{*}(x)$ holds since $\phi^{*}$ is continuous. We substitute \eqref{f-c-through-conjugate} to \eqref{ot-weak-dual} and obtain
+\begin{eqnarray}
+    \int_{\mathcal{X}}(f^{*})^{C}(x)d\mathbb{P}(x)+\int_{\mathcal{Y}}f^{*}(y)d\mathbb{Q}(y)=
+    \nonumber
+    \\
+    \int_{\mathcal{X}}\big[\frac{\|x\|^{2}}{2}-\phi^{*}(x)\big]d\mathbb{P}(x)+\int_{\mathcal{Y}}\big[\frac{\|y\|^{2}}{2}-\overline{\phi^{*}}(y)\big]d\mathbb{Q}(y)=\mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q}),
+    \label{f-maximizes}
+\end{eqnarray}
+where in line \eqref{f-maximizes}, we use the optimality of $\phi^{*}$ and \eqref{dual-barycentric}. We conclude that $f^{*}$ maximizes \eqref{ot-weak-dual}, \eqref{L-def}.
+% We denote $\phi_{1}^{*}(x)=\gamma\phi^{*}(\frac{x}{\gamma})$ and obtain $\nabla\phi_{1}^{*}(x)=\nabla\phi^{*}(\frac{x}{\gamma})$. From \citep[\wasyparagraph 5.2]{gozlan2017kantorovich} it follows that $\phi_{1}^{*}$ is an optimal restricted potential  for $1$-weak quadratic cost $\mathcal{C}_{2,1}$ between $\frac{1}{\gamma}\sharp\mathbb{P}$ and $\mathbb{Q}$.\footnote{To align our notation with \citep[\wasyparagraph 5.2]{gozlan2017kantorovich}, one should use $\mu=\mathbb{P}$, $\nu=\mathbb{Q}$, $\lambda=\frac{1}{\gamma}$.} unfinished
+\end{proof}
+
+\begin{proof}[Proof of Proposition \ref{prop-u-convex}]For all $y',y''\in U_{\psi}(y)$, $\alpha\in[0,1]$, from the convexity of $\psi$ it follows that
+\begin{equation}
+    \psi\big(\alpha y'+(1-\alpha)y''\big)\leq \alpha \psi(y')+(1-\alpha)\psi(y'').
+    \label{U-conv-upper-bound}
+\end{equation}
+By the definition of the subgradient of a convex function it also holds
+\begin{eqnarray}\psi\big(\alpha y'+(1-\alpha)y''\big)\geq\psi(y)+\langle x,\alpha y'+(1-\alpha)y''-y\rangle=
+\nonumber
+\\
+    \alpha\big(\psi(y)+\langle x, y'-y\rangle\big)+(1-\alpha)\cdot\big(\psi(y)+\langle x, y''-y\rangle\big)=\alpha \psi(y')+(1-\alpha)\psi(y'')
+    \label{U-conv-lower-bound}
+\end{eqnarray}
+for all $x\in\partial_{y}\psi(y).$ Therefore, \eqref{U-conv-upper-bound} and \eqref{U-conv-lower-bound} are equalities, and $\alpha y'+(1-\alpha)y''\in U_{\psi}(y)$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem \ref{lemma-characterization}]It holds that
+\begin{eqnarray}
+    T^{\dagger}\in\arginf_{T}\mathcal{L}(f^{*},T)\Leftrightarrow T^{\dagger}\in\arginf_{T}\int_{\mathcal{X}} \left( C\big(x,T_{x}\sharp\mathbb{S}\big)-\int_{\mathcal{Z}} f^{*}\big(T_{x}(z)\big) d\mathbb{S}(z)\right) d\mathbb{P}(x).
+    \nonumber
+\end{eqnarray}
+The latter condition holds if and only if $\mathbb{P}$-almost surely for all $x\in\mathcal{X}$ we have 
+\begin{equation}T_{x}^{\dagger}\in\arginf_{T_{x}:\mathcal{Z}\rightarrow\mathcal{Y}}\big[C\big(x,T_{x}^{\dagger}\sharp\mathbb{S}\big)-\int_{\mathcal{Z}} f^{*}\big(T_{x}^{\dagger}(z)\big) d\mathbb{S}(z)\big].
+\label{Tx-arginf}
+\end{equation}
+We substitute $f^{*}=\frac{\|\cdot\|^{2}}{2}-\overline{\phi^{*}}$ and $C=C_{2,\gamma}$. As a result, we derive
+\begin{eqnarray}
+    C_{2,\gamma}\big(x,T_{x}^{\dagger}\sharp\mathbb{S}\big)-\int f^{*}\big(T_{x}^{\dagger}(z)\big) d\mathbb{S}(z)=
+    \nonumber
+    \\
+    \frac{1}{2}\int_{\mathcal{Z}}\|x-T_{x}^{\dagger}(z)\|^{2}d\mathbb{S}(z)-\frac{\gamma}{2}\Var(T_{x}^{\dagger}\sharp\mathbb{S})-\frac{1}{2}\int_{\mathcal{Z}}\|T_{x}^{\dagger}(z)\|^{2}d\mathbb{S}(z)+\int_{\mathcal{Z}}\overline{\phi^{*}}\big(T_{x}^{\dagger}(z)\big)d\mathbb{S}(z)=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\rangle-\frac{\gamma}{2}\Var(T_{x}^{\dagger}\sharp\mathbb{S})+\int_{\mathcal{Z}}\overline{\phi^{*}}\big(T_{x}^{\dagger}(z)\big)d\mathbb{S}(z)=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\rangle+\frac{\gamma}{2}\left\|\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\right\|^{2}+\int_{\mathcal{Z}}\big[\overline{\phi^{*}}\big(T_{x}^{\dagger}(z)\big)-\frac{\gamma}{2}\|T_{x}^{\dagger}(z)\|^{2}\big]d\mathbb{S}(z)=
+    \nonumber
+    \\
+    \frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\rangle+\frac{\gamma}{2}\left\|\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\right\|^{2}+\int_{\mathcal{Z}}\psi\big(T_{x}^{\dagger}(z)\big)d\mathbb{S}(z)\geq
+    \label{jensen-before}
+    \\
+    \frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\rangle+\frac{\gamma}{2}\left\|\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\right\|^{2}+\psi\bigg(\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\bigg),
+    \label{jensen-action}
+\end{eqnarray}
+where we substitute $\psi=\overline{\phi^{*}}-\frac{\gamma}{2}\|\cdot\|^{2}$. Recall that $\psi$ is convex since $\phi^{*}$ is $\frac{1}{\gamma}$-smooth \citep{kakade2009duality}. In transition from \eqref{jensen-before} to \eqref{jensen-action}, we use the convexity of $\psi$ and the Jensen's inequality.
+
+\textbf{Part 1.} To begin with, we prove implication "$\Longrightarrow$" in \eqref{characterization-arginf}.
+
+If \eqref{Tx-arginf} holds true, then \eqref{jensen-action} is the equality. If it is not, one may pick ${T'_{x}(z)\stackrel{def}{=}\int_{\mathcal{Z}}T_{x}^{\dagger}(z')d\mathbb{S}(z')}$ which provides smaller value \eqref{jensen-action} for \eqref{Tx-arginf} than $T_{x}^{\dagger}$. Let $T^{*}$ be any stochastic OT map and $\pi^{*}$ be its respective OT plan. We know that $T^{*}\in\arginf_{T}\mathcal{L}(f^{*},T)$, i.e., the optimal value \eqref{jensen-action} of \eqref{Tx-arginf} equals
+\begin{eqnarray}
+    \frac{1}{2}\|x\|^{2}-\langle x,\int_{\mathcal{Z}}T_{x}^{*}(z)d\mathbb{S}(z)\rangle+\frac{\gamma}{2}\left\|\int_{\mathcal{Z}}T^{*}_{x}(z)d\mathbb{S}(z)\right\|^{2}+\psi\bigg(\int_{\mathcal{Z}}T^{*}_{x}(z)d\mathbb{S}(z)\bigg)=
+    \label{opt-value-l}
+    \\
+    \frac{1}{2}\|x\|^{2}-\langle x,\nabla\phi^{*}(x)\rangle+\frac{\gamma}{2}\|\nabla\phi^{*}(x)\|^{2}+\psi\big(\nabla\phi^{*}(x)\big),
+    \label{opt-value-l-phi}
+\end{eqnarray}
+where we use the equalities $\nabla\phi^{*}(x)=\int_{\mathcal{Y}}yd\pi^{*}(y|x)=\int_{\mathcal{Z}}T^{*}_{x}(z)d\mathbb{S}(z)$, see \wasyparagraph\ref{sec-background-ot}.
+The function $m\mapsto \frac{1}{2}\|x\|^{2}-\langle x,m\rangle+\frac{\gamma}{2}\|m\|^{2}+\psi\big(m\big)$ is $\gamma$-strongly convex in $m$, therefore, the minimizer $m^{*}=\nabla\phi^{*}(x)$ is unique. This yields that $\int_{\mathcal{Z}}T^{\dagger}_{x}(z)d\mathbb{S}(z)=m^{*}=\nabla\phi^{*}(x)$.
+
+We know that \eqref{jensen-before} equals \eqref{jensen-action}, i.e., 
+\begin{equation}
+\int_{\mathcal{Z}}\psi\big(T_{x}^{\dagger}(z)\big)d\mathbb{S}(z)-\psi\bigg(\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)\bigg)=\int_{\mathcal{Z}}\psi\big(T_{x}^{\dagger}(z)\big)d\mathbb{S}(z)-\psi\big(\nabla\phi^{*}(x)\big)=0,
+\label{jensens-gap}    
+\end{equation}
+and the Jensen's gap vanishes.
+% Thus, $\psi(y)=\langle k,y\rangle+b$ for $y\in\text{ConvexHull}\big(\text{Supp}(T_{x}\sharp\mathbb{S})\big)$ and some $k\in\mathbb{R}^{D},b\in\mathbb{R}$. 
+Now we are going to prove that $\text{Supp}(T_{x}\sharp\mathbb{S})\subset U_{\psi}(\nabla\phi^{*}(x))$. We need to show that for every $x'\in \partial_{y}(\nabla\phi^{*}(x))$ the following inequality
+\begin{equation}\psi(y)\geq \psi(\nabla\phi^{*}(x))+\langle x',y-\nabla\phi^{*}(x)\rangle
+\label{is-this-eq}
+\end{equation}
+is the equality $T_{x}^{\dagger}\sharp\mathbb{S}$-almost surely for all $y\in\text{Supp}(T_{x}^{\dagger}\sharp\mathbb{S})$. Assume the opposite, i.e., for some $x'$, \eqref{is-this-eq} holds true not $T_{x}^{\dagger}\sharp\mathbb{S}$-almost surely. We integrate \eqref{is-this-eq} w.r.t. $y\!\sim\! T_{x}^{\dagger}\sharp\mathbb{S}$ and get the strict inequality
+\begin{equation}
+    \int_{\mathcal{Y}}\psi(y)d\big(T_{x}^{\dagger}\sharp\mathbb{S}\big)(y)> \psi\big(\nabla\phi^{*}(x)\big)+\langle x',\int_{\mathcal{Y}}y\hspace{0.3mm}d\big(T_{x}^{\dagger}\sharp\mathbb{S}\big)(y)-\nabla\phi^{*}(x)\rangle.
+    \nonumber
+\end{equation}
+We use the change of variables for $y=T_{x}^{\dagger}(z)$ and obtain
+\begin{equation}
+    \int_{\mathcal{Z}}\psi\big(T_{x}^{\dagger}(z)\big)d\mathbb{S}(z)>\psi\big(\nabla\phi^{*}(x)\big)+\langle y',\underbrace{\int_{\mathcal{Z}}T^{\dagger}_{x}(z)d\mathbb{S}(z)-\nabla\phi^{*}(x)}_{=0}\rangle=\psi\big(\nabla\phi^{*}(x)\big),
+    \nonumber
+\end{equation}
+which contradicts \eqref{jensens-gap}. This finishes the proof of implication "$\Longrightarrow$".
+
+\textbf{Part 2.} Now we prove  implication "$\Longleftarrow$" in \eqref{characterization-arginf}.
+
+For every $T^{\dagger}$ satisfying the conditions on the right-hand side of \eqref{characterization-arginf}, the Jensen's gap \eqref{jensens-gap} is zero since $\psi$ is linear in $U_{\psi}\big(\nabla\phi^{*}(x)\big)$. Therefore, \eqref{jensen-before} equals \eqref{jensen-action}. Due to $\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)=\nabla\phi^{*}(x)$, we have that \eqref{jensen-action} attains the optimal (minimal) values. Consequently, \eqref{Tx-arginf} holds.
+
+Finally, we note that convexity of $\arginf_{T}\mathcal{L}(f^{*},T)$ follows from the convexity of sets $U_{\psi}(\cdot)$. \end{proof}
+
+\begin{proof}[Proof of Lemma \ref{lemma-is-bar-optimal}.]
+% The "$\stackrel{(a)}{\Longleftrightarrow}$" arrow straightforwardly follows from the discussion of weak OT with the quadratic cost in \wasyparagraph\ref{sec-background-ot}. Indeed,
+The plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ is optimal if and only if $\int_{\mathcal{Y}}y\hspace{0.3mm}d\pi(y|x)=\nabla\phi^{*}(x)$. That is, a stochastic map $T:\mathcal{X}\times\mathcal{Z}\rightarrow\mathcal{Y}$ is optimal if and only if it pushes $\mathbb{P}$ to $\mathbb{Q}$ (represents some plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$), i.e., $T\sharp(\mathbb{P}\!\times\!\mathbb{S})=\mathbb{Q}$, and $\int_{\mathcal{Z}}T_{x}(z)d\mathbb{S}=\nabla\phi^{*}(x)$. The optimal barycentric projection $\overline{T^{*}}$ satisfies the second condition by the definition.
+
+Consider implication "$\stackrel{(a)}{\Longrightarrow}$". Since $\overline{T^{*}}$ is a stochastic OT map, the first condition $\overline{T^{*}}\sharp(\mathbb{P}\!\times\!\mathbb{S})=\mathbb{Q}$ holds true. Recall that by the definition of $\phi^{*}$ and $\overline{T^{*}}$ we have $\overline{T^{*}}\sharp(\mathbb{P}\!\times\!\mathbb{S})=\nabla\phi^{*}\sharp\mathbb{P}=(\frac{1}{\gamma} \sharp\mathbb{P})$. Thus, $\mathbb{Q}=\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma} \sharp\mathbb{P})$. 
+Consider implication "$\stackrel{(a)}{\Longleftarrow}$". Since $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma} \sharp\mathbb{P})=\mathbb{Q}$, the first condition $\overline{T^{*}}\sharp(\mathbb{P}\!\times\!\mathbb{S})=\mathbb{Q}$ holds true. Therefore, $\overline{T^{*}}$ is a stochastic OT map.
+
+Now we prove implication "$\stackrel{(b)}{\Longrightarrow}$". Let  $T^{*}$ be any stochastic OT map. We compute the second moment of $T_{x}^{*}\sharp(\mathbb{P}\times\mathbb{S})=\mathbb{Q}$ below:
+\begin{eqnarray}
+    \int_{\mathcal{Y}}\|y\|^{2}d\mathbb{Q}(y)=\int_{\mathcal{X}}\int_{\mathcal{Z}}\|T_{x}^{*}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)=
+    \label{second-moment-q}
+    \\
+    \int_{\mathcal{X}}\bigg(\Var(T^{*}_{x}\sharp\mathbb{S})+\left\|\int_{\mathcal{Z}}T^{*}_{x}(z)d\mathbb{S}(z)\right\|^{2}\bigg)d\mathbb{P}(x)=
+    \nonumber
+    \\
+    \int_{\mathcal{X}}\Var(T^{*}_{x}\sharp\mathbb{S})d\mathbb{P}(x)+\int_{\mathcal{X}}\|\nabla\phi^{*}(x)\|^{2}d\mathbb{P}(x)=
+    \label{change-expect-var-q}
+    \\
+    \int_{\mathcal{X}}\Var(T^{*}_{x}\sharp\mathbb{S})d\mathbb{P}(x)+\int_{\mathcal{Y}}\|y\|^{2}d\mathbb{Q}(y),
+    \label{second-moment-q-and-var}
+\end{eqnarray}
+where in transition to \eqref{change-expect-var-q}, we use the equality $\int_{\mathcal{Z}}T^{*}_{x}(z)d\mathbb{S}(z)=\nabla\phi^{*}(x)$; in transition to \eqref{second-moment-q-and-var}, we use the change of variables formula for $y=\nabla\phi^{*}(x)$ and $\nabla\phi^{*}(x)\sharp\mathbb{P}=\mathbb{Q}$. Finally, by comparing \eqref{second-moment-q} and \eqref{second-moment-q-and-var}, we obtain that $\Var(T_{x}\sharp\mathbb{S})=0$ holds $\mathbb{P}$-almost surely. That is, $T^{*}$ is deterministic (does not depend on $z$) and  $(\mathbb{P}\!\times\!\mathbb{S})$-almost surely matches the optimal barycentric projection $\overline{T^{*}}$.
+\end{proof}
+
+\begin{proof}[Proof of Proposition \ref{prop-interpolant}.]
+
+We are going to show that the second moment of $T^{\alpha}\sharp(\mathbb{P}\!\times\!\mathbb{S})$ is less than that of $\mathbb{Q}$. Consequently, $T^{\alpha}\sharp(\mathbb{P}\!\times\!\mathbb{S})\neq\mathbb{Q}$, and $T^{\alpha}$ can not be a stochastic OT map. First, for $T^{\dagger}$ we have
+\begin{eqnarray}
+    \int_{\mathcal{X}}\int_{\mathcal{Z}}\|T_{x}^{\dagger}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)=\underbrace{\Var\big(T^{\dagger}\sharp(\mathbb{P}\times\mathbb{S})\big)}_{\leq\Var(\mathbb{Q})}-\left\|\int_{\mathcal{X}}\int_{\mathcal{Z}}T_{x}^{\dagger}(z)d\mathbb{S}(z)d\mathbb{P}(x)\right\|^{2}\leq
+    \nonumber
+    \\
+    \Var(\mathbb{Q})-\left\|\int_{\mathcal{X}}\nabla\phi^{*}(x)d\mathbb{P}(x)\right\|^{2}=\Var(\mathbb{Q})-\|m_{\mathbb{Q}}\|^{2}=\int_{\mathcal{X}}\int_{\mathcal{Z}}\|T^{*}_{x}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x), 
+    \label{second-moment-upper-bound}
+\end{eqnarray}
+where in the last equality we use $T^{*}\sharp(\mathbb{P}\times\mathbb{S})=\mathbb{Q}$. Finally, we derive
+\begin{eqnarray}
+    \int_{\mathcal{X}}\int_{\mathcal{Z}}\|T^{\alpha}_{x}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)=\int_{\mathcal{X}}\int_{\mathcal{Z}}\|\alpha T^{*}_{x}(z)+(1-\alpha)T_{x}^{\dagger}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)<
+    \nonumber
+    \\
+    \int_{\mathcal{X}}\int_{\mathcal{Z}}\big[\alpha\| T^{*}_{x}(z)\|^{2}+(1-\alpha)\| T_{x}^{\dagger}(z)\|^{2}\big]d\mathbb{S}(z)d\mathbb{P}(x)=
+    \label{jensen-norm}
+    \\
+    \alpha\int_{\mathcal{X}}\int_{\mathcal{Z}}\| T^{*}_{x}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)+(1-\alpha)\int_{\mathcal{X}}\int_{\mathcal{Z}}\| T_{x}^{\dagger}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)\leq
+    \nonumber
+    \\
+    \int_{\mathcal{X}}\int_{\mathcal{Z}}\| T^{*}_{x}(z)\|^{2}d\mathbb{S}(z)d\mathbb{P}(x)=[\mbox{second moment of }\mathbb{Q}].
+    \label{substitute-upper-bound}
+\end{eqnarray}
+% The last expression is the second moment of $\mathbb{Q}$.
+In transition to \eqref{jensen-norm}, we use the Jensen's inequality for $\|\cdot\|^{2}$. The inequality is strict since $\|\cdot\|^{2}$ is strictly convex and $T^{\dagger}\neq T^{*}$ ($\mathbb{P}\times\mathbb{S}$-almost surely). In transition to \eqref{substitute-upper-bound}, we use \eqref{second-moment-upper-bound}. That is, $T^{\alpha}\sharp(\mathbb{P}\times\mathbb{S})\neq\mathbb{Q}$ as its second moment is smaller.
+\end{proof}
+\textbf{Remark}. The assumption $\Proj_{\preceq\mathbb{Q}}(\frac{1}{\gamma}\sharp\mathbb{P})\neq \mathbb{Q}$ in Proposition \ref{prop-interpolant} is needed to guarantee the existence of a function $T^{\dagger}\in \arginf_{T}\mathcal{L}(f^{*},T)$ which differs from the given stochastic OT map $T^{*}$. Due to our Lemma \ref{lemma-is-bar-optimal}, the optimal barycenteric projection $\overline{T^{*}}\in \arginf_{T}\mathcal{L}(f^{*},T)$ is not an OT map. Thus, $T^{\dagger}=\overline{T^{*}}$ is a suitable example. Since $\overline{T^{*}}\sharp(\mathbb{P}\!\times\!\mathbb{S})\preceq \mathbb{Q}$, we also have $\Var\big(\overline{T^{*}}\sharp(\mathbb{P}\!\times\mathbb{S}\big)\big)\leq \Var(\mathbb{Q})$.
+
+% \begin{proof}[Proof of Proposition \ref{prop-gamma-greater}.] We need to prove that $\Proj_{\preceq\mathbb{Q}}(\gamma^{-1}\sharp\mathbb{P})=\mathbb{Q}\Leftrightarrow\Proj_{\preceq\mathbb{Q}_{0}}(\gamma^{-1}\sharp\mathbb{P}_{0})=\mathbb{Q}_{0}$.
+% For the sake of simplicity, we consider $\gamma=1$. Note that
+% \begin{eqnarray}
+%     \mathbb{W}_{2}^{2}\big(\mathbb{P},\Proj_{\preceq\mathbb{Q}}(\mathbb{P})\big)=\inf_{\mathbb{P}'\preceq\mathbb{Q}}\mathbb{W}_{2}^{2}(\mathbb{P},\mathbb{P}')=\inf_{\mathbb{P}'\preceq\mathbb{Q}}\big[\frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{P}'}\|^{2}+\mathbb{W}_{2}^{2}(\mathbb{P}_{0},\mathbb{P}_{0}')\big]=
+%     \label{mean-extraction}
+%     \\
+%     \inf_{\mathbb{P}'\preceq\mathbb{Q}}\big[\frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{Q}}\|^{2}+\mathbb{W}_{2}^{2}(\mathbb{P}_{0},\mathbb{P}_{0}')\big]=\frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{Q}}\|^{2}+\inf_{\mathbb{P}'\preceq\mathbb{Q}}\mathbb{W}_{2}^{2}(\mathbb{P}_{0},\mathbb{P}_{0}')=
+%     \nonumber
+%     \\
+%     \frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{Q}}\|^{2}+\inf_{\mathbb{P}'_{0}\preceq\mathbb{Q}_{0}}\mathbb{W}_{2}^{2}(\mathbb{P}_{0},\mathbb{P}_{0}')=
+%     \frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{Q}}\|^{2}+\mathbb{W}_{2}^{2}\big(\mathbb{P}_{0},\Proj_{\preceq\mathbb{Q}_{0}}(\mathbb{P}_0)\big)
+%     \label{reduction-centered}
+% \end{eqnarray}
+% where in line \eqref{mean-extraction} we use the extraction of the mean \citep[Equation 3]{alvarez2016fixed} and $\mathbb{P}_{0}'$ is the centered copy of $\mathbb{P}'$.
+
+% Consider implication "$\Rightarrow$". By the extraction of the mean, we know that
+% \begin{equation}
+%     \mathbb{W}_{2}^{2}(\mathbb{P},\mathbb{Q})=\frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{Q}}\|^{2}+\mathbb{W}_{2}^{2}(\mathbb{P}_{0},\mathbb{Q}_{0}).
+%     \label{mean-extraction-easy}
+% \end{equation}
+% Since $\mathbb{Q}=\Proj_{\preceq\mathbb{Q}}(\mathbb{P})$, from \eqref{mean-extraction-easy} and \eqref{reduction-centered} it follows that $\mathbb{W}_{2}^{2}\big(\mathbb{P}_{0},\Proj_{\preceq\mathbb{Q}_{0}}(\mathbb{P}_0)\big)=\mathbb{W}_{2}^{2}(\mathbb{P}_{0},\mathbb{Q}_{0})$. Since $\mathbb{Q}_{0}\preceq\mathbb{Q}_{0}$, from the definition of the projection and the uniqueness of the projection it follows that $\Proj_{\preceq\mathbb{Q}_{0}}(\mathbb{P}_{0})=\mathbb{Q}_{0}$ which concludes the proof. Implication "$\Leftarrow$" is analogous.
+% \end{proof}
+
+
+\begin{proof}[Proof of Lemma \ref{lemma-appropriate-k}] The  lower-semi-continuity of $C_{k,\gamma}(x,\mu)=C_{u,\gamma}(x,\mu)$ in $(x,\mu)$ follows from the continuity of $k$, compactness of $\mathcal{X}=\mathcal{Y}\subset\mathbb{R}^{D}$ and \citep[Lemma 7.3]{santambrogio2015optimal}.
+\footnote{We use the lower semi-continuity (in $\mu$) of $C(x,\mu)$ w.r.t. the weak convergence of distributions in $\mathcal{P}(\mathcal{Y})$. In contrast, \cite{backhoff2019existence} work with $\mu\in \mathcal{P}_{p}(\mathcal{Y})\subset \mathcal{P}(\mathcal{Y})$, i.e., with the distributions which have a finite $p$-th moment. They prove the existence and duality results for weak OT \eqref{ot-primal-form-weak} assuming that $C(x,\mu)$ is lower semi-continuous w.r.t. the convergence in the Wasserstein-$p$ sence in $\mathcal{P}_{p}(\mathcal{Y})$. Since we consider compact $\mathcal{Y}$, it holds that $\mathcal{P}_{p}(\mathcal{Y})= \mathcal{P}(\mathcal{Y})$ and these notions of convergence coincide \citep[Def. 6.8]{villani2008optimal}.}
+
+The term $\frac{1}{2}\int_{\mathcal{Y}}\|u(x)-u(y)\|^{2}_{\mathcal{H}}d\mu(y)$ in \eqref{u-cost} is linear in $\mu$ and, consequently, convex. The second term in \eqref{u-cost} equals to $-\frac{\gamma}{2}\Var(u\sharp\mu)$. The pushforward operator $u\sharp$ is linear and $\Var(\cdot)$ is concave. Therefore, the second term is convex in $\mu$ ($\gamma\geq 0$). As a result, $C_{k,\gamma}(x,\mu)$ is convex in $\mu$.
+
+To prove that $C_{k,\gamma}$ is lower-bounded, we rewrite \eqref{u-cost} analogously to \eqref{weak-w2-cost}, i.e.,
+\begin{eqnarray}
+    C_{k,\gamma}(x,\mu)=\frac{1}{2}\|u(x)-\int_{\mathcal{Y}}u(y)d\mu(y)\|^{2}_{\mathcal{H}}+\frac{1-\gamma}{2}\cdot\bigg[\frac{1}{2}\int_{\mathcal{Y}\times\mathcal{Y}}\hspace{-3mm}\|u(y)-u(y')\|_{\mathcal{H}}^{2}d\mu(y)d\mu(y')\bigg]=\nonumber
+    \\
+    \frac{1}{2}\|u(x)-\int_{\mathcal{Y}}u(y)d\mu(y)\|^{2}_{\mathcal{H}}+\frac{1-\gamma}{2}\cdot\Var(u\sharp\mu).
+    \label{u-cost-v2}
+\end{eqnarray}
+Both terms are non-negative ($\gamma\in[0,1]$), i.e., $C_{k,\gamma}(x,\mu)$ is lower bounded by $0$.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{lemma-unique-plan}]To begin with, we prove that if $k$ is characteristic, then $C_{k,\gamma}(x,\mu)=C_{u,\gamma}(x,\mu)$ is \textit{strictly} convex in $\mu$. The term $\int_{\mathcal{X}}\|u(x)-u(y)\|^{2}_{\mathcal{H}}d\mu(y)$ in \eqref{u-cost} is linear in $\mu$, so we focus on the second (variance) term $-\frac{\gamma}{2}\Var(u\sharp\mu)$. We prove that $\Var(u\sharp\mu)$ is strictly concave. We derive
+\begin{eqnarray}
+    \Var(u\sharp\mu)=\frac{1}{2}\int_{\mathcal{Y}\times\mathcal{Y}}\hspace{-3mm}\|u(y)-u(y')\|_{\mathcal{H}}^{2}d\mu(y)d\mu(y')=
+    \nonumber
+    \\
+    \frac{1}{2}\int_{\mathcal{Y}}\|u(y)\|^{2}_{\mathcal{H}}d\mu(y)-\int_{\mathcal{Y}\times\mathcal{Y}}\hspace{-3mm}\langle u(y),u(y')\rangle_{\mathcal{H}} d\mu(y)d\mu(y')+\frac{1}{2}\int_{\mathcal{Y}}\|u(y')\|^{2}_{\mathcal{H}}d\mu(y')=
+    \nonumber
+    \\
+    \int_{\mathcal{Y}}\|u(y)\|^{2}_{\mathcal{H}}d\mu(y)-\big\langle\int_{\mathcal{Y}} \!u(y)d\mu(y),\int_{\mathcal{Y}}\!u(y')d\mu(y')\big\rangle_{\mathcal{H}}=
+    \nonumber
+    \\
+    \int_{\mathcal{Y}}\|u(y)\|^{2}_{\mathcal{H}}d\mu(y)-\big\|\int_{\mathcal{Y}} \!u(y)d\mu(y)\big\|^{2}_{\mathcal{H}}.
+    \label{kernel-var}
+\end{eqnarray}
+The first term in \eqref{kernel-var} is linear in $\mu$, so it sufficies to prove that $\big\|\int_{\mathcal{Y}} \!u(y)d\mu(y)\big\|^{2}_{\mathcal{H}}=\|u(\mu)\|_{\mathcal{H}}^{2}$ is strictly convex.
+% For convenience, we denote $r(\mu)\stackrel{def}{=}\big\|\int_{\mathcal{Y}} \!u(y)d\mu(y)\big\|^{2}_{\mathcal{H}}$.
+To do this, we pick any $\mu_{1}\neq\mu_{2}\in\mathcal{P}(\mathcal{X})$, $\alpha\in(0,1)$. Since the kernel $k$ is characteristic, it holds that $u(\mu_{1})\neq u(\mu_{2})$. The squared norm function $\|\cdot\|_{\mathcal{H}}^{2}$ is strictly convex. As a result, the following  strict inequality holds 
+$$\alpha\|u(\mu_{1})\|^{2}_{\mathcal{H}}+(1-\alpha)\|u(\mu_{2})\|^{2}_{\mathcal{H}}>\|u\big(\alpha\mu_{1}+(1-\alpha)\mu_{2}\big)\|^{2}_{\mathcal{H}},$$
+which yields strict convexity of $\|u(\mu)\|^{2}_{\mathcal{H}}.$ Consequently, $C_{k,\gamma}(x,\mu)$ is strictly convex in $\mu$. In this case, the weak OT functional $\pi\mapsto \int_{\mathcal{X}}C_{k,\gamma}(x,\pi(\cdot|x))d\mathbb{P}(x)$ is also strictly convex and yields the unique minimizer $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ which is the OT plan \citep[\wasyparagraph 1.3.1]{backhoff2019existence}.
+% Now we prove that the weak OT functional $\mathcal{F}(\pi)\stackrel{def}{=} \int_{\mathcal{X}}C_{k,\gamma}(x,\pi(\cdot|x))d\mathbb{P}(x)$ is strictly convex for $\pi\in\Pi(\mathbb{P},\mathbb{Q})$. We consider $\pi_{1}\neq \pi_{2}\in\Pi(\mathbb{P},\mathbb{Q})$ and define $\mathcal{D}=\{x\in\mathcal{X}\mbox{ }\vert\mbox{ }\pi_{1}(\cdot|x)\neq\pi_{2}(\cdot|x)\}$. Since $d\pi_{1}(x)=d\pi_{2}(x)=d\mathbb{P}(x)$ and $\pi_{1}\neq\pi_{2}$, it holds $\mathbb{P}(\mathcal{D})>0$. We pick any $\alpha\in(0,1)$ and define
+% $$\Delta_{\alpha}(x)=\alpha C_{k,\gamma}\big(x,\pi_{1}(\cdot|x)\big)+(1-\alpha)C_{k,\gamma}\big(x,\pi_{2}(\cdot|x)\big)-C_{k,\gamma}\big(x,[\alpha\pi_{1}+(1-\alpha)\pi_{2}](\cdot|x)\big).$$
+% Additionally, we note that $\alpha\pi_{1}+(1-\alpha)\pi_{2}\in\Pi(\mathbb{P},\mathbb{Q})$. By the definition of $\mathcal{D}$ it holds $\Delta_{\alpha}(x)=0$ for $x\notin\mathcal{D}$. Thanks to the strict convexity of $C_{k,\gamma}$, it holds $\Delta_{\alpha}(x)>0$ for $x\in\mathcal{D}$. Now we derive
+% \begin{eqnarray}
+%     \alpha\mathcal{F}(\pi_{1})+(1-\alpha)\mathcal{F}(\pi_{2})-\mathcal{F}(\pi)=\int_{\mathcal{X}}\Delta_{\alpha}(x)d\mathbb{P}(x)=\int_{\mathcal{D}}\underbrace{\Delta_{\alpha}(x)}_{>0}d\mathbb{P}(x)>0
+%     \nonumber
+% \end{eqnarray}
+% The last inequality follows from the fact that the integral of a positive function over a measure of total non-zero mass is positive; it proves that the OT functional $\mathcal{F}$ is strictly convex. Consequently, it has the unique minimizer $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ which is the OT plan.
+\end{proof}
+
+\begin{proof}[Proof of Theorem \ref{thm-resolved-kernel}.] To begin with, we expand the functional $\mathcal{L}$:
+\begin{eqnarray}
+    T^{*}\in\arginf_{T}\mathcal{L}(f^{*},T)\Longleftrightarrow T^{*}\in \arginf_{T}\int_{\mathcal{X}} \left( C\big(x,T_{x}\sharp\mathbb{S}\big)-\int_{\mathcal{Z}} f^{*}\big(T_{x}(z)\big) d\mathbb{S}(z)\right) d\mathbb{P}(x).
+    \label{arginf-T-expanded}
+\end{eqnarray}
+Define $\mu_{x}^{*}\stackrel{def}{=}T^{*}_{x}\sharp\mathbb{S}$. We are going to prove that $\mu_{x}^{*}\equiv \pi^{*}(y|x)$, where $\pi^{*}\in\Pi(\mathbb{P},\mathbb{Q})$ is the (unique) optimal plan; this yields that $T^{*}$ is a stochastic OT map. Since the optimization over functions in NOT equals to the optimization over distributions that they generate \citep[\wasyparagraph 4.1]{korotin2023neural}, we have
+\begin{eqnarray}
+    \{\mu_{x}^{*}\}\in \arginf_{\{\mu_{x}\}}\int_{\mathcal{X}} \big( C\big(x,\mu_{x}\big)-\int_{\mathcal{Y}} f^{*}(y) d\mu_{x}(y)\big) d\mathbb{P}(x),
+    \label{arginf-mu}
+\end{eqnarray}
+where the $\inf$ is taken over collections of distributions $\mu_{x}\in\mathcal{P}(\mathcal{Y})$ indexed by $\mathcal{X}$. Importantly, \eqref{arginf-mu} can be split into $x\in\mathcal{X}$ independent problems, i.e., we have that
+\begin{eqnarray}
+    \mu_{x}^{*}\in\arginf_{\mu}\big[C\big(x,\mu_{x}\big)-\int_{\mathcal{Y}} f^{*}(y) d\mu_{x}(y)\big]
+    \label{arginf-mu-sep}
+\end{eqnarray}
+holds true $\mathbb{P}$-almost surely for all $x\in\mathcal{X}$. Note that the functional $\mu\mapsto C(x,\mu)-\int_{\mathcal{Y}}f^{*}(y)d\mu(y)$ consists of a strictly convex term $C(x,\mu)$, which follows from the proof of Lemma \ref{lemma-unique-plan}, and a linear term (integral over $\mu$). Therefore, the functional itself is strictly convex. Since $\pi^{*}(y|x)$ minimizes this functional, it is the unique solution due to the strict convexity. Therefore, $\mu^{*}(x)=\pi^{*}(y|x)$ holds true $\mathbb{P}$-almost surely for $x\in\mathcal{X}$ and $T^{*}_{x}\sharp\mathbb{S}=\mu_{x}^{*}=\pi^{*}(y|x)$, i.e., $T^{*}$ is a stochastic OT map.
+% The right-hand side of \eqref{argint-T-expanded} holds if and only if $$\big[T^{*}_{x}\in \arginf_{t:\mathcal{Z}\rightarrow\mathcal{Y}}C\big(x,t\sharp\mathbb{S}\big)-\int_{\mathcal{Z}} f\big(t(z)\big) d\mathbb{S}(z)\big]\mbox{ holds }\mathbb{P}\mbox{-almost surely for all }x\in\mathcal{X}.$$
+\end{proof}
+
+\begin{proof}[Proof of Proposition \ref{prop-var-sim}]
+% For every transport plan $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ its $\gamma$-weak kernel cost is 
+% $$\Cost_{k,\gamma}(\pi)=\frac{1}{2}\big[\Dist_{u}^{2}(\pi)-\gamma \CVar_{u}(\pi)\big].$$
+Since $\pi_{\gamma_{1}}^{*}$ is optimal for the $\gamma_{1}$-weak cost, for all $\pi\in\Pi(\mathbb{P},\mathbb{Q})$ it holds $\Cost_{k,\gamma_{1}}(\pi_{\gamma_1}^{*})\leq \Cost_{k,\gamma_{1}}(\pi)$. In particular, for $\pi=\pi_{\gamma_2}^{*}$ it holds true that
+\begin{equation}
+    \Dist_{u}^{2}(\pi_{\gamma_1}^{*})-\gamma_{1} \CVar_{u}(\pi_{\gamma_1}^{*})\leq \Dist_{u}^{2}(\pi_{\gamma_2}^{*})-\gamma_{1} \CVar_{u}(\pi_{\gamma_2}^{*}).
+    \label{gamma1-smaller-gamma2}
+\end{equation}
+Analogously, $\pi_{\gamma_{2}}^{*}$ is optimal for the $\gamma_{2}$-weak cost; the following holds:
+\begin{equation}
+    \Dist_{u}^{2}(\pi_{\gamma_2}^{*})\!-\!\gamma_{2} \CVar_{u}(\pi_{\gamma_2}^{*})\!\leq\! \Dist_{u}^{2}(\pi_{\gamma_1}^{*})\!-\!\gamma_{2} \CVar_{u}(\pi_{\gamma_1}^{*}).
+    \label{gamma2-smaller-gamma1}
+\end{equation}
+We sum \eqref{gamma1-smaller-gamma2} and \eqref{gamma2-smaller-gamma1} and obtain
+$$-\gamma_{1} \CVar_{u}(\pi_{\gamma_1}^{*})-\gamma_{2} \CVar_{u}(\pi_{\gamma_2}^{*})\leq -\gamma_{1} \CVar_{u}(\pi_{\gamma_2}^{*})-\gamma_{2} \CVar_{u}(\pi_{\gamma_1}^{*}),$$
+or, equivalently,
+$$(\gamma_{2}-\gamma_{1})\CVar_{u}(\pi_{\gamma_1}^{*})\leq (\gamma_{2}-\gamma_{1})\CVar_{u}(\pi_{\gamma_2}^{*}),$$
+which is equivalent to $\CVar_{u}(\pi_{\gamma_1}^{*})\leq \CVar_{u}(\pi_{\gamma_2}^{*})$ since $\gamma_{2}-\gamma_{1}>0$. Now we multiply \eqref{gamma1-smaller-gamma2} and \eqref{gamma2-smaller-gamma1} by $\gamma_{2}$ and $\gamma_{1}$, respectively, and sum the resulting inequalities. We obtain
+$$\gamma_{2}\Dist_{u}^{2}(\pi_{\gamma_1}^{*})+\gamma_{1}\Dist_{u}^{2}(\pi_{\gamma_2}^{*})\leq\gamma_{2}\Dist_{u}^{2}(\pi_{\gamma_2}^{*})+\gamma_{1}\Dist_{u}^{2}(\pi_{\gamma_1}^{*}),$$
+or, equivalently,
+$$(\gamma_{2}-\gamma_{1})\Dist_{u}^{2}(\pi_{\gamma_1}^{*})\leq(\gamma_{2}-\gamma_{1})\Dist_{u}^{2}(\pi_{\gamma_2}^{*}),$$
+which provides $\Dist_{u}(\pi_{\gamma_1}^{*})\leq\Dist_{u}(\pi_{\gamma_2}^{*})$. Finally, we note that 
+\begin{eqnarray}\Cost_{k,\gamma_{2}}(\pi_{\gamma_{2}}^{*})=\inf_{\pi\in\Pi(\mathbb{P},\mathbb{Q})}\Cost_{k,\gamma_{2}}(\pi)\leq \Cost_{k,\gamma_{2}}(\pi_{\gamma_{1}}^{*})=
+\nonumber
+\\
+\Cost_{k,\gamma_{1}}(\pi_{\gamma_{1}}^{*})-\underbrace{(\gamma_{2}-\gamma_{1})}_{\geq 0}\underbrace{\CVar_{u}(\pi_{\gamma_{1}}^{*})}_{\geq 0}\geq  \Cost_{k,\gamma_{1}}(\pi_{\gamma_{1}}^{*}),
+\end{eqnarray}
+which concludes the proof.
+\end{proof}
+
+% \begin{lemma}[Extracting the shift] For $\mathbb{P},\mathbb{Q}\in\mathcal{P}_{2}(\mathbb{R}^{D})$ and $\gamma\geq 0$ it holds
+% $$\mathcal{W}_{2,\gamma}^{2}(\mathbb{P},\mathbb{Q})=\frac{1}{2}\|m_{\mathbb{P}}-m_{\mathbb{Q}}\|^{2}+\mathcal{W}_{2,\gamma}^{2}(\mathbb{P}_{0},\mathbb{Q}_{0}).$$
+
+% \end{lemma}
+
+\section{Weak Quadratic vs. Kernel Costs on Real Data}
+\label{sec-exp-fluctuation}
+
+The goal of this section is to demonstrate that our proposed kernel cost \eqref{u-cost} consistently outperforms the weak quadratic cost \eqref{weak-w2-cost} in the downstream task of unpaired image translation. We consider the distance-induced kernel $k(x,y)=\frac{1}{2}\|x\|+\frac{1}{2}\|y\|-\frac{1}{2}\|x-y\|$. In short, we run NOT \citep[Algorithm 1]{korotin2023neural} multiple times (with various random seeds) with the same hyperparameters (Appendix \ref{sec-details}) for weak and kernel costs, and then we compare the obtained FID ($\mu\pm \sigma$).
+
+\vspace{-1mm}\textbf{Datasets.} We consider \textit{shoes} $\rightarrow$ \textit{handbags}
+and \textit{celeba (female)} $\rightarrow$ \textit{anime} translation. We work only with small $32\times 32$ images to speed up the training and be able to run many experiments.
+
+\vspace{-1mm}\textsc{\textbf{Experiment 1.}} We consider the $\gamma$-\textbf{weak} quadratic cost for each $\gamma\in \{\frac{1}{2}, 1,\frac{3}{2},2\}$ we run NOT with 5 different random seeds and train it for $60$k iterations of $f_{\omega}$. In this experiment, during training, we evaluate \textit{test} FID every 1k iteration and for each experiment we report $3$ FID values: the \textbf{best} FID value of iterations $25$-$60$k\footnote{We choose $25$k iterations as the starting point because at this time point FID roughly stabilizes at a small level. This indicates the model has nearly converged and starts fluctuating around the optimum.} indicating \textit{what the model can achieve best}, the \textbf{max} FID value of iterations $25$-$60$k indicating \textit{what the model achieves worst} (because of potential training instabilities) and the \textbf{last} FID value at the end of training ($60$k) showing \textit{what the model actually achieved}.
+
+\vspace{-1mm}The experimental results of Tables \ref{table-fid-gamma-not-knot}, \ref{table-fid-gamma-not-knot-celeba} provide several important insights. First, we see that with the increase of parameter $\gamma$, the \textit{best} FID stably increases. Second, the overall training becomes less stable: \textit{max} FID becomes extremely large, which indicates severe fluctuations of the model. In particular, both the mean and standard deviation of \textit{last} FID (as well as \textit{max} FID) drastically increase. 
+
+\vspace{-1mm}Why does this happen? We think that with the increase of $\gamma$ sets $U_{\psi}(\cdot)$ \eqref{characterization-arginf} become large. These sets determine how much a fake solution may vary (Theorem \ref{lemma-characterization}). Thus, this naturally leads to high ambiguity of the solutions and results in unstable and unpredictable behaviour.
+
+\vspace{-1mm}\textsc{\textbf{Experiment 2.}} We pick the \textbf{highest} considered value $\gamma=2$ and show that our $\gamma$-weak kernel cost performs better than the weak quadratic cost from the previous experiments.
+
+\vspace{-1mm}We run NOT with the kernel cost 5 times and report the results in the same Tables \ref{table-fid-gamma-not-knot}, \ref{table-fid-gamma-not-knot-celeba}. The results show that even for high $\gamma$ the issues with the fluctuation are notably softened. This is seen from the fact that for $\gamma=2$ the gap between the \textit{last} FID (or \textit{max} FID) and \textit{best} much smaller for the kernel cost than for the quadratic cost. In particular, this gap is comparable to the gap for $\gamma=\frac{1}{2}$-weak quadratic cost for which sets $U_{\psi}(\cdot)$ are presumably small and provide less ambiguity to the solutions.
+
+\begin{table}[!h]
+\vspace{-2mm}
+\centering
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\toprule
+\textbf{Method} &
+\multicolumn{4}{c|}{Weak quadratic, $C_{2, \gamma}$} & \multicolumn{1}{c|}{\makecell{Weak kernel\\ $C_{k, \gamma}$ [Ours]}} \\ \midrule
+%  & Strong 
+%  &
+% \multicolumn{5}{c|}{Weak} \\ \midrule
+Setting & 
+% $\gamma = 0$ & 
+$\gamma = 0.5$ & $\gamma = 1$ & $\gamma = 1.5$ & $\gamma = 2$ & $\gamma = 2$ \\ \midrule
+Best FID & 
+% \makecell{$16.82$ $\pm$ $0.56$} &
+\makecell{$16.08$ $\pm$ $0.37$} & \makecell{$19.87$ $\pm$ $0.69$} & \makecell{$23.01$ $\pm$ {\color{orange}$5.16$}} & \makecell{$25.36$ $\pm$ $1.26$} & \makecell{$16.50$ $\pm$ $0.88$} \\ \midrule
+Last FID & 
+% \makecell{$17.53$ $\pm$ $0.40$} &
+\makecell{$21.98$ $\pm$ $3.04$} & \makecell{{\color{red}$33.56$} $\pm$ {\color{orange}$10.49$}} & \makecell{{\color{red}$30.35$} $\pm$ {\color{orange}$8.85$}} & \makecell{{\color{red}$37.18$} $\pm$ {\color{orange}$8.58$}} & \makecell{$20.19$ $\pm$ $2.36$} \\ \midrule
+Max FID & 
+% \makecell{$17.53$ $\pm$ $0.40$} &
+\makecell{$28.40$ $\pm$ $3.18$} & \makecell{{\color{red}$52.03$} $\pm$ {\color{orange}$16.00$}} & \makecell{{\color{red}$46.59$} $\pm$ {\color{orange}$9.53$}} & \makecell{{\color{red}$67.50$} $\pm$ {\color{orange}$30.76$}} & \makecell{$29.85$ $\pm$ $3.75$} \\ \bottomrule 
+\end{tabular}
+\vspace{-1mm}
+\caption{\centering Test FID$\downarrow$ ($\mu\pm\sigma$) on \textit{shoes} $\rightarrow$ \textit{handbags}, $32 \times 32$ of $C_{2, \gamma}$ and $C_{k, \gamma}$ for different $\gamma$.\protect\linebreak {\color{red}Red} color highlights $\mu\geq 30$, {\color{orange}orange} color highlights $\sigma\geq 5$.} \label{table-fid-gamma-not-knot}
+\end{table}
+\begin{table}[!h]
+\vspace{-2mm}
+\centering
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\toprule
+\textbf{Method} &
+\multicolumn{4}{c|}{Weak quadratic, $C_{2, \gamma}$} & \multicolumn{1}{c|}{\makecell{Weak kernel\\ $C_{k, \gamma}$ [Ours]}} \\ \midrule
+%  & Strong 
+%  &
+% \multicolumn{5}{c|}{Weak} \\ \midrule
+Setting & 
+% $\gamma = 0$ & 
+$\gamma = 0.5$ & $\gamma = 1$ & $\gamma = 1.5$ & $\gamma = 2$ & $\gamma = 2$ \\ \midrule
+Best FID & 
+% \makecell{$16.82$ $\pm$ $0.56$} &
+\makecell{$18.88$ $\pm$ $0.57$} & \makecell{$34.71$ $\pm$ {\color{orange}$6.48$}} & \makecell{$24.49$ $\pm$ $0.64$} & \makecell{{\color{red}$40.49$} $\pm$ {\color{orange}$5.57$}} & \makecell{$19.39$ $\pm$ $1.06$} \\ \midrule
+Last FID & 
+% \makecell{$17.53$ $\pm$ $0.40$} &
+\makecell{$20.26$ $\pm$ $1.98$} & \makecell{$36.89$ $\pm$ {\color{orange}$8.19$}} & \makecell{$28.49$ $\pm$ $1.66$} & \makecell{{\color{red}$49.66$} $\pm$ {\color{orange}$5.45$}} & \makecell{$20.62$ $\pm$ $1.66$} \\ \midrule
+Max FID & 
+% \makecell{$17.53$ $\pm$ $0.40$} &
+\makecell{$29.51$ $\pm$ $1.45$} & \makecell{{\color{red}$81.78$} $\pm$ {\color{orange}$25.93$}} & \makecell{{\color{red}$48.44$} $\pm$ {\color{orange}$5.14$}} & \makecell{{\color{red}$76.25$} $\pm$ {\color{orange}$4.26$}} & \makecell{$36.86$ $\pm$ $0.45$} \\ \bottomrule 
+\end{tabular}
+\vspace{-1mm}
+\caption{\centering Test FID$\downarrow$ ($\mu\pm\sigma$) on \textit{celeba (female)} $\rightarrow$ \textit{anime}, $32 \times 32$ of $C_{2, \gamma}$ and $C_{k, \gamma}$ for different $\gamma$.\protect\linebreak {\color{red}Red} color highlights $\mu\geq 40$, {\color{orange}orange} color highlights $\sigma\geq 4$.} \label{table-fid-gamma-not-knot-celeba}
+\end{table}
+\vspace{-1mm}\textbf{Conclusion.} Our empirical evaluation shows that NOT with our proposed kernel costs yields more stable behaviour than NOT with the weak quadratic cost. This agrees with our theory which suggests that one of the reasons for unstable behaviour and severe fluctuations might be the existence of the fake solutions (\wasyparagraph\ref{sec-issues-w2}). Our weak kernel cost removes all the fake solutions (\wasyparagraph\ref{sec-kernel-w2}).
+
+
+\section{Additional Training Details}
+\label{sec-details}
+
+\textbf{Pre-processing.} In all the cases, we rescale RGB channels of images from $[0,1]$ to $[-1,1]$. As in \citep{korotin2023neural}, we beforehand rescale anime face images to $512\times 512$, and do $256\times 256$ crop with the center located $14$ pixels above the image center to get the face. Next, for all the datasets except for the describable textures, we resize images to the required size ($64\times 64$ or $128\times 128$). Specifically for the describable textures dataset ($\approx$5K textures), we augment the samples. We rescale input textures to minimal border size of 300, do the random resized crop (from $128$ to $300$ pixels) and random horizontal \& vertical flips. Then we resize images to the required size ($64\times 64$ or $128\times 128$).
+
+
+% RandomResizedCrop((img_size,img_size), scale=(128./300, 1.), ratio=(1., 1.)),
+%              RandomHorizontalFlip(0.5), RandomVerticalFlip(0.5),
+
+
+% 
+
+\textbf{Neural networks.} We use WGAN-QC discriminator's ResNet architecture \citep{liu2019wasserstein} for potential $f$. We use UNet\footnote{\url{github.com/milesial/Pytorch-UNet}} \citep{ronneberger2015u} as the stochastic transport map $T(x,z)=T_{x}(z)$. To condition it on $z$, we insert conditional instance normalization (CondIN) layers after each UNet's upscaling block\footnote{\url{github.com/kgkgzrtk/cUNet-Pytorch}}. We use CondIN from AugCycleGAN\footnote{\url{github.com/ErfanMN/Augmented_CycleGAN_Pytorch}} \citep{almahairi2018augmented}. In experiments, $z$ is the 128-dimensional standard Gaussian noise.
+
+\textbf{Optimization.} To learn stochastic OT maps, we use NOT algorithm \citep[Algorithm 1]{korotin2023neural}. We use the Adam optimizer \citep{kingma2014adam} with the default betas for both $T_{\theta}$ and $f_{\omega}$. The learning rate is $lr=1\cdot 10^{-4}$. We use the MultiStepLR scheduler which decreases $lr$ by $2$ after [15k, 25k, 40k, 55k, 70k] (iterations of $f_{\omega}$). The batch size is $|X|=64$, $|Z_x|=4$. The number of inner iterations is $k_{T}=10$. In toy experiments, we do $10$K total iterations of $f_{\omega}$ update. In the image-to-image translation experiments, we observe convergence in $\approx 70$k iterations for $128\times 128$ datasets, in $\approx 40$k iterations for $64\times 64$ datasets. In image-to-image translation, we gradually change $\gamma$. Starting from $\gamma=0$, we linearly increase it to the desired value (mostly $\frac{1}{3}$) during 25K first iterations of $f_{\omega}$.
+
+\textbf{Computational complexity.} NOT with kernel costs for $128\times 128$ images converges in 3-4 days on a 4$\times$ Tesla V100 GPUs (16 GB). This is slightly bigger than the respective time for NOT \citep[\wasyparagraph 6]{korotin2023neural} with the quadratic cost due to the reasons discussed in \wasyparagraph\ref{sec-practical-aspects}.
+
+\newpage
+\section{Comparison with NOT with the Quadratic Cost}
+\label{sec-not-extra-comparison}
+
+\begin{figure}[!h]
+\vspace{-5mm}
+\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_comparison.png}
+\caption{\vspace{-1mm}\centering Outdoor $\rightarrow$ church, $128\times 128$.}
+\vspace{-1mm}
+% \label{fig:outdoor-church-comparison}
+\end{subfigure}
+\vspace{-1mm}\hfill\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_anime_comparison.png}
+\caption{\vspace{-1mm}\centering Celeba (f) $\rightarrow$ anime, $128\times 128$.}
+\vspace{-1mm}\label{fig:celeba-anime-comparison}
+\end{subfigure}
+% \hspace{2mm}
+\hfill\begin{subfigure}[b]{0.32\linewidth}
+\centering
+\includegraphics[width=0.978\linewidth]{pics/handbag_shoes_comparison.png}
+\caption{\vspace{-1mm}\centering Handbags $\rightarrow$ shoes, $128\times 128$.}
+\vspace{-1mm}\label{fig:handbag-shoes-comparison}
+\end{subfigure}
+\vspace{2mm}\caption{Unpaired translation with Neural Optimal Transport with various costs ($C_{2,0}$, $C_{2,\gamma}$, $C_{k,\gamma}$).}
+\label{fig:not-comparison}
+\vspace{-4mm}
+\end{figure}
+
+\begin{figure}[!h]
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_anime_comparison_w2.png}
+\caption{\centering $C_{2,0}$\protect\linebreak \citep[\wasyparagraph 5.2]{korotin2023neural}.}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_anime_comparison_ww2.png}
+\caption{\centering $C_{2,\gamma}$\protect\linebreak \citep[\wasyparagraph 5.3]{korotin2023neural}.}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_anime_comparison_kw2.png}
+\caption{\centering $C_{k,\gamma}$ [Ours].\vspace{3.5mm}}
+\end{subfigure}
+\caption{Celeba (f) $\rightarrow$ anime ($128\times 128$) translation with NOT with costs $C_{2,0}$, $C_{2,\gamma}$, $C_{k,\gamma}$.}
+% \vspace{-10mm}
+\end{figure}
+\begin{figure}[!h]
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_comparison_w2.png}
+\caption{\centering $C_{2,0}$ \citep[\wasyparagraph 5.2]{korotin2023neural}.}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_comparison_ww2.png}
+\caption{\centering $C_{2,\gamma}$ \citep[\wasyparagraph 5.3]{korotin2023neural}.}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_comparison_kw2.png}
+\caption{\centering $C_{k,\gamma}$ [Ours].}
+\end{subfigure}
+\caption{Outdoor $\rightarrow$ church ($128\times 128$) translation with NOT with costs $C_{2,0}$, $C_{2,\gamma}$, $C_{k,\gamma}$.}
+% \vspace{-10mm}
+\end{figure}
+\begin{figure}[!h]
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_comparison_w2.png}
+\caption{\centering $C_{2,0}$ \citep[\wasyparagraph 5.2]{korotin2023neural}.}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_comparison_ww2.png}
+\caption{\centering $C_{2,\gamma}$ \citep[\wasyparagraph 5.3]{korotin2023neural}.}
+\end{subfigure}
+\begin{subfigure}[b]{0.33\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_comparison_kw2.png}
+\caption{\centering $C_{k,\gamma}$ [Ours].}
+\end{subfigure}
+\caption{Handbags $\rightarrow$ shoes ($128\times 128$) translation with NOT with costs $C_{2,0}$, $C_{2,\gamma}$, $C_{k,\gamma}$.}
+% \vspace{-10mm}
+\end{figure}
+
+\newpage
+\section{Comparison with Image-to-Image Translation Methods}
+\label{sec-exp-comparison}
+
+We compare NOT with our kernel costs with \textit{principal} models (one-to-one and one-to-many) for unpaired image-to-image translation. We consider CycleGAN \footnote{\url{github.com/eriklindernoren/PyTorch-GAN/tree/master/implementations/cyclegan}}\citep{zhu2017unpaired}, AugCycleGAN\footnote{\url{github.com/aalmah/augmented_cyclegan}} \citep{almahairi2018augmented} and MUNIT\footnote{\url{github.com/NVlabs/MUNIT}} \citep{huang2018multimodal} for comparison. We use the official or community implementations with the hyperparameters from the respective papers. We consider \textit{outdoor} $\rightarrow$ \textit{church} and \textit{texture} $\rightarrow$ \textit{shoes} dataset pairs ($128\times 128$). The FID scores are given in Table \ref{table-fid-ext}. Qualitative examples are shown in Figures \ref{fig:outdoor-church-comparison}, \ref{fig:texture-shoes}.
+\begin{table}[!h]
+\centering
+\small
+\begin{tabular}{|c|c|c|c|c|c|}
+\toprule
+\textbf{Method} & \multicolumn{2}{c|}{\textbf{One-to-one}} & \multicolumn{3}{c|}{\textbf{One-to-many}} \\ \midrule
+\makecell{\textbf{Datasets}\\($128\times 128$)} & \makecell{Cycle GAN\\ (with $\mathcal{L}_{1}$ loss)} & \makecell{Cycle GAN\\ (no $\mathcal{L}_{1}$ loss)} & AugCycleGAN & MUNIT & \makecell{NOT with $C_{k,\gamma}$\\ (\textbf{Ours})} \\ \midrule
+\textit{Outdoor} $\rightarrow$ \textit{church} & 43.74 & 36.16 &  51.15 $\pm$ 0.19 & 32.14 $\pm$ 0.18 & \textbf{15.16} $\pm$ 0.03 \\ \midrule
+\textit{Texture} $\rightarrow$ \textit{shoes} & 34.65 $\pm$ 0.12 & 50.95 $\pm$ 0.12 &  N/A & 43.74 $\pm$ 0.16 & \textbf{24.84} $\pm$ 0.09 \\  \bottomrule
+\end{tabular}
+\vspace{2.5mm}
+\caption{\centering Test FID$\downarrow$ of the considered image-to-image translation methods.}
+\label{table-fid-ext}
+\end{table}
+% \vspace{-3mm}
+
+We do not include the results of AugCycleGAN on \textit{texture}$\rightarrow$\textit{shoes} as it did not converge on these datasets ($\text{FID}\!\gg\! 100$). We tried tuning its hyperparameters, but this did not yield improvement.
+
+\begin{figure}[!h]
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/cycle_textures2shoes_test.png}
+\caption{CycleGAN}
+\end{subfigure}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/cycle_no_l1_textures2shoes_test.png}
+\caption{CycleGAN (no identity loss)}
+\end{subfigure}\vspace{3mm}
+
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/munit_textures2shoes_test.png}
+\caption{MUNIT}
+\end{subfigure}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/knot_textures2shoes_test.png}
+\caption{NOT with $C_{k,\gamma}$ \textbf{[Ours]}}
+\end{subfigure}
+\caption{Texture $\rightarrow$ shoes ($128\times 128$) translation with various methods.}
+\label{fig:texture-shoes}
+\end{figure}
+
+\begin{figure}[!h]
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/cycle_no_l1_outdoors2church_test.png}
+\caption{CycleGAN (no identity loss)}
+\end{subfigure}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/cycle_outdoors2church_test.png}
+\caption{CycleGAN}
+\end{subfigure}\vspace{3mm}
+
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/munit_outdoor2church_test.png}
+\caption{MUNIT}
+\end{subfigure}
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/augcyclegan_outdoor2church_test.png}
+\caption{AugCycleGAN}
+\end{subfigure}\vspace{3mm}
+
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/knot_outdoors2church_test.png}
+\caption{NOT with $C_{k,\gamma}$ \textbf{[Ours]}}
+\end{subfigure}
+\caption{Outdoor $\rightarrow$ church ($128\times 128$) translation with various methods.}
+\label{fig:outdoor-church-comparison}
+\end{figure}
+
+
+\clearpage\section{Additional Experimental Results}
+\label{sec-extra-results}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_anime_128_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T_{x}(z)$.}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/celeba_anime_128_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\end{subfigure}
+\caption{\centering Celeba (female) $\rightarrow$ anime translation, $128\times 128$. Additional examples.}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_128_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T_{x}(z)$.}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/outdoor_church_128_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\end{subfigure}
+\caption{\centering Outdoor $\rightarrow$ church, $128\times 128$. Additional examples.}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/dtd_shoes_128_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T_{x}(z)$.}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/dtd_shoes_128_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\end{subfigure}
+\caption{\centering Texture $\rightarrow$ shoes translation, $128\times 128$. Additional examples.}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/dtd_handbag_128_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T_{x}(z)$.}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/dtd_handbag_128_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\end{subfigure}
+\caption{\centering Texture $\rightarrow$ handbags translation, $128\times 128$. Additional examples.}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/shoes_handbag_128_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T_{x}(z)$.}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/shoes_handbag_128_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\end{subfigure}
+\caption{\centering Shoes $\rightarrow$ handbags translation, $128\times 128$. Additional examples.}
+\end{figure*}
+
+\begin{figure*}[!h]
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_128_ext.png}
+\caption{\centering Input images $x$ and random translated examples $T_{x}(z)$.}
+\end{subfigure}\vspace{2mm}
+
+\begin{subfigure}[b]{0.99\linewidth}
+\centering
+\includegraphics[width=0.995\linewidth]{pics/handbag_shoes_128_interp.png}
+\caption{\centering Interpolation in the conditional latent space, $z=(1-\alpha)z_{1}+\alpha z_{2}$.}
+\end{subfigure}
+\caption{\centering Handbags $\rightarrow$ shoes translation, $128\times 128$. Additional examples.}
+\end{figure*}
+
+
+
+\end{document}

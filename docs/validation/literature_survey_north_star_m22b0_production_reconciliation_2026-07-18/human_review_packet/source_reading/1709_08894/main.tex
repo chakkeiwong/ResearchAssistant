@@ -1,0 +1,1665 @@
+%\documentclass{article}
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2018_conference,times}
+\usepackage{hyperref}
+\usepackage{url}
+
+
+\usepackage{float}
+%\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+ \usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{xr}
+% \externaldocument[S-]{supplement} % if uncomment, then need to change all references again
+
+\title{On the regularization of Wasserstein GANs}
+ 
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Henning Petzka\thanks{Equal contributions} %Asja Fischer$^{2,*}$\& Denis Lukovnikov$^2$ 
+\\
+Fraunhofer Institute IAIS, \\Sankt Augustin, Germany\\
+\texttt{henning.petzka@gmail.com}
+%$^2$ Department of Computer Science, University of Bonn, Germany \\
+%$^*$ Equal contributions \\
+ \\
+\And
+Asja Fischer$^*$\& Denis Lukovnikov \\
+Department of Computer Science,\\
+University of Bonn, Germany \\
+\texttt{asja.fischer@gmail.com} \\
+\texttt{lukovnik@cs.uni-bonn.de}\\
+%\AND
+%Coauthor \\
+%Affiliation \\
+%Address \\
+%\texttt{email} kjfkdjfk
+}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}[1][]{\mathbb{R}^{#1}}
+\newcommand{\norm}[1]{||{#1}||_2}
+\newcommand{\Li}[1]{\mathcal{L}ip_{#1}}
+\newcommand{\EE}[2]{\mathbb{E}_{x\sim #2}[{#1}]}
+\newcommand{\supp}[1]{\text{supp}({#1})}
+\newcommand{\relu}{\text{relu}}
+\newcommand{\sgn}[1]{\text{sgn}({#1})}
+\newcommand{\Gauss}{\text{Gauss}}
+\newcommand{\suppo}[1]{\text{supp}_\circ({#1})}
+\newcommand{\af}[1]{\textcolor{blue}{#1}}
+\newcommand{\afrm}[1]{{\color{blue}\sout{{#1}}}}
+\newcommand{\aflm}[1]{\marginpar{\flushleft\color{blue}{#1}}}
+\newcommand{\hp}[1]{\textcolor{red}{#1}}
+\newcommand{\dl}[1]{\textcolor{purple}{#1}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{observation}{Observation}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}Since their invention, generative adversarial networks (GANs) have become a popular approach for learning to model a distribution of real (unlabeled) data. Convergence problems during training are overcome by Wasserstein GANs which minimize the distance between the model and the empirical distribution in terms of a different metric, but thereby introduce a Lipschitz constraint into the optimization problem. A simple way to enforce the Lipschitz constraint on the class of functions, which can be modeled by the neural network, is weight clipping. Augmenting the loss by a regularization term that penalizes the deviation of the gradient norm of the critic (as a function of the network's input) from one, was proposed as an alternative that improves training. We present theoretical arguments why using a weaker regularization term enforcing the Lipschitz constraint is preferable. These arguments are supported by experimental results on several data sets.
+%toy data sets.
+\end{abstract} 
+
+
+
+\section{Introduction}
+
+General adversarial networks (GANs) \citep{GAN} are a class of generative models that have recently gained a lot of attention. They are based on the idea of defining a game between two competing neural networks (NNs): a generator and a classifier (or discriminator). While the classifier aims at distinguishing generated from real data, the generator tries to generate samples which the classifier can not distinguish from the ones from the empirical distribution.  % The original training procedure for GANs showed an unstable behavior and it experienced mode collapsing already when trying to model simple mixtures of Gaussians (see e.g. \citep{adaGAN}). Therefore, realizing 
+Realizing the potential behind this new approach to generative models, more recent contributions focused on the stabilization of training, including ensemble methods \citep{adaGAN}, improved network structure \citep{UnsupervizedRepresentationLearningWithDeepConvolutionalGenerativeAdversarialNetworks,iGAN} and theoretical improvements \citep{fGAN,iGAN,ArjovskyGANs,infoGAN} that helped to successfully model complex distributions using GANs.
+
+It was proposed by \citet{WGAN} to train generator and discriminator networks by minimizing the Wasserstein-1 distance, a distance with properties superior to the Jensen-Shannon distance (used in the original GAN) in terms of convergence. Accordingly, this version of GAN was called Wasserstein GAN (WGAN). The change of metric introduces a new minimization problem, which requires the discriminator function to lie in the space of 1-Lipschitz functions.  In the same paper, the Lipschitz constraint was guaranteed by performing weight clipping, i.e.,~by constraining the parameters of the discriminator NN to be smaller than a given value in magnitude. An improved training strategy was proposed by \citet{iWGAN} based on results from optimal transport theory  \citep[see][]{optimalTransport}. Here, instead of clipping weights, the loss gets augmented by a regularization term that penalizes any deviation of the norm of the gradient of the critic function (with respect to its input) from one.
+
+We review these results and present both theoretical considerations and empirical results, leading to the proposal of a less restrictive regularization term for WGANs.\footnote{In the blog post \url{https://lernapparat.de/improved-wasserstein-gan/} which was written simultaneously to our work, the author presents some ideas that follow a similar intuition as the one underlying our arguments.}
+%conclusion that a different regularization term should be used instaed. This is supported by a set of experiments.
+More precisely, our contributions are as follows:
+\begin{itemize}
+%\item We present theoretical considerations illustrating why weight clipping is harmful for WGAN training.
+\item We review the arguments that the regularization technique proposed by \citet{iWGAN} is based on and make the following two observations: 
+%and present a simplified proof.
+%\begin{itemize}
+%\item 
+(i) The regularization strategy 
+%used by \citep{iWGAN}
+requires training samples and generated samples to be drawn from a certain joint distribution. In practice, however, samples are drawn independently from their marginals. % We explain why this can be harmful for training.  
+%\item 
+(ii) The arguments 
+%of \citep{iWGAN} 
+further assume the discriminator to be differentiable. 
+%We present examples explaining why the conclusion that follows from this assumption can be problematic. 
+%\end{itemize}
+We explain why both can be harmful for training.
+\item We 
+%derive a better choice 
+propose a less restrictive regularization term and present empirical results
+%on toy data 
+strongly supporting our theoretical considerations.
+\end{itemize}
+
+%We begin by reviewing the required basic concepts from optimal transport theory in Section~\ref{sec:optimalTransport} and introduce GANs and WGANs in Section \ref{sec:WGANs}. We  discuss problems with the gradient penalty introduced by \citep{iWGAN} in Section~\ref{sec:iWGAN}, before proposing our modification in Section~\ref{sec:proposal}. The experimental results supporting our theoretical considerations can be found in Section~\ref{sec:experiments}. We conclude in Section~\ref{sec:conclusion}. 
+
+
+\section{Optimal Transport}\label{sec:optimalTransport}
+
+We will require the notion of a coupling of two probability distributions. Although a coupling can be defined more generally, we state the definition in the setting of our interest, i.e., we consider all spaces involved to equal $\RR[n]$.
+%
+\begin{definition}
+Let $\mu$ and $\nu$ be two probability distributions on $\RR[n]$. A coupling $\pi$ of $\mu$ and $\nu$ is a probability distribution on $\RR[n]\times \RR[n]$ such that $\pi(A,\RR[n])=\mu(A)$ and $\pi(\RR[n],A)=\nu(A)$ for all measurable sets $A\subseteq \RR[n]$.
+The set of all couplings of $\mu$ and $\nu$ is denoted by $\Pi(\mu,\nu)$.
+\end{definition}
+%\begin{definition}
+%Let $\mu$ and $\nu$ be two probability measures on a space $X$. A coupling $\pi$ of $\mu$ and $\nu$ is a probability %measure on $X \times X$ such that $\pi(A,Y)=\mu(A)$ and $\pi(X,A)=\nu(A)$ for all measurable sets $A\subseteq X$.
+%The set of all coupling of $\mu$ and $\nu$ is denoted by $\Pi(\mu,\nu)$.
+%\end{definition}
+%
+The following theorem plays a central role in the theory of optimal transport (OT) and is known as the Kantorovich duality.
+ Note, that the presented theorem is a less general, but to our needs adapted version of Theorem~5.10 from \citet{optimalTransport}.\footnote{In 
+the work of 
+\citet{WGAN}, the theorem is called Kantorovich-Rubinstein, although this theorem only applies to compact metric spaces. There are several generalizations of the Kantorovich-duality. For a detailed account we refer the reader to
+% the work of 
+\citet{Kantorovich_Rubinstein_theorem_Edwards}.} A proof of how to derive our version from the referenced one can be found in Appendix~\ref{appendix:kantorovich}. We will denote by  $\Li{1}$ the set of all 1-Lipschitz functions, i.e., the set of all functions $f$ such that $f(y)-f(x)\leq \norm{x-y}$ for all $x,y$.
+
+ 
+\begin{theorem}[Kantorovich]\label{thm:Kantorovich}
+Let $\mu$ and $\nu$ be two probability distributions on $\RR[n]$ such that $\int_{\RR[n]}\norm{x}\ d\mu(x)<\infty\text{ and } \int_{\RR[n]}\norm{x}\ d\nu(x)<\infty.$ Then
+%\begin{itemize}
+%\item[(i)] 
+
+(i)
+\vspace{-0.5cm}
+\begin{equation} \label{eq:duality}
+\min_{\pi \in \Pi(\mu,\nu)} \int_{\RR[n]\times\RR[n]} \norm{x-y}\ d\pi(x,y)%\hspace{3.5cm} %\nonumber 
+= \max_{f \in \Li{1}} \left ( \int_{\RR[n]} f(x)\ d\mu(x) - \int_{\RR[n]} f(x)\ d\nu(x)\right ) \enspace.
+\end{equation}
+ In particular, both minimum and maximum exist.
+%$$=\sup_{f \in \Li{1}}  \left ( \EE{f(x)}{\nu}- \EE{f(x)}{\mu} \right )$$
+%\item[(ii)] 
+
+(ii)
+%
+The following two statements are equivalent:
+\begin{itemize}
+\item[(a)] $\pi^*$ is an optimal coupling (minimizing 
+the value on the left hand side of \eqref{eq:duality}).
+%\item[(b)] There is a function $f^*\in \Li{1}$ (at which the  maximum is attained for the right hand side of eq. \eqref{eq:duality}) such that $\pi^*$-almost surely
+\item[(b)] Any optimal function $f^*\in \Li{1}$ (at which the  maximum is attained for the right hand side of \eqref{eq:duality}) satisfies that for all $(x,y)$ in the support of $\pi^*$:  
+$f^*(x)-f^*(y) = ||x-y||_2 $.
+%for all $(x,y)$ in the support of $\pi^*$.
+\end{itemize}
+%\end{itemize}
+\end{theorem}
+
+The field of OT offers several approaches to the computation of optimal couplings. To speed up the computation of an optimal coupling, \citet{Cuturi} introduced a
+regularized 
+version of the primal problem 
+%by adding 
+in which 
+an entropic term $E(\pi)$ is added leading to the minimization of  
+$\int_{\RR[n]\times\RR[n]} \norm{x-y}\ d\pi(x,y)+ \epsilon E(\pi)$, with regularization parameter $\epsilon$. Regularized OT was generalized by \citet{regulOTRotMover} to a more general class of regularization terms $\Omega(\pi)$. 
+As we will discuss in  Section~\ref{sec:proposal},
+the learning algorithm we propose in this paper has connections to the approach using $\Omega(\pi)=\int \left ( \frac{ \text{d}\pi(x,y)}{\text{d}\mu(x)\ \text{d}\nu(y)} \right )^2 \text{d}\mu(x)\ \text{d}\nu(y)$. By \citet{Blondel}, this leads to the dual problem given by 
+\begin{equation}\label{eq:dualRegOT}
+\sup_{f,g} \left \{ \mathbb{E}_{x\sim \mu}[f(x)] - \mathbb{E}_{y\sim \nu}[g(y)]-\frac{4}{\epsilon} \int \int \max \left \{ 0 , \left ( f(x) -g(y) - \norm{x-y}  \right ) \right \}^2 \text{d}\mu(x)\text{d}\nu(y)\right \} \enspace.
+\end{equation}
+%We will discuss the connection in Section~\ref{sec:proposal}.
+
+
+%\af{[Todo: Can we find a nicer explanation?]  }
+%One can think of the minimizing coupling $\pi$ as an assignment of starting points $x$ to end-points $y$ leading to overall minimal transport costs when moving $\nu$ onto $\mu$ measured in distance (here the Euclidean distance). When the weights to be transported are thought of being goods, then the maximizing function $f^*$ can be thought of an optimal price function from the viewpoint of a transport company, that buys  $\nu(x)$ units of goods at location $x$ and sells  $\mu(y)$ units at $y$. The price at each point indicates the amount to charge or pay per unit good at this position.  Maximizing with respect to the constraint $|f(x)-f(y)|\leq ||x-y||_2 $ means maximizing profit for the company (that can potentially offer the transport for lower costs than given by the distance function) under the constraint of never charging more than what the employer would pay, if he transports the goods himself at Euclidean distance costs.
+
+
+%\hp{have to move over weight of the distribution, the price I can charge for my paintings\\ unbounded confidence vale of my critic, relative value. my confidence can only be as good as distance}
+
+
+
+\section{Wasserstein GANs}\label{sec:WGANs}
+
+Formally,  given an empirical distribution $\mu$, a class of generative distributions $\nu$ over some space $\mathcal{X}$, and a class of discriminators $d: \mathcal{X} \rightarrow [0,1]$, GAN training \citep{GAN} aims at solving the optimization problem given by $\min_{\nu} \max_{d}\mathbb{E}_{x \sim \mu} [\log(d(x))] + \mathbb{E}_{y \sim \nu} [\log (1-d(y))]$.\footnote{Usually, both the generative distribution and the discriminator are modeled by NNs, whose structure determine the two classes we are optimizing over.}
+%
+In practice, the parameters of the generator and the discriminator networks are updated in an alternating fashion based on (several steps) of stochastic gradient descent. The discriminator thereby tries to assign a value close to zero to generated data points and values close to one to real data points. As an opposing agent, the generator aims to produce data where the discriminator expects to see real data. Theorem~1 by \citet{GAN} shows that, if the optimal discriminator is found in each iteration, minimization of the resulting loss function of the generator leads to minimization of the \emph{Jensen-Shannon} (JS) divergence.
+%\begin{equation*}\label{eq:JS}
+%JS(\mu, \nu)= \frac{1}{2} KL(\mu||\frac{\mu +\nu}{2}) + KL(\nu||\frac{\mu +\nu}{2}) \enspace, 
+%\end{equation*}
+%where $KL(\cdot || \cdot)$ denotes the Kulback-Leibler divergence
+Instead of minimizing the JS divergence, \citet{WGAN} proposed to minimize the \emph{Wasserstein-1} distance, also known as \emph{Earth-Mover} (EM) distance, which is defined for any Polish space $(M,c)$ and probability distributions $\mu$ and $\nu$ on $M$ by
+\begin{equation}\label{eq:EM}
+W(\mu, \nu)=\inf_{\pi \in \Pi(\mu,\nu)} \int_{M\times M} c(x,y)\ d\pi(x,y) \enspace.
+%W(\mu, \nu)= \inf_{\pi \in \Pi(\mu, \nu)} \mathbb{E}_{(x,y)\sim \pi}[||x-y||_2] \enspace,
+\end{equation}
+%
+From the Kantorovich duality (see Theorem~\ref{thm:Kantorovich}, (i))
+%in Section~\ref{sec:optimalTransport}) 
+it follows that, in the special case we are considering, the infimum is attained and, instead of computing this 
+minimum 
+in Equation~\eqref{eq:EM}, the {Wasserstein-1} distance can also be computed as
+\begin{equation}\label{eq:EM-Dual}
+W(\mu, \nu)= \max_{f \in  \Li{1}} \mathbb{E}_{x\sim \mu}[f(x)] - \mathbb{E}_{y\sim \nu}[f(y)] \enspace,
+\end{equation}
+where the maximum is taken over the set of all 1-Lipschitz functions $\Li{1}$. 
+%(The analogue with a supremum instead of the maximum holds under quite mild assumptions, e.g. that $\mathcal{X}$ is a Polish space.)
+
+%We are now in the situation, where we want 
+%Based on this, the WGAN objective is derived as solving
+Thus, the WGAN objective is to solve 
+\begin{equation}\label{eq:WGANGame} \min_\nu \max_{f\in \Li{1}} \mathbb{E}_{x\sim \mu} [f(x)] - \mathbb{E}_{y\sim \nu}[f(y)]\enspace, \end{equation}
+which can be achieved by alternating gradient descent updates for the generating network  $\nu$ and the {1-Lipschitz} function $f$ (also modeled by a NN), just as in the case of the original GAN. The objective of the generator is still to generate real-looking data points and is led by function values of $f$ that plays the role of
+an appraiser (or critic). The appraiser's goal is to assign a value of confidence to each data point, which is as low as possible on generated data points and as high as possible on real data. The confidence value it can assign is bounded by a constraint of similarity, where similarity is measured by the distance of data points. This can be motivated by the idea that similar points should have similar values of confidence for being real. The new role of the critic helps to solve convergence problems,
+%\af{[Note: Doesnt the whole formulation as OT problem help convergence, not the role of the critic? I would rather write: "Compared to the vanilla GAN objective,"]}
+ but the interpretation of its value as classifying real (close to 1) and fake data (close to 0) is lost. We refer to Appendix~\ref{appendix:criticFunction} for a detailed discussion.
+
+
+%It is clear then, that the critic function depends on the metric space in which the data points lie in.
+
+%An issue of the original GAN discriminator was that it outputs zero every time it is certain to see generated data, independent on how far away a generated data point lies from the real distribution. As a consequence, locally, there  is no incentive for the generator to rather generate a value closer to (but still off) the real data; GAN critic's optimal value is zero in either case. The WGAN's optimal critic function measures this distance which helps for the generated distribution to converge, but the interpretation of the absolute value as real (close to 1) and fake data (close to 0) is lost. And worse, there is even no guarantee that the relative values of the optimal critic function help to decide what is real and what is fake. A specific example of such a situation can be found in Supplement~\ref{appendix:criticFunction}. However, it does not seem to cause major problems for the iterative training procedure in practice.
+
+%\section{Weight clipping to enforce the Lipschitz constraint}\label{sec:wc}
+
+
+\section{Improved training of WGANs}\label{sec:iWGAN}
+
+
+Modeling the WGAN critic function by a NN raises the question on how to enforce the 1-Lipschitz constraint of  the objective in Equation~\eqref{eq:WGANGame}. 
+%As  \citep{WGAN} point out, it %does not matter whether to maximize over 1-Lipschitz or $\bar{\alpha}$-Lipschitz continuous functions, since we can %equivalently optimize $\alpha \cdot W(\mu, \nu)$ instead of $ W(\mu, \nu)$. An easy consideration leads to the following %lemma.
+%\begin{lemma}\label{lma:One}
+%The optimal critic function $f^*$ (leading to the maximum in Eq.~\eqref{eq:EM-Dual}) exhausts the Lipschitz constraint for %given $\alpha$ in the sense that there is a pair of points $(x,y)$ such that $f^*(x)-f^*(y)=\alpha\norm{x-y}$.
+%\end{lemma}
+%\begin{proof}
+%If 
+%$\sup_{x\neq y} \left \{ \frac{ f^*(y)-f^*(x)}{\norm{x-y}}\right \} =c< \alpha \enspace ,$ then $g= \frac{1}{c}f^*$ %generates a contradiction to the optimality of $f^*$. (Alternatively, in the case $\alpha=1$, it follows directly from
+%% can be read right off the duality theorem 
+%Theorem~\ref{thm:Kantorovich}, (ii),
+%that the transport is optimal if and only if the Lipschitz constraint of one is exhausted for any two points of the coupling.)
+%\end{proof}
+%
+As proposed by \citet{WGAN} a simple way to restrict the class of functions $f$ that can be modeled by the NN to $\alpha$-Lipschitz continuous functions (for some $\alpha$) is to perform weight clipping, i.e.~to enforce the parameters of the network not to exceed a certain value $c_{\text{max}}>0$ in absolute value. As the authors note, this is not a good but simple choice. We further demonstrate this in Appendix~\ref{appendix:weightClipping} by proving (for a standard NN architecture) that, using weight clipping, the optimal function is in general not contained in the class of functions modeled by the network.
+%by pointing out a specific issue of this approach. 
+%below and leading to the following observation.
+%
+%\begin{observation}
+%Weight clipping is not a good strategy to enforce the Lipschitz constraint for the critic function.
+%\end{observation}
+%
+%First note that by clipping the weights we enforce a common Lipschitz constraint, where the common Lipschitz constant $\bar{\alpha}$ is defined as the minimal $\alpha\in \RR$ such that $f(x)-f(y)\leq \alpha \norm{x-y}$ for all $x,y$ and all functions $f$ that can be generated by the network under weight clipping. The actual value of $\bar{\alpha}$ does not follow directly from the weight clipping constant $c_{\text{max}}$ but can be computed from the structure of the network. From Lemma~\ref{lma:One} we know that an optimal $f^*$ exhausts the Lipschitz constraint. We will now show exemplarily for deep NN with rectified linear unit (ReLU) activation functions that there is an extremely limited number of functions generated by the NN using weight clipping that do exhaust the implicitly given common Lipschitz constraint $\bar{\alpha}$. It follows that, in almost all cases, the optimal $f^*$ is not in the class of functions that can be generated by the network under the weight clipping constraint.
+
+
+%As the authors in \citep{WGAN} point out however, the concrete value of $\bar{\alpha}$  does not matter, that is, enforcing $\bar{\alpha}=1$  is not necessary, since we can equivalently optimize $\bar{\alpha} \cdot W(\mu, \nu)$ instead of $ W(\mu, \nu)$. 
+
+%\begin{proposition}\label{prp:weightclipping}
+%Consider a (deep) NN with ReLU activation functions and linear output layer.
+%%
+%A function generated by the NN under constraining each weight in absolute value by $c_{\text{max}}$ exhausts the %common Lipschitz constraint if and only if 
+%\begin{itemize}
+%\item[(a)] 
+%%The first linear layer consists of a matrix multiplication with a matrix $A$ that
+%The weight matrix of the first layer consists of constant columns with value $c_{\text{max}}$ or $-c_{\text{max}}$. 
+%\item[(b)] 
+%%All linear layers except the first one consist of matrix multiplication with the
+%The weights of all other layers are given by a
+%matrix $C^{\text{max}}_{m\times n}$ with every entry equal to $c_{\text{max}}$.  
+%\end{itemize} 
+%\end{proposition}
+%
+%The proof is given in Appendix \ref{appendix:weightClipping}.
+
+
+%It is therefore quite clear that we need to find a different way to enforce the Lipschitz constraint appearing in the Wasserstein %objective. In the following we discuss approaches using a regularization term.
+
+%\dl{In the following, we discuss improved approaches that enforce the Lipschitz constraint as a regularization term.}
+
+Recently, an alternative to weight clipping was proposed by \citet{iWGAN}.
+%leading to what is called improved training of WGANs. 
+The basic idea is to augment the WGAN loss by a regularization term that penalizes the deviation of the gradient norm of the critic with respect to its input from one (leading to a variant referred to as WGAN-GP, where GP stands for gradient penalty).
+%this explains why the resulting WGAN is often referred to as WGAN with gradient penalty (WGAN-GP))
+More precisely, the loss of the critic to be minimized is then given by
+\begin{equation}\label{eq:iWGAN}
+\mathbb{E}_{y\sim \nu}[f(y)] -\mathbb{E}_{x\sim \mu}[f(x)]  + \lambda \mathbb{E}_{\hat x \sim \tau}[(||\nabla f(\hat x)||_2 - 1)^2] \enspace, \end{equation} where $\tau$ is the distribution of $\hat x = tx+(1-t)y$ for $t\sim U[0,1]$ and $x\sim\mu$, $y\sim \nu$ being a real and a generated sample, 
+%from real and generated distribution, 
+respectively. The regularization term is derived based on the following result. 
+\begin{proposition}\label{prp:WGan}
+Let $\mu$ and $\nu$ be two probability distributions on $\RR[n]$. Let $f^*$ be an optical critic, leading to the maximum 
+%$$
+% \int_{\mathcal{X}} f^*(x)\ d\nu(x)  - \int_{\mathcal{X}} f^*(x)\ d\mu(x)$$ \\
+$
+\max_{f \in \Li{1}}  \int_{\RR[n]} f(x)\ d\mu(x)  - \int_{\RR[n]} f(x)\ d\nu(x) \enspace,
+$
+and let $\pi^*$ be an optimal coupling with respect to
+$\min_{\pi \in \Pi(\mu,\nu)}\int_{\RR[n]\times\RR[n]} \norm{x-y}\ d\pi(x,y) \enspace.
+$
+If $f^*$ is differentiable and $x_t = tx+(1-t)y$ for $0\leq t \leq 1$, it holds that
+$
+\mathbb{P}_{(x,y)\sim \pi^*} \Big[(\nabla f^*(x_t)=\frac{y-x_t}{||y-x_t||}) \Big]=1 \enspace .
+$
+This in particular implies, that the norms of the gradients are one $\pi^*$-almost surely on such points $x_t$.
+%\af{[TODO: gibts ne schoenere Schreibweise fuer die obige Fromel? + Einheitlich machen der Notation!]}
+\end{proposition}
+
+For the convenience of the reader, we provide a simple argument for obtaining this result in Appendix~\ref{app:simpleProof}. %\hp{shortened here}
+
+Note, that Proposition \ref{prp:WGan} holds only when $f^*$ is differentiable and $x$ and $y$ are sampled from the optimal coupling $\pi^*$. However, sampling independently from the marginal distributions $\mu$ and $\nu$ very likely results in points $(x,y)$ that lie outside the support of $\pi^*$. Furthermore, the optimal cost function $f^*$ does not need not to be differentiable everywhere. These two points will be discussed in more detail in the following subsections.
+
+\subsection{Sampling from the marginals instead of the optimal coupling}\label{sct:samplingMarginals}
+
+\begin{observation}
+Suppose $f^*\in\Li{1}$ is an optimal critic function and $\pi^*$ the optimal coupling determined by the Kantorovich duality in Theorem~\ref{thm:Kantorovich}. Then $|f^*(y)-f^*(x_t)|=\norm{x_t-y}$ on the line  $x_t=tx+(1-t)y,\ 0\leq t \leq 1$, 
+for $(x, y)$ sampled from $\pi^*$, but not necessarily on the lines connecting an arbitrary pair of a real and a generated data point,
+i.e.~ arbitrary $x \sim \mu$ and $y \sim \nu$.
+\end{observation}
+
+%\paragraph*{Example 1}
+%For a first example consider the left-most X in Figure \ref{fig:criticLearnsWrong} together with any but the left-most $O$'s. A more striking 
+
+Consider the examples in Figure~\ref{CouplingsOnly}, where every 
+X denotes a sample from the generator and every O a real data sample. Optimal couplings $\pi^*$ are indicated in red, and values of an optimal critic function are indicated in blue (optimality is shown in Appendix~\ref{sct:provingOptimality}). 
+
+
+%Consider the one-dimensional example \hp{on the left} in Figure \ref{CouplingsOnly}, where every $X$ denotes a sample from the generator and every $O$ a sample of real data. An optimal coupling $\pi^*$ is indicated in red. 
+
+\begin{figure}[h]
+\begin{center}
+\resizebox{6cm}{!}{
+\begin{tikzpicture}
+\draw[thick, ->] (-0.3,0) -- (8.5,0) ;
+\draw[thick, ->] (0,-0.3) -- (0,2.7) ;
+\draw[ domain=1:2,variable=\x,blue] plot ({\x},{0.2+\x});
+\draw[ domain=2:3,variable=\x,blue] plot ({\x},{4.2-\x});
+\draw[ domain=3:4,variable=\x,blue] plot ({\x},{-1.8+\x});
+\draw[ domain=4:5,variable=\x,blue] plot ({\x},{6.2-\x});
+\draw[ domain=5:6,variable=\x,blue] plot ({\x},{-3.8+\x});
+\draw[ domain=6:7,variable=\x,blue] plot ({\x},{8.2-\x});
+\draw[ domain=7:8,variable=\x,blue] plot ({\x},{-5.8+\x});
+
+\foreach \i in {1,...,8}
+	{\draw[-] (\i,-0.15) -- (\i,0.15) ;
+	\node(\i) at (\i,-0.5) {\i};}
+
+\draw[-] (-0.15,1.2) -- (0.15,1.2) ;
+	\node(y1) at (-0.5,1.2) {1};
+\draw[-] (-0.15,2.2) -- (0.15,2.2) ;
+	\node(y1) at (-0.5,2.2) {2};
+
+\node(x1) at (1,0.4) {X};
+\node(o1) at (2,0.4) {O};
+\node(o2) at (2,0.9) {O};
+\node(x2) at (3,0.9) {X};
+\node(x3) at (3,0.4) {X};
+\node(o3) at (4,0.4) {O};
+\node(o4) at (4,0.9) {O};
+\node(x4) at (5,0.9) {X};
+\node(x5) at (5,0.4) {X};
+\node(o5) at (6,0.4) {O};
+\node(o6) at (6,0.9) {O};
+\node(x6) at (7,0.9) {X};
+\node(x7) at (7,0.4) {X};
+\node(o7) at (8,0.4) {O};
+\node[blue](text) at (6.7,2.6){an optimal f*};
+
+
+\foreach \i in {1,...,7}
+	\draw[thick, -, red]  (x\i) -- (o\i); 
+
+%\foreach \i in {1,3,5,7}
+%\path[-] (x\i)  edge[bend left, red, thick] node[left] {} (o\i);
+%\foreach \i in {2,4,6}
+%	\draw[thick, -, bend right=40, red,] (x\i) -- (o\i); 
+%\path[-] (x\i)  edge[bend right, red, thick] node[left] {} (o\i);
+
+\end{tikzpicture}}
+%\caption{$f^*$(\text{O})-$f^*$(\text{X})=$|$\text{O}-\text{X}$|$ only holds for coupled pairs (X,O)$\sim \pi^*$.}
+\hspace{2cm}
+\resizebox{!}{3cm}{
+\begin{tikzpicture}
+\draw[thick, ->] (-0.3,0) -- (5,0) ;
+\draw[thick, ->] (0,-0.3) -- (0, 5) ;
+
+\foreach \i in {1,2}
+	{\draw[-] (2*\i,-0.15) -- (2*\i,0.15) ;
+	\node(\i1) at (2*\i,-0.5) {\i};
+	\draw[-] (-0.15,2*\i) -- (0.15,2*\i) ;
+	\node(\i2) at (-0.5,2*\i) {\i};}
+
+\node(x1) at (2,2) {X};
+\node(x2) at (2,4) {X};
+\node(o1) at (4,2) {O};
+\node(o2) at (4,4) {O};
+\node[blue, below =0.1 of x1]{$a$};
+\node[blue, below =0.1 of o1]{$a+1$};
+\node[blue, below =0.1 of x2]{$0$};
+\node[blue, below =0.1 of o2]{$1$};
+\node[blue](text) at (2.8,0.6){f* optimal for $a\in [1-\sqrt{2} ,\sqrt{2}-1]$};
+\foreach \i in {1,2}
+	\path[-] (x\i)  edge[bend left, red, thick] node[left] {} (o\i);
+\end{tikzpicture}}
+\caption{
+A one (left) and a two (right) dimensional example showing
+%Left: 
+that $f^*$(\text{O})-$f^*$(\text{X})=$|$\text{O}-\text{X}$|$ only holds for coupled pairs (X,O) $\sim \pi^*$.
+%Right: A 2-dimensional example showing that $f^*$(O)-$f^*$(X)=$|$O-X$|$ only holds for coupled pairs (X,O)$\sim \pi^*$.
+}
+\label{CouplingsOnly}
+\end{center}
+\end{figure}
+
+
+In the one-dimensional example on the left, 
+%$\int_{\RR\times\RR} |x-y|\ d\pi^*(x,y)=\frac{1}{7}(1+1+1+1+1+1+1)=\int_{\RR} f^*(x)\ d\nu(x) - \int_{\RR} f^*(x)\ d\mu(x)$ \hp{and} $\pi^*$ and $f^*$ are indeed optimal. However, for 
+the left-most X and the right-most O satisfy $f^*(\text{O})-f^*(\text{X})=\frac{1}{7}|\text{O}-\text{X}| \neq |\text{O}-\text{X}|$, illustrating that the basis for the derivation of the condition, that the norm of the gradient equals one between generated and real points, only holds for points sampled from the optimal coupling. Note, while here the gradient is still of norm 1 almost everywhere, this does not necessarily hold in higher dimensions, where not all points lie on a line between some pair of points sampled from $\pi^*$. This is exemplified for two dimensions on the right side of Figure \ref{CouplingsOnly}, where
+%Consider the following two-dimensional positioning of two discrete distributions.
+%\begin{minipage}{0.5\textwidth}
+%Again, samples from the discrete empirical and generated distribution are indicated by O’s and X’s, respectively. The 
+blue numbers with $a\in\RR$ denote the values of an optimal critic function at these points (the values at these points is all that matters). 
+%We fixed 
+Without loss of generality we can assume
+the value at position $(1,2)$ to be zero, taking into account that an optimal critic function remains optimal under addition of an arbitrary constant. 
+%
+%The indicated coupling in red and the critic function are optimal, since with this choice we have  $\int_{\RR[n]\times\RR[n]} \norm{x-y}\ d\pi^*(x,y)=\frac{1}{2}(1+1)=1$ and $\int_{\RR[n]} f^*(y)\ d\nu(y) - \int_{\RR[n]} f^*(x)\ d\mu(x) = \frac{1}{2}(1+a+1)-\frac{1}{2}(0+a)=1.$ 
+Since the Lipschitz constraint of $f^*$ must be satisfied, we get $1-a\leq \sqrt{2}$ and $a+1\leq \sqrt{2}$. Therefore $a\in [1-\sqrt{2} ,\sqrt{2}-1]$ and one of the inequalities of the Lipschitz constraint must be strict.% \end{minipage}  \hfill
+
+
+%\begin{minipage}{0.45\textwidth}
+
+%\begin{figure}[H]
+%\begin{tikzpicture}
+%\draw[thick, ->] (-0.3,0) -- (5,0) ;
+%\draw[thick, ->] (0,-0.3) -- (0, 5) ;
+%
+%\foreach \i in {1,2}
+%	{\draw[-] (2*\i,-0.15) -- (2*\i,0.15) ;
+%	\node(\i1) at (2*\i,-0.5) {\i};
+%	\draw[-] (-0.15,2*\i) -- (0.15,2*\i) ;
+%	\node(\i2) at (-0.5,2*\i) {\i};}
+%
+%\node(x1) at (2,2) {X};
+%\node(x2) at (2,4) {X};
+%\node(o1) at (4,2) {O};
+%\node(o2) at (4,4) {O};
+%\node[blue, below =0.1 of x1]{$a$};
+%\node[blue, below =0.1 of o1]{$a+1$};
+%\node[blue, below =0.1 of x2]{$0$};
+%\node[blue, below =0.1 of o2]{$1$};
+%\node[blue](text) at (2.8,0.6){f* optimal for $a\in [1-\sqrt{2} ,\sqrt{2}-1]$};
+%\foreach \i in {1,2}
+%	\path[-] (x\i)  edge[bend left, red, thick] node[left] {} (o\i);
+%\end{tikzpicture}
+%\caption{A 2-dimensional example showing that $f^*$(O)-$f^*$(X)=$|$O-X$|$ only holds for coupled pairs (X,O).}
+%\label{2dim}
+%\end{figure}
+
+%\end{minipage}
+
+\subsection{Differentiability of the critic}\label{sct:diffCritic}
+
+\begin{observation}
+The assumption of differentiability of the optimal critic is not valid at points of interest.
+\end{observation}
+
+
+%\begin{proof}
+Consider the example of two discrete probability distributions and its optimal critic function $f^*$ shown on the left in Figure~\ref{fig:NoDif}. 
+%which is an excerpt of the example in Figure~\ref{CouplingsOnly}.
+ We can see that the indicated function $f^*(x)=1-|x|\in \Li{1}$ is optimal as it leads to an equality in the equation of the Kantorovich dual. (Also, it is the only continuous function, up to a constant, that realizes $f^*(x)-f^*(y) =|y-x|$ for coupled points $(x,y)$.) However, it is not differentiable at 0.
+%\begin{minipage}{0.5\textwidth}
+\begin{figure}[h]
+\hspace{1cm}
+\resizebox{4cm}{!}{
+\begin{tikzpicture}
+
+\draw[thick, ->] (-2.5,0) -- (2.5,0) ;
+
+\draw[-] (-2,-0.15) -- (-2,0.15) ;
+\node at (-2,-0.5) {-1};
+\draw[-] (0,-0.15) -- (0,0.15) ;
+\node at (0,-0.5) {0};
+\draw[-] (2,-0.15) -- (2,0.15) ;
+\node at (2,-0.5) {1};
+
+\draw[domain=-2.5:0,smooth,variable=\x,blue] plot ({\x},{2+\x});
+\draw[domain=0:2.5,smooth,variable=\x,blue] plot ({\x},{2-\x});
+
+
+\node(x1) at (-2,0.5) {X};
+\node(o1) at (0,0.5) {O};
+\node(o2) at (0,1) {O};
+\node(x2) at (2,0.5) {X};
+
+\node[blue](value) at (0,2.4) {1};
+\node[blue](value) at (-2,2.7) {an optimal f*};
+
+\draw[domain=-2.5:2.5,smooth,variable=\x, black!30!green, thick] plot ({\x},{-0.05+sqrt(4.01)-sqrt(1/10+(\x*\x))});
+\end{tikzpicture}}
+\hspace{3cm}
+\resizebox{4cm}{!}{
+\begin{tikzpicture}
+
+\draw[thick, ->] (-3,0) -- (3,0) ;
+
+
+\draw[domain=-2.5:2.5,smooth,variable=\x, black, thick, fill,opacity=0.4] plot ({\x},{2*exp(-(1.5*\x)^2/2)});
+\draw[domain=-2.8:2.8,smooth,variable=\x, black!30!green, thick,fill,opacity=0.7] plot ({\x},{-0.08+exp(-(1.5*\x-2)^2/2)+exp(-(1.5*\x+2)^2/2)});
+
+\node[blue](value) at (-1.75,2.5) {an optimal f*};
+
+
+\draw[domain=-2.5:0,smooth,variable=\x,blue] plot ({\x},{2.65+1.2*\x});
+\draw[domain=0:2.5,smooth,variable=\x,blue] plot ({\x},{2.65-1.2*\x});
+
+\end{tikzpicture}}
+\caption{Non-differentiable optimal critic functions f$^*$  (shown in blue).
+Left: For two discrete distributions: Circles and crosses belong to samples from the empirical distribution and the generative model, respectively. %An optimal critic function f$^*$ is shown in blue and 
+An approximating differentiable function is shown in green.
+Right: For two continuous distributions: The empirical distribution $\mu$ is shown in gray, the generative distribution $\nu$ is shown in green.} 
+\label{fig:NoDif}
+%\label{fig:NoDifGaussian}
+
+%\caption{A non-differentiable optimal critic functions for two discrete distributions: Circles and crosses belong to samples from the empirical distribution and the generative model, respectively. An optimal critic function f$^*$ is shown in blue and a differentiable approximating function in green.}
+%\label{fig:NoDif}
+%\end{figure}
+%\end{minipage}
+%\hfill
+%\begin{minipage}{0.48\textwidth}
+
+%\hp{Produce different captions with a and b.}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=3.5cm]{images/NonDifferentiable.png}
+%\begin{tikzpicture}
+%
+%\draw[thick, ->] (-3,0) -- (3,0) ;
+%
+%\draw[domain=-2.5:2.5,smooth,variable=\x, black, thick, fill,opacity=0.4] plot ({\x},{2*exp(-(1.5*\x)^2/2)});
+%\draw[domain=-2.8:2.8,smooth,variable=\x, black!30!green, thick,fill,opacity=0.7] plot ({\x},{-0.08+exp(-(1.5*\x-2)^2/2)+exp(-(1.5*\x+2)^2/2)});
+%
+%\node[blue](value) at (-1.75,2.5) {an optimal f*};
+%
+%
+%\draw[domain=-2.5:0,smooth,variable=\x,blue] plot ({\x},{2.65+1.2*\x});
+%\draw[domain=0:2.5,smooth,variable=\x,blue] plot ({\x},{2.65-1.2*\x});
+%\end{tikzpicture}
+%\caption{A non-differentiable optimal critic functions for two continuous distributions: The empirical distribution $\mu$ is shown in gray, the generative distribution $\nu$ is shown in green and an optimal critic function f$^*$ is shown in blue.} 
+%\label{fig:NoDifGaussian}
+%%\end{center}
+\end{figure}
+%\end{minipage}
+
+
+%Of course, it might seem to be a quite strong assumption that two points of a discrete distribution lie at exactly one location. If these points lie slightly apart instead, there is a differentiable optimal critic function $f^*\in\Li{1}$, with a derivative of norm one at both points. One may also argue, that we 
+%We are usually not interested in learning discrete but continuous distributions and one may argue that discrete examples might not be representative for the continuous case. However,
+The counterexample can be made continuous by considering the points as the center points of Gaussians, as illustrated on the right in Figure \ref{fig:NoDif}. This is formalized by the following proposition showing that the critic indicated in blue is indeed optimal for the depicted gray Gaussian of real data and the green mixture of two Gaussians of generated data. 
+
+%We denote by $\Gauss_a$ a Gaussian function $\Gauss_a(x)=\frac{1}{\sqrt{2\pi}}e^{(x-a)^2/2}$.
+
+
+\begin{proposition}\label{prp:Gaussians}
+Let $\mu=\mathcal{N}(0,1)$ be a normal distribution centered around zero and $\nu=\nu_{-1}+\nu_{1}$ be a mixture of the two normal distributions $\nu_{-1}=\frac{1}{2}\mathcal{N}(-1,1)$  and $\nu_{1}=\frac{1}{2}\mathcal{N}(1,1)$ over the real line.
+%
+If $\mu$ describes the distribution of real data and $\nu$ describes 
+%the distribution of generated data from a generator, 
+the distribution of the generative model,
+then an optimal critic function is given by $\phi^*(x)=-|x|.$
+\end{proposition}
+
+The proof can be found in Appendix~\ref{appendix:NoDifGaussian}.
+
+%Possibly even more importantly, one could argue that the 0-dimensional example (just as the ones above) are not representative. 
+%Furthermore, one dimensional examples might not be considered as representative. However, 
+The issue with non-differentiability can be generalized to higher-dimensional spaces based on the observation that an optimal coupling is in general not deterministic. Deterministic couplings are particularly nice in the sense that they allow a transport plan assigning each point $x$ from one distribution deterministically to a point $y$ of the other distribution, without having to split any masses
+(the search for deterministic optimal couplings is called the Monge problem). However, in a lot of settings no deterministic coupling exists.
+% such couplings do not always exist. 
+The notion of a deterministic coupling is formalized in the following definition.
+%
+\begin{definition}
+Let $(X,\mu)$ and $(Y,\nu)$ be two probability spaces. A coupling $\pi\in \Pi(\mu,\nu)$ is called deterministic if there is a measurable function $\rho:X\rightarrow Y$ such that $\supp{\pi}\subseteq\{(x,\rho(x))\ |\ x\in X\}.$
+\end{definition}
+
+
+
+We can now formulate the following observation.
+%
+%
+%that there is no function $\rho$ such that 
+%$$\supp{\pi^*}\subseteq \{(x,\rho(x))\} \text{ or %}\supp{\pi^*}\subseteq \{(\rho(y),y\}  \enspace,$$
+%which 
+%
+%This leads to the following observation.
+\begin{observation}\label{obs:nonDifMultiDim}
+Suppose $\pi^*$ is a non-deterministic optimal coupling between two probability distributions over $\RR[n]$ so that there exist points $(x,y)$ and $(x,y')$ in $\supp{\pi^*}$. Suppose further that there is no $\lambda>0$ with $(y-x)=\lambda\cdot (y'-x)$ (in particular this implies $y\neq y'$). Then any optimal critic function $f^*$ is not differentiable at $x$. 
+\end{observation}
+%
+%
+The arguments can be found in Appendix~\ref{app:nonDifMultiDim}.
+ 
+In practice, where the optimal critic is approximated by a NN, the situation is slightly different:
+A function modeled by an NN is (almost) everywhere differentiable (depending on the activation functions). By the Stone-Weierstrass theorem, on compact sets, we can approximate any \mbox{(Lipschitz-)}continuous function by differentiable functions uniformly. Nevertheless, it seems to be a strong constraint on an approximating function to have a gradient of norm one in the neighborhood of a non-differentiability (cf. Figure~\ref{fig:NoDif}~(a)). Therefore, we argue  -- in contrast to the argumentation of \citet{iWGAN} -- that the gradient should not be assumed to equal one for arbitrary points on the line between an arbitrary real point $x$ and a generated point $y$.
+
+%Of course, the critic function generated by the NN will be (almost) everywhere differentiable (depending on the activation functions). By the Stone-Weierstrass theorem, on compact sets, we can approximate any (Lipschitz-)continuous function by differentiable functions uniformly. It might therefore seem possible that a good approximating function may have a gradient norm of one for points sampled between coupled points.
+%However, close to a point of non-differentiability, this seems to be a strong constraint and a sensible approximating function may at times rather have a gradient norm strictly smaller than 1 . Therefore, we argue  -- in contrast to the argumentation of \citep{iWGAN} -- that the gradient should not be assumed to equal one for arbitrary points on the line between $x$ and $y$ sampled from $\pi^*$.
+
+
+%\subsection{A discussion of the regularization of WGAN-GP}
+%
+%Taken together, from a theoretical perspective, the regularization strategy by \citep{iWGAN} may be problematic because of two reasons:
+%\begin{itemize}
+%\item %Firstly, as illustrated in Section \ref{sct:samplingMarginals}, 
+%We have $|f(y)-f(x)|=\norm{x-y}$ only for coupled pairs of points, not for arbitrary points sampled from the marginals.
+%\item %Secondly, as discussed in \ref{sct:diffCritic}, 
+%The assumption of differentiability of the critic function $f^*$ is used to derive a penalty enforcing $||\nabla f^*(\hat x)||=1$ for all points $\hat x$ on the line between points $(x,y)\sim \pi^*$,
+%which will in general be difficult to  satisfy by a differentiable approximating function.
+%\end{itemize}
+
+
+\section{How to regularize WGANs}\label{sec:proposal}
+
+In the following, we will discuss how the regularization of WGANs can be improved.
+
+\paragraph{Penalizing the violation of the Lipschitz constraint.}\label{sct:penalizingCorrectly}
+
+For the critic function, we have nothing more at hand than the inequality of the Lipschitz-constraint. Moreover (as shown in Lemma \ref{lma:One} in the 
+%supplementary material
+Appendix) the exhaustion of the Lipschitz constant is automatic by maximizing the objective function. Therefore, a natural choice of regularization is to penalize the given constraint directly, i.e., sample two points $x\sim \mu$ and $y \sim \nu$ from the empirical and the generated distribution respectively and add the regularization term 
+\begin{equation}\label{eq:LP-simple}
+\Big( \max \left \{ 0 , \frac{|f(x)-f(y)|}{\norm{x-y}} -1 \right \} \Big)^2
+\end{equation}
+to the cost function. (We square to penalize larger deviations more than smaller ones.)  Note the similarity of the regularization term to the squared Hinge loss, which is also used to turn a hard constraint into a soft one in the optimization problem connected to support vector machines. 
+
+Alternatively, since the NN generates (almost everywhere) differentiable functions, we can penalize whenever gradient norms are strictly larger than one, an option referred to as ``one-sided penalty'' and shortly discussed as an alternative to penalizing any deviation from one by \citet{iWGAN}\footnote{While the authors note that ``In practice, we found this [using the GP or two-sided penalty] to converge slightly faster and to better optima. Empirically this seems not to constrain the critic too much...'', our experiments point towards another conclusion.}.
+%(instead of penalizing any deviation from one as suggested in \citep{iWGAN}).
+Note that enforcing the gradient to be smaller than one in norm has the advantage that we penalize when the partial derivative has norm $> 1$ into the direction of steepest descent. Hence, all partial derivatives are implicitly enforced to be bounded in norm by one, too. At the same time, enforcing $\leq 1$ for the gradient of smooth approximating functions is not an unreasonable constraint even at points of non-differentiability. For these reasons we suggest 
+%to sample a point $\hat x$ and 
+to add the regularization term
+%\begin{equation}\label{eq:L}
+$\big(\max \left \{ 0 , ||\nabla f (\hat x)|| -1 \right \}\big)^2$
+%\end{equation}
+to the cost function. Different ways of sampling the point $\hat x$ are analyzed in Appendix
+\ref{app:differentSampling}.
+%
+%Moreover we remark that, different to many other settings in machine learning, we do not introduce a bias into the problem %that leads to oversimplified solutions when the regularization term is chosen too high. In contrast, we here enforce a %condition that 
+%should %\af{(given the regularization parameter exceeds a certain threshold)} must 
+%be satisfied by the optimal solution. We might therefore call the additional term a constraining term instead, for which we %can set the corresponding parameter $\lambda$ very high. %The performance in learning is less sensitive towards changing %the value of $\lambda$ than it is for standard regularization parameters in other learning methods.
+%\af{[Note: I still think we could leave this section out, since I think there might also exist regularization techniques which are %one-sided/max(0, something) and thus have the same property, while the two-sided version is infact also some kind of %"constraint" Most of all: We have a leck of space and much more important information to give!!!!]}.
+%
+Thus, our proposed method (WGAN-LP, where LP stands for Lipschitz penalty) alternates between updating the discriminator to minimize
+\begin{equation}\label{eq:WGAN-LP}
+  \mathbb{E}_{y\sim \nu}[f(y)]  -\mathbb{E}_{x\sim \mu}[f(x)]+ \lambda \mathbb{E}_{\hat x \sim \tau}[\left( \max \left \{ 0 , ||\nabla f (\hat x)|| -1 \right \} \right)^2] \enspace,
+\end{equation}
+(where $\tau$ depends on the concrete sampling strategy chosen)
+and updating the generator network modeling $\nu$ to minimize $-\mathbb{E}_{y\sim \nu}[f(y)]$ using gradient descent.
+
+
+
+%\subsection{Our proposal for WGANs}
+%
+%Our proposed method (WGAN-LP\footnote{LP stands for Lipschitz penalty}) alternates between updating the discriminator to %minimize
+%\begin{equation}\label{eq:WGAN-LP}
+%  \mathbb{E}_{y\sim \nu}[f(y)]  -\mathbb{E}_{x\sim \mu}[f(x)]+ \lambda \mathbb{E}_{\hat x \sim \tau}[\left( \max \left \%{ 0 , ||\nabla f (\hat x)|| -1 \right \} \right)^2] \enspace,
+%\end{equation}
+%(where $\tau$ depends on the concrete sampling strategy chosen)
+%and updating the generator network modeling $\nu$ to minimize $-\mathbb{E}_{y\sim \nu}[f(y)]$ using gradient descent.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\subsection{Sample based estimate of the regularization term}\label{sct:howToSample}
+
+%\af{[Todo: We need to talk somewhere about different ways to sample the points for the regularization term. Maybe having a separate section here makes sense?]}
+%\hp{Complete this section including argument why each choice makes sense}
+
+%There are different ways that suggest themselves for sampling the point in space at which to enforce the Lipschitz constraint. 
+%\begin{itemize}
+%\item[(1)] We can sample a point along the line connecting a training sample with a generated sample.
+%\item[(2)] We can sample locally around training samples only by addition of a random noise term.
+%\item[(3)] We can sample locally around both training and generated samples.
+%\end{itemize}
+\paragraph{The connection to regularized optimal transport.}
+
+Consider Equation~\eqref{eq:dualRegOT} of regularized OT. For a hard constraint $f(x)-g(y)\leq \norm{x-y}$, one can attain the supremum over $\mathbb{E}_{x\sim \mu}[f(x)] - \mathbb{E}_{y\sim \nu}[g(y)]-0$ by setting $f(x)=\inf_y g(y) + \norm{x-y}=g(x)$ and subsequently maximize over one function only. Taking the advantage of dealing with a single function as a motivation, one may similarly replace $f=g$ in Equation~\ref{eq:dualRegOT}, which uses a soft constraint (even though this can now only approximate the supremum). This leads to an objective of minimizing 
+\begin{equation}\label{eq:OPT-L2}
+ \mathbb{E}_{y\sim \nu}[f(y)] - \mathbb{E}_{x\sim \mu}[f(x)]+ \frac{4}{\epsilon} \int \int \max \left \{ 0 , \left ( f(x) -f(y) - \norm{x-y}  \right ) \right \}^2 \text{d}\mu(x)\text{d}\nu(y)
+\end{equation}
+that, similarly to Equation~\eqref{eq:LP-simple}, softly penalizes whenever $f(x)-f(y) > \norm{x-y}$ for a real sample $x$ and  a generated sample $y$. It is noteworthy that to justify the replacement $f=g$ one would require a high regularization parameter $\lambda=\frac{4}{\epsilon}$ of the dual problem, which corresponds to a low regularization of the primal problem.
+
+%\af{[Note: Lets move this to experiment section if we want to show some experimental results.]}
+%We tested the effects of using Equation~\ref{eq:LP-simple} and Equation~\ref{eq:OPT-L2}, which both performed well on toy data, but led to considerably worse results on CIFAR10. 
+
+\paragraph{Dependence on the regularization hyperparameter $\lambda$.}
+
+Let $\mathcal{L}_\lambda^{GP}$ and $\mathcal{L}_\lambda^{LP}$ denote the infimums of the regularized losses over a class of (differentiable) critic functions $f$  from Equation~\eqref{eq:iWGAN} (WGAN-GP) and Equation \eqref{eq:WGAN-LP} (WGAN-LP) respectively. For the comparison of these optimal losses we have the following result (proof in Appendix \ref{app:lambdaDependence}). 
+
+\begin{proposition}\label{prp:lambdaDependence}
+$$ \mathcal{L}_\lambda^{LP} \leq  \mathcal{L}_\lambda^{GP} \leq  \mathcal{L}_\lambda^{LP}+\lambda$$
+\end{proposition}
+
+In particular, for small $\lambda$ the optimal scores approximately agree. On the other hand, increasing $\lambda$ strengthens the soft constraints, which means that the theoretical observations from Section~\ref{sec:iWGAN} become more pertinent with growing $\lambda$. Our experiments show exactly the behavior that WGAN-LP and WGAN-GP perform very similarly for small $\lambda$, while WGAN-LP performs much better for larger values of $\lambda$ and its performance is much less dependent on the choice of hyperparameter $\lambda$.
+
+
+\paragraph{A more general view.}
+
+The Kantorovich duality theorem holds in a quite general setting. For example, a different metric can be substituted for the Euclidean distance $\norm{\cdot}$. Taking $\norm{\cdot}^p$ for a different natural number $p$ for example leads to the minimization of the Wasserstein distance of order $p$ (i.e., the \emph{Wasserstein-p} distance). %Choosing $p=2$ has the theoretical advantage that, if the distributions $\mu$ and $\nu$ have finite moment of order 2 and are absolutely continuous with respect to the Lebesgue measure, then there is a unique deterministic optimal coupling. 
+Based on the dual problem to the computation of the Wasserstein distance of order $p$ (as given by the Kantorovich duality theorem) we still need to maximize Equation \eqref{eq:WGANGame}
+%$$ \max_{f \in \Li{1}} \left ( \int_{\RR[n]} f(x)\ d\mu(x) - \int_{\RR[n]} f(x)\ d\nu(x)\right )\enspace,$$
+with the only difference that 1-Lipschitz-continuity is now measured with respect to $\norm{\cdot}^p$. For our training method this entails that the only modification to make is to use the regularization term given by \eqref{eq:LP-simple}, where the Euclidean distance is replaced by the metric of interest. We provide experimental results for the Wasserstein-2 distance in Appendix~\ref{app:wasserstein2}.
+%Specifically, optimizing with respect to Wasserstein-p distance corresponds to adding the following constraining term to the critic loss \begin{equation}\label{eq:LP-general} \max \left (\left \{ 0 , \frac{|f(x)-f(y)|}{\norm{x-y}^p} -1 \right \} \right )^2\enspace. \end{equation}
+
+Recently, by \citet{CramerGAN}, the Wasserstein distance was replaced by the energy distance \footnote{The energy distance \citep{Szekely} has the same convergence properties as the Wasserstein distance, but additionally satisfies that the sample based gradient approximation does not have a bias.}. For the training of Cramer GANs, the authors apply the GP-penalty term proposed by \citet{iWGAN}. We expect that using the LP-penalty term instead is also beneficial for Cramer GANs.
+
+
+%\begin{remark}
+%Recently, in \citep{CramerGAN}, the Wasserstein distance was replaced by the energy distance \citep{Szekely}. The energy distance is a generalization of the Cramer distance on two distributions over $\RR$, and the authors therefore call their variant Cramer GAN. The Cramer distance has the same convergence properties as the Wasserstein distance, but additionally satisfies that the expected gradient of the sample loss equals the gradient of the true loss (i.e., the gradient approximation does not have a bias). For the training of Cramer GANs, the authors apply the GP-penalty term proposed by \citep{iWGAN}. We would expect that using the LP-penalty term instead is also beneficial for Cramer GANs.
+%\end{remark}
+
+
+
+%\af{[NOTE: Maybe this is also nice, since more general, to be illustrated by pseudo-code?]}
+
+
+\section{Experiments}\label{sec:experiments}
+We perform several experiments on  three toy data sets, \emph{8Gaussians}, \emph{25Gaussians}, and \emph{Swiss Roll}  \footnote{The same data sets were also used in the analysis of \citet{iWGAN}.},
+%\af{TODO: Sollen wir was dazu sagen, dass das ein ein bisschen unuebliches Setting ist, weil wir kein Fixes training set haben aber unendlich Punkte von dem Datensatz generieren koennen?}\hp{Ich fine das braucht nicht.}
+to compare the effect of different regularization terms. More specifically, we compare the performance of WGAN-GP and WGAN-LP as described in Equations \eqref{eq:iWGAN} and \eqref{eq:WGAN-LP} respectively, where the penalty was applied to points randomly sampled on the line between the training sample $x$ and the generated sample $y$. Other sampling methods are discussed in Appendix~\ref{app:differentSampling}.
+
+
+%Both the generator and the critic functions are simple multi-layered feed-forward neural networks. The generator network consists of four feed-forward layers with Leaky ReLU activations
+%\af{@Denis: The formula corresponds to just 3 ReLu layers }
+%, where the first layer takes the noise vector $\in \mathbb{R}^{\mathsf{noise\_dim}}$, the first three layers produce a $\mathbb{R}^{512}$ vector and the final layer outputs a sample $\in \mathbb{R}^2$
+%:
+%\begin{equation}
+%G(x) = b_4 + W_4 \cdot \mathsf{LeakyReLU}(b_3 + W_3 \cdot \mathsf{LeakyReLU}(b_2 + W_2 \cdot \mathsf{LeakyReLU}(b_1 + W_1 \cdot x)))
+%\end{equation}
+%where $W_1 \in \mathbb{R}^{512\times\mathsf{noise\_dim}}$; $W_2, W_3 \in \mathbb{R}^{512\times512}$ and %$W_4 \in \mathbb{R}^{2\times512}$.
+
+%The discriminator network is very similar and also consists of four layers with Leaky ReLU activations
+%, where the first layer takes the sample $\in \mathbb{R}^2$, the first three layers produce a $\mathbb{R}^{512}$ vector and the final layer outputs a scalar
+%
+%\begin{equation}
+%D(x) = b_4 + W_4 \cdot \mathsf{LeakyReLU}(b_3 + W_3 \cdot \mathsf{LeakyReLU}(b_2 + W_2 \cdot \mathsf{LeakyReLU}(b_1 + W_1 \cdot x)))
+%\end{equation}
+%where $W_1 \in \mathbb{R}^{512\times2}$; $W_2, W_3 \in \mathbb{R}^{512\times512}$ and $W_4 \in \mathbb{R}^{1\times512}$.
+%
+%\af{[@Dennis, I think considering space it makes more sense not to specify this in equations. If we would do it this way, we would need to talk more aboout how the generator network works, since it looks like a simple feedforward net now. I suppose (to maybe later move it to the appendix and) to stick to :]}
+Both, the generator network and the critic network, are simple feed-forward NNs with three hidden Leaky ReLU layers, each containing 512 neurons, and one linear output layer. The dimensionality of the latent variables of the generator network was set to two.
+%\hp{I vote for Asja's suggestion as it contains all information in a brief version.}
+%
+During training, 10 critic updates are performed for every generator update, except for the first 25 generator updates, where the critic is updated 100 times for each generator update in order to get closer to the optimal critic in the beginning of training. Both networks were trained using RMSprop \citep{RmsProp} with learning rate $5\cdot10^{-5}$ and a batch size of 256. 
+%If not stated otherwise, all experiments were repeated 20 times with different random initializations.
+
+To see whether our findings on toy data sets can be transferred to real world settings, we trained bigger WGAN-GPs and WGAN-LPs on %MNIST and
+CIFAR-10 as it is described below. Code for the reproduction of our results is available under \url{https://github.com/lukovnikov/improved_wgan_training} .
+
+\paragraph{Level sets of the critic.}
+A qualitative way to evaluate the learned critic function for a two-dimensional data set is by displaying its level sets, as it was done by \citet{iWGAN} and \citet{DRAGAN}.
+The level sets after 10, 50, 100 and 1000 training iterations of a WGAN trained with the GP and LP penalty on the
+Swiss Roll data set 
+are shown in Figure \ref{fig:LevelSetSwissRoll}. Similar experimental results for  the 8Gaussians and 25Gaussian data sets can be found in Appendix~\ref{appendix:levelSets}. 
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw10/frame_100.png}
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw1/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw1/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw1/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw1/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissGPpw1/frame_100.png}
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissLPpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissLPpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissLPpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissLPpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissLPpw10/frame_100.png}
+%\includegraphics[width=0.7\textwidth]{images/SwissRoll.png}
+\caption{Level sets of the critic  $f$ of WGANs during training, after 10, 50, 100, 500, and 1000 iterations.  
+Yellow corresponds to high, purple to low values of $f$. Training samples are indicated in red, generated samples in blue.
+Top: GP-penalty with $\lambda=10$.
+Middle: GP-penalty with $\lambda=1$.
+Bottom: LP-penalty with $\lambda=10$.
+%\af{[Koennen wir huer vielelicht direkt danaben WGAN-GP und WGAN-LP und die $\lambda=?$ hinschreiben damit man das schneller sieht? Reicht aber vielelicht auch fuer die ICLR-Version....]}
+}%\hp{gute Idee}
+\label{fig:LevelSetSwissRoll}
+\end{center}
+\end{figure}
+
+
+It becomes clear that with a penalty weight of $\lambda=10$, which corresponds to the hyperparameter value suggested by \citet{iWGAN}, the WGAN-GP does neither learn a good critic function nor a good model of the data generating distribution. 
+With a smaller regularization parameter, $\lambda=1$, learning is stabilized. However, with the LP-penalty a good critic is learned even with a high penalty weight in only a few iterations and the level sets show higher regularity.   
+Training a WGAN-LP with lower penalty weight led to equivalent observations (results not shown). 
+We also experimented with much higher values for $\lambda$, which led to almost the same results as for $\lambda=10$, which emphasizes that LP-penalty based training is less sensitive to the choice of $\lambda$.
+%\af{Koennte man auch noch hinzu fuegen, aber das wird vielleicht etwas viel.}\hp{ Wenn, dann solche Bilder in den Appendix.}
+% 
+
+
+%\af{[Wollen wir im Appendix auch noch Bilder zu DROGAN haben?
+%Wenn wuerde ich vorschlagen,die aber nur fuer Swiss Roll zu machen, damit es nicht zu viel wird.]}
+%\hp{Erstmal lassen.}
+
+%Given the location of the red points, which correspond to the samples drawn for the regularization term, it also becomes clear, that by sampling from the line between arbitrary training points $x$ and generated points $y$, a lot of samples lie far from the data manifold (which would not frequently be the case if $x$ and $y$ were drawn from the optimal coupling $\pi^*$).
+
+%\hp{da wäre ich mir nicht so sicher}).  
+%\af{Aber unter dem optimalen pi sollten doch am Ende des Trainings nicht punkte quer ueber die schnecke gekoppelt werden, oder?}
+%\hp{Das könnte ich mir schon vorstellen, dass das in manchen Fällen auf den Samples auftritt. Aber wegen des "a lot" lasse ich das mal so stehen, würde es später aber vielleicht abschwächen wollen. Habe noch ein frequently eingefügt}
+
+\paragraph{Evolution of the critic loss.}
+
+To yield a fair comparison of methods applying different regularization terms, we display values of the critic's loss functions without the regularization term throughout training. 
+Results for WGAN-GPs and WGAN-LPs are shown in Figure \ref{fig:WGANfLoss}. 
+
+
+
+%\begin{figure}
+%	\centering
+%    \begin{subfigure}[b]{\textwidth}
+       % \includegraphics[width=0.5\textwidth]{images/WGAN-GP_os_0_pw_5_R-F.png}
+       %\includegraphics[width=0.5\textwidth]{images/WGAN-GP_os_0_pw_5_R-F-singleRuns.png}
+%        \caption{GP penalty}
+%    \end{subfigure}
+%    \begin{subfigure}[b]{\textwidth}   \includegraphics[width=0.5\textwidth]{images/WGAN-GP_os_1_pw_5_R-F.png}
+       % \includegraphics[width=0.5\textwidth]{images/WGAN-GP_os_1_pw_5_R-F-singelrun.png}
+%        \caption{LP penalty}
+%    \end{subfigure}
+%    \caption{Evolution of the WGAN critics loss excluding the regularization term ($\lambda=5$). Left: Median results over the 20 runs (blue area indicates quantiles, green dots outliers). Right: Single runs.
+%Top: For the GP-penalty. Bottom: For %the LP-penalty.}
+%    \label{qsdfqsdf}
+%\end{figure}
+    
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.49\textwidth]{images/WGAN-GP_os_0_pw_5_R-F.png} 
+%\includegraphics[width=0.49\textwidth]{images/WGAN-GP_os_0_pw_5_R-F-singleRuns.png}
+%\includegraphics[width=0.49\textwidth]{images/WGAN-GP_os_1_pw_5_R-F.png}
+% \includegraphics[width=0.49\textwidth]{images/WGAN-GP_os_1_pw_5_R-F-singelrun.png}
+%\caption{Evolution of the WGAN critics loss excluding the regularization term ($\lambda=5$). Left: Median results over the 20 runs (blue area indicates quantiles, green dots outliers). Right: Single runs.
+%Top: For the GP-penalty. Bottom: For %the LP-penalty.}
+%\label{fig:WGANfLoss}
+%\end{center}
+%\end{figure}
+
+
+The optimization of the critic with the GP-penalty and $\lambda=5$ is very unstable: the loss is oscillating heavily around 0. When we use the LP-penalty instead, the critic's loss smoothly reduces to zero, which is what we expect when the generative distribution $\nu$ steadily converges to the empirical distribution $\mu$. Also note that we would expect the negative of the critic's loss to be slightly positive, as a good critic function assigns higher values to real data points $x\sim \mu$ and lower values to generated points $y\sim \nu$. This is exactly what we observe when using the LP-penalty
+% but not when using the GP-penalty in combination with a high regularization parameter. 
+Interestingly, when using the LP-penalty in combination with a very high penalty weight, like $\lambda=100$, we obtain the same results, indicating that the constraint is always fulfilled for $\lambda=10$ already. 
+Using $\lambda=1$ in combination with the GP-penalty on the other hand stabilized training but still results in fluctuations in the beginning of the training (results shown in Appendix~\ref{appendix:criticsLoss}). 
+\vspace{-0.3cm}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/WGAN-GP_os=0_pw=5_niter=2000_at_2017-09-01-R-F.png} 
+\includegraphics[width=0.4\textwidth]{images/WGAN-GP_os=1_pw=5_niter=2000_at_2017-09-01_16-R-F.png} 
+\caption{Evolution of the negative of WGAN critic's loss (without the regularization term) for $\lambda=5$. Median results over the 20 runs (blue area indicates quantiles, green dots outliers). Left: For the GP-penalty. Right: For the LP-penalty.}
+%\caption{Evolution of the WGAN critic's negative loss (without the regularization term) for $\lambda=5$. Left: Median results over the 20 runs (blue area indicates quantiles, green dots outliers). Right: Single runs. Top: For the GP-penalty. Bottom: For the LP-penalty.}
+\label{fig:WGANfLoss}
+\end{center}
+\end{figure}
+
+
+\paragraph{Estimating the Wasserstein distance.}
+
+In order to estimate how the actual Wasserstein distance between the real and generated distribution evolves during training, we compute the cost of minimum assignment based on Euclidean distance between sets of samples from the real and generated distributions, using the Kuhn-Munkres algorithm~\citep{Kuhn1955}.
+We use a sample set size of 500 to maintain reasonable computation time and estimate the distance every 10th iteration over the course of 500 iterations. All experiments were repeated 10 times for different random seeds.
+From the results for WGAN-GP and WGAN-LP with $\lambda = 5$ shown in \autoref{fig:ExpEMD}, we conclude that the proposed LP-penalty leads to smaller estimated Wasserstein distance and less fluctuations during training.
+
+%We estimated the Earth-Mover distance based on the Hungarian algorithm \citep{Kuhn1955}, which solves the minimum assignment problem for two discrete training sets.
+%We chose a sample size of 500 points each from the empirical and the generator distribution to keep computational complexity sufficiently small. We trained WGANs using the different regularization terms (with $\lambda=5$) for 500 iterations and estimated the Earth-Mover every 10th. All experiments were repeated 10 times.
+%The results for WGAN-GP and WGAN-LP are given in Figure \ref{fig:ExpEMD}. It becomes obvious that the proposed LP-penalty leads to smaller EMD values and less fluctuations during training.
+%Results for both penalties when using local sampling for the regularization term can be found in Appendi \ref{appendix:EMdistance}. 
+When training WGAN-GPs with a regularization parameter of $\lambda=1$, training is stabilized as well (see Appendix~\ref{appendix:EMdistance}), indicating that the effect of using a GP-penalty is highly dependent on the right choice of $\lambda$. %instead of "the hyperparameter"
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=6cm]%{images/DRAGAN_os_0_EMD.png} 
+%\includegraphics[width=6cm]%{images/DRAGAN_os_0_EMD-%singleRuns.png} 
+%\includegraphics[width=6cm]%{images/DRAGAN_os_1_EMD.png}
+%\includegraphics[width=6cm]%{images/DRAGAN_os_1_EMD-%singleRuns.png}
+%\caption{Evolution of the %approximated EM distance during %training. Left: Median results over %the 10 runs. Right: Single runs.
+%Top: For the GP-penalty. Bottom: %For the LP-penalty}
+%\label{fig:ExpEMD}
+%\end{center}
+%\end{figure}
+\vspace{-0.3cm}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/WGAN-GP_os_0_pw_10_niter_500_at_2017-09-15_EMD.png}
+%\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_0_pw_10_niter_500_at_2017-09-15_EMD_singeRuns.png} 
+\includegraphics[width=0.4\textwidth]{images/WGAN-GP_os_1_pw_10_niter_500_at_2017-09-14_01-EMD.png} 
+%\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_1_pw_10_niter_500_at_2017-09-14_01-EMD_sigleRuns.png} 
+%\caption{Evolution of the approximated EM distance during training of WGANs ($\lambda=5$). Left: Median results over the 10 runs. Right: Single runs. Top: For the GP-penalty. Bottom: For the LP-penalty}
+\caption{Evolution of the approximated Wasserstein-1 distance during training of WGANs ($\lambda=5$, median results over 10 runs). Left: For the GP-penalty. Right: For the LP-penalty.}
+\label{fig:ExpEMD}
+\end{center}
+\end{figure}
+
+\paragraph{Sample quality on CIFAR-10.} We trained  WGANs with the same  ResNet generator and discriminator and the same hyperparameters as \citet{iWGAN} 
+%\af{[Note:Should we say more??? The hyperparameters are only visible in their code not in the Paper.]}\hp{I think that is fine. Maybe only mention $\lambda$} 
+and computed the Inception score \citep{iGAN} throughout training (plots can be found in Appendix~\ref{app:realExperiments}).
+The 
+%final scores reached after
+maximal scores reached in 100000 training iterations with different regularization parameters are reported in Table~\ref{tab:IS}.
+WGAN-LP reaches the similar or slightly better Inception score as WGAN-GP with small penalty weight ($\lambda \leq 10$), while being more stable to other choices of this hyperparameter. This is especially interesting in the light of a recent large scale study, which also reported a strong dependence of  sample quality on $\lambda$ for WGAN-GP \citep[see, Figure 8 and 9 in ][]{GANsCreatedEqual}.
+%[Note: Should we put a link to the all-gans-are-created-equal and the dependence  on $\lambda$ here, or elsewhere in the paper?]
+Another interesting observation can be made by monitoring the value of the regularization term during training, as in Figure~\ref{fig:lossComparison}), where contributions to the penalty from $||\nabla f(\hat{x})||>1$  are shown in the upper and contributions $|| \nabla f(\hat{x})||<1$ (only existing for WGAN-GP) are shown in the lower half plane. While the values of the one-sided regularization of WGAN-LP are only slightly  larger for larger $\lambda$  (100 compared to 5) the regularization of WGAN-GP shows a strong dependence on the choice of the regularization parameter. 
+%For $\lambda=100$ negative and positive penalty values appear to a similar amount, but for 
+For $\lambda=5$ the penalty contributions from gradient norms smaller than one almost vanished (we found this getting even more severe for even smaller regularization parameters). That is, in a setting where WGAN-GP is performing fine it actually acts similar to WGAN-LP.
+
+
+%\af{ Samples drawn from the final generator are shown } in Appendix \ref{app:realExperiments}
+
+%\af{[Note: Do we want to keep a sentence like this?]}
+%While achieving equivalent results with respect to the Inception score, we experienced more stable behavior in the loss on a validation set.\hp{Maybe not}
+
+%\begin{table}[t]
+%\begin{center}
+%\begin{tabular}{cccc}
+%\multicolumn{1}{c}{\bf METHOD}  & \multicolumn{1}{c}{\bf PENALTY WEIGHT}  & \multicolumn{1}{c}{\bf SCORE (unconditional)} & \multicolumn{1}{c}{\bf SCORE (conditional)}
+%\\ \hline \\
+%WGAN-GP          & 10 & 7.840 $\pm$ 0.066  & 8.537 $\pm$ 0.133 \\
+%WGAN-LP          & 10 &  7.989 $\pm$ 0.119 & 8.462 $\pm$ 0.115\\
+%WGAN-GP & 200 & 7.472 $\pm$ 0.070 & --\\
+% WGAN-LP & 200 & 7.721 $\pm$ 0.105 & --\\
+%\end{tabular}
+%\caption{Inception Score on CIFAR-10, maximal values, 
+%%\af{[Note: Are this the maximal values or the final values, as we state in the text? What are the variances-variances over sample sets?]}
+%}
+%\label{Tab:IS}
+%\end{center}
+%\end{table}
+
+ 
+ 
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{ccc}
+ \multicolumn{1}{c}{\bf PENALTY WEIGHT}  & \multicolumn{1}{c}{\bf WGAN-GP} & \multicolumn{1}{c}{\bf WGAN-LP}
+\\ \hline \\
+%0.01 &  7.987  & 7.980 \\
+0.1 & 7.781 ($\pm$ 0.104) &   8.017($\pm$ 0.075) \\
+5 &  7.817 ($\pm$ 0.095) &  7.859   ($\pm$ 0.085)\\
+         10 & 7.840 ($\pm$ 0.066)   &  7.989 ($\pm$ 0.119) \\
+  100 & 7.548 ($\pm$ 0.102) & 7.815 ($\pm$ 0.038) \\       
+ 200 & 7.472 ($\pm$ 0.070) &  7.721 ($\pm$ 0.105)\\
+\end{tabular}
+\caption{Inception Score on CIFAR-10. Reported are the  maximal  mean values reached during training.
+Means are computed over 10 image sets, variances given in parenthesis. 
+%\af{[Note: Are this the maximal values or the final values, as we state in the text? What are the variances-variances over sample sets?]}
+}
+\label{tab:IS}
+\end{center}
+\end{table}
+
+\begin{figure}[h]
+\begin{center}
+%\includegraphics[width=0.4\textwidth]{images/loss_comparison.jpg}
+\includegraphics[width=0.49\textwidth]{images/CIFAR_pw5_penalty}
+\includegraphics[width=0.49\textwidth]{images/CIFAR_pw100_penalty}
+%\caption{Comparison of the influence of regularization during training on CIFAR. The (one-sided) gradient penalty of WGAN-LP is depicted in blue, the gradient penalty of WGAN-GP is split in the two parts for penalizing gradient $\geq1$ (red) and penalizing gradient $\leq1$ (yellow). }
+\caption{Comparison of the magnitude of the gradient penalty during training on CIFAR,
+showing $<1$ and $>1$ contributions (i.e. $\min (0, ||\nabla f(\hat{x})|| - 1)^2$ resp. $\max (0, ||\nabla f(\hat{x})|| - 1)^2$).
+%\hp{, displaying $\mathbb{E}_{\hat x \sim \tau}[(\nabla f(\hat{x})||-1)$}. 
+Left: for regularization parameter $\lambda=5$. 
+Right: for regularization parameter $\lambda=100$. 
+The (one-sided)  gradient penalty of WGAN-LP is depicted in blue (solid), 
+the gradient penalty of WGAN-GP in red (dashed).
+All the values for every iteration (one mini-batch) are shown in light blue and red. 
+Dark blue and red lines show the mean over a sliding window of size 500.
+The figure shows that the part of the gradient penalty of WGAN-GP  penalizing a gradient $\leq1$ almost vanishes for a small regularization parameter, bringing it close to WGAN-LP. For larger values of the regularization parameter, the total penalty of WGAN-GP and its contributing parts are larger than the penalty of WGAN-LP, however, the performance of WGAN-GP suffers more.
+}
+\label{fig:lossComparison}
+\end{center}
+\end{figure}
+
+\paragraph{Related penalties}
+We tested the effects of using the regularization terms given by  Equation~\eqref{eq:LP-simple} and Equation~\eqref{eq:OPT-L2} instead of the the proposed regularization given in Equation~\eqref{eq:WGAN-LP}.  Both lead to good performance  on toy data but to considerably worse results on CIFAR-10, where training was very unstable.
+Results are shown in Appendix~\ref{App:Related}
+
+\section{Conclusion}\label{sec:conclusion}
+
+For stable training of Wasserstein GANs, we propose to use the following penalty term to enforce the Lipschitz constraint that appears in the objective function:  $$\mathbb{E}_{\hat x \sim \tau}[\left( \max \left \{ 0 , ||\nabla f (\hat x)|| -1 \right \}\right)^2]\enspace .$$  We presented theoretical and empirical evidence
+%on toy data 
+that this gradient penalty performs better than the previously considered approaches of clipping weights and of applying the stronger gradient penalty given by $\mathbb{E}_{\hat x \sim \tau}[(||\nabla f(\hat x)||_2 - 1)^2]$. 
+%\dl{With the proposed regularization term, the learning behavior is more stable and less sensitive to the value of the penalty weight $\lambda$.}
+In addition to more stable learning behavior, the proposed regularization term leads to lower sensitivity to the value of the penalty weight $\lambda$ (demonstrating smooth convergence and well-behaved critic scores throughout the whole training process for different values of $\lambda$).
+%Not only is the learning behavior (in terms of suitable measures of performance) more stable, but also is the effect of the proposed regularization term less sensitive to the right choice of regularization parameter. 
+
+\subsubsection*{Acknowledgments}
+
+This work is supported in part by the European Union under the Horizon 2020 Framework Program for the project WDAqua (GA 642795). 
+
+The authors thank the anonymous reviewers for their valuable suggestions.
+
+
+
+\bibliography{main}
+\bibliographystyle{iclr2018_conference}
+
+
+
+\appendix{
+
+\newpage
+
+\section{Properties of an optimal critic function of WGANs}\label{appendix:criticFunction}
+
+An issue of the original GAN discriminator was that it outputs zero every time it is certain to see generated data, independent on how far away a generated data point lies from the real distribution. As a consequence, locally, there  is no incentive for the generator to rather generate a value closer to (but still off) the real data; GAN critic's optimal value is zero in either case. The WGAN's optimal critic function measures this distance which helps for the generated distribution to converge, but the interpretation of the absolute value as indicating real (close to 1) and fake data (close to 0) is lost. And worse, there is even no guarantee that the relative values of the optimal critic function help to decide what is real and what is fake. Although this does not seem to cause major problems for the iterative training procedure in practice, we still consider it worthwhile to give a specific example justifying the following observation.
+\begin{observation}\label{obs:falseGeneration}
+The WGAN generator could learn wrong things, basing its decision on the values of the optimal critic function, i.e., if it generates at locations of high critic function values.
+\end{observation}
+%
+%\begin{proof}
+%
+
+Consider the following setting, where the X's represent generated and the O's represent real data points. 
+
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\draw[thick, -] (-0.3,0) -- (6,0) ;
+
+
+\node(x1) at (0,0.4) {X};
+
+\foreach \i in {1,...,6}
+	\node(o\i) at (0.6+\i*0.3,0.4) {O};
+
+\foreach \i in {2,...,6}
+	\node(x\i) at (3.6+\i*0.3,0.4) {X}; 
+
+
+\node[blue](text) at (3.7,2.6){an optimal f*};
+
+
+\draw[domain=-0.4:0.6,smooth,variable=\x,blue] plot ({\x},{3+\x});
+\draw[domain=0.6:5.5,smooth,variable=\x,blue] plot ({\x},{4.2-\x});
+
+
+\end{tikzpicture}
+\caption{
+%Relative values of Wasserstein critic function must not indicate what is real data and what is generated data. 
+Values of the WGAN critic function for some generated data points can be higher than the critic's values for some real data points. Thus, fake and real points can not be distinguished based on the critics values alone.
+Real data points are represented by O, generated by X.}
+\label{fig:criticLearnsWrong}
+\end{center}
+\end{figure}
+%
+An optimal coupling in this example is quite obvious: We connect the left-most O with the X on the left, and then extend by an arbitrary matching of the other O's with the other X's. It is then not hard to verify that the indicated critic function with slope $1$ or $-1$ almost everywhere leads to an equality in the Kantorovich duality and hence is optimal.
+%
+The value of the critic function at the left-most X is higher than the value at the right-most O, suggesting to generate images at the wrong position. 
+%
+This issue might be fixed by the alternating updates of generator and critic at a later stage of training when less X's are generated so far on the right side of the O's. The critic function will then flatten the peak, eventually assigning a lower value to an X on the left than to any of the O's.
+%
+\begin{remark}
+The same holds (with only a slight change of the critic function $f$) if the $X$'s and $O$'s denote the centers of Gaussians. This can be shown with similar arguments as those in the proofs in Appendix~\ref{appendix:NoDifGaussian}.
+\end{remark}
+
+\subsection{Proving optimality of certain combinations of coupling and critic function}\label{sct:provingOptimality}
+
+We show here that the coupling and critic function indicated in Figure~\ref{CouplingsOnly} are indeed optimal.
+
+In the one-dimensional example on the left, $\int_{\RR\times\RR} |x-y|\ d\pi^*(x,y)=\frac{1}{7}(1+1+1+1+1+1+1)=\int_{\RR} f^*(x)\ d\mu(x) - \int_{\RR} f^*(x)\ d\nu(x)$ and thus $\pi^*$ and $f^*$ are indeed optimal.}
+
+In the two-dimensional example on the right, the coupling indicated in red and the critic function (described by its function values in blue) are optimal, since with this choice we have  $\int_{\RR[n]\times\RR[n]} \norm{x-y}\ d\pi^*(x,y)=\frac{1}{2}(1+1)=1$ and $\int_{\RR[n]} f^*(y)\ d\nu(y) - \int_{\RR[n]} f^*(x)\ d\mu(x) = \frac{1}{2}(1+a+1)-\frac{1}{2}(0+a)=1.$  Equality of the left hand side and right hand side of the equation proves optimality on both sides.
+
+
+
+
+\section{The issue with the weight clipping approach} \label{appendix:weightClipping}
+
+The critic function of WGAN is %generated 
+given by a neural network, which raises the question on how to enforce the 1-Lipschitz constraint in the maximization problem of the objective in Equation~\eqref{eq:WGANGame}. As  \citet{WGAN} point out, it does not matter whether to maximize over 1-Lipschitz or ${\alpha}$-Lipschitz continuous functions, since we can equivalently optimize $\alpha \cdot W(\mu, \nu)$ instead of $ W(\mu, \nu)$. An easy consideration leads to the following lemma.
+\begin{lemma}\label{lma:One}
+The optimal critic function $f^*$ (leading to the maximum in Eq.~\eqref{eq:EM-Dual}) exhausts the Lipschitz constraint for given $\alpha$ in the sense that there is a pair of points $(x,y)$ such that $f^*(x)-f^*(y)=\alpha\norm{x-y}$.
+\end{lemma}
+\begin{proof}
+If 
+$\sup_{x\neq y} \left \{ \frac{ f^*(y)-f^*(x)}{\norm{x-y}}\right \} =c< \alpha \enspace ,$ then $g= \frac{1}{c}f^*$ generates a contradiction to the optimality of $f^*$. (Alternatively, in the case $\alpha=1$, it follows directly from
+% can be read right off the duality theorem 
+Theorem~\ref{thm:Kantorovich}, (ii),
+that the transport is optimal if and only if the Lipschitz constraint of one is exhausted for any two points of the coupling.)
+\end{proof}
+
+
+
+\begin{observation}
+Weight clipping is not a good strategy to enforce the Lipschitz constraint for the critic function.
+\end{observation}
+
+
+
+
+First note that by clipping the weights we enforce a common Lipschitz constraint, where the common Lipschitz constant $\bar{\alpha}$ is defined as the minimal $\alpha\in \RR$ such that $f(x)-f(y)\leq \alpha \norm{x-y}$ for all $x,y$ and all functions $f$ that can be generated by the network under weight clipping. The actual value of $\bar{\alpha}$ does not follow directly from the weight clipping constant $c_{\text{max}}$ but can be computed from the structure of the network. From Lemma~\ref{lma:One} we know that an optimal $f^*$ exhausts the Lipschitz constraint. We will now show exemplarily for deep NN with rectified linear unit (ReLU) activation functions that there is an extremely limited number of functions generated by the NN using weight clipping that do exhaust the implicitly given common Lipschitz constraint $\bar{\alpha}$. It follows that, in almost all cases, the optimal $f^*$ is not in the class of functions that can be generated by the network under the weight clipping constraint.
+
+%As the authors in \citep{WGAN} point out however, the concrete value of $\bar{\alpha}$  does not matter, that is, enforcing $\bar{\alpha}=1$  is not necessary, since we can equivalently optimize $\bar{\alpha} \cdot W(\mu, \nu)$ instead of $ W(\mu, \nu)$. 
+
+\begin{proposition}\label{prp:weightclipping}
+Consider a (deep) NN with ReLU activation functions and linear output layer.
+%
+A function generated by the NN under constraining each weight in absolute value by $c_{\text{max}}$ exhausts the common Lipschitz constraint if and only if 
+\begin{itemize}
+\item[(a)] 
+%The first linear layer consists of a matrix multiplication with a matrix $A$ that
+The weight matrix of the first layer consists of constant columns with value $c_{\text{max}}$ or $-c_{\text{max}}$. 
+\item[(b)] 
+%All linear layers except the first one consist of matrix multiplication with the
+The weights of all other layers are given by a
+matrix $C^{\text{max}}$ with every entry equal to $c_{\text{max}}$.  
+\end{itemize} 
+\end{proposition}
+\begin{proof}
+We need to determine every function $f^*$ generated by the neural network, such that we can find points $x^*\neq y^*$ with $f^*(y^*)-f^*(x^*)= \bar{\alpha}\norm{x^*-y^*}$. Recall that $\bar{\alpha}$ is defined as the minimal $\alpha$ satisfying $f(y)-f(x)\leq \alpha \norm{x-y}$ for all functions $f$ generated by the neural network and all points $x,y$.
+
+In the following, we will denote by $\alpha (f)$ the Lipschitz constant of $f$, i.e., the smallest $\alpha \in \RR$ such that $f(x)-f(y)\leq \alpha \norm{x-y}$ for all $x,y$.
+
+Every function generated by the neural net is a composition of functions $$f=f_n\circ \relu \circ f_{n-1}\circ \ldots \circ \relu \circ f_1.$$ with linear functions $f_i$ and $\relu$ denoting a layer of activation functions with rectifier linear units. Since each linear function $f_i$ is Lipschitz continuous with Lipschitz constant $\alpha(f_i)$ and $\relu$ is Lipschitz continuous with $\alpha(\relu)=1$, it follows that $f$ is Lipschitz continuous with $\alpha(f)\leq \prod_i \alpha(f_i)$. Moreover, equality holds if there is a pair of points $(x,y)$ such that the consecutive images witness the maximal Lipschitz constant $\alpha(f_i)$ and $\alpha(\relu)$ for each of the individual functions making up the composition of $f$. More formally, equality holds if and only if there is a tuple of pairs of points $(x^{(i)},y^{(i)})$, $1\leq i \leq n-1$, such that for all $1\leq i\leq n$, 
+\begin{itemize}
+\item[(i)] $x^{(i)}\neq y^{(i)}$
+\item[(ii)] $x^{(i+1)}=\relu \circ f_i(x^{(i)})$ and $y^{(i+1)}=\relu \circ f_i(y^{(i)})$
+\item[(iii)] $|f_i(x^{(i)})-f_i(y^{(i)})| = \alpha(f_i)\norm{x^{(i)}-y^{(i)}}$
+\item[(iv)] All entries of $f_i(x^{(i)})$ and $f_i(y^{(i)})$ are larger or equal to zero. This is equivalent to the condition that $$|\relu(f_i(x^{(i)}))-\relu(f_i(y^{(i)}))| = \alpha(\relu)\norm{f_i(x^{(i)})-f_i(y^{(i)})}\enspace.$$
+\end{itemize}
+It follows that to determine $f^*$ we need to maximize $\alpha(f_i)$ for the linear layers with weight constraint $c_{\text{max}}$ and find a sequence of points $(x^{(i)},y^{(i)})$ that satisfy (i)-(iv). The existence of the sequence of points shows that $\alpha(f^*)=\prod_{i=1}^n \alpha(f_i)$ and maximizing each $\alpha(f_i)$ then shows that $$\alpha(f^*)=\prod_{i=1}^n \alpha(f_i)=\bar{\alpha}\enspace.$$
+Since, as we will show, the conditions in (a) and (b) maximize the Lipschitz constraint of each layer individually, the existence of suitable $(x^{(i)},y^{(i)})$ proves the if-direction of the proposition.
+
+For the only-if direction, we will see that the ability to find the sequence of points gives restrictions on how to maximize $\alpha(f_i)$ of an individual layer, leading to the more restrictive condition of (b) for all but the first layer (cf. (a)). 
+
+So let us first maximize the Lipschitz constraint of each linear layer and then make sure that we can find the corresponding points.
+%
+We write the linear layer as a matrix multiplication $f_i(x)=A^{(i)}x$. Using linearity, 
+$$\alpha(f_i)=\max_{\norm{z}=1} \norm {A^{(i)} z} \enspace,
+$$ and our goal can be reformulated to finding the matrix $A^{(i)}$ maximizing $\alpha(f_i)$. 
+
+For any fixed $z$, $\norm {A^{(i)} z}$ is maximized exactly when each vector entry is maximized in absolute value. Now, with $A^{(i)}=(a^{(i)}_{j,k})_{j,k}$ and $\sgn{\cdot}$ denoting the sign function,
+$$|(A^{(i)}z)_j|=\left |\sum_k a^{(i)}_{j,k} z_k \right | \leq \sum_k |a^{(i)}_{j,k}| |z_k| \leq \sum_k c_{\text{max}} |z_k| \text{ (by the weight constraint)}$$
+$$ = \sum_k  (c_{\text{max}} \cdot \sgn{z_k}) \cdot z_k $$
+and equality holds if and only if $A^{(i)}$ or $-A^{(i)}$ consists of columns of constant entry with the value $c_{\text{max}}\cdot\sgn{z_k}$ in column $k$. 
+It follows that
+$$\alpha(f_i)=\max_{\norm{z}=1} \norm {A^{(i)} z} =\max_{\norm{z}=1} c_{\text{max}}\cdot ||z||_1 $$
+$$\leq  \max_{\norm{z}=1} c_{\text{max}}  \sqrt{dim(z)}\cdot \norm{z}\text{ (by Cauchy-Schwartz inequality)}$$
+$$=c_{\text{max}}  \sqrt{dim(z)}$$
+with equality if and only if $z_k=\pm \frac{1}{\sqrt{dim(z)}}$ for all $k$.
+
+Hence, for the first linear layer we need to choose a matrix $A^{(1)}$ satisfying (a) of the statement of the proposition.
+
+Now, we find a pair $(x^{(1)},y^{(1)})$ with $$x^{(1)}-y^{(1)}=a \cdot (\pm 1, \pm 1,\ldots ,\pm 1)\text{ for some }a\neq 0$$ such that 
+$$\sgn{x^{(1)}_k}=\sgn{y^{(1)}_k}=\sgn{x^{(1)}_k-y^{(1)}_k }=\text{the sign of column $k$ of $A^{(1)}$.}\enspace$$
+
+%$$=\left \{ \begin{array}{cc}  \text{ either} &\  \sgn{x^{(1)}_k-y^{(1)}_k } \\ \text{ or} &   -\sgn{x^{(1)}_k-y^{(1)}_k }\end{array} \right .$$
+This is the only possibility to ensure (iii) and (iv) of the conditions above. Note that also (i) holds for $(x^{(1)},y^{(1)})$, and (ii) (together with (iv)) determines $(x^{(2)},y^{(2)})$ uniquely from $(x^{(1)},y^{(1)})$ as
+$$\begin{array}{cc} & x^{(2)}=A^{(1)}x^{(1)}=c_{\text{max}}\cdot ||x^{(1)}||_1\cdot  (1,1,...,1)\\
+\&& y^{(2)}=A^{(1)}y^{(1)}=c_{\text{max}}\cdot ||y^{(1)}||_1 \cdot (1,1,...,1)\end{array}.$$
+We may assume that $||x^{(1)}||_1\ >||y^{(1)}||_1$. (Otherwise, switch the roles of $x$ and $y$. In the case of equality, we need to choose a different pair for $(x^{(1)},y^{(1)})$ not to violate (i) for $(x^{(2)},y^{(2)})$.) Then we have that $x^{(2)}\neq y^{(2)}$, 
+$$+1=\sgn{x^{(2)}_k}=\sgn{y^{(2)}_k}=\sgn{x^{(2)}_k-y^{(2)}_k }\text{ for all $k$.}$$
+Using the same arguments as above, it follows that for such $(x^{(2)},y^{(2)})$, to maximize the Lipschitz constant of $f_2$ (and to guarantee that the maximum is reached at $(x^{(2)},y^{(2)})$), we need to have $A^{(2)}$ equal to a matrix with $c_{\text{max}}$ at each position. 
+
+Now (i)-(iv) also hold for the second layer and one may now proceed by induction to show that for $i\geq 2$, $A^{(i)}$ contains only $c_{\text{max}}$ for each of its entries. This is the only way to maximize the Lipschitz constraint for functions generated by the neural net, and it does indeed hold $\norm{f^*(x^*)-f^*(y^*)}=\bar{\alpha}\norm{x-y}$ with $x^*=x^{(1)}, y^*=y^{(1)}$ and $$(x^{(i)},y^{(i)})=(f_i\circ \relu \circ f_{i-1}\circ \ldots \circ \relu \circ f_1(x^*), f_i\circ \relu \circ f_{i-1}\circ \ldots \circ \relu \circ f_1(y^*)).$$
+\end{proof}
+
+%The proof is given in Appendix \ref{appendix:weightClipping}.
+
+\section{Proofs}
+
+\subsection{Proof of Theorem \ref{thm:Kantorovich}
+}\label{appendix:kantorovich}
+
+\begin{proof}
+We provide the arguments how to derive our version from Theorem~5.10 of \citet{optimalTransport}.
+
+With $c(x,y)=\norm{x-y}$, our assumptions imply (with $c_{\mathcal{X}}=c_{\mathcal{Y}}=\norm{\cdot}$) that all conclusions of Theorem~5.10 $(i)-(iii)$ hold. Moreover, 5.4 of \citet{optimalTransport} shows that in this case $\psi=\psi^c$ (in the notation of \citet{optimalTransport}) and $c$-convexity is the same as 1-Lipschitz continuity. This leads to our formulation in (i) and the existence of an optimal coupling $\pi^*$ and an optimal critic function $f^*$ by part (iii).
+
+
+If we let 
+$$\Gamma_f=\{(x,y)\in \RR[n]\times\RR[n]\ |\ f(x)-f(y)=\norm{x-y} \}$$
+then it follows from the proof of Theorem~5.10 that the set $\Gamma$ in part 5.10~(iii) is given by $\Gamma=\bigcap_{f^*\in\Li{1}\text{ optimal}}\Gamma_{f^*}$, where $f^*$ being optimal means that it leads to a maximum on the RHS of equation \eqref{eq:duality}. 
+%This $\Gamma$ satisfies $\Gamma\supseteq \supp{\pi^*}$ for all optimal $\pi^*$.
+
+%Moreover, that $f(x)-f(y)=\norm{x-y}$ $\pi$-almost surely can equivalently be stated as $\pi(\Gamma_f)=1$.
+
+To prove our part $(ii)$ from 5.10, let $\pi^*$ be optimal. Then, by 5.10~(iii), $\pi^*(\Gamma)=1$. Hence, in particular, $\pi^*(\Gamma_{f^*})=1$ for all optimal $f^*\in\Li{1}$. This shows that (a) implies (b). For the other direction, we use that if $\pi^*(\Gamma_{f^*})=1$ for all optimal $f^*$, then $\pi^*(\Gamma)=1$, which by Theorem~5.10~(iii) is equivalent to $\pi^*$ being optimal. \end{proof}
+
+
+% \subsection{Proof of Proposition \ref{prp:weightclipping}}\label{appendix:weightClipping}
+
+
+\subsection{Proof of Proposition~\ref{prp:WGan}}\label{app:simpleProof}
+
+\begin{proof}
+It follows from Theorem~\ref{thm:Kantorovich} (ii) that for all $(x,y)$ in the support of $\pi^*$ we have $|f^*(y)-f^*(x)|=\norm{x-y}$. 
+%Considering the line between $x$ and $y$, the 1-Lipschitz constraint implies that the unique way to extend $f^*$ to a differentiable function is linearly. 
+Considering the line between $x$ and $y$, the 1-Lipschitz constraint implies that the values of $f^*$ have to follow a linear function (since assuming that the slope was smaller than one at some point would imply that the differentiable function must have a slope larger than one somewhere else between $x$ and $y$, which contradicts the 1-Lipschitz constraint).
+It follows that at each point on the line, the partial derivative has norm equal to one into the direction pointing from the real data point $x$  to the generated one $y$ (which are coupled by the corresponding optimal coupling). Since, by the 1-Lipschitz constraint, the maximal norm of a partial derivative at any point into any direction is one, the given direction is the direction of maximal descent, i.e. equals the gradient. 
+\end{proof}
+
+\subsection{Proof of Proposition \ref{prp:Gaussians}}\label{appendix:NoDifGaussian}
+
+%We first prove a slightly more simple situation, of non-overlapping truncated Gaussians for example, 
+To prove Proposition \ref{prp:Gaussians}, we first prove that $\phi^*(x)=-|x|$ is the optimal critic function for certain distributions with non-overlapping support, and then reduce the example with Gaussian functions to this simplified setting.
+
+\begin{proposition}\label{prop:truncatedGaussian}
+Let ${f}$ and ${g}$ be two continuous functions on the real line that satisfy the following conditions:
+\begin{itemize}
+\item $f$ and $g$ are symmetric with respect to the y-axis.
+\item ${f}(x)\geq 0$ and ${g}(x)\geq 0$ for all $x$.
+\item If $\suppo{h}=\{x\in\RR\ |\ h(x) > 0\}$ denotes the open support of a continuous function $h$, then $\suppo{{f}} \cap \suppo{{g}}=\emptyset$.   
+\item ${f}$ has connected support (this implies that ${f}$ is centered around $0$ because of the symmetry).
+\item $\int_{\RR} {f}(x) dx = \int_{\RR} {g}(x) dx$.
+\end{itemize}
+Then the maximum of $\int_{\RR}   \phi(x) ( {f}(x)- {g}(x) ) dx $ over $\phi\in \Li{1}$ is maximized for $\phi^*(x)=-|x|$.
+\end{proposition}
+
+\begin{proof}
+Before going into the technical details, we wish to point out the simple idea of the proof, which is to transport the left/right half of the distribution given by $g$ to the left/right half of the distribution given by $f$ respectively.
+
+We first multiply both ${f}$ and ${g}$ by a constant number $c$ such that $$ \int_{\RR} c\cdot {f}(x) dx =   \int_{\RR} c\cdot {g}(x) dx=1.$$ Then $c\cdot {f}$ and $c\cdot {g}$ define probability density functions. A function $\phi\in \Li{1}$ maximizes  $\int_{\RR}   \phi(x) (c \cdot  {f}(x)- c\cdot {g}(x) ) dx $ if and only if it maximizes $\int_{\RR}   \phi(x) (  {f}(x)-  {g}(x) ) dx $. We therefore may assume from now on that 
+$$\int_{\RR} {f}(x) dx = \int_{\RR} {g}(x) dx=1.$$
+Now it suffices to find a coupling $\pi$ of the probability distributions defined by $f$ and $g$ (that is itself defined by a probability density function $\pi:\RR\times \RR\rightarrow \RR$) such that for $\phi(x)=  -|x|$ we get $$\int_{\RR\times\RR} |x-y|\cdot  \pi(x,y) dx dy =  \int_{\RR} \phi(x) ( {f}(x)- {g}(x) ) dx.$$
+The proof then follows from the Kantorovich duality theorem~\ref{thm:Kantorovich}, because the right hand side is always smaller or equal to the left hand side for arbitrary coupling $\pi$ and function $\phi\in \Li{1}$ and is consequently maximized when equality holds.  
+By the assumption of symmetry, we may write ${g}={g}_1+{g}_2$ where the support $\supp{{g}_1}\subseteq \{x\ |\ x<0\}$ and ${g}_2(x)={g}_1(-x)$ for all $x$. The area under $g_1(x)$ equals half the area under $f(x)$, or put differently,
+$$\int_{\RR} {g}_1(x) dx = \int_{\RR} f(x) \delta_{(-\infty, 0]}(x) dx=\frac{1}{2}.$$
+We now consider the probability density function $\pi_1:\RR\times\RR\rightarrow \RR$ given by $$\pi_1(x,y)=2 {g}_1(x)\cdot 2 f(y)\cdot \delta_{(-\infty, 0]}(y),$$ which  defines a coupling between the two distributions given by the probability density functions $2 {g}_1$ and $2 f\cdot \delta_{(-\infty, 0]}$. For later use we note that
+$$\int_{x\in\RR} \pi_1(x,y)\ dx=2\cdot f(y)\cdot  \delta_{(-\infty, 0]}(y)  \text{ and } \int_{y\in\RR} \pi_1(x,y)\ dy=2\cdot g_1(x).$$
+
+We define $\pi_2(x,y)=\pi_1(-x,-y)$ for $y \neq 0$ and $\pi_2(x,0)=0$. Further, we let $\pi=\frac{1}{2}\pi_1+\frac{1}{2}\pi_2$.  Then $\pi$ defines a coupling between $g$ and $f$ as can be seen by computing
+
+$$\int_{x\in \RR}\pi(x,y)dx =\frac{1}{2} \int_{x\in \RR}\pi_1(x,y)dx +  \frac{1}{2} \int_{x\in \RR}\pi_2(x,y)dx$$
+$$=\frac{1}{2} \int_{x\in \RR}\pi_1(x,y)dx +  \frac{1}{2} \int_{x\in \RR}\pi_1(-x,-y)\delta_{\{y\neq 0\}}(y) dx$$
+$$ = {f}(y) \delta_{(-\infty, 0]}(y) + {f}(y) \delta_{(0,\infty)}(y) = {f}(y) $$
+and
+$$\int_{y\in \RR}\pi(x,y)dy =\frac{1}{2} \int_{y\in \RR}\pi_1(x,y)dy +  \frac{1}{2} \int_{y\in \RR}\pi_2(x,y)dy$$
+$$ \frac{1}{2} \int_{y\in \RR}\pi_1(x,y)dy +  \frac{1}{2} \int_{y\in \RR}\pi_1(-x,-y)\delta_{\{y\neq 0\} }(y)dy $$
+$$ = {g}_1(x) + {g}_1(-x)  = {g}_1(x) + {g}_2(x) = {g}(x) $$
+
+
+We have established the existence of some coupling between ${f}$ and ${g}$ and we will now compute its transport costs. We will subsequently show that this equals $\int_{\RR}   (-|x|)  ( {f}(x)- {g}(x) ) dx $, hence both $\pi$ and $\phi$ are optimal by realizing the Kantorovich duality.
+
+We aim at showing $\int_{\RR\times\RR} |x-y| \pi(x,y) dx dy= \int_{\RR}   (-|x|)  ( {f}(x)- {g}(x) ) dx$.
+$$\int_{\RR\times\RR} |x-y| \pi(x,y) dx dy\stackrel{symmetry}{=} \int_{\RR\times\RR} |x-y| \pi_1(x,y) dxdy$$
+$$= \int_{\RR\times\RR} (y-x) \pi_1(x,y) dxdy.$$
+The latter equation holds because for $(x,y)$ in the support of $\pi_1$ we have $x\leq y$. (To see this, note that  support of $\pi_1$ is a subset of the support of $ g_1 \times (f\cdot \delta_{(-\infty, 0]})$.) Let
+$$x_0=\frac{\int_{\RR}x\cdot {g}_1(x)dx}{\int_{\RR}{g}_1(x)dx},\text{ and } y_0=\frac{\int_{\RR}y\cdot f(y)\cdot \delta_{(-\infty,0)}(y)dy}{\int_{\RR}f(y)\cdot \delta_{(-\infty,0)}(y) dy}.$$
+Then
+$$\int_{\RR}(x-x_0)\cdot {g}_1(x)dx=0\text{ and }\int_{\RR}(y-y_0)\cdot {f}(y)\cdot \delta_{(-\infty,0]}(y)dy=0.$$
+Now, it follows that
+$$ \int_{\RR\times\RR} (y-x) \pi_1(x,y) dxdy= \int_{\RR\times\RR} (y-y_0+y_0-x) \pi_1(x,y) dxdy$$
+$$=  \int_{x}\int_{y} (y-y_0)\pi_1(x,y) dxdy +   \int_{x}\int_{y}(y_0-x) \pi_1(x,y) dxdy$$
+$$=   \int_{y} (y-y_0)\int_{x}\pi_1(x,y) dxdy +   \int_{x}\int_{y}(y_0-x) \pi_1(x,y) dxdy$$
+$$ = 2\underbrace{\int_{y} (y-y_0)\cdot f(y)\cdot \delta_{(-\infty,0]}(y) dy}_{=0} +    \int_{x}\int_{y}(y_0-x_0+x_0-x) \pi_1(x,y) dxdy$$
+$$= (y_0-x_0)\int_x\int_y\pi_1(x,y)dx dy + \int_x (x_0-x) \underbrace{\int_y  \pi_1(x,y) dy}_{=2g_1(x)}\ dx$$
+$$ = (y_0-x_0).$$
+Hence,
+$$ \int_{\RR\times\RR} |x-y| \pi(x,y) dx dy= (y_0-x_0)=\frac{ \int_{\RR}y\cdot f(y)\cdot \delta_{(-\infty,0)}(y)dy}{\frac{1}{2}} - \frac{ \int_{\RR}x\cdot {g}_1(x)dx}{\frac{1}{2}} .$$
+$$=2\int_{\RR}x\cdot (f(x)\cdot \delta_{(-\infty,0)}(x)-{g}_1(x) )dx$$
+$$= 2 \int_{-\infty}^0 x\cdot  ( {f}(x)- {g}(x) ) dx$$
+$$= 2 \int_{-\infty}^0 (-|x|)\cdot  ( {f}(x)- {g}(x) ) dx$$
+$$ \stackrel{symmetry}{=}\int_{\RR} (-|x|)\cdot  ( {f}(x)- {g}(x) ) dx$$
+\end{proof}
+
+We are now able to proof Proposition~\ref{prp:Gaussians}
+
+\begin{proof}[Proof to Proposition~\ref{prp:Gaussians}]\label{prf:Gaussians}
+Let $f$ denote the probability density function of $\mathcal{N}(0,1)$ and $g=\frac{1}{2}g_{-1}+\frac{1}{2}g_{1}$ denote the sum of half the probability density functions $g_{-1}$ of $\mathcal{N}(-1,1)$ and $g_{1}$ of $\mathcal{N}(1,1)$. Let $$\tilde{f}(x)=\max \left \{0, (f(x)-g(x))\right \} \text{ and } \tilde{g}(x)=\max \left \{0, (g(x)-f(x))\right \}, $$
+i.e. $\tilde{f}$ and $\tilde{g}$ are the positive and the negative part of $(f-g)$.
+Then $\tilde{f}$ and $\tilde{g}$ satisfy the hypothesis of Proposition~\ref{prop:truncatedGaussian} and the maximum $$\max_{\phi\in \Li{1}} \int_{\RR}   \phi(x) ({f}(x)- {g}(x) ) dx =\max_{\phi\in \Li{1}} \int_{\RR}   \phi(x) ( \tilde{f}(x)- \tilde{g}(x) ) dx $$ is obtained for $\phi^*(x)=-|x|$.
+\end{proof}
+
+\subsection{Proof of Proposition \ref{prp:lambdaDependence}}\label{app:lambdaDependence}
+
+
+\begin{proof}
+For any fixed function $f$ and $\lambda >0$, the two regularized losses of the critic function $f$ are of the form 
+$$\mathcal{L}_\lambda^{LP}(f)=c+\lambda \int \max\{0,(h(z)-1)\}^2)\text{d}\tau(z)\text{ and }\mathcal{L}_\lambda^{GP}(f)=c+\lambda \int (h(z)-1)^2)\text{d}\tau(z)$$ for some real number $c$ , a function $h$ with with $h(z)\geq 0$ for all $z$ and a probability distribution $\tau$. Since for any real number $0\leq a$ we have that
+$$\max\{0,(a-1)\}^2 \leq (a-1)^2 \leq \max\{0,(a-1)\}^2 +1$$
+it follows that 
+$$\mathcal{L}_\lambda^{LP}(f)\leq \mathcal{L}_\lambda^{GP}(f)\leq \mathcal{L}_\lambda^{LP}(f) + \lambda.$$
+Therefore the inequalities also hold for the infimum over a class of functions, hence
+$$\mathcal{L}_\lambda^{LP}\leq \mathcal{L}_\lambda^{GP}\leq \mathcal{L}_\lambda^{LP} + \lambda.$$
+\end{proof}
+
+
+
+
+\subsection{The arguments supporting Observation~\ref{obs:nonDifMultiDim}}\label{app:nonDifMultiDim}
+
+For the coupled pairs $(x,y)$ and $(x,y')$ we have that the partial derivatives at $x$ into the directions of $y$ and $y'$ respectively have an absolute value of one. If there are two such directions and $f^*$ is differentiable, then the norm of its gradient must be larger than one, contradicting the 1-Lipschitz constraint. Indeed, recall that, considering $f$ as a function on the line $\{x+\lambda\cdot v\ |\ \lambda\in\RR\}$ with $v$ of unit length, the slope of $f$ at $x$ is given by $\nabla f(x) \cdot v = D_v(f(x)).$ Now 
+\begin{equation}\label{scalarProduct} \nabla f(x) \cdot v=\norm{\nabla f(x)}\cdot  \cos(\theta_v)\end{equation}
+with $\theta_v$ being the angle between the vector $\nabla f(x)$ and the unit vector $v$. Equation~\eqref{scalarProduct} with $\cos(\theta_v)=1$ has a unique solution for $v$ with $v=\frac{\nabla f(x)}{\norm{\nabla f(x)}}$. It follows that, if for two different directions $v,v'$ we have $D_v(f(x))=D_{v'}(f(x))=1$, then $\cos(\theta_v)=\cos(\theta_{v'})<1$ and $\norm{\nabla f(x)}>1$. 
+
+\section{Additional experimental results}
+\subsection{Level sets of the critic}\label{appendix:levelSets}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw10/frame_100.png}
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw1/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw1/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw1/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw1/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussGPpw1/frame_100.png}
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussLPpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussLPpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussLPpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussLPpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/8gaussLPpw10/frame_100.png}
+%\includegraphics[width=\textwidth]{images/8Gaussians.png} 
+%\vspace{-0.5cm}
+\caption{Level sets of the critic (yellow corresponds to high, purple to low values) of WGANs during training (after 10, 50, 100, 500, and 1000 iterations) on the 8Gaussian data set. Top: GP-penalty ($\lambda=10$).
+Middle: GP-penalty ($\lambda=1$).
+Bottom: LP-penalty ($\lambda=10$).}
+\label{fig:LevelSet8Gaussian}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw10/frame_100.png}
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw1/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw1/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw1/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw1/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussGPpw1/frame_100.png}
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussLPpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussLPpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussLPpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussLPpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/25gaussLPpw10/frame_100.png}
+%\includegraphics[width=\textwidth]{images/25Gaussians.png}
+
+%\vspace{-0.5 cm}
+\caption{Level sets of the critic (yellow corresponds to high, purple to low values) of WGANs during training (after 10, 50, 100, 500, and 1000 iterations) on the 25Gaussian data set. 
+Top: GP-penalty ($\lambda=10$).
+Middle: GP-penalty ($\lambda=1$).
+Bottom: LP-penalty ($\lambda=10$).}
+\label{fig:LevelSet25Gaussian}
+\end{center}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%
+%%% These are the single run results, in case we want to add them here
+%%%%%%%
+
+%\includegraphics[width=0.7\textwidth]{images/R-F-WGAN-small.png}
+%
+%
+%\begin{figure}[h]
+%\begin{center}
+%\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_0_pw_10_niter_500_at_2017-09-15_EMD.png}
+%%\includegraphics[width=0.35\textwidth]{images/WGAN-%GP_os_0_pw_10_niter_500_at_2017-09-15_EMD_singeRuns.png} 
+%\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_1_pw_10_niter_500_at_2017-09-14_01-EMD.png} 
+%%\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_1_pw_10_niter_500_at_2017-09-14_01-%EMD_sigleRuns.png} 
+%%\caption{Evolution of the approximated EM distance during training of WGANs ($\lambda=5$). Left: Median results over %the 10 runs. Right: Single runs. Top: For the GP-penalty. Bottom: For the LP-penalty}
+%\caption{\hp{Evolution of the approximated \hp{Wasserstein} distance during training of WGANs ($\lambda=5$). Left: For %the GP-penalty. Right: For the LP-penalty}}
+%\label{fig:ExpEMD}
+%\end{center}
+%\end{figure}
+
+
+
+
+
+
+
+
+\subsection{Evolution of critics loss}\label{appendix:criticsLoss}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_0_pw_1_niter_2000_at_2017-08-30_R-F.png} 
+\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_0_pw_1_niter_2000_at_2017-08-30_R-F-singleRuns.png}
+\caption{Evolution of the WGAN-GP  critics loss without the regularization term ($\lambda=1$). Left: Median results over the 20 runs (blue area indicates quantiles, green dots outliers). Right: Single runs. }
+\label{fig:WGANfLoss-GPwp1}
+\end{center}
+\end{figure}
+
+\subsection{Evolution of the EM distance}\label{appendix:EMdistance}
+
+%\section{Drawbacks of Wasserstein approach}
+%
+%\begin{observation}
+%By non-uniqueness +c , the absolute value has no %interpretation. This is different from the value of the %discriminator in the real GAN.
+%\end{observation}
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.7\textwidth]{images/EMD_DRAGAN.png} 
+%\caption{Evolution of the approximated EM distance during training of WGANs with local perturbation ($\lambda=5$). Left: Median results over the 10 runs. Right: Single runs.
+%Top: For the GP-penalty. Bottom: For the LP-penalty}
+%\label{fig:ExpEMD-DRAGAN}
+%\end{center}
+%\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_0_pw_1_niter_500_at_2017-09-25_EMD.png}
+\includegraphics[width=0.35\textwidth]{images/WGAN-GP_os_0_pw_1_niter_500_at_2017-EMD-singleRuns.png} 
+\caption{Evolution of the approximated EM distance during training WGAN-GPs with $\lambda=1$. Left: Median results over the 10 runs. Right: Single runs.}
+\label{fig:ExpEMDWGAN-GP-wp1}
+\end{center}
+\end{figure}
+
+
+\subsection{Different sampling methods}\label{app:differentSampling}
+%Furthermore, 
+We analyzed the effect of the GP- and the LP-penalty using different sampling procedures. In particular, we compared the sampling procedure proposed by \citet{iWGAN} with variants, which generate the samples used for the regularization term by adding random noise either onto training points or onto both training and generated samples. We refer to this as ``local perturbation'' in the following.\footnote{Note that applying the GP-penalty on samples generated by adding noise to the training examples was also suggested by \citet{DRAGAN}, but using a different (asymmetric) noise distribution and in combination with the vanilla GAN objective.}
+The evolution of the critics loss when using this local perturbation
+%qualitatively similar results when using a local perturbation for generating samples for the regularization term as 
+can be seen in Figure~\ref{fig:LossDRAGAN}. Results are qualitatively similar to those when using the sampling procedure proposed by \citet{iWGAN}. Interestingly, WGAN-GP training is stabilized at a later stage if one only adds noise to training examples and not to generated examples. This indicates that enforcing the GP-penalty close to the data manifold is less harmful.   
+However, the critic's loss is still much more fluctuating than when training a WGAN-LP.
+
+The evolution of the approximated EM distance when using local perturbation  (by adding noise to the training examples only) is shown in Figure~\ref{fig:ExpEMD-DRAGAN}. Training with the GP-penalty leads to larger fluctuations of the approximated Wasserstein-1 distance than training with the LP-penalty. However, fluctuations are less severe compared to the setting when the GP-penalty is used in combination with the sampling procedure proposed by \citet{iWGAN}. 
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=5cm]{images/DRAGAN_os_0_pw_5_pboth_0_psym_1_niter_2000_at_2017-09-06_05-R-F.png} 
+\includegraphics[width=5cm]{images/DRAGAN_os_0_pw_5_pboth_0_psym_1_niter_2000_at_2017-09-06_05-R-F-singleRuns}
+
+\includegraphics[width=5cm]{images/DRAGAN_os_0_pw_5_pboth_1_psym_1_niter_2000_at_2017-09-06_01-06-R-F.png}
+\includegraphics[width=5cm]{images/DRAGAN_os_0_pw_5_pboth_1_psym_1_niter_2000_at_2017-09-06_01-06-R-F-singleRuns.png}
+
+\includegraphics[width=5cm]{images/DRAGAN_os_1_pw_5_pboth_1_psym_1_niter_2000_at_2017-09-05_22-R-F.png}
+\includegraphics[width=5cm]{images/DRAGAN_os_1_pw_5_pboth_1_psym_1_niter_2000_at_2017-09-05_22-R-F-SingleRuns.png}
+\caption{Evolution of the WGAN critic's negative loss with local sampling (without the regularization term). Left: Median results over the 20 runs. Right: Single runs.
+Top: GP-penalty when generating samples by perturbing training samples only. Middle:  For GP-penalty, perturbing training and generated samples. Bottom: LP-penalty, perturbing training and generated samples (very similar to perturbing only training samples)}
+\label{fig:LossDRAGAN}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/EMD_DRAGAN.png} 
+\caption{Evolution of the approximated EM distance during training of WGANs with local perturbation ($\lambda=5$). Left: Median results over the 10 runs. Right: Single runs.
+Top: For the GP-penalty. Bottom: For the LP-penalty}
+\label{fig:ExpEMD-DRAGAN}
+\end{center}
+\end{figure}
+
+
+
+% TO CLARIFY LATER
+%\hp{Wir sollten auch ein Bild für WGAN-LP mit hohem Regularisierungsterm nehmen.
+%Und ich finde, wir sollten nur eine Art von Samplen betrachten. Figure 8 damit in den Appendix, und dafür ein Bild mit hohem Regularisierungsterm}
+%\af{Das Lustige ist, dass die Regulariesung die wir hier haben, 10, schon so hoch ist, dass es keinen Unterschied macht, wenn man ihn auf 100 dreht. Er scheint einfach immer erfeullt zu sein. Die Laeufe sehen exakt gleich aus. Bei Figure 9 ist hingegen interessant, dass lokales Sampeln stabieleres Training zu produzieren scheint. Die Frage ist, ob wir daraus eingehen wollen. Wenn koennte man auch nur zwei der Bilder zeigen,den Rest ins Appendix verschieben, und sowas in der Art schreiben:.}
+
+
+
+\subsection{Optimizing the Wasserstein-2 distance}\label{app:wasserstein2}
+
+We trained a WGAN with the objective of minimizing the Wasserstein-2 distance\footnote{Choosing $p=2$ has the theoretical advantage that, if the distributions $\mu$ and $\nu$ have finite moment of order 2 and are absolutely continuous with respect to the Lebesgue measure, then there is a unique deterministic optimal coupling.}, that is, with the regularization term given by 
+\begin{equation}\label{eq:LP-general} \max \left (\left \{ 0 , \frac{|f(x)-f(y)|}{\norm{x-y}^2} -1 \right \} \right )^2\enspace, \end{equation}
+%in \eqref{eq:LP-general} 
+and penalty weight $\lambda=10$. Results for the evolution of the critics loss and the approximated EM distance
+during training on the Swiss Roll data set are shown in Figure \ref{fig:Wasserstein2}. Both critic loss and EM reduce smoothly, which makes the Wasserstein-2 distance (in combination with its theoretical properties) an interesting candidate to further investigations.
+
+% TO CLARIFY LATER
+%\af{ Ich kann auch gucken, ob ich morgen noch levelsets dazu in den Appendix packen kann]}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.35\textwidth]{images/PAGAN_os_1_pw_10_niter_2000_at_2017-09-08_r-f.png} 
+%\includegraphics[width=6cm]{images/PAGAN_os_1_pw_10_niter_2000_at_2017-09-08_f-r-singleRuns.png} 
+\includegraphics[width=0.35\textwidth]{images/PAGAN_os_1_pw_5_niter_500_at_2017-09-22_EMD.png}
+\caption{Evolution of the WGAN critics loss (Left) and the approximated EM distance (Right)
+for a WGAN-LP trained to minimize the Wasserstein-2 distance ($\lambda=10)$. Shown are the medians over 5 runs. 
+%Left: Median results over the 20 runs. Right: Single runs.
+}
+\label{fig:Wasserstein2}
+\end{center}
+\end{figure}
+
+
+\subsection{Experimental results on CIFAR}\label{app:realExperiments}
+
+\paragraph{Inception score.}
+The inception score was proposed by \citet{iGAN} to evaluate the quality of images $x$ sampled from a generative model $\nu$ based on the Inception model. Let $p(y|x)$ be the conditional probability of label $y$ for image $x$ under the Inception model and $p(y)=\int p(y|x) \nu(x) dx$ the marginal probability of labels  $y$ with respect to samples generated from $\nu$.
+Then the Inception score is given by
+\begin{equation}
+ \exp\left( \mathbb{E}_{x\sim\nu}[KL(p(y|x),p(y)]\right) \enspace.
+\end{equation}
+Intuitively, a good generative model should produce samples for which the conditional label distribution has low entropy, while the variability over samples and thus the entropy of the marginal label distribution should be high. Therefore, a higher Inception score indicates a better performance of the generative model. 
+
+The maximal Inception scores reported in Table \ref{tab:IS}
+are representative for the general evolution of the scores for WGAN-LP and WGAN-GP during training. As an example we show the evolution of the Inception score  for penalty weights of $\lambda=5$ and $\lambda=100$ in Figure~\ref{fig:unconditional}. It becomes clear that WGAN-GP performs similar to WGAN-LP for small values of the regularization parameter but much worse for larger values (this was consistently observed in all experiments). 
+In Figure~\ref{fig:dev_set_comparison} we compare the performance of WGAN-LP and WGAN-GP in terms of the critics loss on a separate validation set, which again demonstrates a more stable behavior for WGAN-LP with respect to the choice of lambda. 
+
+
+%\af{[Note: 
+%\begin{itemize}
+%\item[1.] I am confused about the definition of the marginal as $\int p(y|x=G(z)dz$ in other papers. I would rather define it as $\int p(y|x) \nu(x) dx$ in our case. Is this what they do?
+%\item[2.] It might be confusing that we use x and y as generated samples and corresponding labels here, while we used y before to denote samples from the generative model.
+%\item[3.] We also might add here how many samples we used to approximate the expectation.
+%\end{itemize}]}
+
+
+\begin{figure}[H]
+\begin{center}
+%\includegraphics[width=0.4\textwidth]{images/unconditional_pw10_resnet_cifar.png}
+\includegraphics[width=0.49\textwidth]{images/IS_LP_GP_pw5}
+%\includegraphics[width=0.4\textwidth]{images/test.jpeg}
+%\hfill
+%\includegraphics[width=0.4\textwidth]{images/unconditional_pw200_resnet_cifar.jpg}
+\includegraphics[width=0.49\textwidth]{images/IS_LP_GP_pw100}
+\caption{Evolution of Inception score on CIFAR for WGAN-LP in blue (solid) and WGAN-GP in red (dotted). Left: for regularization parameter $\lambda=5$. Right: for regularization parameter $\lambda=100$. }
+\label{fig:unconditional}
+\end{center}
+\end{figure}
+
+ We also trained  WGAN-GP and WGAN-LP with a conditional model (making use of the label information of CIFAR10)  with $\lambda=10$ and found a similar performance for both, i.e. 8.537 $\pm$ 0.133 and 8.462 $\pm$ 0.115 for WGAN-GP and WGAN-LP, respectively.
+
+
+%\paragraph{Stability}
+
+%\af{TODO: This whole paragraph needs to be rewritten if we want to descibe the new images for $\lambda=5$ and 10.}
+
+%In Figure~\ref{fig:dev_set_comparison} we compare the performance of WGAN-LP and WGAN-GP on a separate validation set. 
+%\af{[Note: This images where also produced with a $\lambda=200$, right?]}
+%The black curves correspond to the total loss, and 
+%%on a validation set for WGAN-LP (on and on the right for WGAN-GP. 
+%demonstrate a more stable behavior for WGAN-LP and smooth convergence. Note however that a value close to zero does not necessarily indicate good performance of the generator, since the total loss is recorded after updates of the critic function. Furthermore, a comparison of the total loss may not be fair because of the different penalty terms (i.e., since a larger penalty is added in the case of WGAN-GP, see Figure~\ref{fig:lossComparison}, the total loss is closer to zero for wgan-gp than for WGAN-LP).
+%When excluding the penalty term, it becomes obvious that the loss moves away from zero after an increase in the beginning of the training. This behavior could be explained by ``overfitting'' of the critic in the sense that the critic function learns to separate given samples very well.  
+
+%This can also be seen by the total loss curved of WGAN-LP (blue) and WGAN-GP (in red), which move away from zero for later iterations. This behavior can be considered as overfitting in the sense that the critic function learns to separate given samples very well.
+
+%\begin{figure}[H]
+%\begin{center}
+%%\includegraphics[width=0.4\textwidth]{images/loss_comparison.jpg}
+%\includegraphics[width=0.4\textwidth]{images/CIFAR_pw5_penalty}
+%\includegraphics[width=0.4\textwidth]{images/CIFAR_pw100_penalty}
+%%\caption{Comparison of the influence of regularization during training on CIFAR. The (one-sided) gradient penalty of WGAN-LP is depicted in blue, the gradient penalty of WGAN-GP is split in the two parts for penalizing gradient $\geq1$ (red) and penalizing gradient $\leq1$ (yellow). }
+%\caption{Comparison of the amount of regularization during training on CIFAR. \af{Left: for regularization parameter $\lambda=5$. Right: for regularization parameter $\lambda=100$. The (one-sided)  gradient penalty of WGAN-LP is depicted in blue, the gradient penalty of WGAN-GP in red. 
+%Total values are shown in light blue/red,
+%solid lines correspond to the mean (over a sliding window of size.....). It becomes obvious, that the  part of GP  penalizing a gradient $\leq1$ almost vanishes for a small regularization parameter. }}
+%\label{fig:lossComparison}
+%\end{center}
+%\end{figure}
+
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.4\textwidth]{images/CIFAR-Loss-LP.jpg}
+%\hfill
+%\includegraphics[width=0.4\textwidth]{images/CIFAR-Loss-GP.jpg} 
+%\caption{Evolution of validation loss on CIFAR. Black curves  indicate the total loss, colored curves  the loss without regularization term. Left: WGAN-LP, right: WGAN-GP.}
+%\label{fig:dev_set_comparison}
+%\end{center}
+%\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=0.49\textwidth]{images/CIFAR-Loss-GP-pw5.png}
+%\hfill
+\includegraphics[width=0.49\textwidth]{images/CIFAR-Loss-LP-pw5.png} 
+\includegraphics[width=0.49\textwidth]{images/CIFAR-Loss-GP-pw100.png}
+%\hfill
+\includegraphics[width=0.49\textwidth]{images/CIFAR-Loss-LP-pw100.png} 
+\caption{Evolution of validation loss on CIFAR. Black/purple curves indicate the total loss, blue curves the loss without regularization term, and red the regularization term only.
+Light colored curves indicate the true values, dark solid lines the average over a window of 5 iterations.
+ Left: WGAN-GP. Right: WGAN-LP. Top: with $\lambda=5$. Bottom: with $\lambda=100$.}
+\label{fig:dev_set_comparison}
+\end{center}
+\end{figure}
+
+%\hp{We also record the influence of the regularization terms for WGAN-LP and WGAN-LG in Figure\ref{fig:lossComparison}.}
+
+\subsection{Related penalties}\label{App:Related}
+
+Level sets for WGANs trained with the regularization terms given by Equation~\eqref{eq:LP-simple} and \eqref{eq:OPT-L2} and penalty weight 10 are shown in Figure~\ref{fig:LevelSetSwissRollRelated}. As the evolution of the level sets and the sampled points indicate, training properly converges.
+However, on CIFAR-10, the same penalties did not lead to good results. As shown in Figure~\ref{fig:relatedIScompare}, using \eqref{eq:LP-simple} for regularization initially lead to improving Inception scores but then quickly started to diverge, while using \eqref{eq:OPT-L2} lead to even greater instability.
+
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissPApw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissPApw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissPApw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissPApw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissPApw10/frame_100.png}
+
+
+
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissOTpw10/frame_1.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissOTpw10/frame_5.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissOTpw10/frame_10.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissOTpw10/frame_50.png}
+\includegraphics[trim=50 1 50 50,clip,width=2.5cm]{images/swissOTpw10/frame_100.png}
+%\includegraphics[width=0.7\textwidth]{images/SwissRoll.png}
+\caption{Level sets of the critic  $f$ of WGANs during training, after 10, 50, 100, 500, and 1000 iterations.  
+Yellow corresponds to high, purple to low values of $f$. Training samples are indicated in red, generated samples in blue.
+Top: With the regularization term given in Equation \eqref{eq:LP-simple} and $\lambda=10$.
+Bottom:  With the regularization term given in Equation \eqref{eq:OPT-L2} and $\lambda=10$.
+%\af{[Koennen wir huer vielelicht direkt danaben WGAN-GP und WGAN-LP und die $\lambda=?$ hinschreiben damit man das schneller sieht? Reicht aber vielelicht auch fuer die ICLR-Version....]}
+}%\hp{gute Idee}
+\label{fig:LevelSetSwissRollRelated}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+%\includegraphics[width=0.4\textwidth]{images/loss_comparison.jpg}
+\includegraphics[width=0.49\textwidth]{images/IS_PAGAN_pw100n5.png}
+\includegraphics[width=0.47\textwidth]{images/IS_OTGAN_pw100n5.png}
+%\caption{Comparison of the influence of regularization during training on CIFAR. The (one-sided) gradient penalty of WGAN-LP is depicted in blue, the gradient penalty of WGAN-GP is split in the two parts for penalizing gradient $\geq1$ (red) and penalizing gradient $\leq1$ (yellow). }
+\caption{Inception scores for regularization Equation~\eqref{eq:LP-simple} for penalty weights 100 (red) and 5 (blue), shown on the left, and Inception scores for training with the regularization Equation~\eqref{eq:OPT-L2} for penalty weights 100 (red) and 5 (blue), shown on the right.}
+\label{fig:relatedIScompare}
+\end{center}
+\end{figure}
+
+
+
+\end{document}

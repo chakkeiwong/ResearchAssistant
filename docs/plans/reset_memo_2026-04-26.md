@@ -5853,3 +5853,63 @@ Interpretation:
   out `PYTHONPATH=src python -m ...`.
 - The next release-validation loop should prefer `scripts/ra-agent focused-tests`
   and `scripts/ra-agent fast-tests` for source-checkout checks.
+
+## Update - MCP client project setup completed
+
+Objective:
+- Install the local `research-assistant` MCP server for Claude Code and VS Code
+  so both clients can use the source-checkout server without manual
+  `PYTHONPATH=src` setup.
+
+Execution result:
+- Added Claude Code project-scope MCP config:
+  - `.mcp.json`;
+  - server name: `research-assistant`;
+  - command: `/home/chakwong/research-assistant/scripts/ra-mcp-dev`;
+  - args: `--root /home/chakwong/research-assistant`.
+- Added VS Code workspace MCP config:
+  - `.vscode/mcp.json`;
+  - server name: `research-assistant`;
+  - command: `/home/chakwong/research-assistant/scripts/ra-mcp-dev`;
+  - args: `--root /home/chakwong/research-assistant`.
+- Added `docs/mcp_client_setup.md` with client startup, trust, verification,
+  and safety notes.
+- Linked the setup doc from `README.md` and `docs/mcp.md`.
+- Added regression coverage in `tests/integration/test_mcp_adapter.py`.
+
+Evidence and references:
+- Claude Code documentation states project-scoped MCP servers are stored in
+  `.mcp.json` at the project root with an `mcpServers` object.
+- VS Code MCP configuration reference states workspace MCP configuration is
+  stored in `.vscode/mcp.json` with a top-level `servers` object.
+
+Validation:
+- `scripts/ra-mcp-dev --help`: passed.
+- `python -m json.tool .mcp.json`: passed.
+- `python -m json.tool .vscode/mcp.json`: passed.
+- `scripts/ra-agent pytest tests/integration/test_mcp_adapter.py::test_checked_in_mcp_client_configs_use_source_checkout_helper -q`:
+  `1 passed`.
+- `scripts/ra-agent pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py -q`:
+  `12 passed`.
+- `scripts/ra-agent pytest tests/integration/test_mcp_adapter.py tests/integration/test_mcp_permissions.py tests/integration/test_individual_release_cli.py -q`:
+  `27 passed`.
+- `scripts/ra-agent fast-tests`: `14 passed`.
+- `scripts/ra-agent release-report`: passed with expected repo-root workspace
+  warnings.
+- `scripts/ra-agent diff-check`: passed.
+
+Client check caveat:
+- `timeout 10 claude mcp get research-assistant` and
+  `timeout 10 claude mcp list` timed out without output in this WSL session.
+- The configured server command itself is valid, the JSON config validates, and
+  the MCP adapter/permission tests pass.
+- The setup doc records this as a Claude Code health-check caveat and instructs
+  the user to restart Claude Code and approve the project server from the client
+  UI if needed.
+
+Audit as another developer:
+- The added configs use local stdio only and point to the source-checkout helper.
+- No hosted, HTTP, credentialed, or user-global MCP server was added.
+- The MCP surface remains read-only by default; live query discovery, PDF
+  download execution, review mutation, restore, delete, and destructive tools
+  remain absent from MCP.

@@ -1,0 +1,417 @@
+{
+  "accepted_queue_item_ids_by_type": {
+    "claim_candidate": [
+      "claim_candidate-66cc76eed7e63f5f0f725c5f"
+    ],
+    "omission_risk": [
+      "omission_risk-2994a411d97cd8baa385031c",
+      "omission_risk-62bf12178b83aaa35a1634b8",
+      "omission_risk-65e4470a0b0d42f74c25f43d",
+      "omission_risk-81a1f264ed4f3437f84d0ebb",
+      "omission_risk-a1e780905c9776e58c912999",
+      "omission_risk-b8b9589d601b9fe52ea5b119",
+      "omission_risk-bc751749ad4e43dc4dd36249"
+    ],
+    "source_safety": [
+      "source_safety-2d7a77e5241f0ec7ae0b776a"
+    ],
+    "workflow_blocker": [
+      "workflow_blocker-33b2b882bb73c98ea467e4c7",
+      "workflow_blocker-3b52e48f81ec72aa6b3aa5d8",
+      "workflow_blocker-645b65ddd5af32bb46b6c19e",
+      "workflow_blocker-dd7351f1821041b85772708f"
+    ]
+  },
+  "artifact_set_id": "s-b3810bda86e7a183bed39705444d392f8c74e277f292648cd45f4ebf2a691356",
+  "blockers": [],
+  "counts": {
+    "claim_candidate": 1,
+    "omission_risk": 7,
+    "queue_total": 13,
+    "source_safety": 1,
+    "workflow_blocker": 4
+  },
+  "created_at": "2026-07-14T08:41:12Z",
+  "decision_coverage_complete": true,
+  "merge_diagnostics": {
+    "source_accounting": {
+      "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/reviewed_evidence/reviewed_source_accounting.json",
+      "sha256": "d5ce201c1310c40b4db0f4edf09ec0e427ef56a528f581e00fc314345cc8f954",
+      "size_bytes": 6315
+    },
+    "source_outcomes": {
+      "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/reviewed_evidence/reviewed_source_outcome_blockers.json",
+      "sha256": "5c3007370f5092272f865ef1dcfc3a5f61d749943a1a2a800e36da4b640f4852",
+      "size_bytes": 1620
+    }
+  },
+  "mission_anchor_generation_id": "g00000007-126f319ed7041f23",
+  "mission_fingerprint": "8fd875b9ee0dd4711be54d625affc62dcb0fce7d52bfc09df6ae60431d90f37f",
+  "mission_id": "dec03f0b-4911-4774-bbe1-40738197c964",
+  "next_required_actions": [
+    "compose the coherent reviewed final packet before hostile review or prose readiness"
+  ],
+  "queue_semantic_sha256": "b695b97ce85e25f178cad4f6782292a9845f6970286490aed6fda1dad25a2945",
+  "ready_for_prose": false,
+  "ready_for_reviewed_packet": true,
+  "required_queue_item_ids": [
+    "claim_candidate-66cc76eed7e63f5f0f725c5f",
+    "omission_risk-2994a411d97cd8baa385031c",
+    "omission_risk-62bf12178b83aaa35a1634b8",
+    "omission_risk-65e4470a0b0d42f74c25f43d",
+    "omission_risk-81a1f264ed4f3437f84d0ebb",
+    "omission_risk-a1e780905c9776e58c912999",
+    "omission_risk-b8b9589d601b9fe52ea5b119",
+    "omission_risk-bc751749ad4e43dc4dd36249",
+    "source_safety-2d7a77e5241f0ec7ae0b776a",
+    "workflow_blocker-33b2b882bb73c98ea467e4c7",
+    "workflow_blocker-3b52e48f81ec72aa6b3aa5d8",
+    "workflow_blocker-645b65ddd5af32bb46b6c19e",
+    "workflow_blocker-dd7351f1821041b85772708f"
+  ],
+  "review_queue_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/.artifact_state/sets/s-b3810bda86e7a183bed39705444d392f8c74e277f292648cd45f4ebf2a691356/review_queue.json",
+  "review_queue_sha256": "2373ee21702c6970929c3f1fb0cd6b90647e593afd5abb4be0b58b73490ad685",
+  "reviewed_decisions": {
+    "claim_candidate": [
+      {
+        "claim_id": "reviewed-implementation_evidence",
+        "claim_support_allowed": true,
+        "claim_text": "The exact mission-local fixture records this bounded project evidence.",
+        "claim_type": "implementation_behavior",
+        "decision_sha256": "403f8a7ad02077bf988155db657df563f353508000a58beec3dee7b7e60e688a",
+        "dependency_graph_sha256": "ca937fbb579c7783f6a6846529a7e9be2003a3ac65b5176c2e0eda8bb29dec68",
+        "dependency_manifests": [
+          {
+            "direct_source_paper_ids": [
+              "paper_openalex_w100_fc9a224b790d"
+            ],
+            "evidence_kind": "implementation_evidence",
+            "local_artifact": "local_evidence/proof.txt",
+            "local_artifact_sha256": "3f6709f109caec76f110efd56392f792980c8785dcaf139071aff2f1421d557b",
+            "manifest_id": "dm-fe304b012757b7a8d36d2c04386bd7461a3c06fcca7145504593bd92a63f1f5a",
+            "referenced_manifest_ids": [],
+            "schema_version": "ra-survey-claim-dependency-manifest-v1"
+          }
+        ],
+        "evidence_note": "Synthetic fixture review for engineering state-transition tests only.",
+        "fixture_only": true,
+        "omission_review_required": true,
+        "queue_item_id": "claim_candidate-66cc76eed7e63f5f0f725c5f",
+        "ready_for_prose": false,
+        "review_status": "human_reviewed_passed",
+        "reviewed_at": "2026-07-12T04:03:00Z",
+        "reviewer": "synthetic-fixture-reviewer",
+        "root_dependency_manifest_id": "dm-fe304b012757b7a8d36d2c04386bd7461a3c06fcca7145504593bd92a63f1f5a",
+        "source_dependencies": [
+          {
+            "canonical_identifier": "openalex:w100",
+            "dependency_role": "implementation_evidence_source",
+            "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+            "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+            "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+            "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+          }
+        ],
+        "source_safety_required": true,
+        "support_class": "implementation_evidence"
+      }
+    ],
+    "omission_risk": [
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "2df07cfcd2a90edc37e202272e8e7f2bab071c603f0a5360ca8bf931438c732e",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-2994a411d97cd8baa385031c",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-ee5cf55cc06ad59f21f291abe3c3b9f5faf0aba924ff0904eda307f3ec552d64",
+        "risk_source_id": "backward_lineage_frontier_blocked_or_empty",
+        "risk_source_type": "inherited_metadata_risk",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "high",
+        "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+        "status": "reviewed_closed_for_current_scope"
+      },
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "a11f1297468a997b2010920e06055f249581c115f1219861ffbf04cbec213cd1",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-62bf12178b83aaa35a1634b8",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-533b692146d0b2cd0578bc07758d45dad46b8ab6bed3df44e986d59e8c800466",
+        "risk_source_id": "fa-11927d5b9572b8e701b2b16c11f649acbf7d6d55d655649522a908444b2e6e67",
+        "risk_source_type": "frontier_attempt",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "high",
+        "source_artifact_sha256": "8a08255edf5eebca189953adf5060c1a6705b1eddcd89f57f8e4660837585fc5",
+        "status": "reviewed_closed_for_current_scope"
+      },
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "7448fcd6b91639a797f2feae3d3b7e7dd99eee8de1faf083ba1a0af62ed1d159",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-65e4470a0b0d42f74c25f43d",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-d62d73cfc715345f16792bb09e288941eca57a6035e8db753870d5fab5733b92",
+        "risk_source_id": "metadata_relations_unverified",
+        "risk_source_type": "inherited_metadata_risk",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "medium",
+        "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+        "status": "reviewed_closed_for_current_scope"
+      },
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "cdeb8b8441d1fa8365bc994737c5e364ee1f10dc1025c7c0921e4c20e474dbe7",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-81a1f264ed4f3437f84d0ebb",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-1870f5c41542a56df4387c840c2a7050d10e1c26743e7424a3e9ba706d6045b6",
+        "risk_source_id": "forward_citation_frontier_blocked_or_empty",
+        "risk_source_type": "inherited_metadata_risk",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "high",
+        "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+        "status": "reviewed_closed_for_current_scope"
+      },
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "ad78ce85f9c0941b128faeb24fb2aa82686c2eea8162ddbac24019c50d1820e8",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-a1e780905c9776e58c912999",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-7d03882bde3edb51047741402fd4e17d11799756990b70048fcded80e2c40cde",
+        "risk_source_id": "source_text_not_inspected",
+        "risk_source_type": "inherited_metadata_risk",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "high",
+        "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+        "status": "reviewed_closed_for_current_scope"
+      },
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "600490fba67ece96017da503573abc9c7394a2abae5406a00859b41185c1cbc6",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-b8b9589d601b9fe52ea5b119",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-67002cea49d5d345f1a7bd0306a8a8cd62f140fd4ce21c507369cb35e4cf998e",
+        "risk_source_id": "public_metadata_frontier_partial",
+        "risk_source_type": "inherited_metadata_risk",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "high",
+        "source_artifact_sha256": "339b0eebd8582c5a37ad43080642a0333add883ee5e661d5e6214af43152e349",
+        "status": "reviewed_closed_for_current_scope"
+      },
+      {
+        "decision": "acceptable_omission",
+        "decision_sha256": "9a4895c55db9d81a7e56fbce2b0f80fd81d98524d0cdc5706d0de672ef14981e",
+        "literature_completeness_allowed": false,
+        "machine_disposition": "blocked_source_or_frontier",
+        "next_action": "",
+        "queue_item_id": "omission_risk-bc751749ad4e43dc4dd36249",
+        "ready_for_prose": false,
+        "reason": "Exact synthetic fixture decision for the recorded scope only.",
+        "regeneration_required": false,
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "risk_id": "or-beedbae330dd114082f7eadaa85579d18c14aad1e100b94884687e8401937d47",
+        "risk_source_id": "fa-f07d5b2fbcb3b2b0f366c7313ee9036a92bb89c09b28669de5cd88bb601d7710",
+        "risk_source_type": "frontier_attempt",
+        "scope_basis": "Closed only for the exact recorded fixture scope.",
+        "severity": "high",
+        "source_artifact_sha256": "8a08255edf5eebca189953adf5060c1a6705b1eddcd89f57f8e4660837585fc5",
+        "status": "reviewed_closed_for_current_scope"
+      }
+    ],
+    "source_safety": [
+      {
+        "claim_support_allowed": true,
+        "decision": "checked_clear",
+        "decision_sha256": "71f88aa2112d5d9d763519165edbe691a42a714a693d374d39fd657dfd678813",
+        "fixture_only": true,
+        "observation_id": "so-476af5c3514555631826846a8e65edb2741ca44a0c25c3be1af9275ea69967cb",
+        "observation_outcome": "checked_clear_for_recorded_checks",
+        "observation_set_id": "ss-29a09e6c73df995747744affb36a00fa74011ef5fcfba8eb6f0ea9405169c80a",
+        "observation_set_manifest_sha256": "ebdb5e8f00a119a1e1044dadfb4de40e935a83e212a3d54fc67d93ee64b7a324",
+        "observation_sha256": "476af5c3514555631826846a8e65edb2741ca44a0c25c3be1af9275ea69967cb",
+        "omission_review_required": false,
+        "queue_item_id": "source_safety-2d7a77e5241f0ec7ae0b776a",
+        "ready_for_prose": false,
+        "reason": "Synthetic fixture decision for engineering state-transition tests only.",
+        "reviewed_at": "2026-07-12T02:01:00Z",
+        "reviewer": "synthetic-fixture-reviewer",
+        "reviewer_authority": "human_reviewed_status",
+        "safety_checked_clear": true,
+        "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+        "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+        "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+        "what_is_not_concluded": [
+          "complete retraction safety",
+          "version correctness at scale",
+          "literature completeness",
+          "final prose readiness",
+          "live web coverage",
+          "product readiness",
+          "real-agent reliability",
+          "scientific correctness"
+        ]
+      }
+    ],
+    "workflow_blocker": [
+      {
+        "decision_sha256": "2748cfe0296728ccab1ba384483b5c65dbaa982f7e4de6d0eafb803875c0592b",
+        "disposition": "resolved_by_reviewed_evidence",
+        "evidence_queue_item_ids": [
+          "omission_risk-2994a411d97cd8baa385031c",
+          "omission_risk-62bf12178b83aaa35a1634b8",
+          "omission_risk-65e4470a0b0d42f74c25f43d",
+          "omission_risk-81a1f264ed4f3437f84d0ebb",
+          "omission_risk-a1e780905c9776e58c912999",
+          "omission_risk-b8b9589d601b9fe52ea5b119",
+          "omission_risk-bc751749ad4e43dc4dd36249"
+        ],
+        "next_action": "",
+        "queue_item_id": "workflow_blocker-33b2b882bb73c98ea467e4c7",
+        "rationale": "The exact current synthetic decision set structurally addresses this blocker.",
+        "ready_for_prose": false,
+        "required_evidence_queue_item_ids": [
+          "omission_risk-2994a411d97cd8baa385031c",
+          "omission_risk-62bf12178b83aaa35a1634b8",
+          "omission_risk-65e4470a0b0d42f74c25f43d",
+          "omission_risk-81a1f264ed4f3437f84d0ebb",
+          "omission_risk-a1e780905c9776e58c912999",
+          "omission_risk-b8b9589d601b9fe52ea5b119",
+          "omission_risk-bc751749ad4e43dc4dd36249"
+        ],
+        "required_evidence_queue_type": "omission_risk",
+        "resolution_class": "omission_review",
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "status": "reviewed_resolved_candidate"
+      },
+      {
+        "decision_sha256": "cd29ef955530e83eaf5175fbed99648bed22a0d3068f59fd862c91bf8ef311c5",
+        "disposition": "resolved_by_reviewed_evidence",
+        "evidence_queue_item_ids": [
+          "source_safety-2d7a77e5241f0ec7ae0b776a"
+        ],
+        "next_action": "",
+        "queue_item_id": "workflow_blocker-3b52e48f81ec72aa6b3aa5d8",
+        "rationale": "The exact current synthetic decision set structurally addresses this blocker.",
+        "ready_for_prose": false,
+        "required_evidence_queue_item_ids": [
+          "source_safety-2d7a77e5241f0ec7ae0b776a"
+        ],
+        "required_evidence_queue_type": "source_safety",
+        "resolution_class": "source_safety_review",
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "status": "reviewed_resolved_candidate"
+      },
+      {
+        "decision_sha256": "30798e16bfdd57ad2442bd22a844070c101829e20a76b3acddd4a7f892a4ef47",
+        "disposition": "resolved_by_reviewed_evidence",
+        "evidence_queue_item_ids": [
+          "claim_candidate-66cc76eed7e63f5f0f725c5f"
+        ],
+        "next_action": "",
+        "queue_item_id": "workflow_blocker-645b65ddd5af32bb46b6c19e",
+        "rationale": "The exact current synthetic decision set structurally addresses this blocker.",
+        "ready_for_prose": false,
+        "required_evidence_queue_item_ids": [
+          "claim_candidate-66cc76eed7e63f5f0f725c5f"
+        ],
+        "required_evidence_queue_type": "claim_candidate",
+        "resolution_class": "claim_review",
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "status": "reviewed_resolved_candidate"
+      },
+      {
+        "decision_sha256": "47b9d00ac3d3f7f29bae5fbd0d22b5494cb04ccd1c8062d8465d91d927d4644f",
+        "disposition": "resolved_by_reviewed_evidence",
+        "evidence_queue_item_ids": [
+          "claim_candidate-66cc76eed7e63f5f0f725c5f"
+        ],
+        "next_action": "",
+        "queue_item_id": "workflow_blocker-dd7351f1821041b85772708f",
+        "rationale": "The exact current synthetic decision set structurally addresses this blocker.",
+        "ready_for_prose": false,
+        "required_evidence_queue_item_ids": [
+          "claim_candidate-66cc76eed7e63f5f0f725c5f"
+        ],
+        "required_evidence_queue_type": "claim_candidate",
+        "resolution_class": "claim_review",
+        "reviewed_at": "2026-07-12T02:00:00Z",
+        "reviewer": "fixture-reviewer",
+        "status": "reviewed_resolved_candidate"
+      }
+    ]
+  },
+  "reviewed_sidecars": {
+    "claim_candidate": {
+      "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/reviewed_claims/decision_sets/cd-5b1f77783d827fc24e6cd3be134b9b017ff4a09a03cc7f7c2e27e5bd5cf02b8d/reviewed_claims.json",
+      "sha256": "97c16b1c37903432aae7b29981228f0c69852d38274153eef8bac7e68b963038"
+    },
+    "omission_risk": {
+      "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/reviewed_omissions/decision_sets/od-a40bcf02297e0b994f5b5334eef978449049a84f027afa2ccd8350e1afb27566/reviewed_omission_risks.json",
+      "sha256": "2a77a036aed1101388f7781fc1ff543174d9f0e9cee3427aa8a053dd281f2c45"
+    },
+    "source_safety": {
+      "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/reviewed_source_safety/decision_sets/sd-3577bef954e9d86344fa5529e9e86003b5ccd77a48b53cd0705e1a982c8a8f8e/reviewed_source_safety.json",
+      "sha256": "49d51321d080ac1139e95a0821e5b62934721eac4352e85cb88f17d22d215260"
+    },
+    "workflow_blocker": {
+      "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_transport_hardening_2026-07-14/pytest_tmp/cumulative_m16_m17/test_local_evidence_support_cl1/mission/reviewed_workflow_blockers/reviewed_workflow_blockers.json",
+      "sha256": "09cbe38f5ad6c49134ec57d2cc5637fcb59cbd59edda6fb7ce9141c9c7344f11"
+    }
+  },
+  "schema_version": "ra-survey-reviewed-evidence-status-v3",
+  "status": "reviewed_evidence_complete",
+  "what_is_not_concluded": [
+    "human or model review quality",
+    "claim truth",
+    "source safety in fact",
+    "omission correctness",
+    "literature completeness",
+    "final prose readiness",
+    "product readiness",
+    "real-agent reliability",
+    "scientific correctness"
+  ]
+}

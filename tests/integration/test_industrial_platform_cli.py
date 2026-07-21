@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from research_assistant.cli import main
+from research_assistant.industrial import release as industrial_release
 
 
 def _write_summary(root: Path, paper_id: str = 'paper_a') -> None:
@@ -50,6 +51,53 @@ def _write_summary(root: Path, paper_id: str = 'paper_a') -> None:
 
 def _json_out(capsys) -> dict | list:
     return json.loads(capsys.readouterr().out)
+
+
+def test_publication_check_uses_manifest_as_checksum_source(tmp_path: Path, monkeypatch) -> None:
+    release_root = tmp_path / "release_materials"
+    notes = release_root / "docs" / "release_notes_0.1.0.md"
+    notes.parent.mkdir(parents=True)
+    notes.write_text("# Release Notes\n\nChecksums are recorded in the generated manifest.\n")
+    manifest = {
+        "status": "ok",
+        "artifacts": [
+            {"filename": "research_assistant-0.1.0-py3-none-any.whl", "sha256": "a" * 64},
+            {"filename": "research_assistant-0.1.0.tar.gz", "sha256": "b" * 64},
+            {"filename": "release_gate_evidence.json", "sha256": "c" * 64},
+        ],
+    }
+    monkeypatch.setattr(industrial_release, "_publication_material_root", lambda _root: release_root)
+    monkeypatch.setattr(industrial_release, "read_release_artifacts_manifest", lambda **_kwargs: manifest)
+    monkeypatch.setattr(
+        industrial_release,
+        "validate_release_artifact_manifest",
+        lambda _root: {"status": "passed", "issues": []},
+    )
+    monkeypatch.setattr(
+        industrial_release,
+        "version_consistency",
+        lambda **_kwargs: {"status": "ok", "issues": []},
+    )
+    monkeypatch.setattr(
+        industrial_release,
+        "_git_publication_status",
+        lambda _root: {"status": "clean", "clean": True, "issues": []},
+    )
+
+    result = industrial_release.build_publication_check(
+        root=tmp_path,
+        release_notes=notes,
+        require_final_gate_evidence=False,
+    )
+
+    assert result["status"] == "blocked_manual_approval"
+    assert result["issues"] == []
+    assert result["release_notes_checksum_source"] == "dist/release_artifacts_manifest.json"
+    assert result["artifact_hashes"] == {
+        "research_assistant-0.1.0-py3-none-any.whl": "a" * 64,
+        "research_assistant-0.1.0.tar.gz": "b" * 64,
+        "release_gate_evidence.json": "c" * 64,
+    }
 
 
 def test_industrial_phase_zero_paths_and_domain_templates(tmp_path: Path, capsys) -> None:
@@ -634,9 +682,9 @@ def test_industrial_release_gates_block_production_without_external_approval(tmp
 
     validation_dir = tmp_path / 'external_validation'
     validation_dir.mkdir()
-    (validation_dir / 'linux_wsl.json').write_text(json.dumps({
+    (validation_dir / 'linux_local.json').write_text(json.dumps({
         'schema_version': 'industrial-external-validation-v1',
-        'validation_type': 'linux_wsl',
+        'validation_type': 'linux_local',
         'platform': 'Linux/WSL2',
         'python_version': '3.11.15',
         'result': 'passed',
@@ -644,7 +692,7 @@ def test_industrial_release_gates_block_production_without_external_approval(tmp
     }))
     (validation_dir / 'private.json').write_text(json.dumps({
         'schema_version': 'industrial-external-validation-v1',
-        'validation_type': 'colleague_onboarding',
+        'validation_type': 'linux_parser_tools',
         'platform': 'Linux',
         'python_version': '3.11.15',
         'result': 'passed',
@@ -658,7 +706,7 @@ def test_industrial_release_gates_block_production_without_external_approval(tmp
     external = _json_out(capsys)
     assert rc == 0
     assert external['status'] == 'blocked'
-    assert 'minimal_parser_tools' in external['missing_validation_types']
+    assert external['missing_validation_types'] == ['linux_parser_tools']
     issue_codes = {issue['code'] for record in external['records'] for issue in record['issues']}
     assert 'forbidden_private_fields' in issue_codes
 

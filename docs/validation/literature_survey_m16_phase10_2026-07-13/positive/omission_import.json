@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "survey",
+    "import-omission-review",
+    "--review-queue",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/mission/.artifact_state/sets/s-f66f2cafa58fe33be9fd5b390697e039a104d4b7dc68115b1d8e8c50dc79a333/review_queue.json",
+    "--decisions",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/decisions/omissions.json",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/mission/reviewed_omissions"
+  ],
+  "payload": {
+    "accepted_omission_count": 7,
+    "closed_omission_count": 7,
+    "decision_coverage_complete": true,
+    "literature_completeness_allowed": false,
+    "open_omission_count": 0,
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/mission/reviewed_omissions",
+    "ready_for_prose": false,
+    "ready_for_reviewed_packet": false,
+    "rejected_omission_count": 0,
+    "reviewed_omission_risks_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/mission/reviewed_omissions/decision_sets/od-8349fe2860b5d60af2ac6c9dd86e453a0eefa561f43b282b1f99e0e585d481f4/reviewed_omission_risks.json",
+    "schema_version": "ra-survey-reviewed-omission-import-result-v2",
+    "status": "reviewed_omissions_complete",
+    "what_is_not_concluded": [
+      "literature completeness",
+      "final prose readiness",
+      "live web coverage",
+      "product readiness",
+      "real-agent reliability",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 0,
+  "stderr": "",
+  "stdout": "{\n  \"accepted_omission_count\": 7,\n  \"closed_omission_count\": 7,\n  \"decision_coverage_complete\": true,\n  \"literature_completeness_allowed\": false,\n  \"open_omission_count\": 0,\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/mission/reviewed_omissions\",\n  \"ready_for_prose\": false,\n  \"ready_for_reviewed_packet\": false,\n  \"rejected_omission_count\": 0,\n  \"reviewed_omission_risks_path\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/positive/mission/reviewed_omissions/decision_sets/od-8349fe2860b5d60af2ac6c9dd86e453a0eefa561f43b282b1f99e0e585d481f4/reviewed_omission_risks.json\",\n  \"schema_version\": \"ra-survey-reviewed-omission-import-result-v2\",\n  \"status\": \"reviewed_omissions_complete\",\n  \"what_is_not_concluded\": [\n    \"literature completeness\",\n    \"final prose readiness\",\n    \"live web coverage\",\n    \"product readiness\",\n    \"real-agent reliability\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

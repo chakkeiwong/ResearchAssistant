@@ -1,0 +1,22 @@
+{
+  "schema_version": "ra-literature-survey-m18-trace-summary-v1",
+  "status": "passed_with_declared_scope",
+  "candidate_commit": "654e6e1a1213bc03b7693ff1a8aea945a5bf08ac",
+  "targeted_traces": [
+    {"name": "payload_replay", "sha256": "65139a9e7465425c00381c461e370f28fdd4cc6cab199344c9fd60af232013d8"},
+    {"name": "installed_topic_cli", "sha256": "307155bb2bc40b97343d4f7c34c3138d719b077ad309dea395bbfd51135d2bdd"},
+    {"name": "installed_explicit_seed_cli", "sha256": "fd4ada5b6b2be0b89bc8631b4c9164c6c3cd3a2c4d2baf08864c92a30bbd22cb"},
+    {"name": "phase10_path_rebase_pass", "sha256": "cc1ccae9c34403bdd5ab21a72b3e513ba26c932b260bbde7ff867852f4f4b518"}
+  ],
+  "dirty_checkout_path_occurrences": 0,
+  "socket_connect_sendto_occurrences": 0,
+  "installed_cli_exit_codes": {"topic": 0, "explicit_seed": 0},
+  "intentional_absolute_symlink": {
+    "action": "readlink_only",
+    "dirty_absolute_target_opened": false,
+    "separate_clone_local_outside_packet_opened": true,
+    "interpretation": "The clone-local outside_packet.json is a separate regular fixture and is not dereference of the dirty absolute target."
+  },
+  "scope_limit": "No universal absence-of-attempted-socket claim is made for untraced full suites. Those suites ran in the platform network-restricted sandbox.",
+  "gpu": {"cuda_visible_devices": "-1", "used": false}
+}

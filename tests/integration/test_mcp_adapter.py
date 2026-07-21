@@ -91,6 +91,20 @@ def test_mcp_server_exposes_only_read_only_tool_names() -> None:
     assert "ra_backup_restore" not in names
 
 
+def test_checked_in_mcp_client_configs_use_source_checkout_helper() -> None:
+    claude_config = json.loads(Path(".mcp.json").read_text())
+    claude_server = claude_config["mcpServers"]["research-assistant"]
+    assert claude_server["type"] == "stdio"
+    assert claude_server["command"] == "/home/chakwong/research-assistant/scripts/ra-mcp-dev"
+    assert claude_server["args"] == ["--root", "/home/chakwong/research-assistant"]
+
+    vscode_config = json.loads(Path(".vscode/mcp.json").read_text())
+    vscode_server = vscode_config["servers"]["research-assistant"]
+    assert vscode_server["type"] == "stdio"
+    assert vscode_server["command"] == "/home/chakwong/research-assistant/scripts/ra-mcp-dev"
+    assert vscode_server["args"] == ["--root", "/home/chakwong/research-assistant"]
+
+
 def test_mcp_server_direct_tool_calls_when_sdk_available(tmp_path: Path) -> None:
     if not mcp_server.mcp_available():
         return

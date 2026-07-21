@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "survey",
+    "merge-reviewed-evidence",
+    "--review-queue",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/.artifact_state/sets/s-3d3dd92dd5efc09985a044ec38eaad0155612e3806e3dbff5ad70330f8aac85b/review_queue.json",
+    "--reviewed-claims",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_claims/reviewed_claims.json",
+    "--reviewed-source-safety",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_source_safety/reviewed_source_safety.json",
+    "--reviewed-omissions",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_omissions/reviewed_omissions.json",
+    "--reviewed-workflow-blockers",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_workflow_blockers/reviewed_workflow_blockers.json",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_evidence"
+  ],
+  "payload": {
+    "blocked_reason": "legacy_evidence_authority",
+    "next_required_actions": [
+      "migrate the selected coverage and claim/source review authority to the canonical V2/V3 path",
+      "legacy review artifacts remain parseable but cannot create a new clear merge"
+    ],
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_evidence",
+    "ready_for_prose": false,
+    "ready_for_reviewed_packet": false,
+    "schema_version": "ra-survey-reviewed-evidence-merge-result-v2",
+    "status": "blocked_invalid_review_artifacts",
+    "what_is_not_concluded": [
+      "human or model review quality",
+      "claim truth",
+      "source safety in fact",
+      "omission correctness",
+      "literature completeness",
+      "final prose readiness",
+      "product readiness",
+      "real-agent reliability",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 1,
+  "stderr": "",
+  "stdout": "{\n  \"blocked_reason\": \"legacy_evidence_authority\",\n  \"next_required_actions\": [\n    \"migrate the selected coverage and claim/source review authority to the canonical V2/V3 path\",\n    \"legacy review artifacts remain parseable but cannot create a new clear merge\"\n  ],\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/legacy_v1_promotion/mission/reviewed_evidence\",\n  \"ready_for_prose\": false,\n  \"ready_for_reviewed_packet\": false,\n  \"schema_version\": \"ra-survey-reviewed-evidence-merge-result-v2\",\n  \"status\": \"blocked_invalid_review_artifacts\",\n  \"what_is_not_concluded\": [\n    \"human or model review quality\",\n    \"claim truth\",\n    \"source safety in fact\",\n    \"omission correctness\",\n    \"literature completeness\",\n    \"final prose readiness\",\n    \"product readiness\",\n    \"real-agent reliability\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

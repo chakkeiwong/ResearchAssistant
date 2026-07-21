@@ -1,0 +1,35 @@
+{
+  "citations": [
+    {
+      "citing_paper_key": "p_cite_001",
+      "evidence": "fixture forward-citation metadata",
+      "relation": "cites_seed",
+      "target_paper_key": "p_seed_001"
+    }
+  ],
+  "endpoint": "citations",
+  "has_more": true,
+  "next_page_token": "fixture-page-2-not-returned",
+  "partial_frontier": {
+    "continuation_risk_key": "frontier_continuation_unobserved",
+    "reason": "the fixture exposes a continuation marker while returning only the first citation page",
+    "status": "partial_frontier"
+  },
+  "request_id": "citations-for-canonical-seed-partial",
+  "result_count": 1,
+  "returned_records_cap": 1,
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "source_statuses": [
+    {
+      "message": "Citation fixture returns the first page only.",
+      "source": "fixture_openalex_page_1",
+      "status": "ok"
+    },
+    {
+      "message": "A continuation token is visible, so complete forward coverage is not established.",
+      "source": "fixture_openalex_page_2",
+      "status": "not_attempted"
+    }
+  ],
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay"
+}

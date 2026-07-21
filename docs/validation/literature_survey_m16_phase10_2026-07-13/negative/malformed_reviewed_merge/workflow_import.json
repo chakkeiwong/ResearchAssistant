@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "survey",
+    "import-workflow-blocker-review",
+    "--review-queue",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/mission/.artifact_state/sets/s-0fc4acc1e15d844ce037885d715cd957bb0362566724708941e99561bb4ce582/review_queue.json",
+    "--decisions",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/decisions/workflow.json",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/mission/reviewed_workflow_blockers"
+  ],
+  "payload": {
+    "accepted_workflow_blocker_count": 4,
+    "decision_coverage_complete": true,
+    "open_workflow_blocker_count": 0,
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/mission/reviewed_workflow_blockers",
+    "ready_for_prose": false,
+    "ready_for_reviewed_packet": false,
+    "rejected_workflow_blocker_count": 0,
+    "resolved_workflow_blocker_count": 4,
+    "reviewed_workflow_blockers_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/mission/reviewed_workflow_blockers/reviewed_workflow_blockers.json",
+    "schema_version": "ra-survey-reviewed-workflow-blocker-import-result-v2",
+    "status": "reviewed_workflow_blockers_complete",
+    "what_is_not_concluded": [
+      "underlying evidence correctness",
+      "literature completeness",
+      "final prose readiness",
+      "live web coverage",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 0,
+  "stderr": "",
+  "stdout": "{\n  \"accepted_workflow_blocker_count\": 4,\n  \"decision_coverage_complete\": true,\n  \"open_workflow_blocker_count\": 0,\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/mission/reviewed_workflow_blockers\",\n  \"ready_for_prose\": false,\n  \"ready_for_reviewed_packet\": false,\n  \"rejected_workflow_blocker_count\": 0,\n  \"resolved_workflow_blocker_count\": 4,\n  \"reviewed_workflow_blockers_path\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/malformed_reviewed_merge/mission/reviewed_workflow_blockers/reviewed_workflow_blockers.json\",\n  \"schema_version\": \"ra-survey-reviewed-workflow-blocker-import-result-v2\",\n  \"status\": \"reviewed_workflow_blockers_complete\",\n  \"what_is_not_concluded\": [\n    \"underlying evidence correctness\",\n    \"literature completeness\",\n    \"final prose readiness\",\n    \"live web coverage\",\n    \"product readiness\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

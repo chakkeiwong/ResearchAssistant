@@ -1,0 +1,180 @@
+{
+  "case_count": 13,
+  "cases": [
+    {
+      "case": "unconfirmed",
+      "checks": {
+        "confirmation_required": true,
+        "no_bootstrap_store": true,
+        "no_downstream": true,
+        "zero_capability_calls": true
+      },
+      "passed": true
+    },
+    {
+      "case": "selected",
+      "checks": {
+        "action_matches": true,
+        "authority_shape": true,
+        "downstream_boundary": true,
+        "one_capability_call": true,
+        "original_inputs_empty": true,
+        "outcome_matches": true,
+        "resume_result_stable": true,
+        "resume_tree_byte_identical": true,
+        "resume_zero_new_calls": true,
+        "selected_complete": true
+      },
+      "passed": true
+    },
+    {
+      "case": "empty",
+      "checks": {
+        "action_matches": true,
+        "authority_shape": true,
+        "downstream_boundary": true,
+        "one_capability_call": true,
+        "original_inputs_empty": true,
+        "outcome_matches": true,
+        "resume_result_stable": true,
+        "resume_tree_byte_identical": true,
+        "resume_zero_new_calls": true,
+        "selected_complete": true
+      },
+      "passed": true
+    },
+    {
+      "case": "ambiguous",
+      "checks": {
+        "action_matches": true,
+        "authority_shape": true,
+        "downstream_boundary": true,
+        "one_capability_call": true,
+        "original_inputs_empty": true,
+        "outcome_matches": true,
+        "resume_result_stable": true,
+        "resume_tree_byte_identical": true,
+        "resume_zero_new_calls": true,
+        "selected_complete": true
+      },
+      "passed": true
+    },
+    {
+      "case": "unavailable",
+      "checks": {
+        "action_matches": true,
+        "authority_shape": true,
+        "downstream_boundary": true,
+        "one_capability_call": true,
+        "original_inputs_empty": true,
+        "outcome_matches": true,
+        "resume_result_stable": true,
+        "resume_tree_byte_identical": true,
+        "resume_zero_new_calls": true,
+        "selected_complete": true
+      },
+      "passed": true
+    },
+    {
+      "case": "capped",
+      "checks": {
+        "action_matches": true,
+        "authority_shape": true,
+        "downstream_boundary": true,
+        "one_capability_call": true,
+        "original_inputs_empty": true,
+        "outcome_matches": true,
+        "resume_result_stable": true,
+        "resume_tree_byte_identical": true,
+        "resume_zero_new_calls": true,
+        "selected_complete": true
+      },
+      "passed": true
+    },
+    {
+      "case": "identity_change",
+      "checks": {
+        "identity_blocked": true,
+        "setup_unconfirmed": true,
+        "zero_mutation": true
+      },
+      "passed": true
+    },
+    {
+      "case": "stale_authority",
+      "checks": {
+        "stale_blocked": true,
+        "zero_mutation": true
+      },
+      "passed": true
+    },
+    {
+      "case": "corrupt_pointer",
+      "checks": {
+        "corruption_blocked": true,
+        "zero_new_calls": true,
+        "zero_post_corruption_mutation": true
+      },
+      "passed": true
+    },
+    {
+      "case": "prepared_orphan",
+      "checks": {
+        "crash_injected": true,
+        "one_capability_call": true,
+        "prepared_non_authoritative": true,
+        "resume_selected": true
+      },
+      "passed": true
+    },
+    {
+      "case": "preconfirmation_tripwire",
+      "checks": {
+        "confirmation_required": true,
+        "no_bootstrap_store": true,
+        "no_downstream": true,
+        "zero_capability_calls": true
+      },
+      "passed": true
+    },
+    {
+      "case": "source_guard",
+      "checks": {
+        "no_source_output": true,
+        "source_guard": true,
+        "zero_mutation": true
+      },
+      "passed": true
+    },
+    {
+      "case": "explicit_seed_regression",
+      "checks": {
+        "contract_schema_unchanged": true,
+        "genesis_schema_unchanged": true,
+        "mission_schema_unchanged": true,
+        "public_schema_unchanged": true,
+        "seed_preserved": true
+      },
+      "passed": true
+    }
+  ],
+  "cpu_gpu_policy": {
+    "CUDA_VISIBLE_DEVICES": "-1",
+    "gpu_used": false
+  },
+  "created_at": "2026-07-13T17:59:30+00:00",
+  "failed_cases": [],
+  "fixture_root": "/home/chakwong/research-assistant/tests/fixtures/literature_survey_m17",
+  "passed": true,
+  "passed_count": 13,
+  "schema_version": "ra-literature-survey-m17-local-validation-v1",
+  "what_is_not_concluded": [
+    "live bootstrap quality",
+    "paper relevance or importance",
+    "literature completeness",
+    "source support",
+    "scientific correctness",
+    "human review",
+    "product readiness"
+  ]
+}

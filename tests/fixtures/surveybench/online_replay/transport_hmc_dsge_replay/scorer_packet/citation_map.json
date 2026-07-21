@@ -1,0 +1,161 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "hmc_lineage",
+      "label": "HMC posterior-geometry lineage",
+      "node_keys": [
+        "thmc_ref_001"
+      ],
+      "survey_section_hint": "sampler lineage"
+    },
+    {
+      "cluster_id": "dsge_estimation_lineage",
+      "label": "DSGE Bayesian estimation lineage",
+      "node_keys": [
+        "thmc_ref_002"
+      ],
+      "survey_section_hint": "macro model inference lineage"
+    },
+    {
+      "cluster_id": "transport_hmc_methods",
+      "label": "Transport-assisted HMC methods",
+      "node_keys": [
+        "thmc_seed_001",
+        "thmc_cite_001"
+      ],
+      "survey_section_hint": "direct transport-HMC methods"
+    },
+    {
+      "cluster_id": "adjacent_filtering_methods",
+      "label": "Adjacent DSGE filtering and SMC diagnostics",
+      "node_keys": [
+        "thmc_adj_001"
+      ],
+      "survey_section_hint": "adjacent inference methods"
+    }
+  ],
+  "edges": [
+    {
+      "confidence": "fixture_metadata",
+      "edge_type": "cites",
+      "evidence": "references endpoint",
+      "source": "thmc_seed_001",
+      "target": "thmc_ref_001"
+    },
+    {
+      "confidence": "fixture_metadata",
+      "edge_type": "cites",
+      "evidence": "references endpoint",
+      "source": "thmc_seed_001",
+      "target": "thmc_ref_002"
+    },
+    {
+      "confidence": "fixture_metadata",
+      "edge_type": "cited_by",
+      "evidence": "citations endpoint",
+      "source": "thmc_cite_001",
+      "target": "thmc_seed_001"
+    },
+    {
+      "confidence": "requires_review",
+      "edge_type": "adjacent_method",
+      "evidence": "adjacent endpoint",
+      "source": "thmc_seed_001",
+      "target": "thmc_adj_001"
+    }
+  ],
+  "expansion_policy": {
+    "adjacent_query_count": 2,
+    "backward_depth": 1,
+    "forward_depth": 1,
+    "max_downloads": 4,
+    "max_nodes": 7
+  },
+  "nodes": [
+    {
+      "cluster": "transport_hmc_methods",
+      "download_status": "downloaded_fixture",
+      "local_source_status": "available_fixture",
+      "paper_key": "thmc_seed_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "seed",
+        "direct_method"
+      ],
+      "survey_relevance": "central",
+      "title": "Transport Map Hamiltonian Monte Carlo for DSGE Posterior Inference",
+      "year": 2024
+    },
+    {
+      "cluster": "hmc_lineage",
+      "download_status": "not_attempted",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "thmc_ref_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "foundational"
+      ],
+      "survey_relevance": "lineage",
+      "title": "Hamiltonian Monte Carlo for Curved Posterior Geometry",
+      "year": 2018
+    },
+    {
+      "cluster": "dsge_estimation_lineage",
+      "download_status": "not_attempted",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "thmc_ref_002",
+      "review_status": "requires_human_review",
+      "roles": [
+        "background"
+      ],
+      "survey_relevance": "lineage",
+      "title": "Bayesian Estimation of DSGE Models with Persistent Shocks",
+      "year": 2016
+    },
+    {
+      "cluster": "transport_hmc_methods",
+      "download_status": "blocked_fixture",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "thmc_cite_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "major_citing_work",
+        "direct_method"
+      ],
+      "survey_relevance": "forward_citation",
+      "title": "Transport Preconditioning for Macro-Finance Posterior Simulation",
+      "year": 2025
+    },
+    {
+      "cluster": "adjacent_filtering_methods",
+      "download_status": "not_attempted",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "thmc_adj_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "adjacent_method"
+      ],
+      "survey_relevance": "adjacent_background",
+      "title": "Sequential Monte Carlo Diagnostics for DSGE Estimation",
+      "year": 2021
+    }
+  ],
+  "schema_version": "ra-surveybench-citation-map-v1",
+  "seed_papers": [
+    "thmc_seed_001"
+  ],
+  "survey_packet_paths": {
+    "candidate_ledger": "candidate_ledger.json",
+    "claim_support": "claim_support.json",
+    "omission_risk": "omission_risk.json",
+    "source_support": "source_support.json"
+  },
+  "task_id": "transport_hmc_dsge_replay",
+  "topic": "Transport-assisted HMC for DSGE posterior inference",
+  "what_is_not_concluded": [
+    "real DSGE literature completeness",
+    "current citation counts",
+    "live web coverage",
+    "scientific correctness"
+  ]
+}

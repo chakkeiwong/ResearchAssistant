@@ -1,0 +1,63 @@
+{
+  "claims": [
+    {
+      "anchors": [
+        {
+          "kind": "section",
+          "label": "sec:synthetic-method",
+          "paper_key": "seed_neural_ot"
+        }
+      ],
+      "claim": "The synthetic seed paper represents a neural optimal transport direct-method node in the offline benchmark.",
+      "claim_id": "claim_seed_direct_method_role",
+      "paper_keys": [
+        "seed_neural_ot"
+      ],
+      "status": "supported",
+      "support_class": "fixture_source_support"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "equation",
+          "label": "eq:synthetic-transport-loss",
+          "paper_key": "seed_neural_ot"
+        }
+      ],
+      "claim": "The synthetic transport loss is present as an equation anchor in the offline benchmark fixture.",
+      "claim_id": "claim_seed_loss_anchor",
+      "paper_keys": [
+        "seed_neural_ot"
+      ],
+      "status": "supported",
+      "support_class": "fixture_source_support"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "citation_map_edge",
+          "label": "major_citing_work->seed_neural_ot",
+          "paper_key": "major_citing_work"
+        }
+      ],
+      "claim": "The synthetic major citing work is a forward-citation node in the offline fixture.",
+      "claim_id": "claim_forward_citation_fixture",
+      "paper_keys": [
+        "major_citing_work",
+        "seed_neural_ot"
+      ],
+      "status": "supported",
+      "support_class": "fixture_graph_support"
+    },
+    {
+      "anchors": [],
+      "claim": "Neural optimal transport dominates all normalizing-flow methods.",
+      "claim_id": "claim_forbidden_dominance",
+      "paper_keys": [],
+      "status": "forbidden",
+      "support_class": "unsupported"
+    }
+  ],
+  "schema_version": "ra-surveybench-claim-support-v1",
+  "task_id": "neural_ot_seed_synthetic"
+}

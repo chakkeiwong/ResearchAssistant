@@ -1,0 +1,149 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "2651fd32041148ad73efaabf532a97f12b16df0ac544ae22ce8bfd94184ae105",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "604353c317d67c712993a27ab815172212fec5ee2aec1136aa3593be0cc63b80",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "413655cb95a9559cf31fe7239fcec77f2e7450107ac54b82b7ba55ba72e1a1ee",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "24c06337ae253b8e6314c944e101c5ebef87ff73db3b718c57d63f3e334a5e71",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "17871ff8f9bfb171d5b101d11e4753d7b640e9879161e03dbf944591402f8464",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "bf8573fd12fdfb3226a8657ccf0d9dbf6acce39410cd986d98740ab46d43cd8c",
+      "size_bytes": 252
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "2651fd32041148ad73efaabf532a97f12b16df0ac544ae22ce8bfd94184ae105",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "604353c317d67c712993a27ab815172212fec5ee2aec1136aa3593be0cc63b80",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "413655cb95a9559cf31fe7239fcec77f2e7450107ac54b82b7ba55ba72e1a1ee",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "24c06337ae253b8e6314c944e101c5ebef87ff73db3b718c57d63f3e334a5e71",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "17871ff8f9bfb171d5b101d11e4753d7b640e9879161e03dbf944591402f8464",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "bf8573fd12fdfb3226a8657ccf0d9dbf6acce39410cd986d98740ab46d43cd8c",
+      "size_bytes": 252
+    }
+  },
+  "case_id": "changed_seed_resume",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "run-public-source-workflow",
+        "--topic",
+        "Neural Optimal Transport for generative modeling and inference",
+        "--seed",
+        "arxiv:2201.12220v4",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_seed_resume/mission",
+        "--metadata-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_seed_resume/mission/public_metadata",
+        "--source-status-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_seed_resume/mission/source_intake",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_seed_resume/mission/source_anchors",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_seed_resume/mission/public_source_packet",
+        "--resume",
+        "--run-safe-local"
+      ],
+      "evidence": "cli.json",
+      "return_code": 1
+    }
+  ],
+  "current_unchanged": true,
+  "expected": {
+    "blocked_reason": "mission_identity_mismatch",
+    "return_code": 1
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": false,
+    "reviewed_packet": false
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [],
+    "changed_paths": [],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "observed": {
+    "blocked_reason": "mission_identity_mismatch",
+    "return_code": 1
+  },
+  "setup_status": "passed",
+  "status": "passed",
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

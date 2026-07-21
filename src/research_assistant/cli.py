@@ -5,6 +5,48 @@ import json
 from pathlib import Path
 
 from research_assistant.adapters.workspace_exports import export_paper_context
+from research_assistant.cli_actions.survey import SurveyServices, execute_survey_action
+from research_assistant.cli_actions.surveybench import SurveybenchServices, execute_surveybench_action
+from research_assistant.cli_registration.lifecycle import (
+    LifecycleHandlers,
+    register_lifecycle_commands,
+    register_release_utility_commands,
+)
+from research_assistant.cli_registration.industrial import IndustrialHandlers, register_industrial_commands
+from research_assistant.cli_registration.library import LibraryHandlers, register_library_commands
+from research_assistant.cli_registration.research import (
+    ResearchHandlers,
+    SourceInspectionHandlers,
+    register_research_commands,
+)
+from research_assistant.cli_registration.survey import register_survey_commands
+from research_assistant.cli_registration.surveybench import register_surveybench_commands
+from research_assistant.benchmarks.local_manifest import validate_local_manifest
+from research_assistant.benchmarks.replay import (
+    build_replay_transcript,
+    replay_call,
+    score_replay_submission,
+    validate_replay_fixture_interface,
+)
+from research_assistant.benchmarks.restricted_trial import (
+    build_launch_approval_packet,
+    build_launch_enforcement_preflight,
+    build_restricted_launcher_dry_run,
+    build_subject_binding_preflight,
+    create_restricted_workspace,
+    validate_launch_approval_packet,
+)
+from research_assistant.benchmarks.surveybench import score_survey_task
+from research_assistant.benchmarks.surveybench_helpers import (
+    scan_subject_helper_payload,
+    surveybench_cluster_hints,
+    surveybench_launch_record_template,
+    surveybench_next_action,
+    surveybench_packet_compose,
+    surveybench_packet_template,
+    surveybench_ready_for_prose,
+)
+from research_assistant.benchmarks.survey_quality import score_survey_prose
 from research_assistant.adapters.mcp_permissions import (
     create_arxiv_batch_grant,
     list_mcp_audit_events,
@@ -23,7 +65,6 @@ from research_assistant.individual_release import (
     doctor,
     init_workspace,
     inspect_backup,
-    onboarding_report,
     parser_benchmark_smoke,
     parser_tool_matrix,
     performance_smoke,
@@ -41,12 +82,13 @@ from research_assistant.individual_release import (
     workspace_repair,
     workspace_validate,
 )
+from research_assistant.release_evidence import validate_release_artifact_manifest
 from research_assistant.individual_git_release import (
     classify_shareable_path,
     fixture_rehearsal,
     individual_git_release_gate,
     load_shareable_workspace_policy,
-    record_local_validation_substitutes,
+    record_local_validations,
     representative_workspace_performance,
     repository_hygiene_check,
     validation_record,
@@ -134,7 +176,6 @@ from research_assistant.ingest.identity_validate import validate_identity
 from research_assistant.ingest.filename_parse import parse_paper_filename
 from research_assistant.schemas.link_record import LinkRecord
 from research_assistant.summarize.draft_summary import build_draft_summary
-from research_assistant.summarize.claim_support import audit_claim
 from research_assistant.storage.file_store import FileStore
 from research_assistant.query import citation_graph
 from research_assistant.query.paper_lookup import find_paper, get_paper_summary, claim_support_audit
@@ -152,6 +193,46 @@ from research_assistant.schemas.domain_templates import get_domain_template, lis
 from research_assistant.source.arxiv_source import fetch_arxiv_structured_source
 from research_assistant.source.structured_source import source_record_path
 from research_assistant.source.evidence_context import evidence_context_for_citation, evidence_context_for_label
+from research_assistant.survey.anchors import build_source_anchor_packet
+from research_assistant.survey.artifact_lineage import assert_public_write_path_allowed
+from research_assistant.survey.build import build_survey_evidence_packet
+from research_assistant.survey.claim_review import import_reviewed_claims
+from research_assistant.survey.coverage_ledgers import compose_coverage_ledgers
+from research_assistant.survey.hostile_review import run_hostile_review_gate
+from research_assistant.survey.human_attestation import (
+    prepare_human_review_packet,
+    render_human_review_materials,
+    validate_human_attestation,
+)
+from research_assistant.survey.omission_review import import_reviewed_omissions
+from research_assistant.survey.orchestrate import run_public_source_workflow
+from research_assistant.survey.packet import compose_public_source_evidence_packet
+from research_assistant.survey.reviewed_merge import merge_reviewed_evidence
+from research_assistant.survey.reviewed_packet import compose_reviewed_final_packet
+from research_assistant.survey.source_safety_review import import_reviewed_source_safety
+from research_assistant.survey.qualitative_assessment import build_assessment, write_assessment
+from research_assistant.survey.workflow_blocker_review import import_reviewed_workflow_blockers
+from research_assistant.survey.mission_state import MissionStateError
+
+
+SURVEY_WRITE_OUTPUT_FIELDS = {
+    "build": ("out",),
+    "anchors": ("out",),
+    "packet": ("out",),
+    "coverage-ledgers": ("out",),
+    "compose-reviewed-final-packet": ("out",),
+    "hostile-review": ("out",),
+    "run-public-source-workflow": ("out",),
+    "import-claim-review": ("out",),
+    "import-source-safety-review": ("out",),
+    "import-omission-review": ("out",),
+    "import-workflow-blocker-review": ("out",),
+    "merge-reviewed-evidence": ("out",),
+    "prepare-human-review": ("out",),
+    "render-human-review": ("out",),
+    "validate-human-attestation": ("out",),
+    "qualitative-assessment": ("out",),
+}
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
@@ -277,6 +358,14 @@ def cmd_link_add(args: argparse.Namespace) -> int:
 def _print_json(payload: dict | list) -> int:
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
+
+
+def _display_cli_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(Path.cwd()))
+    except ValueError:
+        return f"redacted:{resolved.name}"
 
 
 def cmd_init(args: argparse.Namespace) -> int:
@@ -432,6 +521,8 @@ def cmd_arxiv_batch(args: argparse.Namespace) -> int:
             plan_hash=args.plan_hash,
             arxiv_ids=_split_csv(args.ids),
             candidate_file=Path(args.candidate_file) if args.candidate_file else None,
+            plan_file=Path(args.plan_file) if args.plan_file else None,
+            plan_file_sha256=args.plan_file_sha256,
             root=root,
         ))
     if args.arxiv_batch_action == "pdf-run":
@@ -502,8 +593,8 @@ def cmd_individual_git_release(args: argparse.Namespace) -> int:
         ))
     if args.individual_git_release_action == 'validation-report':
         return _print_json(validation_report(root=root))
-    if args.individual_git_release_action == 'validation-substitutes':
-        return _print_json(record_local_validation_substitutes(root=root))
+    if args.individual_git_release_action == 'validation-local':
+        return _print_json(record_local_validations(root=root))
     if args.individual_git_release_action == 'fixture-rehearsal':
         return _print_json(fixture_rehearsal(
             root=root,
@@ -554,64 +645,127 @@ def cmd_parser_benchmark_smoke(args: argparse.Namespace) -> int:
     return _print_json(parser_benchmark_smoke(root=Path(args.root) if args.root else None))
 
 
+def cmd_survey(args: argparse.Namespace) -> int:
+    try:
+        _guard_survey_write_paths(args)
+    except MissionStateError as exc:
+        _print_json({
+            "schema_version": "ra-survey-protected-output-result-v1",
+            "status": "blocked",
+            "blocked_reason": exc.code,
+            "next_required_actions": [str(exc)],
+            "what_is_not_concluded": [
+                "literature completeness",
+                "technical claim support",
+                "final prose readiness",
+                "product readiness",
+                "scientific correctness",
+            ],
+        })
+        return 1
+    return execute_survey_action(
+        args,
+        SurveyServices(
+            print_json=_print_json,
+            human_attestation_blocked=_human_attestation_blocked,
+            build_survey_evidence_packet=build_survey_evidence_packet,
+            build_source_anchor_packet=build_source_anchor_packet,
+            compose_public_source_evidence_packet=compose_public_source_evidence_packet,
+            compose_coverage_ledgers=compose_coverage_ledgers,
+            compose_reviewed_final_packet=compose_reviewed_final_packet,
+            run_hostile_review_gate=run_hostile_review_gate,
+            run_public_source_workflow=run_public_source_workflow,
+            import_reviewed_claims=import_reviewed_claims,
+            import_reviewed_source_safety=import_reviewed_source_safety,
+            import_reviewed_omissions=import_reviewed_omissions,
+            import_reviewed_workflow_blockers=import_reviewed_workflow_blockers,
+            merge_reviewed_evidence=merge_reviewed_evidence,
+            prepare_human_review_packet=prepare_human_review_packet,
+            render_human_review_materials=render_human_review_materials,
+            validate_human_attestation=validate_human_attestation,
+            build_assessment=build_assessment,
+            write_assessment=write_assessment,
+        ),
+    )
+
+
+def _guard_survey_write_paths(args: argparse.Namespace) -> None:
+    fields = SURVEY_WRITE_OUTPUT_FIELDS.get(args.survey_action)
+    if fields is None:
+        raise MissionStateError(
+            "unclassified_survey_writer",
+            f"survey action has no protected-output classification: {args.survey_action}",
+        )
+    for field in fields:
+        value = getattr(args, field, None)
+        if value:
+            assert_public_write_path_allowed(Path(value))
+    if args.survey_action == "run-public-source-workflow":
+        metadata_dir = getattr(args, "metadata_dir", None)
+        if metadata_dir:
+            assert_public_write_path_allowed(Path(metadata_dir))
+
+
+def _human_attestation_blocked(exc: MissionStateError) -> dict[str, Any]:
+    return {
+        "schema_version": "ra-survey-human-attestation-blocked-result-v1",
+        "status": "blocked",
+        "blocked_reason": exc.code,
+        "next_required_actions": [str(exc)],
+        "ready_for_review_import": False,
+        "ready_for_reviewed_packet": False,
+        "ready_for_prose": False,
+        "what_is_not_concluded": [
+            "human identity proof",
+            "review quality",
+            "decision correctness",
+            "claim truth",
+            "literature completeness",
+            "scientific correctness",
+        ],
+    }
+
+
+def cmd_surveybench(args: argparse.Namespace) -> int:
+    return execute_surveybench_action(
+        args,
+        SurveybenchServices(
+            print_json=_print_json,
+            display_path=_display_cli_path,
+            score_survey_task=score_survey_task,
+            validate_local_manifest=validate_local_manifest,
+            replay_call=replay_call,
+            validate_replay_fixture_interface=validate_replay_fixture_interface,
+            build_replay_transcript=build_replay_transcript,
+            score_replay_submission=score_replay_submission,
+            score_survey_prose=score_survey_prose,
+            create_restricted_workspace=create_restricted_workspace,
+            build_restricted_launcher_dry_run=build_restricted_launcher_dry_run,
+            build_subject_binding_preflight=build_subject_binding_preflight,
+            build_launch_approval_packet=build_launch_approval_packet,
+            validate_launch_approval_packet=validate_launch_approval_packet,
+            build_launch_enforcement_preflight=build_launch_enforcement_preflight,
+            surveybench_next_action=surveybench_next_action,
+            surveybench_packet_template=surveybench_packet_template,
+            surveybench_packet_compose=surveybench_packet_compose,
+            surveybench_cluster_hints=surveybench_cluster_hints,
+            surveybench_ready_for_prose=surveybench_ready_for_prose,
+            surveybench_launch_record_template=surveybench_launch_record_template,
+            scan_subject_helper_payload=scan_subject_helper_payload,
+        ),
+    )
+
+
 def cmd_release_artifacts(args: argparse.Namespace) -> int:
     if args.release_artifacts_action == 'manifest':
         return _print_json(release_artifacts_manifest(
             dist_dir=Path(args.dist_dir) if args.dist_dir else None,
         ))
+    if args.release_artifacts_action == 'validate':
+        return _print_json(validate_release_artifact_manifest(
+            Path(args.release_root) if args.release_root else Path.cwd(),
+        ))
     raise SystemExit(f'unknown release-artifacts action {args.release_artifacts_action}')
-
-
-def _register_repository_hygiene_commands(sub: argparse._SubParsersAction) -> None:
-    """Register Git-sharing hygiene commands without changing their public names."""
-    repository_hygiene = sub.add_parser('repository-hygiene', help='Check whether a local workspace is safe to share through Git')
-    repository_hygiene_sub = repository_hygiene.add_subparsers(dest='repository_hygiene_action', required=True)
-    repository_hygiene_check_cmd = repository_hygiene_sub.add_parser('check')
-    repository_hygiene_check_cmd.add_argument('--strict', action='store_true')
-    repository_hygiene_check_cmd.set_defaults(func=cmd_repository_hygiene)
-    repository_hygiene_policy_cmd = repository_hygiene_sub.add_parser('policy')
-    repository_hygiene_policy_cmd.set_defaults(func=cmd_repository_hygiene)
-    repository_hygiene_classify_cmd = repository_hygiene_sub.add_parser('classify')
-    repository_hygiene_classify_cmd.add_argument('path')
-    repository_hygiene_classify_cmd.set_defaults(func=cmd_repository_hygiene)
-
-
-def _register_individual_git_release_commands(sub: argparse._SubParsersAction) -> None:
-    """Register the individual Git release gate commands as a stable CLI group."""
-    individual_git_release_cmd = sub.add_parser('individual-git-release', help='Build the individual Git-sharing release gate')
-    individual_git_release_sub = individual_git_release_cmd.add_subparsers(dest='individual_git_release_action', required=True)
-    individual_git_release_gate_cmd = individual_git_release_sub.add_parser('gate-build')
-    individual_git_release_gate_cmd.set_defaults(func=cmd_individual_git_release)
-    individual_git_release_validation_record = individual_git_release_sub.add_parser('validation-record')
-    individual_git_release_validation_record.add_argument('--validation-type', required=True)
-    individual_git_release_validation_record.add_argument('--result', choices=['passed', 'warnings', 'blocked'], required=True)
-    individual_git_release_validation_record.add_argument('--scope', default='local_machine')
-    individual_git_release_validation_record.add_argument('--platform')
-    individual_git_release_validation_record.add_argument('--python-version')
-    individual_git_release_validation_record.add_argument('--install-method')
-    individual_git_release_validation_record.add_argument('--command-summary')
-    individual_git_release_validation_record.add_argument('--evidence-note')
-    individual_git_release_validation_record.add_argument('--blocker', action='append')
-    individual_git_release_validation_record.add_argument('--warning', action='append')
-    individual_git_release_validation_record.set_defaults(func=cmd_individual_git_release)
-    individual_git_release_validation_report = individual_git_release_sub.add_parser('validation-report')
-    individual_git_release_validation_report.set_defaults(func=cmd_individual_git_release)
-    individual_git_release_validation_substitutes = individual_git_release_sub.add_parser('validation-substitutes')
-    individual_git_release_validation_substitutes.set_defaults(func=cmd_individual_git_release)
-    individual_git_release_fixture = individual_git_release_sub.add_parser('fixture-rehearsal')
-    individual_git_release_fixture.add_argument('--fixture-root')
-    individual_git_release_fixture.add_argument('--include-blocker', action=argparse.BooleanOptionalAction, default=False)
-    individual_git_release_fixture.add_argument('--apply-safe-subset', action=argparse.BooleanOptionalAction, default=True)
-    individual_git_release_fixture.set_defaults(func=cmd_individual_git_release)
-    individual_git_release_performance = individual_git_release_sub.add_parser('performance')
-    individual_git_release_performance.add_argument('--tier', default='synthetic_git_100')
-    individual_git_release_performance.add_argument('--synthetic-count', type=int, default=100)
-    individual_git_release_performance.add_argument('--timeout-seconds', type=float)
-    individual_git_release_performance.set_defaults(func=cmd_individual_git_release)
-
-
-def cmd_onboarding_report(args: argparse.Namespace) -> int:
-    return _print_json(onboarding_report())
 
 
 def cmd_platform_status(args: argparse.Namespace) -> int:
@@ -1167,712 +1321,115 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='ra')
     parser.add_argument('--root', help='Research assistant project root')
     sub = parser.add_subparsers(dest='cmd', required=True)
-
-    init_cmd = sub.add_parser('init', help='Initialize an idempotent local research workspace')
-    init_cmd.add_argument('--force', action='store_true', help='Regenerate safe default config without deleting data')
-    init_cmd.set_defaults(func=cmd_init)
-
-    version_cmd = sub.add_parser('version', help='Show package and workspace schema versions')
-    version_cmd.set_defaults(func=cmd_version)
-
-    config_cmd = sub.add_parser('config', help='Inspect and validate local release configuration')
-    config_sub = config_cmd.add_subparsers(dest='config_action', required=True)
-    config_show = config_sub.add_parser('show')
-    config_show.set_defaults(func=cmd_config)
-    config_set = config_sub.add_parser('set')
-    config_set.add_argument('key')
-    config_set.add_argument('value')
-    config_set.set_defaults(func=cmd_config)
-    config_validate = config_sub.add_parser('validate')
-    config_validate.set_defaults(func=cmd_config)
-
-    workspace_cmd = sub.add_parser('workspace', help='Validate, migrate, or repair a local workspace')
-    workspace_sub = workspace_cmd.add_subparsers(dest='workspace_action', required=True)
-    workspace_validate_cmd = workspace_sub.add_parser('validate')
-    workspace_validate_cmd.set_defaults(func=cmd_workspace)
-    workspace_migrate_cmd = workspace_sub.add_parser('migrate')
-    workspace_migrate_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
-    workspace_migrate_cmd.set_defaults(func=cmd_workspace)
-    workspace_repair_cmd = workspace_sub.add_parser('repair')
-    workspace_repair_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
-    workspace_repair_cmd.set_defaults(func=cmd_workspace)
-    workspace_merge_cmd = workspace_sub.add_parser('merge')
-    workspace_merge_cmd.add_argument('--source', required=True)
-    workspace_merge_cmd.add_argument('--target')
-    workspace_merge_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
-    workspace_merge_cmd.add_argument('--apply', action='store_true')
-    workspace_merge_cmd.add_argument('--confirm-merge', action='store_true')
-    workspace_merge_cmd.set_defaults(func=cmd_workspace)
-    workspace_rebuild_cmd = workspace_sub.add_parser('rebuild-derived')
-    workspace_rebuild_cmd.set_defaults(func=cmd_workspace)
-
-    backup_cmd = sub.add_parser('backup', help='Create, inspect, and dry-run restore local backups')
-    backup_sub = backup_cmd.add_subparsers(dest='backup_action', required=True)
-    backup_create = backup_sub.add_parser('create')
-    backup_create.add_argument('--output')
-    backup_create.set_defaults(func=cmd_backup)
-    backup_inspect = backup_sub.add_parser('inspect')
-    backup_inspect.add_argument('--path', required=True)
-    backup_inspect.set_defaults(func=cmd_backup)
-    backup_restore = backup_sub.add_parser('restore')
-    backup_restore.add_argument('--path', required=True)
-    backup_restore.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
-    backup_restore.add_argument('--target-root')
-    backup_restore.add_argument('--confirm-restore', action='store_true')
-    backup_restore.add_argument('--allow-overwrite', action='store_true')
-    backup_restore.add_argument('--backup-current-first', action=argparse.BooleanOptionalAction, default=True)
-    backup_restore.set_defaults(func=cmd_backup)
-
-    doctor_cmd = sub.add_parser('doctor', help='Report individual-install readiness and optional tool status')
-    doctor_cmd.add_argument('--matrix', action='store_true', help='Include full parser/tool workflow matrix')
-    doctor_cmd.set_defaults(func=cmd_doctor)
-
-    demo_cmd = sub.add_parser('demo', help='Create and run the isolated individual-release demo workflow')
-    demo_sub = demo_cmd.add_subparsers(dest='demo_action', required=True)
-    demo_setup_cmd = demo_sub.add_parser('setup')
-    demo_setup_cmd.set_defaults(func=cmd_demo)
-    demo_run_cmd = demo_sub.add_parser('run')
-    demo_run_cmd.set_defaults(func=cmd_demo)
-    demo_clean_cmd = demo_sub.add_parser('clean')
-    demo_clean_cmd.add_argument('--dry-run', action=argparse.BooleanOptionalAction, default=True)
-    demo_clean_cmd.add_argument('--force', action='store_true')
-    demo_clean_cmd.set_defaults(func=cmd_demo)
-
-    privacy_cmd = sub.add_parser('privacy', help='Show offline/provider privacy status')
-    privacy_sub = privacy_cmd.add_subparsers(dest='privacy_action', required=True)
-    privacy_status_cmd = privacy_sub.add_parser('status')
-    privacy_status_cmd.set_defaults(func=cmd_privacy)
-
-    release_report_cmd = sub.add_parser('release-report', help='Summarize individual release candidate readiness')
-    release_report_cmd.add_argument('--output')
-    release_report_cmd.set_defaults(func=cmd_release_report)
-
-    mcp_cmd = sub.add_parser('mcp', help='Inspect local MCP permissions and bounded grants')
-    mcp_sub = mcp_cmd.add_subparsers(dest='mcp_action', required=True)
-    mcp_status = mcp_sub.add_parser('status')
-    mcp_status.set_defaults(func=cmd_mcp)
-    mcp_grant = mcp_sub.add_parser('grant')
-    mcp_grant_sub = mcp_grant.add_subparsers(dest='grant_action', required=True)
-    mcp_grant_arxiv = mcp_grant_sub.add_parser('arxiv-intake')
-    mcp_grant_arxiv.add_argument('--plan-hash', required=True)
-    mcp_grant_arxiv.add_argument('--operation', choices=['source_fetch', 'pdf_inbox_download', 'metadata_only'], default='source_fetch')
-    mcp_grant_arxiv.add_argument('--destination', choices=['source', 'inbox'], default='source')
-    mcp_grant_arxiv.add_argument('--max-papers', type=int, required=True)
-    mcp_grant_arxiv.add_argument('--expires-hours', type=int, default=2)
-    mcp_grant_arxiv.add_argument('--query')
-    mcp_grant_arxiv.add_argument('--ids')
-    mcp_grant_arxiv.add_argument('--skip-duplicates', action='store_true')
-    mcp_grant_arxiv.set_defaults(func=cmd_mcp)
-    mcp_grants = mcp_sub.add_parser('grants')
-    mcp_grants_sub = mcp_grants.add_subparsers(dest='grants_action', required=True)
-    mcp_grants_list = mcp_grants_sub.add_parser('list')
-    mcp_grants_list.set_defaults(func=cmd_mcp)
-    mcp_grants_show = mcp_grants_sub.add_parser('show')
-    mcp_grants_show.add_argument('--grant-id', required=True)
-    mcp_grants_show.set_defaults(func=cmd_mcp)
-    mcp_audit = mcp_sub.add_parser('audit')
-    mcp_audit_sub = mcp_audit.add_subparsers(dest='audit_action', required=True)
-    mcp_audit_list = mcp_audit_sub.add_parser('list')
-    mcp_audit_list.add_argument('--grant-id')
-    mcp_audit_list.set_defaults(func=cmd_mcp)
-
-    _register_repository_hygiene_commands(sub)
-    _register_individual_git_release_commands(sub)
-
-    bounded_workflow_cmd = sub.add_parser('bounded-workflow', help='Write local timeout diagnostics for bounded workflow failures')
-    bounded_sub = bounded_workflow_cmd.add_subparsers(dest='bounded_action', required=True)
-    bounded_diagnostic = bounded_sub.add_parser('diagnostic')
-    bounded_diagnostic.add_argument('--workflow', required=True)
-    bounded_diagnostic.add_argument('--timeout-seconds', type=int, required=True)
-    bounded_diagnostic.add_argument('--elapsed-seconds', type=float)
-    bounded_diagnostic.set_defaults(func=cmd_bounded_workflow)
-
-    performance_cmd = sub.add_parser('performance', help='Run bounded local performance smoke checks')
-    performance_sub = performance_cmd.add_subparsers(dest='performance_action', required=True)
-    performance_smoke_cmd = performance_sub.add_parser('smoke')
-    performance_smoke_cmd.add_argument('--synthetic-count', type=int, default=25)
-    performance_smoke_cmd.add_argument('--include-industrial-artifacts', action='store_true')
-    performance_smoke_cmd.add_argument('--include-backup', action='store_true')
-    performance_smoke_cmd.add_argument('--include-export', action='store_true')
-    performance_smoke_cmd.add_argument('--timeout-seconds', type=int)
-    performance_smoke_cmd.add_argument('--output')
-    performance_smoke_cmd.set_defaults(func=cmd_performance)
-
-    parser_matrix = sub.add_parser('parser-tool-matrix', help='Show optional parser/tool workflow readiness')
-    parser_matrix.set_defaults(func=cmd_parser_tool_matrix)
-
-    parser_benchmark = sub.add_parser('parser-benchmark-smoke', help='Run fixture-only parser benchmark smoke')
-    parser_benchmark.set_defaults(func=cmd_parser_benchmark_smoke)
-
-    arxiv_batch = sub.add_parser('arxiv-batch', help='Plan and run bounded arXiv batch intake')
-    arxiv_batch_sub = arxiv_batch.add_subparsers(dest='arxiv_batch_action', required=True)
-    arxiv_batch_discover = arxiv_batch_sub.add_parser('discover')
-    arxiv_batch_discover.add_argument('--query', required=True)
-    arxiv_batch_discover.add_argument('--max-candidates', type=int, required=True)
-    arxiv_batch_discover.add_argument('--timeout-seconds', type=int, default=30)
-    arxiv_batch_discover.add_argument('--output-candidate-file', required=True)
-    arxiv_batch_discover.set_defaults(func=cmd_arxiv_batch)
-    arxiv_batch_plan = arxiv_batch_sub.add_parser('plan')
-    arxiv_batch_plan.add_argument('--ids')
-    arxiv_batch_plan.add_argument('--query')
-    arxiv_batch_plan.add_argument('--candidate-file')
-    arxiv_batch_plan.add_argument('--max-papers', type=int, required=True)
-    arxiv_batch_plan.add_argument('--destination', choices=['source', 'inbox'], default='source')
-    arxiv_batch_plan.add_argument('--operation', choices=['source_fetch', 'pdf_inbox_download', 'metadata_only'], default='source_fetch')
-    arxiv_batch_plan.set_defaults(func=cmd_arxiv_batch)
-    arxiv_batch_candidate = arxiv_batch_sub.add_parser('candidate-file')
-    arxiv_batch_candidate_sub = arxiv_batch_candidate.add_subparsers(dest='candidate_file_action', required=True)
-    arxiv_batch_candidate_inspect = arxiv_batch_candidate_sub.add_parser('inspect')
-    arxiv_batch_candidate_inspect.add_argument('--path', required=True)
-    arxiv_batch_candidate_inspect.set_defaults(func=cmd_arxiv_batch)
-    arxiv_batch_run = arxiv_batch_sub.add_parser('run')
-    arxiv_batch_run.add_argument('--grant-id', required=True)
-    arxiv_batch_run.add_argument('--plan-hash', required=True)
-    arxiv_batch_run.add_argument('--ids')
-    arxiv_batch_run.add_argument('--candidate-file')
-    arxiv_batch_run.set_defaults(func=cmd_arxiv_batch)
-    arxiv_batch_pdf_run = arxiv_batch_sub.add_parser('pdf-run')
-    arxiv_batch_pdf_run.add_argument('--grant-id', required=True)
-    arxiv_batch_pdf_run.add_argument('--plan-hash', required=True)
-    arxiv_batch_pdf_run.add_argument('--candidate-file', required=True)
-    arxiv_batch_pdf_run.add_argument('--timeout-seconds', type=int, default=30)
-    arxiv_batch_pdf_run.set_defaults(func=cmd_arxiv_batch)
-
-    release_artifacts = sub.add_parser('release-artifacts', help='Inspect release artifact manifests')
-    release_artifacts_sub = release_artifacts.add_subparsers(dest='release_artifacts_action', required=True)
-    release_artifacts_manifest_cmd = release_artifacts_sub.add_parser('manifest')
-    release_artifacts_manifest_cmd.add_argument('--dist-dir')
-    release_artifacts_manifest_cmd.set_defaults(func=cmd_release_artifacts)
-
-    onboarding_report_cmd = sub.add_parser('onboarding-report', help='Emit individual release onboarding checklist')
-    onboarding_report_cmd.set_defaults(func=cmd_onboarding_report)
-
-    platform_cmd = sub.add_parser('platform-status', help='Show local platform support status')
-    platform_cmd.set_defaults(func=cmd_platform_status)
-
-    ingest = sub.add_parser('ingest')
-    ingest.add_argument('--pdf')
-    ingest.add_argument('--query')
-    ingest.add_argument('--arxiv-id')
-    ingest.set_defaults(func=cmd_ingest)
-
-    find = sub.add_parser('find')
-    find.add_argument('--query', required=True)
-    find.add_argument('--review-status')
-    find.add_argument('--author')
-    find.add_argument('--year', type=int)
-    find.set_defaults(func=cmd_find)
-
-    show = sub.add_parser('show')
-    show.add_argument('--paper-id', required=True)
-    show.set_defaults(func=cmd_show)
-
-    export_context = sub.add_parser('export-context')
-    export_context.add_argument('--output')
-    export_context.add_argument('--review-status')
-    export_context.set_defaults(func=cmd_export_context)
-
-    review_list = sub.add_parser('review-list')
-    review_list.add_argument('--status')
-    review_list.add_argument('--json', action='store_true')
-    review_list.set_defaults(func=cmd_review_list)
-
-    review_show = sub.add_parser('review-show')
-    review_show.add_argument('--paper-id', required=True)
-    review_show.set_defaults(func=cmd_review_show)
-
-    review_mark = sub.add_parser('review-mark')
-    review_mark.add_argument('--paper-id', required=True)
-    review_mark.add_argument('--status', required=True)
-    review_mark.set_defaults(func=cmd_review_mark)
-
-    review_write = sub.add_parser('review-write', help='Prototype explicit confirmation flow for review-state writes')
-    review_write_sub = review_write.add_subparsers(dest='review_write_action', required=True)
-    review_write_status_cmd = review_write_sub.add_parser('status')
-    review_write_status_cmd.set_defaults(func=cmd_review_write)
-    review_write_propose = review_write_sub.add_parser('propose-status')
-    review_write_propose.add_argument('--paper-id', required=True)
-    review_write_propose.add_argument('--status', required=True)
-    review_write_propose.add_argument('--expires-minutes', type=int, default=30)
-    review_write_propose.set_defaults(func=cmd_review_write)
-    review_write_apply = review_write_sub.add_parser('apply')
-    review_write_apply.add_argument('--confirmation-id', required=True)
-    review_write_apply.set_defaults(func=cmd_review_write)
-    review_write_cleanup = review_write_sub.add_parser('cleanup-expired')
-    review_write_cleanup.add_argument('--apply', action='store_true')
-    review_write_cleanup.set_defaults(func=cmd_review_write)
-
-    link = sub.add_parser('link-add')
-    link.add_argument('--paper-id', required=True)
-    link.add_argument('--target', required=True)
-    link.add_argument('--relationship', required=True)
-    link.add_argument('--target-type', default='code_file')
-    link.add_argument('--source-type', default='paper')
-    link.add_argument('--source-ref')
-    link.add_argument('--target-ref')
-    link.set_defaults(func=cmd_link_add)
-
-    artifact_paths_cmd = sub.add_parser('artifact-paths')
-    artifact_paths_cmd.set_defaults(func=cmd_artifact_paths)
-
-    industrial_validate = sub.add_parser('industrial-validate')
-    industrial_validate.set_defaults(func=cmd_industrial_validate)
-
-    domain_templates = sub.add_parser('domain-templates')
-    domain_templates_sub = domain_templates.add_subparsers(dest='template_action', required=True)
-    domain_templates_list = domain_templates_sub.add_parser('list')
-    domain_templates_list.set_defaults(func=cmd_domain_templates)
-    domain_templates_show = domain_templates_sub.add_parser('show')
-    domain_templates_show.add_argument('--template-id', required=True)
-    domain_templates_show.set_defaults(func=cmd_domain_templates)
-
-    derivation = sub.add_parser('derivation')
-    derivation_sub = derivation.add_subparsers(dest='derivation_action', required=True)
-    derivation_create = derivation_sub.add_parser('create')
-    derivation_create.add_argument('--paper-id', required=True)
-    derivation_create.add_argument('--title', required=True)
-    derivation_create.add_argument('--template-id')
-    derivation_create.set_defaults(func=cmd_derivation)
-    derivation_show = derivation_sub.add_parser('show')
-    derivation_show.add_argument('--artifact-id', required=True)
-    derivation_show.set_defaults(func=cmd_derivation)
-    derivation_append = derivation_sub.add_parser('append')
-    derivation_append.add_argument('--artifact-id', required=True)
-    derivation_append.add_argument('--field', required=True)
-    derivation_append.add_argument('--value', required=True)
-    derivation_append.set_defaults(func=cmd_derivation)
-    derivation_notation = derivation_sub.add_parser('notation')
-    derivation_notation.add_argument('--artifact-id', required=True)
-    derivation_notation.add_argument('--symbol', required=True)
-    derivation_notation.add_argument('--meaning', required=True)
-    derivation_notation.set_defaults(func=cmd_derivation)
-    derivation_link_steps = derivation_sub.add_parser('link-steps')
-    derivation_link_steps.add_argument('--artifact-id', required=True)
-    derivation_link_steps.add_argument('--step-id', required=True)
-    derivation_link_steps.add_argument('--depends-on', required=True)
-    derivation_link_steps.set_defaults(func=cmd_derivation)
-    derivation_comment = derivation_sub.add_parser('comment')
-    derivation_comment.add_argument('--artifact-id', required=True)
-    derivation_comment.add_argument('--target-id', required=True)
-    derivation_comment.add_argument('--comment', required=True)
-    derivation_comment.add_argument('--reviewer')
-    derivation_comment.set_defaults(func=cmd_derivation)
-
-    experiment = sub.add_parser('experiment')
-    experiment_sub = experiment.add_subparsers(dest='experiment_action', required=True)
-    experiment_checklists = experiment_sub.add_parser('checklists')
-    experiment_checklists.set_defaults(func=cmd_experiment)
-    experiment_checklist_show = experiment_sub.add_parser('checklist-show')
-    experiment_checklist_show.add_argument('--template-id', required=True)
-    experiment_checklist_show.set_defaults(func=cmd_experiment)
-    experiment_create = experiment_sub.add_parser('create')
-    experiment_create.add_argument('--paper-id', required=True)
-    experiment_create.add_argument('--claim-id', required=True)
-    experiment_create.add_argument('--checklist-id', required=True)
-    experiment_create.set_defaults(func=cmd_experiment)
-    experiment_show = experiment_sub.add_parser('show')
-    experiment_show.add_argument('--artifact-id', required=True)
-    experiment_show.set_defaults(func=cmd_experiment)
-    experiment_link = experiment_sub.add_parser('link-claim')
-    experiment_link.add_argument('--paper-id', required=True)
-    experiment_link.add_argument('--claim-id', required=True)
-    experiment_link.add_argument('--experiment-id', required=True)
-    experiment_link.set_defaults(func=cmd_experiment)
-    experiment_run = experiment_sub.add_parser('record-run')
-    experiment_run.add_argument('--artifact-id', required=True)
-    experiment_run.add_argument('--run-label', required=True)
-    experiment_run.add_argument('--seed', required=True)
-    experiment_run.add_argument('--environment', required=True)
-    experiment_run.add_argument('--diagnostic', action='append', default=[])
-    experiment_run.add_argument('--result-summary')
-    experiment_run.add_argument('--acceptance-status', default='requires_review')
-    experiment_run.add_argument('--dataset-hash')
-    experiment_run.add_argument('--model-hash')
-    experiment_run.set_defaults(func=cmd_experiment)
-
-    graph_report = sub.add_parser('graph-report')
-    graph_report_sub = graph_report.add_subparsers(dest='graph_report_action', required=True)
-    graph_report_build = graph_report_sub.add_parser('build')
-    graph_report_build.add_argument('--paper-id', required=True)
-    graph_report_build.set_defaults(func=cmd_graph_report)
-    graph_report_show = graph_report_sub.add_parser('show')
-    graph_report_show.add_argument('--artifact-id', required=True)
-    graph_report_show.set_defaults(func=cmd_graph_report)
-    graph_report_enrich = graph_report_sub.add_parser('enrich')
-    graph_report_enrich.add_argument('--artifact-id', required=True)
-    graph_report_enrich.set_defaults(func=cmd_graph_report)
-
-    review_meta = sub.add_parser('review-meta')
-    review_meta_sub = review_meta.add_subparsers(dest='review_meta_action', required=True)
-    review_meta_show = review_meta_sub.add_parser('show')
-    review_meta_show.add_argument('--paper-id', required=True)
-    review_meta_show.set_defaults(func=cmd_review_meta)
-    review_meta_set = review_meta_sub.add_parser('set')
-    review_meta_set.add_argument('--paper-id', required=True)
-    review_meta_set.add_argument('--field', required=True)
-    review_meta_set.add_argument('--value', required=True)
-    review_meta_set.set_defaults(func=cmd_review_meta)
-    review_meta_list = review_meta_sub.add_parser('list')
-    review_meta_list.set_defaults(func=cmd_review_meta)
-
-    benchmark_manifest = sub.add_parser('benchmark-manifest')
-    benchmark_sub = benchmark_manifest.add_subparsers(dest='benchmark_action', required=True)
-    benchmark_create = benchmark_sub.add_parser('create')
-    benchmark_create.add_argument('--manifest-id', required=True)
-    benchmark_create.add_argument('--family', required=True)
-    benchmark_create.add_argument('--fixture', action='append', default=[])
-    benchmark_create.set_defaults(func=cmd_benchmark_manifest)
-    benchmark_show = benchmark_sub.add_parser('show')
-    benchmark_show.add_argument('--manifest-id', required=True)
-    benchmark_show.set_defaults(func=cmd_benchmark_manifest)
-    benchmark_run = benchmark_sub.add_parser('run')
-    benchmark_run.add_argument('--manifest-id', required=True)
-    benchmark_run.set_defaults(func=cmd_benchmark_manifest)
-
-    synthesis = sub.add_parser('synthesis')
-    synthesis_sub = synthesis.add_subparsers(dest='synthesis_action', required=True)
-    synthesis_propose = synthesis_sub.add_parser('propose')
-    synthesis_propose.add_argument('--paper-id', required=True)
-    synthesis_propose.add_argument('--kind', required=True)
-    synthesis_propose.set_defaults(func=cmd_synthesis)
-    synthesis_show = synthesis_sub.add_parser('show')
-    synthesis_show.add_argument('--artifact-id', required=True)
-    synthesis_show.set_defaults(func=cmd_synthesis)
-
-    governance = sub.add_parser('governance')
-    governance_sub = governance.add_subparsers(dest='governance_action', required=True)
-    governance_build = governance_sub.add_parser('build')
-    governance_build.add_argument('--paper-id', required=True)
-    governance_build.set_defaults(func=cmd_governance)
-    governance_show = governance_sub.add_parser('show')
-    governance_show.add_argument('--artifact-id', required=True)
-    governance_show.set_defaults(func=cmd_governance)
-
-    job = sub.add_parser('job')
-    job_sub = job.add_subparsers(dest='job_action', required=True)
-    job_create = job_sub.add_parser('create')
-    job_create.add_argument('--job-type', required=True)
-    job_create.add_argument('--paper-id')
-    job_create.set_defaults(func=cmd_job)
-    job_show = job_sub.add_parser('show')
-    job_show.add_argument('--artifact-id', required=True)
-    job_show.set_defaults(func=cmd_job)
-
-    dashboard_export_cmd = sub.add_parser('dashboard-export')
-    dashboard_export_cmd.add_argument('--output')
-    dashboard_export_cmd.set_defaults(func=cmd_dashboard_export)
-
-    traceability = sub.add_parser('traceability')
-    traceability_sub = traceability.add_subparsers(dest='traceability_action', required=True)
-    traceability_build = traceability_sub.add_parser('build')
-    traceability_build.add_argument('--paper-id', required=True)
-    traceability_build.set_defaults(func=cmd_traceability)
-    traceability_show = traceability_sub.add_parser('show')
-    traceability_show.add_argument('--artifact-id', required=True)
-    traceability_show.set_defaults(func=cmd_traceability)
-
-    model_policy = sub.add_parser('model-policy')
-    model_policy_sub = model_policy.add_subparsers(dest='model_policy_action', required=True)
-    model_policy_create = model_policy_sub.add_parser('create')
-    model_policy_create.add_argument('--policy-id', required=True)
-    model_policy_create.set_defaults(func=cmd_model_policy)
-    model_policy_show = model_policy_sub.add_parser('show')
-    model_policy_show.add_argument('--policy-id', required=True)
-    model_policy_show.set_defaults(func=cmd_model_policy)
-    model_policy_check = model_policy_sub.add_parser('check-synthesis')
-    model_policy_check.add_argument('--policy-id', required=True)
-    model_policy_check.set_defaults(func=cmd_model_policy)
-
-    collaboration = sub.add_parser('collaboration')
-    collaboration_sub = collaboration.add_subparsers(dest='collaboration_action', required=True)
-    collaboration_create = collaboration_sub.add_parser('create')
-    collaboration_create.add_argument('--workspace-id', required=True)
-    collaboration_create.set_defaults(func=cmd_collaboration)
-    collaboration_show = collaboration_sub.add_parser('show')
-    collaboration_show.add_argument('--workspace-id', required=True)
-    collaboration_show.set_defaults(func=cmd_collaboration)
-    collaboration_update = collaboration_sub.add_parser('update')
-    collaboration_update.add_argument('--workspace-id', required=True)
-    collaboration_update.add_argument('--action', required=True)
-    collaboration_update.add_argument('--value', required=True)
-    collaboration_update.add_argument('--target')
-    collaboration_update.set_defaults(func=cmd_collaboration)
-
-    artifact_index = sub.add_parser('artifact-index')
-    artifact_index_sub = artifact_index.add_subparsers(dest='artifact_index_action', required=True)
-    artifact_index_build = artifact_index_sub.add_parser('build')
-    artifact_index_build.add_argument('--index-id', default='local_artifact_index')
-    artifact_index_build.set_defaults(func=cmd_artifact_index)
-    artifact_index_show = artifact_index_sub.add_parser('show')
-    artifact_index_show.add_argument('--index-id', required=True)
-    artifact_index_show.set_defaults(func=cmd_artifact_index)
-    artifact_index_query = artifact_index_sub.add_parser('query')
-    artifact_index_query.add_argument('--index-id', default='local_artifact_index')
-    artifact_index_query.add_argument('--family')
-    artifact_index_query.add_argument('--paper-id')
-    artifact_index_query.set_defaults(func=cmd_artifact_index)
-
-    industrial_readiness = sub.add_parser('industrial-readiness')
-    readiness_sub = industrial_readiness.add_subparsers(dest='readiness_action', required=True)
-    readiness_build = readiness_sub.add_parser('build')
-    readiness_build.add_argument('--report-id', default='industrial_readiness')
-    readiness_build.set_defaults(func=cmd_industrial_readiness)
-    readiness_show = readiness_sub.add_parser('show')
-    readiness_show.add_argument('--report-id', required=True)
-    readiness_show.set_defaults(func=cmd_industrial_readiness)
-
-    full_scale_plan = sub.add_parser('full-scale-plan')
-    full_scale_sub = full_scale_plan.add_subparsers(dest='full_scale_action', required=True)
-    full_scale_phases = full_scale_sub.add_parser('phases')
-    full_scale_phases.set_defaults(func=cmd_full_scale_plan)
-    full_scale_phase_show = full_scale_sub.add_parser('phase-show')
-    full_scale_phase_show.add_argument('--phase-id', required=True)
-    full_scale_phase_show.set_defaults(func=cmd_full_scale_plan)
-    full_scale_registry_build = full_scale_sub.add_parser('registry-build')
-    full_scale_registry_build.set_defaults(func=cmd_full_scale_plan)
-    full_scale_registry_show = full_scale_sub.add_parser('registry-show')
-    full_scale_registry_show.set_defaults(func=cmd_full_scale_plan)
-    full_scale_usefulness = full_scale_sub.add_parser('usefulness-build')
-    full_scale_usefulness.set_defaults(func=cmd_full_scale_plan)
-    full_scale_readiness = full_scale_sub.add_parser('readiness-build')
-    full_scale_readiness.set_defaults(func=cmd_full_scale_plan)
-
-    industrial_release = sub.add_parser('industrial-release')
-    industrial_release_sub = industrial_release.add_subparsers(dest='industrial_release_action', required=True)
-    industrial_release_phases = industrial_release_sub.add_parser('phases')
-    industrial_release_phases.set_defaults(func=cmd_industrial_release)
-    industrial_release_phase_show = industrial_release_sub.add_parser('phase-show')
-    industrial_release_phase_show.add_argument('--phase-id', required=True)
-    industrial_release_phase_show.set_defaults(func=cmd_industrial_release)
-    industrial_release_definition_build = industrial_release_sub.add_parser('definition-build')
-    industrial_release_definition_build.set_defaults(func=cmd_industrial_release)
-    industrial_release_definition_show = industrial_release_sub.add_parser('definition-show')
-    industrial_release_definition_show.set_defaults(func=cmd_industrial_release)
-    industrial_release_external = industrial_release_sub.add_parser('external-validation-build')
-    industrial_release_external.add_argument('--validation-dir')
-    industrial_release_external.set_defaults(func=cmd_industrial_release)
-    industrial_release_publication = industrial_release_sub.add_parser('publication-check')
-    industrial_release_publication.set_defaults(func=cmd_industrial_release)
-    industrial_release_gate = industrial_release_sub.add_parser('gate-build')
-    industrial_release_gate.set_defaults(func=cmd_industrial_release)
-    industrial_release_show = industrial_release_sub.add_parser('show')
-    industrial_release_show.add_argument('--artifact-id', required=True)
-    industrial_release_show.set_defaults(func=cmd_industrial_release)
-
-    tool_contract = sub.add_parser('tool-contract')
-    tool_contract_sub = tool_contract.add_subparsers(dest='tool_contract_action', required=True)
-    tool_contract_export = tool_contract_sub.add_parser('export')
-    tool_contract_export.add_argument('--contract-id', default='local_tool_contract')
-    tool_contract_export.set_defaults(func=cmd_tool_contract)
-    tool_contract_show = tool_contract_sub.add_parser('show')
-    tool_contract_show.add_argument('--contract-id', required=True)
-    tool_contract_show.set_defaults(func=cmd_tool_contract)
-
-    operations_policy = sub.add_parser('operations-policy')
-    operations_sub = operations_policy.add_subparsers(dest='operations_action', required=True)
-    operations_create = operations_sub.add_parser('create')
-    operations_create.add_argument('--policy-id', default='department_operations_policy')
-    operations_create.set_defaults(func=cmd_operations_policy)
-    operations_show = operations_sub.add_parser('show')
-    operations_show.add_argument('--policy-id', required=True)
-    operations_show.set_defaults(func=cmd_operations_policy)
-
-    sop = sub.add_parser('sop')
-    sop_sub = sop.add_subparsers(dest='sop_action', required=True)
-    sop_create = sop_sub.add_parser('create')
-    sop_create.add_argument('--sop-id', default='department_research_sop')
-    sop_create.set_defaults(func=cmd_sop)
-    sop_show = sop_sub.add_parser('show')
-    sop_show.add_argument('--sop-id', required=True)
-    sop_show.set_defaults(func=cmd_sop)
-
-    audit = sub.add_parser('audit-claim')
-    audit.add_argument('--claim')
-    audit.add_argument('--claim-file')
-    audit.add_argument('--papers', nargs='*')
-    audit.set_defaults(func=cmd_audit_claim)
-
-    audit_note = sub.add_parser('audit-note')
-    audit_note_sub = audit_note.add_subparsers(dest='audit_action', required=True)
-
-    audit_note_show = audit_note_sub.add_parser('show')
-    audit_note_show.add_argument('--paper-id', required=True)
-    audit_note_show.set_defaults(func=cmd_audit_note)
-
-    audit_note_set = audit_note_sub.add_parser('set')
-    audit_note_set.add_argument('--paper-id', required=True)
-    audit_note_set.add_argument('--field', required=True)
-    audit_note_set.add_argument('--value', required=True)
-    audit_note_set.set_defaults(func=cmd_audit_note)
-
-    audit_note_append = audit_note_sub.add_parser('append')
-    audit_note_append.add_argument('--paper-id', required=True)
-    audit_note_append.add_argument('--field', required=True)
-    audit_note_append.add_argument('--value', required=True)
-    audit_note_append.set_defaults(func=cmd_audit_note)
-
-    audit_note_remove = audit_note_sub.add_parser('remove')
-    audit_note_remove.add_argument('--paper-id', required=True)
-    audit_note_remove.add_argument('--field', required=True)
-    audit_note_remove.add_argument('--value', required=True)
-    audit_note_remove.set_defaults(func=cmd_audit_note)
-
-    audit_note_link_section = audit_note_sub.add_parser('link-section')
-    audit_note_link_section.add_argument('--paper-id', required=True)
-    audit_note_link_section.add_argument('--label', required=True)
-    audit_note_link_section.set_defaults(func=cmd_audit_note)
-
-    audit_note_link_equation = audit_note_sub.add_parser('link-equation')
-    audit_note_link_equation.add_argument('--paper-id', required=True)
-    audit_note_link_equation.add_argument('--label', required=True)
-    audit_note_link_equation.set_defaults(func=cmd_audit_note)
-
-    audit_note_link_theorem = audit_note_sub.add_parser('link-theorem')
-    audit_note_link_theorem.add_argument('--paper-id', required=True)
-    audit_note_link_theorem.add_argument('--label', required=True)
-    audit_note_link_theorem.set_defaults(func=cmd_audit_note)
-
-    audit_note_link_citation = audit_note_sub.add_parser('link-citation')
-    audit_note_link_citation.add_argument('--paper-id', required=True)
-    audit_note_link_citation.add_argument('--citation-key', required=True)
-    audit_note_link_citation.set_defaults(func=cmd_audit_note)
-
-    discover = sub.add_parser('discover')
-    discover.add_argument('--query', required=True)
-    discover.add_argument('--limit', type=int, default=10)
-    discover.set_defaults(func=cmd_discover)
-
-    download_paper = sub.add_parser('download-paper')
-    download_paper.add_argument('--query', required=True)
-    download_paper.add_argument('--limit', type=int, default=10)
-    download_paper.set_defaults(func=cmd_download_paper)
-
-    papers_citing_cmd = sub.add_parser('papers-citing')
-    papers_citing_cmd.add_argument('--paper-id', required=True)
-    papers_citing_cmd.add_argument('--limit', type=int, default=10)
-    papers_citing_cmd.set_defaults(func=cmd_papers_citing)
-
-    papers_cited_by_cmd = sub.add_parser('papers-cited-by')
-    papers_cited_by_cmd.add_argument('--paper-id', required=True)
-    papers_cited_by_cmd.add_argument('--limit', type=int, default=10)
-    papers_cited_by_cmd.set_defaults(func=cmd_papers_cited_by)
-
-    citation_neighborhood_cmd = sub.add_parser('citation-neighborhood')
-    citation_neighborhood_cmd.add_argument('--paper-id', required=True)
-    citation_neighborhood_cmd.add_argument('--limit', type=int, default=5)
-    citation_neighborhood_cmd.set_defaults(func=cmd_citation_neighborhood)
-
-    citation_graph_build = sub.add_parser('citation-graph-build')
-    citation_graph_build.add_argument('--paper-id', required=True)
-    citation_graph_build.add_argument('--depth', type=int, default=1)
-    citation_graph_build.add_argument('--limit', type=int, default=5)
-    citation_graph_build.add_argument('--refresh', action='store_true')
-    citation_graph_build.set_defaults(func=cmd_citation_graph_build)
-
-    citation_graph_show = sub.add_parser('citation-graph-show')
-    citation_graph_show.add_argument('--paper-id', required=True)
-    citation_graph_show.set_defaults(func=cmd_citation_graph_show)
-
-    citation_graph_export = sub.add_parser('citation-graph-export')
-    citation_graph_export.add_argument('--paper-id', required=True)
-    citation_graph_export.add_argument('--output', required=True)
-    citation_graph_export.set_defaults(func=cmd_citation_graph_export)
-
-    graph_node_download = sub.add_parser('graph-node-download-proposal')
-    graph_node_download.add_argument('--paper-id', required=True)
-    graph_node_download.add_argument('--node-id', required=True)
-    graph_node_download.set_defaults(func=cmd_graph_node_download_proposal)
-
-    inbox_list = sub.add_parser('inbox-list')
-    inbox_list.add_argument('--duplicate-status')
-    inbox_list.add_argument('--json', action='store_true')
-    inbox_list.set_defaults(func=cmd_inbox_list)
-
-    inbox_show = sub.add_parser('inbox-show')
-    inbox_show.add_argument('--proposed-name', required=True)
-    inbox_show.set_defaults(func=cmd_inbox_show)
-
-    literature_audit_propose = sub.add_parser('literature-audit-propose')
-    literature_audit_propose.add_argument('--paper-id', required=True)
-    literature_audit_propose.set_defaults(func=cmd_literature_audit_propose)
-
-    literature_audit_show = sub.add_parser('literature-audit-show')
-    literature_audit_show.add_argument('--paper-id', required=True)
-    literature_audit_show.set_defaults(func=cmd_literature_audit_show)
-
-    literature_audit_approve = sub.add_parser('literature-audit-approve')
-    literature_audit_approve.add_argument('--paper-id', required=True)
-    literature_audit_approve.set_defaults(func=cmd_literature_audit_approve)
-
-    parse_pdf = sub.add_parser('parse-pdf')
-    parse_pdf.add_argument('--pdf', required=True)
-    parse_pdf.set_defaults(func=cmd_parse_pdf)
-
-    parser_preflight = sub.add_parser('parser-preflight')
-    parser_preflight.set_defaults(func=cmd_parser_preflight)
-
-    evidence_context = sub.add_parser('evidence-context')
-    evidence_context.add_argument('--paper-id', required=True)
-    evidence_context.add_argument('--label')
-    evidence_context.add_argument('--citation-key')
-    evidence_context.set_defaults(func=cmd_evidence_context)
-
-    source_fetch = sub.add_parser('source-fetch')
-    source_fetch.add_argument('--arxiv-id', required=True)
-    source_fetch.add_argument('--paper-id')
-    source_fetch.set_defaults(func=cmd_source_fetch)
-
-    source_show = sub.add_parser('source-show')
-    source_show.add_argument('--paper-id', required=True)
-    source_show.set_defaults(func=cmd_source_show)
-
-    source_sections = sub.add_parser('source-sections')
-    source_sections.add_argument('--paper-id', required=True)
-    source_sections.set_defaults(func=cmd_source_sections)
-
-    source_equations = sub.add_parser('source-equations')
-    source_equations.add_argument('--paper-id', required=True)
-    source_equations.set_defaults(func=cmd_source_equations)
-
-    source_theorems = sub.add_parser('source-theorems')
-    source_theorems.add_argument('--paper-id', required=True)
-    source_theorems.set_defaults(func=cmd_source_theorems)
-
-    source_citations = sub.add_parser('source-citations')
-    source_citations.add_argument('--paper-id', required=True)
-    source_citations.set_defaults(func=cmd_source_citations)
-
-    source_bibliography = sub.add_parser('source-bibliography')
-    source_bibliography.add_argument('--paper-id', required=True)
-    source_bibliography.set_defaults(func=cmd_source_bibliography)
-
-    source_macros = sub.add_parser('source-macros')
-    source_macros.add_argument('--paper-id', required=True)
-    source_macros.set_defaults(func=cmd_source_macros)
-
-    source_labels = sub.add_parser('source-labels')
-    source_labels.add_argument('--paper-id', required=True)
-    source_labels.set_defaults(func=cmd_source_labels)
-
-    source_section = sub.add_parser('source-section')
-    source_section.add_argument('--paper-id', required=True)
-    source_section.add_argument('--title')
-    source_section.add_argument('--label')
-    source_section.set_defaults(func=cmd_source_section)
-
-    source_refs = sub.add_parser('source-refs')
-    source_refs.add_argument('--paper-id', required=True)
-    source_refs.set_defaults(func=cmd_source_refs)
-
-    source_equation = sub.add_parser('source-equation')
-    source_equation.add_argument('--paper-id', required=True)
-    source_equation.add_argument('--label', required=True)
-    source_equation.set_defaults(func=cmd_source_equation)
-
-    source_theorem = sub.add_parser('source-theorem')
-    source_theorem.add_argument('--paper-id', required=True)
-    source_theorem.add_argument('--label', required=True)
-    source_theorem.set_defaults(func=cmd_source_theorem)
+    lifecycle_handlers = LifecycleHandlers(
+        init=cmd_init,
+        version=cmd_version,
+        config=cmd_config,
+        workspace=cmd_workspace,
+        backup=cmd_backup,
+        doctor=cmd_doctor,
+        demo=cmd_demo,
+        privacy=cmd_privacy,
+        release_report=cmd_release_report,
+        mcp=cmd_mcp,
+        repository_hygiene=cmd_repository_hygiene,
+        individual_git_release=cmd_individual_git_release,
+        bounded_workflow=cmd_bounded_workflow,
+        performance=cmd_performance,
+        parser_tool_matrix=cmd_parser_tool_matrix,
+        parser_benchmark_smoke=cmd_parser_benchmark_smoke,
+        arxiv_batch=cmd_arxiv_batch,
+        release_artifacts=cmd_release_artifacts,
+        platform_status=cmd_platform_status,
+    )
+    register_lifecycle_commands(sub, lifecycle_handlers)
+
+    register_survey_commands(sub, cmd_survey)
+    register_surveybench_commands(sub, cmd_surveybench)
+    register_release_utility_commands(sub, lifecycle_handlers)
+
+    register_library_commands(
+        sub,
+        LibraryHandlers(
+            ingest=cmd_ingest,
+            find=cmd_find,
+            show=cmd_show,
+            export_context=cmd_export_context,
+            review_list=cmd_review_list,
+            review_show=cmd_review_show,
+            review_mark=cmd_review_mark,
+            review_write=cmd_review_write,
+            link_add=cmd_link_add,
+        ),
+    )
+
+    register_industrial_commands(
+        sub,
+        IndustrialHandlers(
+            artifact_paths=cmd_artifact_paths,
+            industrial_validate=cmd_industrial_validate,
+            domain_templates=cmd_domain_templates,
+            derivation=cmd_derivation,
+            experiment=cmd_experiment,
+            graph_report=cmd_graph_report,
+            review_meta=cmd_review_meta,
+            benchmark_manifest=cmd_benchmark_manifest,
+            synthesis=cmd_synthesis,
+            governance=cmd_governance,
+            job=cmd_job,
+            dashboard_export=cmd_dashboard_export,
+            traceability=cmd_traceability,
+            model_policy=cmd_model_policy,
+            collaboration=cmd_collaboration,
+            artifact_index=cmd_artifact_index,
+            industrial_readiness=cmd_industrial_readiness,
+            full_scale_plan=cmd_full_scale_plan,
+            industrial_release=cmd_industrial_release,
+            tool_contract=cmd_tool_contract,
+            operations_policy=cmd_operations_policy,
+            sop=cmd_sop,
+        ),
+    )
+
+    register_research_commands(
+        sub,
+        ResearchHandlers(
+            audit_claim=cmd_audit_claim,
+            audit_note=cmd_audit_note,
+            discover=cmd_discover,
+            download_paper=cmd_download_paper,
+            papers_citing=cmd_papers_citing,
+            papers_cited_by=cmd_papers_cited_by,
+            citation_neighborhood=cmd_citation_neighborhood,
+            citation_graph_build=cmd_citation_graph_build,
+            citation_graph_show=cmd_citation_graph_show,
+            citation_graph_export=cmd_citation_graph_export,
+            graph_node_download_proposal=cmd_graph_node_download_proposal,
+            inbox_list=cmd_inbox_list,
+            inbox_show=cmd_inbox_show,
+            literature_audit_propose=cmd_literature_audit_propose,
+            literature_audit_show=cmd_literature_audit_show,
+            literature_audit_approve=cmd_literature_audit_approve,
+            parse_pdf=cmd_parse_pdf,
+            parser_preflight=cmd_parser_preflight,
+            evidence_context=cmd_evidence_context,
+            source_inspection=SourceInspectionHandlers(
+                source_fetch=cmd_source_fetch,
+                source_show=cmd_source_show,
+                source_sections=cmd_source_sections,
+                source_equations=cmd_source_equations,
+                source_theorems=cmd_source_theorems,
+                source_citations=cmd_source_citations,
+                source_bibliography=cmd_source_bibliography,
+                source_macros=cmd_source_macros,
+                source_labels=cmd_source_labels,
+                source_section=cmd_source_section,
+                source_refs=cmd_source_refs,
+                source_equation=cmd_source_equation,
+                source_theorem=cmd_source_theorem,
+            ),
+        ),
+    )
 
     return parser
 

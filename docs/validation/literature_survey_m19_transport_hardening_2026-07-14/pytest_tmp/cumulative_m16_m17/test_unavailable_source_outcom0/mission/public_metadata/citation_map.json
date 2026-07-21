@@ -1,0 +1,142 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "seed_metadata",
+      "evidence_class": "metadata_only_public",
+      "label": "seed metadata",
+      "members": [
+        "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+      ]
+    },
+    {
+      "cluster_id": "backward_lineage_metadata",
+      "evidence_class": "metadata_only_public",
+      "label": "backward lineage metadata",
+      "members": [
+        "p_dq_34fb9516a5f4a1ef50ee16f961663f6aed3705658959c989d0221989215072db"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "evidence_class": "metadata_only_public_identifier_only",
+      "provider": "openalex",
+      "relation": "backward_reference_metadata",
+      "source": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+      "target": "p_dq_34fb9516a5f4a1ef50ee16f961663f6aed3705658959c989d0221989215072db"
+    }
+  ],
+  "expansion_policy": {
+    "adjacent_query_count": 1,
+    "backward_depth": 1,
+    "download_or_source_intake_allowed": false,
+    "forward_depth": 1,
+    "max_downloads": 0,
+    "max_nodes": 25
+  },
+  "frontiers": [
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "seed",
+      "member_count": 1,
+      "members": [
+        "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+      ],
+      "reason": "seed metadata resolved from approved public metadata provider",
+      "status": "present_metadata_only"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 1,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "backward",
+      "member_count": 1,
+      "members": [
+        "p_dq_34fb9516a5f4a1ef50ee16f961663f6aed3705658959c989d0221989215072db"
+      ],
+      "reason": "backward reference metadata rows are present",
+      "seed_resolution_status": "available",
+      "status": "present_metadata_only"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "forward",
+      "member_count": 0,
+      "members": [],
+      "reason": "forward citation frontier is blocked or empty because the seed was not resolved to a provider citation id or provider returned no citing rows",
+      "seed_resolution_status": "available",
+      "status": "blocked_or_empty"
+    },
+    {
+      "claim_support_allowed": false,
+      "edge_count": 0,
+      "evidence_class": "metadata_only_public",
+      "frontier_id": "adjacent",
+      "member_count": 0,
+      "members": [],
+      "reason": "adjacent topic metadata frontier is blocked or empty",
+      "status": "blocked_or_empty"
+    }
+  ],
+  "next_required_actions": [
+    "verify citation relations against provider documentation or source references",
+    "inspect seed references for true backward lineage",
+    "inspect citing papers before calling them major works in prose",
+    "treat blocked provider frontiers as omission risks, not as empty truth"
+  ],
+  "nodes": [
+    {
+      "citation_count": 10,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "seed_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "W100",
+      "layer": "seed",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "seed"
+      ],
+      "survey_relevance": "seed supplied by user and resolved through public metadata",
+      "title": "Neural Optimal Transport"
+    },
+    {
+      "citation_count": 10,
+      "citation_count_policy": "coverage_signal_only",
+      "cluster": "backward_lineage_metadata",
+      "download_status": "source_not_attempted",
+      "identifier": "W200",
+      "layer": "backward",
+      "local_source_status": "metadata_only_public",
+      "metadata_relation_status": "provider_metadata_unverified_by_source",
+      "paper_key": "p_dq_34fb9516a5f4a1ef50ee16f961663f6aed3705658959c989d0221989215072db",
+      "review_status": "requires_primary_source_review",
+      "roles": [
+        "backward_lineage_candidate",
+        "direct_method"
+      ],
+      "survey_relevance": "public metadata identifier appears in a seed candidate reference list",
+      "title": "Neural Optimal Transport Direct Method"
+    }
+  ],
+  "schema_version": "ra-survey-citation-map-v1",
+  "seed_papers": [
+    "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+  ],
+  "status": "metadata_only_public_partial",
+  "survey_packet_paths": {
+    "candidate_ledger": "candidate_ledger.json",
+    "claim_support": "claim_support.json",
+    "metadata_provenance": "metadata_provenance.json",
+    "omission_risk": "omission_risk.json",
+    "paper_classifications": "paper_classifications.json",
+    "source_support": "source_support.json"
+  },
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

@@ -1,0 +1,114 @@
+{
+  "allowlist_audit": {
+    "edited_preexisting_paths": [
+      "src/research_assistant/cli.py",
+      "src/research_assistant/survey/build.py",
+      "src/research_assistant/survey/mission_state.py",
+      "src/research_assistant/survey/orchestrate.py",
+      "src/research_assistant/survey/source_intake.py"
+    ],
+    "new_paths": [
+      "docs/validation/literature_survey_m17_2026-07-13/generate_close_artifacts.py",
+      "scripts/literature_survey_m17_local_validation.py",
+      "src/research_assistant/survey/bootstrap.py",
+      "tests/fixtures/literature_survey_m17/ambiguous.json",
+      "tests/fixtures/literature_survey_m17/capped.json",
+      "tests/fixtures/literature_survey_m17/empty.json",
+      "tests/fixtures/literature_survey_m17/selected.json",
+      "tests/fixtures/literature_survey_m17/unavailable.json",
+      "tests/unit/test_literature_survey_m17.py"
+    ],
+    "passed": true,
+    "unexplained_scoped_changes": []
+  },
+  "artifact_parse": {
+    "json_files_parsed": 259,
+    "junit_errors": 0,
+    "junit_failures": 0,
+    "junit_files_parsed": 6,
+    "junit_skipped": 0,
+    "junit_tests": 2117,
+    "passed": true
+  },
+  "captured_at": "2026-07-14T03:00:38+08:00",
+  "checks": {
+    "changed_python_py_compile": "passed",
+    "git_diff_check": "passed",
+    "json_and_junit_parse": "passed",
+    "m16_frozen_authority_replay": "passed",
+    "m17_persistent_matrix": "13 of 13 passed",
+    "provider_transport_ast_identity": "passed",
+    "successor_manifest_replay": "1671 of 1671 rows passed, including all 1137 canonical Phase 10 evidence members",
+    "trailing_whitespace_scan": "passed"
+  },
+  "cpu_gpu_status": "CUDA_VISIBLE_DEVICES=-1 for every Python/test command; GPU devices intentionally hidden",
+  "external_action_audit": {
+    "git_mutations": 0,
+    "gpu_actions": 0,
+    "model_worker_actions": 0,
+    "network_or_provider_actions": 0,
+    "package_or_environment_mutations": 0,
+    "source_pdf_or_full_text_actions": 0
+  },
+  "historical_snapshot": {
+    "ambiguity_count": 0,
+    "entry_cutoff_only_count": 0,
+    "entry_replay_passed": true,
+    "mismatch_count": 0,
+    "phase10_direct_rows": 38,
+    "phase10_inventory_rows": 1137,
+    "snapshot_rows": 10,
+    "snapshot_sha256": "752b3d72c50d7e3eb45ba47a19528308e0c69faa5692bb49a6dedf85c1d5c340"
+  },
+  "network_boundary_audit": {
+    "inherited_provider_transport_note": "build.py contains inherited OpenAlex/arXiv transport functions, but their AST hashes are unchanged from the immutable M16 pre-edit snapshot",
+    "new_bootstrap_module_forbidden_import_hits": [],
+    "provider_transport_ast_match": true,
+    "topic_default_behavior": "persists unavailable without calling inherited provider transport",
+    "topic_fixture_behavior": "uses only an explicitly injected deterministic local capability"
+  },
+  "nonclaims": [
+    "fixture evidence does not establish live bootstrap quality, relevance, importance, or literature completeness",
+    "no source support, human review, scientific validity, clean-checkout reproducibility, product readiness, or north-star completion is established"
+  ],
+  "protected_unrelated_dirty_hashes": [
+    {
+      "path": ".gitignore",
+      "sha256": "29344e75c13a1a6d4e9b1bb653d106156cafb02ee61b1c99701c9a32f5ec9074"
+    },
+    {
+      "path": "docs/benchmark_plan.md",
+      "sha256": "2395402f907a6d163979e37fa62d6975109c5e9ccfcb7322962b3a0a2e00a033"
+    },
+    {
+      "path": "src/research_assistant/ingest/arxiv_batch.py",
+      "sha256": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be"
+    },
+    {
+      "path": "src/research_assistant/source/arxiv_source.py",
+      "sha256": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8"
+    },
+    {
+      "path": "tests/integration/test_arxiv_batch_intake.py",
+      "sha256": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80"
+    },
+    {
+      "path": "tests/unit/test_arxiv_source.py",
+      "sha256": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"
+    }
+  ],
+  "schema_version": "ra-literature-survey-m17-static-audit-v1",
+  "status": "passed_local_engineering_git_integration_pending",
+  "successor_manifest": {
+    "artifact_count": 1671,
+    "file_sha256": "46fd3d4e444fc5fd43b9d10f05dce110980c75bd13b98b345ae459a5b4277571",
+    "manifest_payload_sha256": "163f9ca026e18903d219690ed88647c1bc26ae7f45cd0752aa05a9cb891d485f",
+    "paths_sorted": true,
+    "paths_unique": true,
+    "phase10_direct_logical_rows_validated": 38,
+    "phase10_inventory_regular_files": 1136,
+    "phase10_inventory_symlinks": 1,
+    "replay_mismatch_count": 0,
+    "replay_passed": true
+  }
+}

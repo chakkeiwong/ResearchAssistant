@@ -1,0 +1,48 @@
+{
+  "approval": {
+    "attempt_budget": 1,
+    "attempts_consumed": 1,
+    "authorization_text": "I approve exactly one M19 metadata-only live attempt described in the finalized packet with SHA-256 588d7c0aa353ba506cd69efdae787b153647b9d9fdcf7b309f364dba64f66436, at commit f06ceb72cd1bb0628b01f206f9e82697e23cb0c7, with no retries or reruns.",
+    "packet_path": "docs/plans/literature_survey_north_star_m19_exact_live_approval_packet_2026-07-14.md",
+    "packet_sha256": "588d7c0aa353ba506cd69efdae787b153647b9d9fdcf7b309f364dba64f66436",
+    "retries_or_reruns_remaining": 0,
+    "status": "consumed"
+  },
+  "command": "env -i HOME=/home/chakwong PATH=/usr/bin:/bin LANG=C.UTF-8 CONDA_DEFAULT_ENV=tf-gpu GIT_OPTIONAL_LOCKS=0 CUDA_VISIBLE_DEVICES=-1 PYTHONDONTWRITEBYTECODE=1 /tmp/ra_m19_isolated_bb4300c/venv/bin/python scripts/literature_survey_m19_live_metadata_supervisor.py",
+  "data_version": "live public metadata observed 2026-07-14T11:02:39+00:00",
+  "environment": {
+    "conda_environment": "tf-gpu",
+    "credentials_present": false,
+    "gpu_status": "CPU-only; CUDA_VISIBLE_DEVICES=-1 before Python import",
+    "network_scope": "four approved HTTPS GET metadata requests only",
+    "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+    "proxy_variables_present": false,
+    "python": "3.11.14"
+  },
+  "execution": {
+    "accepted_payload_bytes": 146508,
+    "boundary_valid": true,
+    "redirect_count": 0,
+    "request_count": 4,
+    "retry_count": 0,
+    "summary_status": "passed",
+    "total_wall_time_seconds": 7.7434807819954585,
+    "worker_exit_code": 0
+  },
+  "git": {
+    "commit": "f06ceb72cd1bb0628b01f206f9e82697e23cb0c7",
+    "parent": "bb4300c6bce20145a7c41620b0dffb703072e755",
+    "tree": "2d8e364d98a85df2ba0ce59dc6ad683bf4915dc1"
+  },
+  "output_artifacts": {
+    "live_root": "docs/validation/literature_survey_m19_live_metadata_2026-07-14",
+    "live_root_file_count": 20,
+    "live_root_hash_listing_sha256": "c247f2e0ed31ddc39c219ffd07a7c73c9c1ee278239e22dbd4394394305bd8d2",
+    "replay_path": "docs/validation/literature_survey_m19_live_metadata_result_2026-07-14/live_replay.json",
+    "replay_sha256": "71f6766d5804c0392f2af0f3b1e897a3e8b3081d44037c64deb6bfe92ade9059",
+    "result_path": "docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_result_2026-07-13.md"
+  },
+  "plan": "docs/plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md",
+  "random_seeds": "N/A; deterministic transport run with no stochastic sampling",
+  "schema_version": "ra-literature-survey-m19-live-result-manifest-v1"
+}

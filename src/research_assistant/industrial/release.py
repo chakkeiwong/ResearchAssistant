@@ -9,11 +9,12 @@ import subprocess
 
 from research_assistant.config import get_paths
 from research_assistant.individual_release import (
-    release_artifacts_manifest,
+    read_release_artifacts_manifest,
     version_consistency,
     version_payload,
     workspace_validate,
 )
+from research_assistant.release_evidence import validate_release_artifact_manifest
 from research_assistant.industrial.platform import (
     build_artifact_index,
     build_readiness_report,
@@ -65,10 +66,10 @@ PHASES: list[IndustrialReleasePhase] = [
         "external_validation",
         "M1",
         "blocked_external_validation",
-        "Industrial release needs real colleagues, target platforms, minimal parser-tool machines, and corpus rehearsals.",
+        "Future industrial release needs governed environment and corpus validation beyond the local Linux tool.",
         ["sanitized validation record schema", "external validation aggregation", "privacy rejection rules"],
         ["fixture record aggregation", "forbidden field detection"],
-        ["real colleague onboarding", "macOS validation", "minimal parser-tool environment", "sanitized real corpus"],
+        ["sanitized real corpus", "department environment validation"],
         ["missing external validation blocks broad release claims"],
         ["external users or machines unavailable"],
     ),
@@ -79,10 +80,10 @@ PHASES: list[IndustrialReleasePhase] = [
         "M1",
         "blocked_manual_approval",
         "Artifacts need reproducible publication, hash verification, approval, tag policy, and rollback instructions.",
-        ["publication runbook", "publication check", "hash/version/notes alignment"],
-        ["artifact manifest status", "release notes hash match", "tag state inspection"],
+        ["publication runbook", "publication check", "artifact/version/notes alignment"],
+        ["artifact manifest validation", "release notes checksum-source reference", "tag state inspection"],
         ["release owner approves tag and artifact upload"],
-        ["publication blocked unless artifact hash, version, notes, validation, and approval align"],
+        ["publication blocked unless artifact hashes, version, notes, validation, and approval align"],
         ["manual publication approval required"],
     ),
     IndustrialReleasePhase(
@@ -415,13 +416,7 @@ def build_external_validation_report(
     paths = get_paths(root)
     record_dir = validation_dir or (paths.governance / "external_validation")
     records = []
-    required_types = {
-        "colleague_onboarding",
-        "macos",
-        "linux_wsl",
-        "minimal_parser_tools",
-        "sanitized_corpus",
-    }
+    required_types = {"linux_local", "linux_parser_tools"}
     passed_types: set[str] = set()
     issues: list[dict[str, Any]] = []
     for path in sorted(record_dir.glob("*.json")):
@@ -464,13 +459,6 @@ def build_external_validation_report(
     }
     _store(root).write_json(_release_path(root, artifact_id), payload)
     return payload
-
-
-def _read_release_notes_hash(release_notes: Path) -> str | None:
-    if not release_notes.exists():
-        return None
-    match = re.search(r"SHA256:\s*`([0-9a-f]{64})`", release_notes.read_text())
-    return match.group(1) if match else None
 
 
 def _forbidden_staged_reason(path: str) -> str | None:
@@ -608,7 +596,8 @@ def build_publication_check(
     paths = get_paths(root)
     release_root = _publication_material_root(paths.root)
     notes_path = release_notes or (release_root / "docs" / "release_notes_0.1.0.md")
-    manifest = release_artifacts_manifest(release_root=release_root)
+    manifest = read_release_artifacts_manifest(release_root=release_root)
+    artifact_validation = validate_release_artifact_manifest(release_root)
     version = version_payload()
     version_report = version_consistency(release_root=release_root)
     git_report = _git_publication_status(release_root)
@@ -619,14 +608,17 @@ def build_publication_check(
     }
     issues: list[dict[str, Any]] = []
     artifacts = manifest.get("artifacts") or []
-    manifest_hash = artifacts[0]["sha256"] if artifacts else None
-    notes_hash = _read_release_notes_hash(notes_path)
+    artifact_hashes = {
+        row["filename"]: row["sha256"]
+        for row in artifacts
+        if isinstance(row, dict) and isinstance(row.get("filename"), str) and isinstance(row.get("sha256"), str)
+    }
     if manifest.get("status") != "ok":
         issues.append({"severity": "blocker", "code": "artifact_manifest_not_ready"})
+    if artifact_validation["status"] != "passed":
+        issues.append({"severity": "blocker", "code": "artifact_manifest_validation_failed", "details": artifact_validation})
     if not notes_path.exists():
         issues.append({"severity": "blocker", "code": "release_notes_missing", "path": str(notes_path)})
-    elif notes_hash != manifest_hash:
-        issues.append({"severity": "blocker", "code": "release_notes_hash_mismatch", "notes_hash": notes_hash, "manifest_hash": manifest_hash})
     if version_report["status"] == "blocked":
         issues.append({"severity": "blocker", "code": "version_consistency_blocked", "details": version_report["issues"]})
     elif version_report["status"] == "warnings":
@@ -645,10 +637,11 @@ def build_publication_check(
         "expected_tag": tag_expected,
         "tag_created": False,
         "artifact_manifest": manifest,
+        "artifact_manifest_validation": artifact_validation,
         "release_material_root": str(release_root),
         "release_notes_path": str(notes_path),
-        "release_notes_hash": notes_hash,
-        "manifest_hash": manifest_hash,
+        "artifact_hashes": artifact_hashes,
+        "release_notes_checksum_source": "dist/release_artifacts_manifest.json",
         "version_consistency": version_report,
         "git_status": git_report,
         "final_gate_evidence": final_gate,

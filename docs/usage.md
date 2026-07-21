@@ -192,7 +192,6 @@ WHEEL_PATH=dist/research_assistant-0.1.0-py3-none-any.whl scripts/run_clean_inst
 scripts/run_individual_git_release_gate.sh
 ```
 
-Broad release still requires real fresh-reader onboarding, real macOS
-validation, real minimal parser-tool machine validation, release-owner tag
-approval, and release-owner publication approval. Until those are recorded, the
-release remains pilot-scoped.
+The supported release is a Linux/WSL local tool for one researcher. Tagging and
+publication require explicit release-owner approval; external-user and macOS
+validation are outside this product scope.

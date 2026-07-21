@@ -1,0 +1,546 @@
+{
+  "case": "capped",
+  "checks": {
+    "action_matches": true,
+    "authority_shape": true,
+    "downstream_boundary": true,
+    "one_capability_call": true,
+    "original_inputs_empty": true,
+    "outcome_matches": true,
+    "resume_result_stable": true,
+    "resume_tree_byte_identical": true,
+    "resume_zero_new_calls": true,
+    "selected_complete": true
+  },
+  "passed": true,
+  "replay": {
+    "artifact_paths": {
+      "mission_control.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/mission_control.json",
+      "next_action.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/next_action.json"
+    },
+    "artifact_state": null,
+    "bootstrap_attempt_state": "selected_complete",
+    "bootstrap_authority": null,
+    "bootstrap_outcome": "capped",
+    "coverage_artifacts": {},
+    "effective_seed_count": 0,
+    "effective_seeds": [],
+    "final_artifacts": {},
+    "generation_id": "g00000002-906556dac5f8b837",
+    "initial_seeds": [],
+    "input_mode": "idea_or_topic_without_initial_paper_seed",
+    "local_supervisor": null,
+    "mission_control_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/mission_control.json",
+    "mission_fingerprint": "90ef363f9e4e413ba9f4aa6c81c423d446a06523e4285aded2412e598763d95c",
+    "mission_id": "54b5d0f5-81dd-4208-9361-3c5dd87cf01d",
+    "next_action": {
+      "action_id": "terminal_blocked_bootstrap_capped",
+      "approval_required": false,
+      "blockers": [
+        "terminal_blocked_bootstrap_capped"
+      ],
+      "created_at": "2026-07-13T17:59:28+00:00",
+      "forbidden_actions": [
+        "do not treat the topic as a paper seed",
+        "do not retry an indeterminate bootstrap call on ordinary resume",
+        "do not run provider, source, PDF, full-text, model-worker, or network actions in M17",
+        "do not expose prepared bootstrap evidence as effective seed authority"
+      ],
+      "gate_id": "topic_bootstrap",
+      "generation_id": "g00000002-906556dac5f8b837",
+      "mission_fingerprint": "90ef363f9e4e413ba9f4aa6c81c423d446a06523e4285aded2412e598763d95c",
+      "mission_id": "54b5d0f5-81dd-4208-9361-3c5dd87cf01d",
+      "mission_status": "blocked_at_gate",
+      "public_discovery_confirmation": {
+        "confirmation_source": "cli",
+        "confirmed": true,
+        "confirmed_at": "2026-07-13T17:59:28+00:00",
+        "forbidden_actions": [
+          "credentials",
+          "private_databases",
+          "paid_model_worker_trials",
+          "hidden_evaluator_material",
+          "unbounded_crawling",
+          "writes_outside_mission_output",
+          "technical_claim_support_from_metadata_or_source_availability",
+          "final_prose_readiness_from_discovery_alone"
+        ],
+        "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+        "schema_version": "ra-survey-public-discovery-confirmation-v1",
+        "scope": {
+          "allowed_actions": [
+            "local_cache_lookup",
+            "bounded_public_web_api_metadata",
+            "public_archive_search",
+            "public_source_status_lookup",
+            "capped_public_source_pdf_full_text_retrieval"
+          ],
+          "allowed_domains": [
+            "api.openalex.org",
+            "export.arxiv.org",
+            "arxiv.org"
+          ],
+          "caps": {
+            "max_metadata_records": 25,
+            "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped"
+          },
+          "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped",
+          "providers": [
+            "openalex",
+            "arxiv"
+          ],
+          "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+        },
+        "status": "confirmed",
+        "what_is_not_concluded": [
+          "live web coverage",
+          "literature completeness",
+          "survey completeness",
+          "source/PDF/full-text download completion",
+          "retraction/version safety",
+          "technical claim support",
+          "final prose readiness",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "required_artifacts": [
+        "future reviewed bootstrap repair for capped"
+      ],
+      "safe_next_commands": [
+        "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+      ],
+      "schema_version": "ra-survey-public-source-next-action-v1",
+      "status": "terminal_blocked_bootstrap_capped",
+      "summary": "Topic bootstrap closed honestly with outcome: capped.",
+      "what_is_not_concluded": [
+        "live web coverage",
+        "literature completeness",
+        "survey completeness",
+        "source/PDF/full-text download completion",
+        "retraction/version safety",
+        "technical claim support",
+        "final prose readiness",
+        "product readiness",
+        "scientific correctness"
+      ]
+    },
+    "next_action_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/next_action.json",
+    "next_gate": {
+      "approval_required": false,
+      "gate_id": "topic_bootstrap",
+      "status": "terminal_blocked_bootstrap_capped"
+    },
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped",
+    "phase_statuses": {},
+    "public_discovery_confirmation": {
+      "confirmation_source": "cli",
+      "confirmed": true,
+      "confirmed_at": "2026-07-13T17:59:28+00:00",
+      "forbidden_actions": [
+        "credentials",
+        "private_databases",
+        "paid_model_worker_trials",
+        "hidden_evaluator_material",
+        "unbounded_crawling",
+        "writes_outside_mission_output",
+        "technical_claim_support_from_metadata_or_source_availability",
+        "final_prose_readiness_from_discovery_alone"
+      ],
+      "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+      "schema_version": "ra-survey-public-discovery-confirmation-v1",
+      "scope": {
+        "allowed_actions": [
+          "local_cache_lookup",
+          "bounded_public_web_api_metadata",
+          "public_archive_search",
+          "public_source_status_lookup",
+          "capped_public_source_pdf_full_text_retrieval"
+        ],
+        "allowed_domains": [
+          "api.openalex.org",
+          "export.arxiv.org",
+          "arxiv.org"
+        ],
+        "caps": {
+          "max_metadata_records": 25,
+          "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped"
+        },
+        "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped",
+        "providers": [
+          "openalex",
+          "arxiv"
+        ],
+        "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+      },
+      "status": "confirmed",
+      "what_is_not_concluded": [
+        "live web coverage",
+        "literature completeness",
+        "survey completeness",
+        "source/PDF/full-text download completion",
+        "retraction/version safety",
+        "technical claim support",
+        "final prose readiness",
+        "product readiness",
+        "scientific correctness"
+      ]
+    },
+    "review_queue_counts": null,
+    "review_queue_path": null,
+    "review_queue_reused": null,
+    "reviewed_artifacts": {},
+    "safe_next_commands": [
+      "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+    ],
+    "schema_version": "ra-survey-public-source-orchestration-result-v3",
+    "seed_count": 0,
+    "status": "blocked_at_gate",
+    "topic": "Neural Optimal Transport",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "result": {
+    "artifact_paths": {
+      "mission_control.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/mission_control.json",
+      "next_action.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/next_action.json"
+    },
+    "artifact_state": null,
+    "bootstrap_attempt_state": "selected_complete",
+    "bootstrap_authority": null,
+    "bootstrap_outcome": "capped",
+    "coverage_artifacts": {},
+    "effective_seed_count": 0,
+    "effective_seeds": [],
+    "final_artifacts": {},
+    "generation_id": "g00000002-906556dac5f8b837",
+    "initial_seeds": [],
+    "input_mode": "idea_or_topic_without_initial_paper_seed",
+    "local_supervisor": null,
+    "mission_control_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/mission_control.json",
+    "mission_fingerprint": "90ef363f9e4e413ba9f4aa6c81c423d446a06523e4285aded2412e598763d95c",
+    "mission_id": "54b5d0f5-81dd-4208-9361-3c5dd87cf01d",
+    "next_action": {
+      "action_id": "terminal_blocked_bootstrap_capped",
+      "approval_required": false,
+      "blockers": [
+        "terminal_blocked_bootstrap_capped"
+      ],
+      "created_at": "2026-07-13T17:59:28+00:00",
+      "forbidden_actions": [
+        "do not treat the topic as a paper seed",
+        "do not retry an indeterminate bootstrap call on ordinary resume",
+        "do not run provider, source, PDF, full-text, model-worker, or network actions in M17",
+        "do not expose prepared bootstrap evidence as effective seed authority"
+      ],
+      "gate_id": "topic_bootstrap",
+      "generation_id": "g00000002-906556dac5f8b837",
+      "mission_fingerprint": "90ef363f9e4e413ba9f4aa6c81c423d446a06523e4285aded2412e598763d95c",
+      "mission_id": "54b5d0f5-81dd-4208-9361-3c5dd87cf01d",
+      "mission_status": "blocked_at_gate",
+      "public_discovery_confirmation": {
+        "confirmation_source": "cli",
+        "confirmed": true,
+        "confirmed_at": "2026-07-13T17:59:28+00:00",
+        "forbidden_actions": [
+          "credentials",
+          "private_databases",
+          "paid_model_worker_trials",
+          "hidden_evaluator_material",
+          "unbounded_crawling",
+          "writes_outside_mission_output",
+          "technical_claim_support_from_metadata_or_source_availability",
+          "final_prose_readiness_from_discovery_alone"
+        ],
+        "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+        "schema_version": "ra-survey-public-discovery-confirmation-v1",
+        "scope": {
+          "allowed_actions": [
+            "local_cache_lookup",
+            "bounded_public_web_api_metadata",
+            "public_archive_search",
+            "public_source_status_lookup",
+            "capped_public_source_pdf_full_text_retrieval"
+          ],
+          "allowed_domains": [
+            "api.openalex.org",
+            "export.arxiv.org",
+            "arxiv.org"
+          ],
+          "caps": {
+            "max_metadata_records": 25,
+            "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped"
+          },
+          "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped",
+          "providers": [
+            "openalex",
+            "arxiv"
+          ],
+          "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+        },
+        "status": "confirmed",
+        "what_is_not_concluded": [
+          "live web coverage",
+          "literature completeness",
+          "survey completeness",
+          "source/PDF/full-text download completion",
+          "retraction/version safety",
+          "technical claim support",
+          "final prose readiness",
+          "product readiness",
+          "scientific correctness"
+        ]
+      },
+      "required_artifacts": [
+        "future reviewed bootstrap repair for capped"
+      ],
+      "safe_next_commands": [
+        "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+      ],
+      "schema_version": "ra-survey-public-source-next-action-v1",
+      "status": "terminal_blocked_bootstrap_capped",
+      "summary": "Topic bootstrap closed honestly with outcome: capped.",
+      "what_is_not_concluded": [
+        "live web coverage",
+        "literature completeness",
+        "survey completeness",
+        "source/PDF/full-text download completion",
+        "retraction/version safety",
+        "technical claim support",
+        "final prose readiness",
+        "product readiness",
+        "scientific correctness"
+      ]
+    },
+    "next_action_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped/next_action.json",
+    "next_gate": {
+      "approval_required": false,
+      "gate_id": "topic_bootstrap",
+      "status": "terminal_blocked_bootstrap_capped"
+    },
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped",
+    "phase_statuses": {},
+    "public_discovery_confirmation": {
+      "confirmation_source": "cli",
+      "confirmed": true,
+      "confirmed_at": "2026-07-13T17:59:28+00:00",
+      "forbidden_actions": [
+        "credentials",
+        "private_databases",
+        "paid_model_worker_trials",
+        "hidden_evaluator_material",
+        "unbounded_crawling",
+        "writes_outside_mission_output",
+        "technical_claim_support_from_metadata_or_source_availability",
+        "final_prose_readiness_from_discovery_alone"
+      ],
+      "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+      "schema_version": "ra-survey-public-discovery-confirmation-v1",
+      "scope": {
+        "allowed_actions": [
+          "local_cache_lookup",
+          "bounded_public_web_api_metadata",
+          "public_archive_search",
+          "public_source_status_lookup",
+          "capped_public_source_pdf_full_text_retrieval"
+        ],
+        "allowed_domains": [
+          "api.openalex.org",
+          "export.arxiv.org",
+          "arxiv.org"
+        ],
+        "caps": {
+          "max_metadata_records": 25,
+          "write_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped"
+        },
+        "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m17_2026-07-13/persistent_matrix_final2/cases/capped",
+        "providers": [
+          "openalex",
+          "arxiv"
+        ],
+        "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+      },
+      "status": "confirmed",
+      "what_is_not_concluded": [
+        "live web coverage",
+        "literature completeness",
+        "survey completeness",
+        "source/PDF/full-text download completion",
+        "retraction/version safety",
+        "technical claim support",
+        "final prose readiness",
+        "product readiness",
+        "scientific correctness"
+      ]
+    },
+    "review_queue_counts": null,
+    "review_queue_path": null,
+    "review_queue_reused": null,
+    "reviewed_artifacts": {},
+    "safe_next_commands": [
+      "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+    ],
+    "schema_version": "ra-survey-public-source-orchestration-result-v3",
+    "seed_count": 0,
+    "status": "blocked_at_gate",
+    "topic": "Neural Optimal Transport",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "tree": {
+    "artifact_count": 22,
+    "artifacts": [
+      {
+        "kind": "file",
+        "path": ".mission_state/CURRENT",
+        "sha256": "a5bfb69865a46395525fc2741834504ee66521a03872dd3cd7d97540fc3a99b0",
+        "size_bytes": 204
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/GENESIS",
+        "sha256": "c7465259da87959e272810cb0a72362decb84bf049c4a191c0d6c26a0ddfad3a",
+        "size_bytes": 901
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/CURRENT",
+        "sha256": "d0d67c1c1499f5877994f77deb1c25027a430ef2542635d8e4293294572de543",
+        "size_bytes": 221
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/history/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092/call_started.json",
+        "sha256": "6121c7b245379c59be641c25a2422901acc207d92e60199f97c0ef2ea3a494cd",
+        "size_bytes": 1959
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/history/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092/intent.json",
+        "sha256": "cb4d80507bcb32b2e627d56d07f75e98d11497d02f6284df740e263d23624c35",
+        "size_bytes": 1891
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/history/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092/prepared.json",
+        "sha256": "8d484ec82df0ab54f810ede918d907a2bdc50002283406d90369629a3648a468",
+        "size_bytes": 2144
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/history/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092/result_recorded.json",
+        "sha256": "dd60435b42ffcfb126b4b5dd179fcf19b48a58c9788cb13f7eeb87cfcb6bf006",
+        "size_bytes": 2024
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/history/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092/selected.json",
+        "sha256": "b5d674276b46adb0636768fb355c5f452126812ee9c9a1b19b5a82d2ae256c4b",
+        "size_bytes": 2144
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/results/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092.json",
+        "sha256": "da81aa8c6ad8fb0471f5011902427552baa0bf52e35b726ce4b6c8932ce48ff1",
+        "size_bytes": 412
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/sets/bs-43639938968e0b9b4e61ac1c63609e08afb038d7a2479eecba2c93fc569407ef/manifest.json",
+        "sha256": "56f3fb8f3f4b4abbf66c164e6e572d86ec9bf25c3a677f559b6133038e84b913",
+        "size_bytes": 898
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/sets/bs-43639938968e0b9b4e61ac1c63609e08afb038d7a2479eecba2c93fc569407ef/outcome.json",
+        "sha256": "da81aa8c6ad8fb0471f5011902427552baa0bf52e35b726ce4b6c8932ce48ff1",
+        "size_bytes": 412
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/bootstrap/transactions/br-392321cd4c153a0046839475bf0d858ed89db683a6f7ddba2574e235366e2092.json",
+        "sha256": "b5d674276b46adb0636768fb355c5f452126812ee9c9a1b19b5a82d2ae256c4b",
+        "size_bytes": 2144
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/generations/g00000001-5a29a8f3951897df/generation_manifest.json",
+        "sha256": "34dc0036bb0966d3f714f6364fdf5eed85f9df265dac41babec3a5dbfea00dbf",
+        "size_bytes": 980
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/generations/g00000001-5a29a8f3951897df/mission_control.json",
+        "sha256": "9cf444472696cecfe58614272ccd895f9d5e5c3448206b0bd0b0e43d29a3b700",
+        "size_bytes": 3586
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/generations/g00000001-5a29a8f3951897df/next_action.json",
+        "sha256": "973830ebc3cc079c0a5157356e88b743b2c18d5ce687c0d2f191c8a6c3fac936",
+        "size_bytes": 428
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/generations/g00000002-906556dac5f8b837/generation_manifest.json",
+        "sha256": "e819c6e2903ecdabd69ef39cfd73bb291779fea32175566c55e75674887807a9",
+        "size_bytes": 1005
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/generations/g00000002-906556dac5f8b837/mission_control.json",
+        "sha256": "e425ae781cae486e854433ad63215ec67a350e1a96484e5f9f7e4605bf072139",
+        "size_bytes": 9565
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/generations/g00000002-906556dac5f8b837/next_action.json",
+        "sha256": "47624624662eee0aa48622e06ba8733061c87b8947fedab23d8bfae68a81d58d",
+        "size_bytes": 3440
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/transactions/g00000001-5a29a8f3951897df.json",
+        "sha256": "314abdf0dacf7ef1abea43fefd6b837a4507724f2280a5e4eae56a178aef2738",
+        "size_bytes": 735
+      },
+      {
+        "kind": "file",
+        "path": ".mission_state/transactions/g00000002-906556dac5f8b837.json",
+        "sha256": "22ab13ff0bb7a79154d9cba09f8722688ef3da4e47309f9451b30632d7e26d7d",
+        "size_bytes": 759
+      },
+      {
+        "kind": "file",
+        "path": "mission_control.json",
+        "sha256": "e425ae781cae486e854433ad63215ec67a350e1a96484e5f9f7e4605bf072139",
+        "size_bytes": 9565
+      },
+      {
+        "kind": "file",
+        "path": "next_action.json",
+        "sha256": "47624624662eee0aa48622e06ba8733061c87b8947fedab23d8bfae68a81d58d",
+        "size_bytes": 3440
+      }
+    ],
+    "tree_sha256": "e7abe13933a07157d92d1cf8e50cf8346f5b689931abeecc54515bb3c1e24a27"
+  }
+}

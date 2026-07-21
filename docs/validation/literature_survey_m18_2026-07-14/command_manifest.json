@@ -1,0 +1,169 @@
+{
+  "attempt_root": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01",
+  "bounded_procedures_not_claimed_as_single_shell_commands": [
+    {
+      "artifact": "static_audit.json and logs/clone_status_after_broad_tests.txt",
+      "classification": "reconstructed bounded procedure, not represented as an exact one-line command",
+      "id": "static_json_and_clone_audit",
+      "procedure": "Enumerate tracked *.json with git ls-files; parse regular files with json.loads; classify symlinks without dereference; inspect clone status before/after; compare six protected hashes.",
+      "result": "1441 tracked JSON paths; 1439 parsed; one intentional malformed fixture; one intentional absolute symlink; zero tracked modifications; protected hashes unchanged."
+    }
+  ],
+  "candidate_commit": "654e6e1a1213bc03b7693ff1a8aea945a5bf08ac",
+  "command_repair_notes": [
+    "Initial compatibility check named nonexistent run_arxiv_batch; corrected to run_arxiv_batch_intake.",
+    "Initial Phase 10 selector selected zero tests; exact-node selector produced the authoritative 2-test pass.",
+    "Evidence-audit one-line/path mistakes were corrected before the passing audit; no candidate or criteria changed."
+  ],
+  "commands": [
+    {
+      "artifact": "attempt repo at candidate commit",
+      "command": "test ! -e /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01 && mkdir -p /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/logs /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/trace /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/wheelhouse && git clone --no-hardlinks --no-local . /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "cwd": "/home/chakwong/research-assistant",
+      "id": "clone",
+      "result": "candidate clone created"
+    },
+    {
+      "artifact": "venv/pyvenv.cfg",
+      "command": "CUDA_VISIBLE_DEVICES=-1 python -m venv --system-site-packages /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv",
+      "cwd": "/home/chakwong/research-assistant",
+      "id": "venv",
+      "result": "Python 3.11.14 venv created"
+    },
+    {
+      "artifact": "wheelhouse/research_assistant-0.1.0-py3-none-any.whl",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 PIP_NO_INDEX=1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m build --wheel --no-isolation --outdir /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/wheelhouse /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "cwd": "/home/chakwong/research-assistant",
+      "id": "wheel_build",
+      "result": "wheel built offline"
+    },
+    {
+      "artifact": "venv/lib/python3.11/site-packages/research_assistant",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 PIP_NO_INDEX=1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pip install --no-index --no-deps --force-reinstall /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/wheelhouse/research_assistant-0.1.0-py3-none-any.whl",
+      "cwd": "/home/chakwong/research-assistant",
+      "id": "wheel_install",
+      "result": "wheel force-installed offline"
+    },
+    {
+      "artifact": "trace/payload_replay.strace",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 strace -f -e trace=file,network -o /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/trace/payload_replay.strace /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python docs/validation/literature_survey_m18_2026-07-14/prepare_integration.py replay --target /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "payload_replay",
+      "result": "1684/1684 zero mismatch"
+    },
+    {
+      "artifact": "session transcript plus candidate bytes",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m compileall -q src/research_assistant scripts tests && env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -c \"import inspect,research_assistant.cli as c,research_assistant.ingest.arxiv_batch as a; s=inspect.getsource(c); assert 'plan_file=Path(args.plan_file)' not in s and '--plan-file-sha256' not in s; sig=inspect.signature(a.run_arxiv_batch_intake); assert 'plan_file' not in sig.parameters and 'plan_file_sha256' not in sig.parameters; print({'compile':'passed','arxiv_decoupling':'passed','signature':str(sig)})\"",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "compile_and_arxiv_decoupling",
+      "result": "passed"
+    },
+    {
+      "artifact": "junit/focused_m17.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/unit/test_literature_survey_m17.py --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/focused_m17.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "focused_m17",
+      "result": "65 passed"
+    },
+    {
+      "artifact": "junit/cumulative_m16_m17.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/unit/test_literature_survey_m16.py tests/unit/test_literature_survey_m16_phase2.py tests/unit/test_literature_survey_m16_phase3.py tests/unit/test_literature_survey_m16_phase4.py tests/unit/test_literature_survey_m16_phase5.py tests/unit/test_literature_survey_m16_phase6.py tests/unit/test_literature_survey_m16_phase7.py tests/unit/test_literature_survey_m16_phase8.py tests/unit/test_literature_survey_m16_phase9.py tests/unit/test_literature_survey_m17.py --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/cumulative_m16_m17.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "cumulative_m16_m17",
+      "result": "846 passed"
+    },
+    {
+      "artifact": "persistent_matrix/summary.json",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python scripts/literature_survey_m17_local_validation.py --output /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/persistent_matrix",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "persistent_matrix",
+      "result": "13/13 passed"
+    },
+    {
+      "artifact": "junit/exact_scripts.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/scripts/test_literature_survey_benchmark_feedback_summary.py tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py tests/scripts/test_literature_survey_phase5_command_validation.py tests/scripts/test_literature_survey_phase6_boundary_validation.py tests/scripts/test_literature_survey_phase7_validation_harness.py --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/exact_scripts.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "exact_scripts",
+      "result": "12 passed"
+    },
+    {
+      "artifact": "junit/full_unit.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/unit --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/full_unit.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "full_unit",
+      "result": "1047 passed"
+    },
+    {
+      "artifact": "junit/full_cli.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/integration/test_cli_commands.py --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/full_cli.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "full_cli",
+      "result": "125 passed"
+    },
+    {
+      "artifact": "junit/arxiv_batch.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/integration/test_arxiv_batch_intake.py --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/arxiv_batch.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "arxiv_compatibility",
+      "result": "18 passed"
+    },
+    {
+      "artifact": "junit/surveybench_restricted_agent.xml",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/unit/test_surveybench_restricted_trial.py tests/integration/test_surveybench_agent_trial.py --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/surveybench_restricted_agent.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "surveybench_restricted_agent",
+      "result": "22 passed"
+    },
+    {
+      "artifact": "junit/phase10_path_rebase.xml and trace/phase10_path_rebase.strace",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 strace -f -e trace=file,network -o /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/trace/phase10_path_rebase.strace /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py -k 'frozen_phase10_cli_paths or rejects' --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/phase10_path_rebase.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "phase10_path_rebase_initial_selector",
+      "result": "0 selected; diagnostic only"
+    },
+    {
+      "artifact": "junit/phase10_path_rebase_pass.xml and trace/phase10_path_rebase_pass.strace",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 strace -f -e trace=file,network -o /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/trace/phase10_path_rebase_pass.strace /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python -m pytest -q tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py::test_phase10_offline_e2e_validates_frozen_canonical_candidate tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py::test_phase10_frozen_cli_paths_rebase_without_dirty_checkout_read --junitxml=/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/junit/phase10_path_rebase_pass.xml",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/repo",
+      "id": "phase10_path_rebase_corrected_selector",
+      "result": "2 passed"
+    },
+    {
+      "artifact": "trace/cli_topic.strace and cli_topic/",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 strace -f -e trace=file,network -o /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/trace/cli_topic.strace /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/ra survey run-public-source-workflow --topic 'M18 Authoritative Topic' --out /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/cli_topic",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01",
+      "id": "topic_cli_smoke",
+      "result": "exit 0; confirmation false; blocked_at_gate"
+    },
+    {
+      "artifact": "trace/cli_seed.strace and cli_seed/",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 strace -f -e trace=file,network -o /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/trace/cli_seed.strace /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/ra survey run-public-source-workflow --topic 'M18 Authoritative Seed' --seed arxiv:2201.12220v3 --out /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/cli_seed",
+      "cwd": "/tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01",
+      "id": "explicit_seed_cli_smoke",
+      "result": "exit 0; confirmation false; blocked_at_gate"
+    },
+    {
+      "artifact": "candidate Git object and stage_record.json",
+      "command": "CUDA_VISIBLE_DEVICES=-1 python docs/validation/literature_survey_m18_2026-07-14/prepare_integration.py audit-candidate",
+      "cwd": ".",
+      "id": "candidate_audit",
+      "result": "candidate_commit_audit_passed; 1725 paths; 17 frozen whitespace records"
+    },
+    {
+      "artifact": "import_origin_inventory.json, wheel_source_inventory.json, command_manifest.json",
+      "command": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 /tmp/ra_m18_candidate_654e6e1a1213bc03b7693ff1a8aea945a5bf08ac_attempt01/venv/bin/python docs/validation/literature_survey_m18_2026-07-14/generate_inventory.py",
+      "cwd": "/home/chakwong/research-assistant",
+      "id": "terminal_inventory_repair",
+      "result": "49 import rows and 89 wheel/source rows generated after terminal review round 1"
+    }
+  ],
+  "global_environment": {
+    "CUDA_VISIBLE_DEVICES": "-1",
+    "PIP_NO_INDEX": "1 for wheel build/install",
+    "PYTHONPATH": "unset",
+    "gpu": "not used",
+    "network": "platform-restricted; no live provider/source action"
+  },
+  "schema_version": "ra-literature-survey-m18-command-manifest-v1",
+  "transcript_provenance": "Commands are reconstructed from the retained Codex execution transcript and cross-checked against their hash-bound artifacts. Every commands[] row is an actual invocation; multi-command static inspection is separately labeled as a bounded procedure rather than falsely rendered as one shell command."
+}

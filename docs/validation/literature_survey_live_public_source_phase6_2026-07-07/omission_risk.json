@@ -1,0 +1,138 @@
+{
+  "metadata_only_papers": [
+    "p_meta_001",
+    "p_meta_002",
+    "p_meta_003",
+    "p_meta_004",
+    "p_meta_005",
+    "p_meta_006",
+    "p_meta_007",
+    "p_meta_008",
+    "p_meta_009",
+    "p_meta_010",
+    "p_meta_011",
+    "p_meta_012",
+    "p_meta_013",
+    "p_meta_014",
+    "p_meta_015",
+    "p_meta_016",
+    "p_meta_017",
+    "p_meta_018",
+    "p_meta_019",
+    "p_meta_020",
+    "p_meta_021",
+    "p_meta_022",
+    "p_meta_023",
+    "p_meta_024",
+    "p_meta_025"
+  ],
+  "not_concluded": [
+    "final survey prose quality",
+    "literature completeness",
+    "scientific correctness",
+    "technical claim support",
+    "retraction/version safety",
+    "product readiness"
+  ],
+  "provider_statuses": [
+    {
+      "elapsed_seconds": 0.251,
+      "provider": "arxiv",
+      "query_kind": "seed_id",
+      "raw_response_saved": false,
+      "record_count": 1,
+      "status": "available"
+    },
+    {
+      "elapsed_seconds": 0.345,
+      "provider": "arxiv",
+      "query_kind": "topic_search",
+      "raw_response_saved": false,
+      "record_count": 12,
+      "status": "available"
+    },
+    {
+      "elapsed_seconds": 1.44,
+      "provider": "openalex",
+      "query_kind": "seed_search",
+      "raw_response_saved": false,
+      "record_count": 0,
+      "status": "available"
+    },
+    {
+      "elapsed_seconds": 2.753,
+      "provider": "openalex",
+      "query_kind": "seed_title_resolution",
+      "raw_response_saved": false,
+      "record_count": 5,
+      "status": "available"
+    },
+    {
+      "attempt_count": 5,
+      "provider": "openalex",
+      "query_kind": "seed_resolution",
+      "raw_response_saved": false,
+      "reason": "no OpenAlex candidate matched the seed metadata with the conservative title/year rule",
+      "record_count": 0,
+      "seed": "arxiv:2201.12220v3",
+      "status": "blocked_unresolved"
+    },
+    {
+      "elapsed_seconds": 1.999,
+      "provider": "openalex",
+      "query_kind": "topic_search",
+      "raw_response_saved": false,
+      "record_count": 12,
+      "status": "available"
+    }
+  ],
+  "risks": [
+    {
+      "expected_action": "run source-aware audit after explicit source/download approval",
+      "risk": "No source text, equations, algorithms, experiments, related-work sections, or appendices were inspected.",
+      "risk_id": "source_text_not_inspected",
+      "severity": "high"
+    },
+    {
+      "expected_action": "repeat with documented provider budgets and source checks before survey prose",
+      "risk": "OpenAlex/arXiv metadata queries are bounded by max_records and do not prove citation-map completeness.",
+      "risk_id": "public_metadata_frontier_partial",
+      "severity": "high"
+    },
+    {
+      "expected_action": "verify relations against primary sources or provider-specific citation records",
+      "risk": "Backward, forward, and adjacent relations are provider metadata signals only.",
+      "risk_id": "metadata_relations_unverified",
+      "severity": "medium"
+    },
+    {
+      "expected_action": "resolve seed metadata to a provider citation id or record provider-blocked frontier before prose drafting",
+      "risk": "No forward-citation metadata rows are present for the seed in the bounded packet.",
+      "risk_id": "forward_citation_frontier_blocked_or_empty",
+      "severity": "high"
+    },
+    {
+      "expected_action": "inspect source references or provider reference metadata before prose drafting",
+      "risk": "No backward-reference metadata rows are present for the seed in the bounded packet.",
+      "risk_id": "backward_lineage_frontier_blocked_or_empty",
+      "severity": "high"
+    },
+    {
+      "next_action": "map proposed technical claims to anchor ids and review before prose drafting",
+      "reason": "Phase 6 has source anchors but no reviewed claim-support rows.",
+      "risk_id": "no_reviewed_supported_claims",
+      "severity": "high",
+      "status": "blocked"
+    },
+    {
+      "next_action": "run retraction, withdrawal, erratum, and version checks before using papers as support",
+      "reason": "Phase 5 quarantine ledger records retraction/version safety as not checked.",
+      "risk_id": "retraction_version_status_not_checked",
+      "severity": "high",
+      "status": "blocked"
+    }
+  ],
+  "schema_version": "ra-survey-public-source-omission-risk-v1",
+  "status": "omission_and_safety_risks_visible",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

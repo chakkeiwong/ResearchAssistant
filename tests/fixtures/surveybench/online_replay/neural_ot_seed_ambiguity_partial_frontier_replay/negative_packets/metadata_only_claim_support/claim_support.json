@@ -1,0 +1,56 @@
+{
+  "claims": [
+    {
+      "anchors": [],
+      "claim": "The canonical replay seed is the central neural optimal transport method node for this benchmark task.",
+      "claim_id": "claim_metadata_only_seed_method_node",
+      "paper_keys": [
+        "p_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "metadata_only"
+    },
+    {
+      "anchors": [],
+      "claim": "The replay fixture exposes an objective anchor for claim-support testing.",
+      "claim_id": "claim_metadata_only_objective_anchor",
+      "paper_keys": [
+        "p_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "metadata_only"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "citation_map_edge",
+          "label": "p_cite_001->p_seed_001",
+          "paper_key": "p_cite_001"
+        }
+      ],
+      "claim": "The replay citation surface marks p_cite_001 as citing the canonical seed.",
+      "claim_id": "claim_forward_citation_replay",
+      "paper_keys": [
+        "p_cite_001",
+        "p_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "fixture_graph_support"
+    },
+    {
+      "anchors": [],
+      "claim": "The replay fixture establishes complete Neural Optimal Transport citation coverage.",
+      "claim_id": "claim_forbidden_complete_coverage",
+      "paper_keys": [],
+      "status": "forbidden",
+      "support_class": "unsupported"
+    }
+  ],
+  "schema_version": "ra-surveybench-claim-support-v1",
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+  "what_is_not_concluded": [
+    "live-web completeness",
+    "scientific priority",
+    "product readiness"
+  ]
+}

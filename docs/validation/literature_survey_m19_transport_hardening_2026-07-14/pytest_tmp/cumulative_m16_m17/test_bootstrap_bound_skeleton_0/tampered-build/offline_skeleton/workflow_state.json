@@ -1,0 +1,38 @@
+{
+  "approval_required_for": [
+    "network/provider metadata",
+    "source/PDF/full-text",
+    "technical claim support"
+  ],
+  "blocked_reasons": [
+    "live metadata and source evidence are absent"
+  ],
+  "bootstrap_authority": {
+    "capability_name": "deterministic_fixture",
+    "capability_version": "1",
+    "confirmed_generation_id": "g00000002-ae2b08be53929400",
+    "effective_normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "manifest_sha256": "157ded8a3a68bf2df91812e2d2f9294e86082517e9f8a99a2cde9378a5d470ed",
+    "request_id": "br-4916cf7de135e8203fb4430daa53261c5751c07fb54c09210e436f4b19efe642",
+    "request_sha256": "4916cf7de135e8203fb4430daa53261c5751c07fb54c09210e436f4b19efe642",
+    "schema_version": "ra-survey-topic-bootstrap-authority-v1",
+    "set_id": "bs-3795ac560f83cebb1b389f65c05eb24c0e266482918ee5515f20c4fc65ce6a2e"
+  },
+  "effective_seed_source": "selected_bootstrap_authority_not_original_mission_input",
+  "forbidden_jumps": [
+    "do not draft final prose from metadata-only or blocked packets",
+    "do not fetch source/PDF/full text without an explicit approved intake plan",
+    "do not treat metadata, citation counts, or source availability as technical claim support"
+  ],
+  "mode": "offline-skeleton",
+  "original_initial_seeds": [],
+  "ready_for_prose": false,
+  "ready_for_writer": false,
+  "safe_next_commands": [
+    "validate the selected bootstrap authority before any downstream metadata action"
+  ],
+  "schema_version": "ra-survey-bootstrap-effective-workflow-state-v1",
+  "state": "bootstrap_effective_seed_skeleton_created"
+}

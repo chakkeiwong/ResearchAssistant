@@ -1,0 +1,128 @@
+{
+  "budget": {
+    "endpoint_calls": 24,
+    "paper_detail_calls": 12,
+    "returned_records": 80,
+    "source_anchor_calls": 8,
+    "submit_or_score_attempts": 2
+  },
+  "endpoints": {
+    "adjacent": "responses/adjacent.json",
+    "citations": "responses/citations.json",
+    "download-status": "responses/download_status.json",
+    "evidence-context": "responses/evidence_context.json",
+    "paper": "responses/paper.json",
+    "references": "responses/references.json",
+    "search": "responses/search.json",
+    "source-anchors": "responses/source_anchors.json",
+    "source-status": "responses/source_status.json"
+  },
+  "evidence_channels": {
+    "budget_compliance": [
+      "event_log"
+    ],
+    "candidate_ledger": [
+      "search",
+      "paper"
+    ],
+    "citation_map": [
+      "search",
+      "paper",
+      "references",
+      "citations",
+      "adjacent"
+    ],
+    "claim_support": [
+      "source-anchors",
+      "evidence-context"
+    ],
+    "omission_risk": [
+      "search",
+      "references",
+      "citations",
+      "adjacent"
+    ],
+    "paper_classifications": [
+      "paper",
+      "references",
+      "citations",
+      "adjacent",
+      "source-status"
+    ],
+    "source_support": [
+      "download-status",
+      "source-status",
+      "source-anchors"
+    ]
+  },
+  "rubric": {
+    "ambiguity": {
+      "allow_insufficient_evidence": true
+    },
+    "classification_labels": [
+      "seed",
+      "foundational",
+      "direct_method",
+      "major_citing_work",
+      "adjacent_method",
+      "background",
+      "competitor",
+      "false_positive",
+      "source_blocked",
+      "proxy_only"
+    ],
+    "download_statuses": [
+      "downloaded_fixture",
+      "not_attempted",
+      "blocked_fixture"
+    ],
+    "edge_types": [
+      "cites",
+      "cited_by",
+      "adjacent_method"
+    ],
+    "exact_match_fields": [
+      "required_edges",
+      "source_statuses",
+      "download_statuses"
+    ],
+    "multi_label_fields": [
+      "paper_classifications"
+    ],
+    "omission_risk_severities": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "partial_credit_fields": [
+      "paper_classifications",
+      "omission_risks",
+      "adjacent_clusters"
+    ],
+    "schema_version": "ra-surveybench-online-replay-rubric-v1",
+    "source_statuses": [
+      "available_fixture",
+      "metadata_only_fixture",
+      "blocked_fixture",
+      "not_attempted"
+    ],
+    "support_classes": [
+      "fixture_source_support",
+      "fixture_graph_support",
+      "survey_context_only",
+      "unsupported",
+      "insufficient_evidence"
+    ]
+  },
+  "schema_version": "ra-surveybench-online-replay-task-v1",
+  "seed_papers": [
+    {
+      "identifier": "synthetic:transport-hmc-dsge-seed",
+      "paper_key": "thmc_seed_001",
+      "resolution_status": "synthetic_fixture",
+      "role": "seed"
+    }
+  ],
+  "task_id": "transport_hmc_dsge_replay",
+  "topic": "Transport-assisted HMC for DSGE posterior inference"
+}

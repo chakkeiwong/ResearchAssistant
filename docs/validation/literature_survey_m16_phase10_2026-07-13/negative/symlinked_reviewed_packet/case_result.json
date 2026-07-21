@@ -1,0 +1,172 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "6ab4419c287485db94eda6055170db03585c18df5e1d888dd382d17e1fb677b8",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "822878713c15200de79ea42bcc74c63b3a1c9eea0a0ac8bfafb3565f5f641661",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "9ff1eb113b34dd65839e59e4908a9fbc803abcd47624f9bf93d9ea35fde2a83c",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "file",
+      "sha256": "599c1e20c5b43ba26b252b75e351f8e0e4fbc54de1e41fd9c8874a26c0139575",
+      "size_bytes": 21166
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "symlink",
+      "target": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/outside_packet.json"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "5eba0d3e47494eb6a4bc8dd815050ff5e47b514777388393782b76125020601a",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "ee39efc282dab43acb56870efbea7cd3f869bd8c1f728c5d75d24716dae85a56",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "cf08b8fb4e9039120f0fb74e620c1e627b986144379c30ed7aee20365d5f498a",
+      "size_bytes": 252
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "6ab4419c287485db94eda6055170db03585c18df5e1d888dd382d17e1fb677b8",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "94345d8447a777e72f2ea2dd6d3da0f1275c28b3cc26dab893ab3434dcda26d0",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "9ff1eb113b34dd65839e59e4908a9fbc803abcd47624f9bf93d9ea35fde2a83c",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "file",
+      "sha256": "599c1e20c5b43ba26b252b75e351f8e0e4fbc54de1e41fd9c8874a26c0139575",
+      "size_bytes": 21166
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "symlink",
+      "target": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/outside_packet.json"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "5eba0d3e47494eb6a4bc8dd815050ff5e47b514777388393782b76125020601a",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "ee39efc282dab43acb56870efbea7cd3f869bd8c1f728c5d75d24716dae85a56",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "cf08b8fb4e9039120f0fb74e620c1e627b986144379c30ed7aee20365d5f498a",
+      "size_bytes": 252
+    }
+  },
+  "case_id": "symlinked_reviewed_packet",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "run-public-source-workflow",
+        "--topic",
+        "Neural Optimal Transport for generative modeling and inference",
+        "--seed",
+        "arxiv:2201.12220v3",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/mission",
+        "--metadata-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/mission/public_metadata",
+        "--source-status-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/mission/source_intake",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/mission/source_anchors",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/symlinked_reviewed_packet/mission/public_source_packet",
+        "--resume",
+        "--run-safe-local"
+      ],
+      "evidence": "cli.json",
+      "return_code": 0
+    }
+  ],
+  "expected": {
+    "action": "terminal_blocked_invalid_artifact",
+    "reason": "unsafe_artifact_file",
+    "return_code": 0,
+    "status": "terminal_blocked_invalid_artifact"
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": true,
+    "reviewed_packet": true
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [
+      ".mission_state",
+      "mission_control.json",
+      "next_action.json"
+    ],
+    "changed_paths": [
+      ".mission_state/CURRENT",
+      ".mission_state/generations/g00000009-6cfdfa47f6eb5689",
+      ".mission_state/generations/g00000009-6cfdfa47f6eb5689/generation_manifest.json",
+      ".mission_state/generations/g00000009-6cfdfa47f6eb5689/mission_control.json",
+      ".mission_state/generations/g00000009-6cfdfa47f6eb5689/next_action.json",
+      ".mission_state/transactions/g00000009-6cfdfa47f6eb5689.json",
+      "mission_control.json",
+      "next_action.json"
+    ],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "observed": {
+    "action": "terminal_blocked_invalid_artifact",
+    "reason": "unsafe_artifact_file",
+    "return_code": 0,
+    "status": "terminal_blocked_invalid_artifact"
+  },
+  "outside_unchanged": true,
+  "setup_status": "passed",
+  "status": "passed",
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

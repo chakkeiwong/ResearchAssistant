@@ -1,0 +1,56 @@
+{
+  "schema_version": "ra-literature-survey-m16-change-manifest-v1",
+  "phase": 4,
+  "captured_at": "2026-07-11T19:42:17+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "passed",
+  "authorized_plan_sha256": "62f9dc30fbcc06621fc89c1217dd544934812542e49d0f7433399f0287b3183c",
+  "phase3_result_sha256": "bb32f87af8a3cdac9320875377a02deb6f736b445675b4b04294f8bf555f76a9",
+  "existing_files": [
+    {"path": "src/research_assistant/survey/hostile_review.py", "before_git_status": "??", "before_sha256": "a191b777fd5cfde0b34bbe8c988142bbe9d6d0e99a12477a2329773e83e154a5", "after_sha256": "095a95308511fe86970033e57601623413d5310a4cec8c4ae38a42bed1257073"},
+    {"path": "src/research_assistant/survey/orchestrate.py", "before_git_status": "??", "before_sha256": "5f264a00a9d6981878496d4889c5faa547bda656382ff72c7f71487b905e0a7a", "after_sha256": "96eb6432171d177ee8a7a6ff5dba52d13fbb324fe26c93589c130ce5d85ef547"},
+    {"path": "src/research_assistant/cli.py", "before_git_status": " M", "before_sha256": "6cae50c4015956d07aa3b5399b2b12b44586dbd3c6a29cc73a38c1c7821620d7", "after_sha256": "42d1797d842e0fddb8de7809d9e7b04b143e18037ef532c2b45b8bfe3bf2744b"},
+    {"path": "tests/integration/test_cli_commands.py", "before_git_status": " M", "before_sha256": "52bd014effb440bda5d2265c6fc5be96e4754d6c1f570fda7af56e40f319c7bb", "after_sha256": "fcfab3117d7d2e0f55844be82dcf2a0e6f6121996f4aede1d79ab92fbf116cfc"},
+    {"path": "scripts/literature_survey_phase8_ux_validation.py", "before_git_status": "??", "before_sha256": "01eb60cff2f44410fd66ec553b967584845a12a58aa97200ac6f11e96e3e0665", "after_sha256": "52ffb9d24b12778af1e468de3ed1b0d9dc15b261a2a4e5bbe4197f5fc8e18239"}
+  ],
+  "new_files": [
+    {"path": "src/research_assistant/survey/reviewed_packet.py", "after_sha256": "cd385f5e1d2da804eea2329d96d5c7dca4db2c4bf969f74252dc7a46b2bd7dd8"},
+    {"path": "tests/unit/test_literature_survey_m16_phase4.py", "after_sha256": "98decb1cb1456df86ee4a21424ecfdf2a28457e28147b0409cbca59e67f2284a"}
+  ],
+  "read_only_files": [
+    "src/research_assistant/survey/artifact_lineage.py",
+    "src/research_assistant/survey/mission_state.py",
+    "src/research_assistant/survey/review_decisions.py",
+    "src/research_assistant/survey/reviewed_merge.py",
+    "src/research_assistant/survey/claim_review.py",
+    "src/research_assistant/survey/source_safety_review.py",
+    "src/research_assistant/survey/omission_review.py",
+    "src/research_assistant/survey/workflow_blocker_review.py"
+  ],
+  "plan_review": {
+    "round_1": "REVISE: external path authority, evidence-byte binding, atomic hostile handoff, and frontier joins",
+    "round_2": "AGREE: all four material blockers closed; plan hash verified before and after",
+    "round_3": "AGREE: V2 binds frontier closure to selected coverage_manifest.blocked_frontiers; plan hash verified"
+  },
+  "implementation_review": {
+    "round_1": "REVISE: lexical protected-root alias, shared structured-source identity cache, dependency-order/orphan-force recovery, optional readiness-view failure classification, and missing end-to-end local-evidence adversaries",
+    "repair": "bounded product and test repair applied for every confirmed finding",
+    "round_2": "REVISE: omission source_id/risk_id exact-join gap and local-evidence collision with Phase 4 output roots",
+    "round_2_repair": "enforce source_id == risk_id and reject reviewed_final_packet/hostile_review local-evidence roots with four focused adversarial tests",
+    "round_3": "AGREE: no material findings; all 12 frozen hashes matched before and after; independent focused suite 30 passed",
+    "bundle": "docs/reviews/literature_survey_m16_phase4_implementation_review_bundle_2026-07-11.md",
+    "verdict": "docs/reviews/literature_survey_m16_phase4_implementation_review_verdict_round3_2026-07-11.md"
+  },
+  "validation": {
+    "focused_phase4": "30 passed",
+    "combined_phase1_through_phase4": "227 passed",
+    "full_unit": "431 passed",
+    "full_cli_integration": "85 passed",
+    "exact_survey_scripts": "6 passed",
+    "phase8_ux": "passed",
+    "compile_parse_writer_diff": "passed",
+    "reconciliation": "passed"
+  },
+  "reconciliation": "docs/validation/literature_survey_m16_phase4_2026-07-11/nul_safe_reconciliation.json",
+  "unexpected_mismatches": []
+}

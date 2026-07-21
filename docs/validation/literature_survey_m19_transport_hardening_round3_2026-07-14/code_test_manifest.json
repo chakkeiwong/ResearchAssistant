@@ -1,0 +1,20 @@
+{
+  "schema_version": "ra-literature-survey-m19a-code-test-manifest-v2",
+  "status": "passed",
+  "validated_commit": "bb4300c6bce20145a7c41620b0dffb703072e755",
+  "files": {
+    "src/research_assistant/survey/build.py": "9cb782bc1f0554420dc5cf904c91b6a6dbc528a852c4ce3a8aaff4a92aba450b",
+    "scripts/literature_survey_m19_live_metadata_supervisor.py": "df3b16e3ce822c9b21b68bb5328929ddf5e7ed593826c5eba1f9ec56389fe641",
+    "tests/unit/test_literature_survey_m19_transport.py": "a6a5e5ab2a00c61384a2f969b67d6b1d4f1fc969c3f5e28c3c7a19ed7361c825",
+    "tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py": "42172858a7fd622295478fbf7544b7d7cd3051a517fea32a662b09f84b43c7d2"
+  },
+  "gates": {
+    "transport": {"tests": 26, "failures": 0, "errors": 0, "skipped": 0, "time_seconds": 0.097, "junit_sha256": "c8f4fd9347032a446652cad8e6afcd104c93af917ac497c27b5244f42e90cb6c", "log_sha256": "0215d2a7f6e2f8f894297307e4e83ac6e840a34a8af2e8dbdbceae2ff09d5baf"},
+    "supervisor": {"tests": 30, "failures": 0, "errors": 0, "skipped": 0, "time_seconds": 4.557, "junit_sha256": "44b5a9681a6882ee3c3ba8de3baa09931a04686eb1a3b5cae8222d99e8ddbf4c", "log_sha256": "3376a995415de296de47afe935930cc0546aca1f1c01bdc4bec686e2b54bb7ea"},
+    "affected_phase7": {"tests": 58, "failures": 0, "errors": 0, "skipped": 0, "time_seconds": 3.32, "junit_sha256": "cc5f878231cb31d7d0c70459bd7b65266afa45fb71085e9f2991e9295f0bd4b0", "log_sha256": "c324917b628ad5512523e782e5cbbaa360a8c6242c355eb26fd06a10c82b193b"},
+    "cumulative_m16_m17": {"tests": 846, "failures": 0, "errors": 0, "skipped": 0, "time_seconds": 544.783, "junit_sha256": "e7fc8397bc7d64d9ed4320175de7461014f5cec562559c2163b1e4dbbe6708c9", "log_sha256": "4a0fa73bcf855f70e3a44d65edda308d0af5cc8d26d282748abb986a79cfb319"},
+    "full_cli": {"tests": 125, "failures": 0, "errors": 0, "skipped": 0, "time_seconds": 700.648, "junit_sha256": "b315f049e57a6640453d48b76ab71f927977d0cd64c98151ae6b4f118abbc850", "log_sha256": "950abbccb35aa33545c898d2518bc5632cabd76a44b9ffd6dae224f3683699b6", "external_basetemp": "/tmp/ra_m19_full_cli_basetemp_round3"}
+  },
+  "wheel_sha256": "6605ddeb46b15c2e0f29b23466743cf2c48db6a72eb2434019b2add22d135888",
+  "all_gates_used_isolated_installed_wheel": true
+}

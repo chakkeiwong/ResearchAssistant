@@ -1,0 +1,346 @@
+{
+  "arxiv_id": "1805.07277",
+  "bibliography_count": 0,
+  "citation_count": 59,
+  "equations": [
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 254,
+      "raw_latex_bytes": 25,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8c4debae846d8b44b58264d8290ca86fdd0dd325c2f702fc42310450f84bffdb"
+    },
+    {
+      "environment": "display_math",
+      "labels": [],
+      "line": 256,
+      "raw_latex_bytes": 54,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "033efafd2a7a85df0af3fe86a72e14625418766cfe560b57af5ae019fd5604a5"
+    },
+    {
+      "environment": "align",
+      "labels": [
+        "eq-func-xpath",
+        "eq-func-opath"
+      ],
+      "line": 294,
+      "raw_latex_bytes": 272,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "771a85ccf263043401baeee7a74c701f1d79735bc83f9f93818dff0ee9c7069d"
+    },
+    {
+      "environment": "align",
+      "labels": [
+        "loss-dis-a",
+        "loss-dis-b",
+        "loss-dis-z"
+      ],
+      "line": 306,
+      "raw_latex_bytes": 646,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "690e4d896d5719ade395c9a3594ad0feff90214ece7188e7fa444ea731b80430"
+    },
+    {
+      "environment": "align",
+      "labels": [
+        "eq-loss-total"
+      ],
+      "line": 328,
+      "raw_latex_bytes": 295,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "5cc03fbe67462990e7ec29bc2b29a85a2da97dd6fa42f633fb8cf0ef548ce2b8"
+    }
+  ],
+  "limitations": [
+    {
+      "field": "mathematics",
+      "note": "Mathematical expressions are preserved as raw LaTeX, not normalized.",
+      "status": "raw_latex"
+    },
+    {
+      "field": "macros",
+      "note": "Custom macro semantics are extracted but not expanded.",
+      "status": "requires_review"
+    }
+  ],
+  "main_tex_member": "paper.tex",
+  "raw_source_included": false,
+  "schema_version": "ra-literature-survey-m21-seven-source-v1-structured-source",
+  "sections": [
+    {
+      "command": "section",
+      "labels": [
+        "sec-intro",
+        "fig-example"
+      ],
+      "level": 3,
+      "line": 97,
+      "raw_latex_bytes": 10351,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "d32c2ca9d6d160f27992c96b597b4db821fc94f854e041c5933c2972383df99c",
+      "title": "Introduction"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec-related"
+      ],
+      "level": 3,
+      "line": 172,
+      "raw_latex_bytes": 19,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "98b9691d447d5e8cf88b724880adbb30a00f649f6273d68dcda1d3b24e1c2ed1",
+      "title": "Related Work"
+    },
+    {
+      "command": "subsection",
+      "labels": [],
+      "level": 4,
+      "line": 175,
+      "raw_latex_bytes": 1280,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "49d8ca5cbae8cd12cc0d1eaa171d980908ef09a9d45d136048af5f041c919236",
+      "title": "Generative Adversarial Networks"
+    },
+    {
+      "command": "subsection",
+      "labels": [],
+      "level": 4,
+      "line": 188,
+      "raw_latex_bytes": 587,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "16c24f35493270932f8568a99fe8cf39dc0699b1e16c7a03ae366e6aa6600463",
+      "title": "Supervised Image-to-Image Translation"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sec-unpaired",
+        "fig:forward",
+        "fig:back",
+        "fig-model-cycle"
+      ],
+      "level": 4,
+      "line": 197,
+      "raw_latex_bytes": 2308,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "0d3f542915b27825dca0734059606084544d39a7ef99f5e7e5aac1d4c90f1b15",
+      "title": "Unsupervised Image-to-Image Translation"
+    },
+    {
+      "command": "paragraph",
+      "labels": [],
+      "level": 6,
+      "line": 234,
+      "raw_latex_bytes": 1347,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "38406343f90332eaa09795bdee7d4185b349fa9c86a0c7a9aba27532eabd27d2",
+      "title": "Image Style Transfer"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec-model"
+      ],
+      "level": 3,
+      "line": 238,
+      "raw_latex_bytes": 2745,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b5dee894736848f755945ebdaf176f8211bedafa2d7b4b9c0d405da95f1a6a36",
+      "title": "The Proposed Model"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "eq-loss-recon",
+        "fig:x",
+        "fig:o",
+        "fig-model-gen",
+        "fig-model-dis",
+        "eq-func-xpath",
+        "eq-func-opath"
+      ],
+      "level": 4,
+      "line": 251,
+      "raw_latex_bytes": 3937,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8dd8dd8974827c579cd1505ec3fbc81882f2a098d6df3422a73191ebe0bf1e89",
+      "title": "Generators and Cycle Consistency Loss"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "loss-dis-a",
+        "loss-dis-b",
+        "loss-dis-z",
+        "loss-adv-a",
+        "loss-adv-b",
+        "loss-adv-z"
+      ],
+      "level": 4,
+      "line": 301,
+      "raw_latex_bytes": 2228,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4d0cb55aac6a713bda396d7ce4f51cb73f00b21decd2aa9d3e331225ae8baa02",
+      "title": "Domain Adversarial Loss"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "eq-loss-total"
+      ],
+      "level": 4,
+      "line": 325,
+      "raw_latex_bytes": 1603,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "148b1a80d3f3e78de2996b90341d09ef1058b66bbc3c64579494f5b5d220bac3",
+      "title": "Cycle Consistency Loss"
+    },
+    {
+      "command": "subsection",
+      "labels": [],
+      "level": 4,
+      "line": 336,
+      "raw_latex_bytes": 768,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "8bb1c6db297d8b4eefa4e3f09f914b4e8f7f779178a104dc960db86d99fb7e5c",
+      "title": "Training Procedure"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec-exp"
+      ],
+      "level": 3,
+      "line": 343,
+      "raw_latex_bytes": 122,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "fb7af6d754449119bdc789ef826a851717f31f5de76aeab2ec9b11c027af7f52",
+      "title": "Experiments"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sec-exp-setup"
+      ],
+      "level": 4,
+      "line": 346,
+      "raw_latex_bytes": 1529,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "741cf5416ad088f2746932dc79d4194460a4acc459c22e2618f228778fb6b7fc",
+      "title": "Experiment Setup"
+    },
+    {
+      "command": "subsubsection",
+      "labels": [],
+      "level": 5,
+      "line": 367,
+      "raw_latex_bytes": 2028,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "b9eff82220e5cdc3d451138b02e0e14fb85733390eb09f1e0059f580f8a0dcea",
+      "title": "Network architectures"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sec-AB",
+        "fig-edges2objects"
+      ],
+      "level": 4,
+      "line": 380,
+      "raw_latex_bytes": 1274,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "84d41ca7c522d20081ae2c8459927a4f888da998313e014b7be16ee6abf025af",
+      "title": "Translating $\\mathcal A$ to $\\mathcal B$ with Random $Z$"
+    },
+    {
+      "command": "subsubsection",
+      "labels": [
+        "fig-edges2objects-base",
+        "fig-edges2objects-unit",
+        "fig-haircolor"
+      ],
+      "level": 5,
+      "line": 403,
+      "raw_latex_bytes": 4219,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "9cc64895193bd767249fee1c0dbf5c602d4b22843ec567aeed35ff876ff30ff2",
+      "title": "{\\sf edges2shoes} and {\\sf edges2handbags} Data Sets"
+    },
+    {
+      "command": "subsubsection",
+      "labels": [],
+      "level": 5,
+      "line": 462,
+      "raw_latex_bytes": 890,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "ed0c8e5bfed12e146689b5e2c1fd47b1fc997cef4d8e4e785a83bbcedba59a2e",
+      "title": "{\\sf CelebA} Data Set"
+    },
+    {
+      "command": "subsection",
+      "labels": [
+        "sec-BAB"
+      ],
+      "level": 4,
+      "line": 471,
+      "raw_latex_bytes": 1520,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "4be4ee5d84f61dc42013ea3e3ae35241831841e59540a0fdf89d34a80e007624",
+      "title": "Translating $\\mathcal B$ to $\\mathcal A$ to $\\mathcal B$ with Substituted $Z$"
+    },
+    {
+      "command": "subsubsection",
+      "labels": [
+        "fig-edges2objects-2"
+      ],
+      "level": 5,
+      "line": 484,
+      "raw_latex_bytes": 2807,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "518c0a2117223fa8b41c5395b3be79b4a7525c8db4decfa6728f526d011e97a2",
+      "title": "{\\sf edges2shoes} and {\\sf edges2handbags} Data Sets"
+    },
+    {
+      "command": "subsubsection",
+      "labels": [
+        "fig-haircolor-2"
+      ],
+      "level": 5,
+      "line": 517,
+      "raw_latex_bytes": 1489,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "c3969e1d0d92673ae6ee796835049ae1763b0e9187ce7df27fe3ae42a6148dd9",
+      "title": "{\\sf CelebA} Hair Color Conversion"
+    },
+    {
+      "command": "section",
+      "labels": [
+        "sec-conclude"
+      ],
+      "level": 3,
+      "line": 538,
+      "raw_latex_bytes": 1703,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "fb5ee0efbe9a3a6097c0e74baf33e0101993ab83806f579c08667b2b51822cd3",
+      "title": "Conclusion"
+    },
+    {
+      "command": "section",
+      "labels": [],
+      "level": 3,
+      "line": 556,
+      "raw_latex_bytes": 217,
+      "raw_latex_included": false,
+      "raw_latex_sha256": "991cb1025bd606d73a7d9db3c6c110560dd4cd753219464d51c806e8c74cbf23",
+      "title": "Acknowledgment"
+    }
+  ],
+  "source_package_bytes": 3355172,
+  "source_package_sha256": "261a16c5398d11e80b5e08f58b31a29534f6f2af816ab13c407c888c44b8918f",
+  "status": "available_machine_parsed",
+  "theorem_like_blocks": [],
+  "unresolved_include_count": 0
+}

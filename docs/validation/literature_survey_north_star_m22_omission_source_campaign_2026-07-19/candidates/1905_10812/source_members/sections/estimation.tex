@@ -1,0 +1,51 @@
+\section{ESTIMATION OF WASSERSTEIN DISTANCE AND MONGE MAP}
+
+%\begin{wrapfigure}{r}{0.5\textwidth}
+%    \vskip-.5cm
+%    \begin{algorithm}[H]
+%        \KwData{$\hat\mu_n$, $\hat\nu_n$, partition $\mathcal{E}$, $N$ MC iterations}
+%        $(u_i, z_i)_{i\leq n} \leftarrow$ solve SSNB~\eqref{eqn:SSNB}\\
+%        \For{$j \in \range{N}$}{
+%            Draw $\hat x_j \sim \mu$\\
+%            Find $k$ s.t. $\hat x_j \in E_k$ (k-means)\\
+%            $\nabla \hat f_n(\hat x_j) \leftarrow$ solve QCQP~\eqref{eqn:newpoint}\\
+%        }
+%        \KwRet{$\hat W = \left[(1/N)\sum_{j=1}^N \|\hat x_j - \nabla \hat f_n(\hat x_j)\|^2 \right]^{1/2}$}
+%        \caption{Monte-Carlo (MC) approximation of the SSNB estimator.}
+%    \end{algorithm}
+%    \vskip-0.9cm
+%\end{wrapfigure}
+
+Let $\mu, \nu \in \PdRd$ be two compactly supported measures with densities w.r.t the Lebesgue measure in $\Rd$. Brenier theorem gives the existence of an optimal Brenier potential $\opt{f}$, \textit{i.e.} $\opt{f}$ is convex and $\nabla \opt{f}_\sharp\mu = \nu$. Our goal is twofold: estimate the map $\nabla \opt{f}$ and the value of $\W_2(\mu, \nu)$ from samples.
+
+Let $x_1, \ldots, x_n \sim \mu$ and $y_1, \ldots, y_n \sim \nu$ be i.i.d samples from the measures, and define $\hat\mu_n := \frac{1}{n}\sum_{i=1}^n \delta_{x_i}$ and $\hat\nu_n := \frac{1}{n}\sum_{i=1}^n \delta_{y_i}$ the empirical measures over the samples.
+
+Let $\hat f_n$ be a SSNB potential between $\hat\mu_n$ and $\hat\nu_n$ with $\mathcal{E}=\{\Rd\}$. Then for $x \in \supp{\mu}$, a natural estimator of $\nabla \opt{f}(x)$ is given by a solution $\nabla \hat f_n(x)$ of~\eqref{eqn:newpoint}. This defines an estimator $\nabla \hat f_n: \Rd \to \Rd$ of $\nabla \opt{f}$, that we use to define a plug-in estimator for $\W_2(\mu,\nu)$:
+\begin{definition}
+    We define the SSNB estimator of $\W_2^2(\mu,\nu)$ as $\widehat \W_2^2(\mu,\nu) := \int \|x - \nabla \hat f_n(x)\|^2 \,d\mu(x)$.
+\end{definition}\vspace{-0.3cm}
+Since $\nabla \hat f_n$ is the gradient of a convex Brenier potential when $\mathcal{E}=\{\R^d\}$, it is optimal between $\mu$ and ${\nabla \hat f_n}_\sharp\mu$ and $\widehat \W_2(\mu,\nu) = \W_2(\mu, {\nabla \hat f_n}_\sharp\mu)$. If $\mathcal{E} \neq \{\Rd\}$, $\nabla \hat f_n$ is the gradient of a locally convex Brenier potential, and is not necessarily globally optimal between $\mu$ and ${\nabla \hat f_n}_\sharp\mu$. In that case $\widehat \W_2(\mu,\nu)$ is an approximate upper bound of $\W_2(\mu, {\nabla \hat f_n}_\sharp\mu)$. In any case, the SSNB estimator can be computed using Monte-Carlo integration, whose estimation error does not depend on the dimension $d$.
+
+\begin{algorithm}[!h]
+	\caption{Monte-Carlo approximation of the SSNB estimator}
+	\begin{algorithmic}
+   		\STATE {\bfseries Input:} $\hat\mu_n$, $\hat\nu_n$, partition $\mathcal{E}$, number $N$ of Monte-Carlo samples
+		\STATE . $(u_i, z_i)_{i\leq n} \leftarrow$ solve SSNB~\eqref{eqn:SSNB} between $\hat\mu_n$, $\hat\nu_n$
+   		\FOR{$j \in \range{N}$}
+		\STATE . Draw $\hat x_j \sim \mu$
+        \STATE . Find $k$ s.t. $\hat x_j \in E_k$ (k-means)
+        \STATE . $\nabla \hat f_n(\hat x_j) \leftarrow$ solve QCQP~\eqref{eqn:newpoint}
+  		\ENDFOR
+		\STATE{\bfseries Output:} $\widehat W = \left[(1/N)\sum_{j=1}^N \|\hat x_j - \nabla \hat f_n(\hat x_j)\|^2 \right]^{1/2}$
+	\end{algorithmic}
+\end{algorithm}
+
+We show that when the Brenier potential $\opt{f}$ is globally regular, the SSNB estimator is strongly consistent:
+\begin{proposition}\label{prop:estimation:L2}
+Choose $\mathcal{E} = \{\Rd\}$, $0 \leq \scvx \leq L$. If $\opt{f} \in \mathcal{F}_{\scvx, L, \mathcal{E}}$, it almost surely holds:
+\[
+    \left\vert \W_2(\mu, \nu) - \widehat \W_2(\mu,\nu) \right\vert
+    \underset{n \to \infty}{\longrightarrow} 0.
+\]
+\end{proposition}
+The study of the theoretical rate of convergence of this estimator is beyond the scope of this work. Recent results~\citep{hutter2019minimax,flamary2019concentration} show that assuming some regularity of the Monge map $\nabla \opt{f}$ leads to improved sample complexity rates. Numerical simulations (see section~\ref{sec:exp_stat}) seem to indicate a reduced estimation error for SSNB over the classical $\W_2(\hat\mu_n, \hat\nu_n)$, even in the case where $\nabla \opt{f}$ is only locally Lipschitz and $\mathcal{E} \neq \{\Rd\}$. If $L < \lip{\nabla \opt{f}}$, the SSNB estimator $\widehat\W_2(\mu,\nu)$ is not consistent, as can be seen in Figure~\ref{fig:onedimension_values}.

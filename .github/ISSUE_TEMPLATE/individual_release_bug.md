@@ -9,7 +9,7 @@ assignees: ""
 ## Environment
 
 - Operating system:
-- WSL, native Linux, macOS, or native Windows:
+- Linux or WSL2:
 - Python version:
 - Install mode: wheel / source checkout / editable checkout
 

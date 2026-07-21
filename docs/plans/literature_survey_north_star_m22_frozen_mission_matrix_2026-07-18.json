@@ -1,0 +1,63 @@
+{
+  "cases": [
+    {
+      "case_id": "topic_start_candidate",
+      "execution_class": "local_replay_only_after_human_decisions",
+      "expected_outcome": "candidate_success_path_or_honest_review_blocker",
+      "input_mode": "idea_or_topic_without_initial_paper_seed",
+      "seed": "arxiv:2201.12220v3",
+      "topic": "Neural Optimal Transport"
+    },
+    {
+      "case_id": "explicit_identifier",
+      "execution_class": "local_replay_only",
+      "expected_outcome": "exact_lineage_or_honest_review_blocker",
+      "input_mode": "explicit_seed",
+      "seed": "arxiv:2201.12220v3"
+    },
+    {
+      "case_id": "source_format_gap",
+      "execution_class": "local_replay_only",
+      "expected_outcome": "technical_claim_support_blocked_pdf_fallback_out_of_scope",
+      "seed": "arxiv:1412.6980"
+    },
+    {
+      "case_id": "forward_coverage_unavailable",
+      "execution_class": "local_replay_only",
+      "expected_outcome": "visible_nonblocking_unavailable_out_of_scope"
+    },
+    {
+      "case_id": "identifier_free_omissions",
+      "execution_class": "local_replay_only",
+      "expected_outcome": "human_dispositions_required_no_completeness_claim",
+      "unit_count": 195
+    },
+    {
+      "case_id": "correction_supersession",
+      "execution_class": "local_test_only",
+      "expected_outcome": "latest_current_authority_selected_prior_preserved"
+    },
+    {
+      "case_id": "model_fixture_impersonation",
+      "execution_class": "local_test_only",
+      "expected_outcome": "hard_reject"
+    },
+    {
+      "case_id": "stale_foreign_partial_bundle",
+      "execution_class": "local_test_only",
+      "expected_outcome": "hard_reject"
+    }
+  ],
+  "external_action_case_count": 0,
+  "frozen_before_genuine_decisions": true,
+  "matrix_id": "literature_survey_north_star_m22_2026-07-18",
+  "nonclaims": [
+    "human_review_complete",
+    "mission_success",
+    "literature_completeness",
+    "scientific_correctness",
+    "product_readiness"
+  ],
+  "schema_version": "ra-literature-survey-m22-mission-matrix-v1",
+  "status": "frozen_planning_matrix_not_executed"
+}

@@ -16,6 +16,12 @@ import tomllib
 
 from research_assistant import __version__
 from research_assistant.config import AppPaths, get_paths
+from research_assistant.core_utils import atomic_write_bytes, utc_now_iso
+from research_assistant.release_evidence import (
+    RELEASE_ARTIFACT_MANIFEST_SCHEMA,
+    validate_release_artifact_manifest,
+    validate_release_gate_evidence,
+)
 from research_assistant.industrial.platform import (
     build_artifact_index,
     build_governance_record,
@@ -72,11 +78,12 @@ RELEASE_DOCS = [
     "docs/troubleshooting.md",
     "docs/privacy.md",
     "docs/release_checklist.md",
-    "docs/onboarding_trial.md",
     "docs/known_limitations.md",
     "docs/platform_support.md",
     "docs/support.md",
     "docs/release_notes_0.1.0.md",
+    "docs/release_readiness.md",
+    "docs/release/publication_runbook.md",
     "docs/release_notes_template.md",
     ".github/ISSUE_TEMPLATE/individual_release_bug.md",
 ]
@@ -88,25 +95,14 @@ RELEASE_SCRIPTS = [
     "scripts/run_packaging_smoke.sh",
     "scripts/run_clean_install_smoke.sh",
     "scripts/build_release_artifacts.sh",
+    "scripts/run_external_tool_tests.sh",
+    "scripts/run_release_candidate_gate.py",
+    "scripts/run_static_checks.sh",
 ]
 
 
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-
-
 def atomic_write_text(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.{time.time_ns()}.tmp")
-    try:
-        with tmp.open("w", encoding="utf-8") as handle:
-            handle.write(text)
-            handle.flush()
-            os.fsync(handle.fileno())
-        tmp.replace(path)
-    finally:
-        if tmp.exists():
-            tmp.unlink()
+    atomic_write_bytes(path, text.encode("utf-8"))
 
 
 def atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -913,24 +909,23 @@ def platform_status(*, root: Path | None = None) -> dict[str, Any]:
         support_tier = "tier_1_linux_wsl"
     elif system == "Linux":
         support_tier = "tier_1_linux"
-    elif system == "Darwin":
-        support_tier = "tier_2_macos"
-    elif system == "Windows":
-        support_tier = "tier_3_windows_native_untested"
     else:
-        support_tier = "untested"
+        support_tier = "unsupported_non_linux"
+    python_supported = sys.version_info[:2] == (3, 11)
     return {
-        "status": "warnings" if support_tier in {"tier_3_windows_native_untested", "untested"} else "ok",
+        "status": "ok" if system == "Linux" and python_supported else "warnings",
         "system": system,
         "release": release,
         "machine": platform.machine(),
         "is_wsl": is_wsl,
         "python_executable": sys.executable,
         "python_version": platform.python_version(),
+        "python_supported": python_supported,
+        "supported_python": "3.11.x",
         "support_tier": support_tier,
-        "posix_shell_scripts": system in {"Linux", "Darwin"} or is_wsl,
+        "posix_shell_scripts": system == "Linux",
         "workspace_root": str(get_paths(root).root),
-        "limitations": ["Platform status is local detection; cross-platform release signoff still requires manual validation."],
+        "limitations": ["Only Linux/WSL with Python 3.11.x is supported."],
     }
 
 
@@ -1152,7 +1147,7 @@ def release_artifacts_manifest(*, dist_dir: Path | None = None, release_root: Pa
                 "size": path.stat().st_size,
             })
     payload = {
-        "schema_version": "individual-release-artifacts-v1",
+        "schema_version": RELEASE_ARTIFACT_MANIFEST_SCHEMA,
         "created_at": utc_now_iso(),
         "package_version": __version__,
         "dist_dir": str(dist),
@@ -1166,30 +1161,36 @@ def release_artifacts_manifest(*, dist_dir: Path | None = None, release_root: Pa
     return payload
 
 
-def onboarding_report(*, release_root: Path | None = None) -> dict[str, Any]:
+def read_release_artifacts_manifest(*, release_root: Path | None = None) -> dict[str, Any]:
     root = release_root or _release_material_root()
-    checklist = [
-        "install package",
-        "run ra --help",
-        "run ra version",
-        "initialize workspace",
-        "run doctor",
-        "run demo setup",
-        "run demo run",
-        "inspect release report",
-        "create backup",
-        "inspect backup",
-        "restore backup dry-run",
-        "run privacy status",
-        "optional local PDF ingest",
-    ]
-    return {
-        "status": "ready_for_trial" if (root / "docs" / "onboarding_trial.md").exists() else "warnings",
-        "checklist": checklist,
-        "doc_path": str(root / "docs" / "onboarding_trial.md"),
-        "known_limitations_path": str(root / "docs" / "known_limitations.md"),
-        "requires_human_review": True,
-    }
+    path = root / "dist" / "release_artifacts_manifest.json"
+    if not path.is_file():
+        return {
+            "schema_version": RELEASE_ARTIFACT_MANIFEST_SCHEMA,
+            "artifact_count": 0,
+            "artifacts": [],
+            "status": "warnings",
+            "warnings": [{"code": "release_artifact_manifest_missing"}],
+        }
+    try:
+        payload = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        return {
+            "schema_version": RELEASE_ARTIFACT_MANIFEST_SCHEMA,
+            "artifact_count": 0,
+            "artifacts": [],
+            "status": "blocked",
+            "warnings": [{"code": "release_artifact_manifest_invalid", "message": str(exc)}],
+        }
+    if not isinstance(payload, dict):
+        return {
+            "schema_version": RELEASE_ARTIFACT_MANIFEST_SCHEMA,
+            "artifact_count": 0,
+            "artifacts": [],
+            "status": "blocked",
+            "warnings": [{"code": "release_artifact_manifest_invalid", "message": "manifest root must be an object"}],
+        }
+    return payload
 
 
 def corruption_hardening_status(*, root: Path | None = None) -> dict[str, Any]:
@@ -1220,7 +1221,7 @@ def mcp_readiness_status(*, root: Path | None = None) -> dict[str, Any]:
     pdf_policy_status = pdf_batch_policy_status()
     review_write_readiness = review_write_status(root=root)
     gate_status = {
-        "colleague_mcp_trial": {
+        "external_mcp_setup_trial": {
             "status": "accepted",
             "evidence": "external_agent_stdio_trial_passed_2026_05_03",
             "claim": "An external-agent local stdio MCP setup trial passed against demo data under the 15 minute target; unsafe tools and MCP review mutation were absent.",
@@ -1322,10 +1323,11 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
     platform_report = platform_status(root=paths.root)
     version_report = version_consistency(release_root=release_root)
     parser_benchmark = parser_benchmark_smoke(root=release_root)
-    artifact_manifest = release_artifacts_manifest(release_root=release_root)
-    onboarding = onboarding_report(release_root=release_root)
+    artifact_manifest = read_release_artifacts_manifest(release_root=release_root)
     corruption = corruption_hardening_status(root=paths.root)
     mcp_readiness = mcp_readiness_status(root=paths.root)
+    release_gate = validate_release_gate_evidence(release_root)
+    artifact_manifest_validation = validate_release_artifact_manifest(release_root)
     doc_rows = [{"path": path, "exists": (release_root / path).exists()} for path in RELEASE_DOCS]
     script_rows = [{"path": path, "exists": (release_root / path).exists(), "executable": os.access(release_root / path, os.X_OK)} for path in RELEASE_SCRIPTS]
     source_checkout_materials = (release_root / "pyproject.toml").exists() and (release_root / "docs").exists()
@@ -1364,10 +1366,18 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         blockers.append({"code": "parser_benchmark_smoke_blocked"})
     elif parser_benchmark["status"] == "warnings":
         warnings.append({"code": "parser_benchmark_smoke_warnings"})
-    if artifact_manifest["status"] == "warnings":
+    if artifact_manifest.get("status") == "blocked":
+        blockers.append({"code": "release_artifact_manifest_invalid"})
+    elif artifact_manifest.get("status") == "warnings":
         warnings.append({"code": "release_artifacts_not_built"})
-    if onboarding["status"] == "warnings":
-        warnings.append({"code": "onboarding_trial_doc_missing"})
+    if artifact_manifest_validation["status"] == "blocked":
+        blockers.append({"code": "release_artifact_manifest_blocked", "issues": artifact_manifest_validation["issues"]})
+    elif artifact_manifest_validation["status"] == "missing" and artifact_manifest.get("status") != "warnings":
+        warnings.append({"code": "release_artifact_manifest_missing"})
+    if release_gate["status"] == "missing":
+        warnings.append({"code": "release_gate_evidence_missing"})
+    elif release_gate["status"] != "passed":
+        blockers.append({"code": "release_gate_evidence_blocked", "issues": release_gate["issues"]})
     status = "blocked" if blockers else ("warnings" if warnings else "ready_for_release_candidate_review")
     payload = {
         "schema_version": RELEASE_REPORT_SCHEMA_VERSION,
@@ -1381,9 +1391,10 @@ def release_report(*, root: Path | None = None, output: Path | None = None) -> d
         "platform": platform_report,
         "parser_benchmark_smoke": parser_benchmark,
         "release_artifacts": artifact_manifest,
-        "onboarding": onboarding,
+        "release_artifact_manifest_validation": artifact_manifest_validation,
         "corruption_hardening": corruption,
         "mcp_readiness": mcp_readiness,
+        "release_gate_evidence": release_gate,
         "release_material_root": str(release_root),
         "release_material_mode": "source_checkout" if source_checkout_materials else "installed_package_or_workspace",
         "docs": doc_rows,

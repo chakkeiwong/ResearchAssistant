@@ -2,6 +2,8 @@
 
 A local-first research development assistant for Claude Code and terminal workflows.
 
+The v0.1 runtime contract is Python 3.11.x only.
+
 The product focuses on:
 - ingesting papers from arXiv IDs, local PDFs, DOI/title queries, or URLs;
 - using arXiv LaTeX source as the primary audit substrate when available;
@@ -31,6 +33,9 @@ download, review mutation, backup restore, destructive operations, or hosted
 server deployment.
 
 See [docs/mcp.md](docs/mcp.md).
+
+This checkout also includes project/workspace MCP config for Claude Code and
+VS Code. See [docs/mcp_client_setup.md](docs/mcp_client_setup.md).
 
 ## Product posture
 
@@ -108,6 +113,45 @@ ra parse-pdf --pdf /path/to/paper.pdf
 ```
 
 For a colleague-facing individual install path, start with [docs/installation.md](docs/installation.md) and [docs/quickstart.md](docs/quickstart.md). This release target is local and private: no shared server, no shared database, and no live LLM/provider calls by default.
+
+## Literature Survey Workflow
+
+The active survey workflow is credential-free and arXiv-only by default. Start
+a durable topic mission without inventing a paper seed:
+
+```bash
+ra survey run-public-source-workflow \
+  --topic "Neural Optimal Transport" \
+  --out /tmp/ra-survey-topic
+```
+
+The first run stops at the one public-discovery confirmation. The installed
+default currently has no live topic-bootstrap adapter, so a confirmed resume
+closes honestly as `terminal_blocked_bootstrap_unavailable`; it does not call
+OpenAlex, read credentials, or pretend that live topic discovery succeeded.
+
+For an exact paper identifier, build the available local evidence skeleton:
+
+```bash
+ra survey run-public-source-workflow \
+  --topic "Neural Optimal Transport" \
+  --seed arxiv:2201.12220v3 \
+  --out /tmp/ra-survey-seed \
+  --run-safe-local
+```
+
+The command stops before public metadata or source transport until the bounded
+public-discovery confirmation is recorded. New missions advertise only arXiv
+metadata/source-package scope; forward-citation coverage is unavailable and
+non-blocking, and PDF fallback is not part of the active workflow.
+
+Use `ra survey qualitative-assessment` to record concise merits, concerns,
+uncertainties, exact evidence references, and a next action. Qualitative
+assessments never authorize technical claims or prose readiness.
+
+See [docs/literature_survey_operator_guide.md](docs/literature_survey_operator_guide.md)
+for output interpretation, resume/recovery, corrections, privacy, and the exact
+scientific nonclaims.
 
 ## Literature-audit operator note
 

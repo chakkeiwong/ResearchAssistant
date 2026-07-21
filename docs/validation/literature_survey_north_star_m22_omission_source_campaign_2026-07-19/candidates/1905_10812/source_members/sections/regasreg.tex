@@ -1,0 +1,104 @@
+\section{REGULARITY AS REGULARIZATION}\label{sec:regasreg}
+
+Contrary to the viewpoint adopted in the OT literature~\citep{caffarelli1999problem,figalli2017monge}, we consider here regularity (smoothness) and curvature (strong convexity), as \textit{desiderata}, namely conditions that must be enforced when estimating OT, rather than properties that can be proved under suitable assumptions on $\mu,\nu$. Note that if a convex potential is $\scvx$-strongly convex and $L$-smooth, the map $\nabla f$ has distortion $\ell\|x-y\|\leq \|\nabla f(x)-\nabla f(y)\|\leq L\|x-y\|$. Therefore, setting $\scvx=L=1$ enforces that $\nabla f$ must be a translation, since $f$ must be convex. If one were to lift the assumption that $f$ is convex, one would recover the case where $\nabla f$ is an isometry, considered in~\citep{cohen1999earth,alt2000discrete,alaux2018unsupervised}. Note that this distortion also plays a role when estimating the Gromov-Wasserstein distance between general metric spaces~\citep{memoli-2011} and was notably used to enforce regularity when estimating the discrete OT problem~\citep{flamary2014optimal} in a Kantorovich setting. We enforce it here as a constraint in the space of convex functions.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.48\textwidth]{figs/figdelamort.pdf}
+    \caption{Points $x_i$ mapped onto points $g_i:=\nabla f(x_i)$ for a function $f$ that is locally smooth strongly convex. SSNB potentials are such that the measure of endpoints $g_i$ is as close as possible (in $\W_2$ sense) to the measure supported on the $y_j$. Here this would be the sum of the squares of the length of these orange sticks.}
+    \label{fig:figdelamort}
+\end{figure}
+
+%\begin{wrapfigure}{r}{0.48\textwidth}
+%    \vskip-.35cm
+%    \centering
+%    \includegraphics[width=0.48\textwidth]{figs/figdelamort.pdf}
+%    \caption{Points $x_i$ mapped onto points $g_i:=\nabla f(x_i)$ for a function $f$ that is locally smooth strongly convex. SSNB potentials are such that the measure of endpoints $g_i$ is as close as possible (in $\W_2$ sense) to the measure supported on the $y_j$. Here this would be the sum of the squares of the length of these orange sticks.}\label{fig:figdelamort}
+%    \vskip-.7cm
+%\end{wrapfigure}
+
+\textbf{Near-Brenier Smooth Strongly Convex Potentials.}
+We will seek functions $f$ that are $\scvx$-strongly convex and $L$-smooth (or, alternatively, locally so) while at the same time such that $\nabla f_\sharp \mu$ is as \textit{close as possible} to the target $\nu$. If $\nabla f_\sharp \mu$ were to be exactly equal to $\nu$, such a function would be called a Brenier potential. We quantify that nearness in terms of the Wasserstein distance between the push-foward of $\mu$ and $\nu$ to define:
+
+\begin{definition} \label{def:SSNB}
+    Let $\mathcal{E}$ be a partition of $\Rd$ and $0 \leq \scvx \leq L$. For $\mu, \nu \in \PdRd$, we call $\opt{f}$ a ($\mathcal{E}$-locally) $L$-smooth $\scvx$-strongly convex nearest Brenier (SSNB) potential between $\mu$ and $\nu$ if
+    \[
+        \opt{f} \in \argmin_{f \in \mathcal{F}_{\scvx, L,\mathcal{E}}} \W_2\left(\nabla f_\sharp\mu, \nu\right).
+    \]
+%\FP{Should be true for $L = +\infty$. Idea of proof: take a minimizing sequence $u_n$ and its $\epsilon$ Moreau-Yosida regularization $u_{n,\epsilon}$. Then it should ``just'' be an ``iterated limit'' kind of theorem for $n \to \infty$ and $\epsilon \to 0$.}
+\end{definition}
+
+% FP : only true when \mathcal{E} = \{ \Rd \}, so maybe just skip this or merge with following remark
+%\begin{remark}
+%For a SSNB potential we consider the associated transport value between $\mu$ and its nearest approximation of $\nu$:
+%    \[
+%        \W_2^2\left(\mu, {\nabla \opt{f}}_\sharp\mu\right) = \int \|x - \nabla \opt{f}(x)\|^2 \,d\mu(x).
+%    \]
+%This quantity cannot define a metric between $\mu$ and $\nu$ because it is not symmetric in the formulation above and $\W_2(\mu, {\nabla \opt{f}}_\sharp\mu)=0 \not \Rightarrow \mu=\nu$ (take any $\nu$ that is not a Dirac and $\mu = \delta_{\expectation[\nu]}$).
+%\end{remark}
+
+\begin{remark}
+    The existence of an SSNB potential is proved in the supplementary material. When $\mathcal{E}=\{\Rd\}$, the gradient of any SSNB potential $\opt{f}$ defines an optimal transport map between $\mu$ and ${\nabla \opt{f}}_\sharp\mu$. The associated transport value $\W_2^2\left(\mu, {\nabla \opt{f}}_\sharp\mu\right)$ does not define a metric between $\mu$ and $\nu$ because it is not symmetric, and $\W_2(\mu, {\nabla \opt{f}}_\sharp\mu)=0 \not \Rightarrow \mu=\nu$ (take any $\nu$ that is not a Dirac and $\mu = \delta_{\expectation[\nu]}$).
+    For more general partitions $\mathcal{E}$ one only has that property locally, and $\opt{f}$ can therefore be interpreted as a piecewise convex potential, giving rise to piecewise optimal transport maps, as illustrated in Figure~\ref{fig:figdelamort}.
+\end{remark}
+
+\textbf{Algorithmic Formulation as an Alternate QCQP/Wasserstein Problem.} We will work from now on with two discrete measures $\mu = \sum_{i=1}^n a_i \delta_{x_i}$ and $\nu = \sum_{j=1}^m b_j \delta_{y_j}$, with supports defined as $x_1, \ldots x_n \in \Rd$, $y_1, \ldots y_m \in \Rd$, and $\ba=(a_1,\dots,a_n)$ and $\bb=(b_1,\dots,b_m)$ are probability weight vectors. We write $\mathcal{U}(\ba,\bb)$ for the transportation polytope with marginals $\ba$ and $\bb$, namely the set of $n\times m$ matrices with nonnegative entries such that their row-sum and column-sum are respectively equal to $\ba$ and $\bb$. Set a desired smoothness $L > 0$ and strong-convexity parameter $\scvx \leq L$, and choose a partition $\mathcal{E}$ of $\Rd$ (in our experiments $\mathcal{E}$ is either $\{\Rd\}$, or computed using a $K$-means partition of $\supp{\mu}$). For $k \in \range{K}$, we write $I_k = \left\{ i \in \range{n} \text{ s.t. } x_i \in E_k \right\}$. The infinite dimensional optimization problem introduced in Definition~\ref{def:SSNB} can be reduced to a QCQP that only focuses on the values and gradients of $f$ at the points $x_i$. This result follows from the literature in the study of first order methods, which considers optimizing over the set of convex functions with prescribed smoothness and strong-convexity constants (see for instance~\citep[Theorem 3.8 and Theorem 3.14]{taylor2017convex}). We exploit such results to show that an SSNB $f$ can not only be estimated at those points $x_i$, but also more generally recovered at any arbitrary point in $\Rd$.
+
+\begin{theorem}\label{thm:regasreg:optpb}
+ The $n$ values $u_i:=f(x_i)$, and gradients $z_i:=\nabla f(x_i)$ of a SSNB potential $f\in\mathcal{F}_{\scvx, L,\mathcal{E}}$ can be recovered as:
+ \begin{align} \label{eqn:SSNB}
+     &\min_{\substack{z_1, \ldots z_n \in \Rd\\u \in \R^n}} \W_2^2 \left( \sum_{i=1}^n a_i \delta_{z_i}, \nu \right) := \min_{P\in\mathcal{U}(a,b)} \sum_{i,j} P_{ij} \|z_i - y_j\|^2\\
+     &\textrm{s.t. } \forall k\leq K, \forall i,j\in I_k, \nonumber\\
+     & \qquad u_i \geq u_j + \dotp{z_j}{x_i - x_j} \nonumber\\
+     &\qquad \qquad + \frac{1}{2(1 - \scvx/L)} \left(
+             \frac{1}{L} \|z_i - z_j\|^2 + \scvx\|x_i - x_j\|^2 \right. \nonumber \\
+     &\qquad \qquad \qquad \qquad \qquad
+             \left. - 2\frac{\scvx}{L} \dotp{z_j - z_i}{x_j - x_i}
+         \right).\nonumber
+ \end{align}
+ Moreover, for $x \in E_k$, $v := f(x)$ and $g := \nabla f(x)$ can be recovered as:
+ \begin{align}\label{eqn:newpoint}
+     \min_{v \in \R,\, g \in \Rd} v \\
+     \begin{split}
+         \mathrm{\quad s.t.} \, \forall i \in I_k, v \geq & \text{ } u_i + \dotp{z_i}{x - x_i} \\
+         &+ \frac{1}{2(1-\scvx/L)} \left(
+             \frac{1}{L} \|g - z_i\|^2 \right.\\
+         &\left. + \scvx \|x - x_i\|^2 - 2 \frac{\scvx}{L} \dotp{z_i - g}{x_i - x}
+         \right).
+    \end{split} \nonumber
+    %& \mathrm{\quad s.t.} \,
+    %\forall i \in I_k, v \geq u_i + \dotp{z_i}{x - x_i} \nonumber\\
+    %& \qquad \qquad + \frac{1}{2(1-\scvx/L)} \left(
+    %        \frac{1}{L} \|g - z_i\|^2 + \scvx \|x - x_i\|^2 \right. \nonumber\\
+    %& \qquad \qquad \qquad \qquad 
+    %        \left. -2\frac{\scvx}{L} \dotp{z_i - g}{x_i - x}
+    %    \right).\nonumber
+\end{align}
+\end{theorem}
+
+%\begin{theorem}\label{thm:regasreg:optpb}
+%The $n$ values $u_i:=f(x_i)$, and gradients $z_i:=\nabla f(x_i)$ of a SSNB potential $f\in\mathcal{F}_{\scvx, L,\mathcal{E}}$ can be recovered as:
+%\begin{align} \label{eqn:SSNB}
+%    &\min_{\substack{z_1, \ldots z_n \in \Rd\\u \in \R^n}} \W_2^2 \left( \sum_{i=1}^n a_i \delta_{z_i}, \nu \right):= \min_{P\in\mathcal{U}(a,b)} \sum_{i,j} P_{ij} \|z_i - y_j\|^2\\
+%    &\textrm{s.t. } \forall k\leq K, \forall i,j\in I_k,\, u_i \geq u_j + \dotp{z_j}{x_i - x_j} \nonumber\\
+%    &\qquad \qquad \qquad \qquad + \frac{1}{2(1 - \scvx/L)} \left(
+%            \frac{1}{L} \|z_i - z_j\|^2 + \scvx\|x_i - x_j\|^2
+%            - 2\frac{\scvx}{L} \dotp{z_j - z_i}{x_j - x_i}
+%        \right).\nonumber
+%\end{align}
+%Moreover, for $x \in E_k$, $v := f(x)$ and $g := \nabla f(x)$ can be recovered as:
+%\begin{align}\label{eqn:newpoint}
+%    &\min_{v \in \R,\, g \in \Rd} v \\
+%    & \mathrm{\quad s.t.}\,
+%    \forall i \in I_k,\, v \geq u_i + \dotp{z_i}{x - x_i} \nonumber\\
+%    & \qquad \qquad \qquad \qquad + \frac{1}{2(1-\scvx/L)} \left(
+%            \frac{1}{L} \|g - z_i\|^2 + \scvx \|x - x_i\|^2
+%            -2\frac{\scvx}{L} \dotp{z_i - g}{x_i - x}
+%        \right).\nonumber
+%\end{align}
+%\end{theorem}
+
+
+We refer to the supplementary material for the proof.
+
+We provide algorithms to compute a SSNB potential in dimension $d \geq 2$ when $\mu,\nu$ are discrete measures. In order to solve Problem~\eqref{eqn:SSNB}, we will alternate between minimizing over $(z_1, \ldots, z_n, u)$ and computing a coupling $P$ solving the OT problem. The OT computation can be efficiently carried out using Sinkhorn's algorithm~\citep{CuturiSinkhorn}. The other minimization is a convex QCQP, separable in $K$ smaller convex QCQP that can be solved efficiently. We use the barycentric projection (see Definition~\ref{def:barycentricproj} below) of $\mu$ as an initialization for the points $z$.

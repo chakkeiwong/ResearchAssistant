@@ -1,0 +1,88 @@
+{
+  "schema_version": "ra-literature-survey-m19a-run-manifest-v2",
+  "status": "repaired_local_hardening_validation_and_terminal_review_passed_pending_docs_closeout",
+  "milestone": "M19A_transport_supervisor_hardening",
+  "plan": "docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_subplan_2026-07-14.md",
+  "result": "docs/plans/literature_survey_north_star_m19_metadata_transport_hardening_result_2026-07-14.md",
+  "validation_root": "docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14",
+  "commit_lineage": {
+    "m18_closeout": "e7f1499e135757c0460c040f3fa317e6bdd56dc9",
+    "m19_product_candidate": "23e218b563e2e554c02c1ac063fea1f73034edf4",
+    "reviewed_harness_commit": "945332f891e40cc02d53806bc3ca4b2157cc51e0",
+    "parser_boundary_repair_commit": "bb4300c6bce20145a7c41620b0dffb703072e755",
+    "validated_tree": "787304c6900ec4c221a53a4f49031c3a3e09a5bd",
+    "single_parent_lineage_verified": true
+  },
+  "environment": {
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "python": "3.11.14",
+    "pytest": "9.0.2",
+    "build": "1.5.1",
+    "conda_environment": "tf-gpu",
+    "isolated_clone": "/tmp/ra_m19_isolated_bb4300c",
+    "isolated_venv": "/tmp/ra_m19_isolated_bb4300c/venv",
+    "venv_system_site_packages": true,
+    "cuda_visible_devices": "-1",
+    "gpu_used": false,
+    "network_used": false,
+    "live_provider_or_source_action": false
+  },
+  "attempts": [
+    {
+      "attempt": "original_round1",
+      "root": "docs/validation/literature_survey_m19_transport_hardening_2026-07-14",
+      "status": "rejected_by_terminal_review",
+      "classification": "unexpected_parser_programmer_failure_collapsed_into_provider_unavailable",
+      "product_failure": true,
+      "verdict": "docs/reviews/literature_survey_m19_transport_hardening_terminal_review_verdict_round1_2026-07-14.md"
+    },
+    {
+      "attempt": "repair_round2",
+      "root": "docs/validation/literature_survey_m19_transport_hardening_round2_2026-07-14",
+      "status": "invalid_harness",
+      "classification": "current_shell_missing_installed_research_assistant_survey_with_pythonpath_unset",
+      "transport_junit_sha256": "cbd9fc9e80a74866b224fc292c3a3b71de1fe50568f2dca0a2ac94f2308bae87",
+      "supervisor_junit_sha256": "96d33d97f002eb687cd629691b1987e87944526d2adf2aa89d66e639fa06e540",
+      "product_failure": false
+    },
+    {
+      "attempt": "repair_round3",
+      "status": "passed",
+      "classification": "authoritative_isolated_installed_wheel_validation",
+      "full_cli_external_basetemp": "/tmp/ra_m19_full_cli_basetemp_round3",
+      "full_cli_external_basetemp_retained": true,
+      "full_cli_external_basetemp_authoritative_or_hashed": false
+    }
+  ],
+  "isolated_package": {
+    "offline_wheel_build": "passed_with_no_isolation",
+    "first_install": "skipped_by_pip_due_inherited_same_version_system_package",
+    "repair": "force_reinstall_no_index_no_deps",
+    "installed_origin": "/tmp/ra_m19_isolated_bb4300c/venv/lib/python3.11/site-packages/research_assistant",
+    "wheel": "research_assistant-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "6605ddeb46b15c2e0f29b23466743cf2c48db6a72eb2434019b2add22d135888"
+  },
+  "commands": {
+    "provenance": "Exact pytest invocations executed from isolated clone bb4300c. Each was wrapped by set -o pipefail and piped to tee at the matching logs/<gate>.log path.",
+    "working_directory": "/tmp/ra_m19_isolated_bb4300c",
+    "common_environment": "env -u PYTHONPATH CUDA_VISIBLE_DEVICES=-1 PYTHONDONTWRITEBYTECODE=1",
+    "wheel_build": "python -m build --wheel --no-isolation --outdir /tmp/ra_m19_isolated_bb4300c/wheelhouse",
+    "wheel_install": "/tmp/ra_m19_isolated_bb4300c/venv/bin/python -m pip install --no-index --no-deps --force-reinstall /tmp/ra_m19_isolated_bb4300c/wheelhouse/research_assistant-0.1.0-py3-none-any.whl",
+    "transport": "./venv/bin/python -m pytest -q tests/unit/test_literature_survey_m19_transport.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/transport --junitxml=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/junit/transport.xml",
+    "supervisor": "./venv/bin/python -m pytest -q tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/supervisor --junitxml=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/junit/supervisor.xml",
+    "affected_phase7": "./venv/bin/python -m pytest -q tests/unit/test_literature_survey_m16_phase7.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/affected_phase7 --junitxml=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/junit/affected_phase7.xml",
+    "cumulative_m16_m17": "./venv/bin/python -m pytest -q tests/unit/test_literature_survey_m16.py tests/unit/test_literature_survey_m16_phase2.py tests/unit/test_literature_survey_m16_phase3.py tests/unit/test_literature_survey_m16_phase4.py tests/unit/test_literature_survey_m16_phase5.py tests/unit/test_literature_survey_m16_phase6.py tests/unit/test_literature_survey_m16_phase7.py tests/unit/test_literature_survey_m16_phase8.py tests/unit/test_literature_survey_m16_phase9.py tests/unit/test_literature_survey_m17.py -p no:cacheprovider --basetemp=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17 --junitxml=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/junit/cumulative_m16_m17.xml",
+    "full_cli": "./venv/bin/python -m pytest -q tests/integration/test_cli_commands.py -p no:cacheprovider --basetemp=/tmp/ra_m19_full_cli_basetemp_round3 --junitxml=docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/junit/full_cli.xml"
+  },
+  "data_version": "repository fixtures and deterministic fake-provider rows at commit bb4300c6bce20145a7c41620b0dffb703072e755",
+  "random_seeds": "N/A: deterministic boundary engineering checks",
+  "credentials_used": false,
+  "push_performed": false,
+  "release_performed": false,
+  "terminal_review": {
+    "round1": "REVISE",
+    "round2": "AGREE",
+    "round2_verdict": "docs/reviews/literature_survey_m19_transport_hardening_terminal_review_verdict_round2_2026-07-14.md"
+  },
+  "live_execution_status": "DO_NOT_EXECUTE_LIVE"
+}

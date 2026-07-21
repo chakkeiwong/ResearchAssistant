@@ -8,17 +8,22 @@ individual local/Git release artifact.
 ## Build And Verify
 
 ```bash
-timeout 300 scripts/build_release_artifacts.sh
-ra release-artifacts manifest
+CUDA_VISIBLE_DEVICES=-1 python3.11 scripts/run_release_candidate_gate.py
+PYTHONPATH=src python3.11 -m research_assistant.cli release-artifacts validate
 ra individual-git-release validation-report
 ra individual-git-release gate-build
 ```
 
+The release-candidate gate writes `dist/release_gate_evidence.json`, refreshes
+the artifact manifest, and validates it before returning success. The explicit
+validation command is a short maintainer-facing confirmation of that result.
+
 ## Required Evidence
 
 - clean final release gate;
-- artifact manifest with SHA256;
-- release notes with matching SHA256;
+- artifact manifest with SHA256 for the wheel, sdist, and final gate evidence;
+- release notes that identify `dist/release_artifacts_manifest.json` as the
+  authoritative checksum source;
 - version consistency;
 - approval from release owner;
 - explicit decision for limited pilot, broad individual release, Git-shared

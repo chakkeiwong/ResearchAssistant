@@ -1,0 +1,28 @@
+{
+  "risks": [
+    {
+      "expected_action": "run backward snowballing and classify relevant references",
+      "risk": "Required predecessor/foundational papers are unknown until seed references are inspected.",
+      "risk_id": "backward_lineage_not_yet_built",
+      "severity": "high"
+    },
+    {
+      "expected_action": "run forward snowballing or record metadata blocker",
+      "risk": "Major citing works and recent follow-ups are unknown until approved metadata or replay citations are inspected.",
+      "risk_id": "forward_frontier_not_yet_built",
+      "severity": "high"
+    },
+    {
+      "expected_action": "query adjacent candidates and record inclusion/exclusion reasons",
+      "risk": "Adjacent method clusters are unknown until topic expansion is run.",
+      "risk_id": "adjacent_clusters_not_yet_built",
+      "severity": "medium"
+    }
+  ],
+  "schema_version": "ra-survey-omission-risk-v1",
+  "seed_papers": [
+    "seed_001"
+  ],
+  "status": "skeleton_pending_snowballing",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

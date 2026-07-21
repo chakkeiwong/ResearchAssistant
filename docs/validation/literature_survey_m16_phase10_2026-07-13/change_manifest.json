@@ -1,0 +1,62 @@
+{
+  "schema_version": "ra-literature-survey-m16-phase10-change-manifest-v1",
+  "phase": 10,
+  "captured_at": "2026-07-13T14:07:34+08:00",
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "status": "repair_round4_final_frozen_candidate_pending_independent_review_round5",
+  "hash_scope": "38 direct frozen rows plus 1137 transitively inventoried primary artifacts; this manifest, round-5 bundle/verdict, and later control reconciliation are excluded to avoid circular attestation",
+  "governing_artifacts": [
+    {"path": "docs/plans/literature_survey_m16_phase10_offline_e2e_subplan_2026-07-10.md", "sha256": "2a9d7cddd5460a22ba9fea172bdf26b1fcb82d157655ed5f59b9b89f63bee775"},
+    {"path": "docs/plans/literature_survey_m16_phase10_offline_e2e_result_2026-07-13.md", "sha256": "5280cc6d3459fabb8bbba727f088a075be86253c6eb873be6ec4a16aee3ebded"},
+    {"path": "docs/plans/literature_survey_m16_remaining_phases_repair_execution_plan_2026-07-12.md", "sha256": "6af778b54acb0715712f5c2dcd66d6733b823730ecf62f81a0d7a67aae7fe1e9"}
+  ],
+  "implementation_and_test_hashes": [
+    {"path": "scripts/literature_survey_m16_phase10_offline_e2e.py", "sha256": "50d36adf6e5c12f6a6e72f58d1a5f33e0f36feba81a9c40dafb42ace9199edde"},
+    {"path": "tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py", "sha256": "5de6d3eb5e88e22398f85521fe9a720626f0783caaf4cf704de44f9859d42117"}
+  ],
+  "primary_e2e_evidence": [
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/e2e_summary.json", "sha256": "00d5847610569926267e06de942f93aa6e2086ab1a9b9188584a2cd2acdb9d5c", "result": "one positive and ten negatives passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/e2e_artifact_inventory.json", "sha256": "9cb607f8f6c0259bdf7801437451b948cc2dc40ec4f15f130747f6651bab1337", "result": "1137 unique artifacts; tree b6d5ddb4f52238abadaa07b5bd80ed74e478dab64088efa65eac3c7fd6c09d41"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/e2e_static_audit.json", "sha256": "fd0af5fabcce7ee8a8e4819182ee16fd5d08164ebfc0ce9b9614b81c45162b6c"}
+  ],
+  "final_validation_evidence": [
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/focused_harness.xml", "sha256": "197355beb412e263bf07b9d035b174b8b417fb40f876a4b5fbd5ffa1b560b81a", "result": "5 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/phase8_unit.xml", "sha256": "4f79cbdc6f83153e02dc7e6bcbbe5af6f86e6c613cd925aeb5d9bb9b7a9521f2", "result": "139 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/phase9_unit.xml", "sha256": "e2bc90b736bd06e502d5c9f9c57f41aaef2b54cbe638b4ff95016a3e0601d489", "result": "209 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/phase3_through_phase10.xml", "sha256": "6a8af1f2879817a8d56f7d131a5f763573a2793d6a8cfa07e31222d8e603300e", "result": "786 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/full_unit.xml", "sha256": "90eb770b63e6ff9d48378672bf373a658cb1aecfc10b9f8281ced1e6d2718653", "result": "985 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/full_cli.xml", "sha256": "70594b4ea8e9e674045c6c08007434700eed4768ca2bf59fc83b852afa293fd3", "result": "125 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/exact_scripts.xml", "sha256": "55d672e83d10032c2ed95e3d0f6994a80bc6ab81f1dfccb1a6beb2eb1fede592", "result": "11 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/broader_non_cli_integration.xml", "sha256": "181add2691df8f79f3f027fc056c8ce7ab23ff98c1773823ac6e2d3a1ba4b462", "result": "77 passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/phase8_ux_validation_result.json", "sha256": "eab6de294e3d5f5c6615b68b918a24f226e898385d2da21d8175602cf0d0c7cd", "result": "passed"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/static_audit.json", "sha256": "3766496dde12ff1650e60ce3d131013605dde15a6d0ff5a533949310c33cc9e2"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/run_manifest.json", "sha256": "3dc59c170ceb0e4697c8085a537fb51c1af0b0380d839d14490ed9c137ec2dff"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/decision_table.json", "sha256": "a2aff6730856c1513c102e3441046802be12051c2953714889ab5aef1cddafa9"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/inference_status.json", "sha256": "80a97fa26dfbcb22ae78691cf10ee7ef4bee2ae74bf15088844f2653b87806f6"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/post_run_red_team.json", "sha256": "47b8218655b7f42b9044ce62b6cadaacf24b07d83f37cf2dfc730895e4d52f55"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/proposed_git_integration_manifest.json", "sha256": "bc45b5d9a8400343b43342e06b600962a208735841dae3e7a7236b585f8a18f8"}
+  ],
+  "authoritative_logs": [
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/e2e_harness.log", "sha256": "00d5847610569926267e06de942f93aa6e2086ab1a9b9188584a2cd2acdb9d5c"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/focused_harness.log", "sha256": "42e77c4f2229a021798fc08faf1c3a150d3e8b6490d0a5f310d402ab90ebfac8"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/phase8_unit.log", "sha256": "90479dc195c34091b684770a57ab968c2501f78c8b1f337cec7125051f806330"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/phase9_unit.log", "sha256": "49cff1600defb86916f62cc1b438f92515b574a548961b1ae8b11b2ddec8681a"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/phase3_through_phase10.log", "sha256": "90c60d09e0273ee98fb6de9e168b222ebf88b45861d1b005e868b0fef2cad4cc"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/full_unit.log", "sha256": "82bc7fd4c2252d1f65bec54371fbb469bf83642e9993e1ac6a3fb245c0e7a933"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/full_cli.log", "sha256": "fe947741a460ff0208ece033a1156104b8aa7d88d13de261db6700a29d972688"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/exact_scripts.log", "sha256": "3eb98a86bc4d4d5cabc57b3afb656f5dc3c4da1248eed54249530622dc861481"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/broader_non_cli_integration.log", "sha256": "c5c7083ae3100516659bf948f381fee99cdd9655ceea757f2f18ac23b20173fd"},
+    {"path": "docs/validation/literature_survey_m16_phase10_2026-07-13/logs/phase8_ux.log", "sha256": "1bd08cd18dd5064551fd78b7a51f8981e8ceee759c9f0246aa1c579bbfee9ef6"}
+  ],
+  "review_history": [
+    {"path": "docs/reviews/literature_survey_m16_phase10_implementation_review_verdict_round1_2026-07-13.md", "sha256": "4cb1762d4f0e744e58e621e535dcd1b5334b9bdf1ac64f15014a805703be82b5", "verdict": "REVISE"},
+    {"path": "docs/reviews/literature_survey_m16_phase10_implementation_review_verdict_round2_2026-07-13.md", "sha256": "5d16ce921160d80a7ed17304fa18841a0710829fe5f992181ba47497e07d8b6d", "verdict": "REVISE"},
+    {"path": "docs/reviews/literature_survey_m16_phase10_implementation_review_verdict_round3_2026-07-13.md", "sha256": "05d853a43f129607f8ed0b6608292105b2e6c96d35fe737339862aab6fabd713", "verdict": "REVISE"},
+    {"path": "docs/reviews/literature_survey_m16_phase10_implementation_review_verdict_round4_2026-07-13.md", "sha256": "76f14cede3088230e5a1f063075623e4ebb2e5b946bb11eead93f00743083059", "verdict": "REVISE"}
+  ],
+  "inherited_phase9_authority": {"path": "docs/validation/literature_survey_m16_phase9_2026-07-12/change_manifest.json", "sha256": "9a5e1736d1587a80d8b9c976b996291e1aaf42c67b44368712c7e4db285f0443"},
+  "excluded_diagnostic_roots": ["docs/validation/literature_survey_m16_phase10_2026-07-13_invalid_temp_paths/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_rejected_review_round1/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_rejected_review_round2/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_rejected_review_round3/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_rejected_review_round4/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_repair1_fdopen_diagnostic/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_repair1_missing_root_diagnostic/**", "docs/validation/literature_survey_m16_phase10_2026-07-13_repair1_pre_fd_tracking_candidate/**"],
+  "decision": "submit final Phase 10 candidate for review round 5",
+  "unexpected_mismatches": [],
+  "nonclaims": ["not Git integration evidence", "not live, scientific, human-review, prose, product, or release evidence"]
+}

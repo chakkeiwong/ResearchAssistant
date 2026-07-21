@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import hashlib
 import json
 from typing import Any
+
+from research_assistant.core_utils import utc_now_iso
 
 SCHEMA_VERSION = "industrial-platform-v1"
 REVIEW_STATUS_REQUIRES_HUMAN = "requires_human_review"
@@ -19,10 +20,6 @@ BASE_ARTIFACT_FIELDS = {
     "requires_human_review",
     "limitations",
 }
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 def stable_id(prefix: str, *parts: Any) -> str:

@@ -7,6 +7,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from research_assistant.config import get_paths
 from research_assistant.ingest.source_manifest import canonical_paper_id
@@ -15,6 +16,10 @@ from research_assistant.source.latex_extract import extract_latex_structure
 from research_assistant.source.latex_flatten import flatten_latex_bundle
 from research_assistant.source.structured_source import StructuredSourceRecord, arxiv_artifact_root, source_record_path
 from research_assistant.storage.file_store import FileStore
+
+DEFAULT_MAX_SOURCE_PACKAGE_BYTES = 50 * 1024 * 1024
+SOURCE_DOWNLOAD_CHUNK_BYTES = 64 * 1024
+ALLOWED_ARXIV_SOURCE_DOMAINS = {'arxiv.org', 'export.arxiv.org'}
 
 
 def _status(source: str, status: str, *, reason: str | None = None, code: int | None = None, result_count: int = 0) -> dict[str, Any]:
@@ -30,10 +35,54 @@ def arxiv_source_url(arxiv_id: str) -> str:
     return f'https://arxiv.org/e-print/{arxiv_id}'
 
 
-def download_arxiv_source(arxiv_id: str, destination: Path) -> Path:
+def _domain_from_url(url: str) -> str:
+    return urlparse(url).netloc.lower()
+
+
+def download_arxiv_source(
+    arxiv_id: str,
+    destination: Path,
+    *,
+    max_bytes: int = DEFAULT_MAX_SOURCE_PACKAGE_BYTES,
+    timeout_seconds: int = 30,
+    allowed_domains: set[str] | None = None,
+) -> Path:
+    if max_bytes <= 0:
+        raise ValueError(f'max_bytes must be positive, got {max_bytes}')
+    allowed = allowed_domains or ALLOWED_ARXIV_SOURCE_DOMAINS
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(arxiv_source_url(arxiv_id), timeout=30) as response:
-        destination.write_bytes(response.read())
+    partial = destination.with_name(f'.{destination.name}.part')
+    if partial.exists():
+        partial.unlink()
+    bytes_written = 0
+    try:
+        with urllib.request.urlopen(arxiv_source_url(arxiv_id), timeout=timeout_seconds) as response:
+            final_url = response.geturl()
+            final_host = _domain_from_url(final_url)
+            if final_host not in allowed:
+                raise ValueError(f'redirect domain {final_host} is not allowed')
+            content_length = response.headers.get('Content-Length')
+            if content_length is not None:
+                try:
+                    declared = int(content_length)
+                except ValueError:
+                    declared = None
+                if declared is not None and declared > max_bytes:
+                    raise ValueError(f'content length {declared} exceeds limit {max_bytes}')
+            with partial.open('wb') as handle:
+                while True:
+                    chunk = response.read(SOURCE_DOWNLOAD_CHUNK_BYTES)
+                    if not chunk:
+                        break
+                    bytes_written += len(chunk)
+                    if bytes_written > max_bytes:
+                        raise ValueError(f'stream exceeded limit {max_bytes}')
+                    handle.write(chunk)
+        partial.replace(destination)
+    except Exception:
+        if partial.exists():
+            partial.unlink()
+        raise
     return destination
 
 

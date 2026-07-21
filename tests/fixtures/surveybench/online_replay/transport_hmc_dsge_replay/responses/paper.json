@@ -1,0 +1,91 @@
+{
+  "endpoint": "paper",
+  "records": [
+    {
+      "abstract_present": true,
+      "identifier": "synthetic:transport-hmc-dsge-seed",
+      "paper_key": "thmc_seed_001",
+      "relation_signals": [
+        "matches_seed_identifier",
+        "transport_hmc_method",
+        "dsge_posterior_topic"
+      ],
+      "source_status": "available_fixture",
+      "title": "Transport Map Hamiltonian Monte Carlo for DSGE Posterior Inference",
+      "year": 2024
+    },
+    {
+      "identifier": "synthetic:hmc-background",
+      "paper_key": "thmc_ref_001",
+      "relation_signals": [
+        "appears_in_seed_references",
+        "hmc_lineage"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Hamiltonian Monte Carlo for Curved Posterior Geometry",
+      "year": 2018
+    },
+    {
+      "identifier": "synthetic:dsge-estimation-background",
+      "paper_key": "thmc_ref_002",
+      "relation_signals": [
+        "appears_in_seed_references",
+        "macro_model_estimation_lineage"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Bayesian Estimation of DSGE Models with Persistent Shocks",
+      "year": 2016
+    },
+    {
+      "identifier": "synthetic:transport-preconditioned-macrofinance",
+      "paper_key": "thmc_cite_001",
+      "relation_signals": [
+        "cites_seed_in_fixture",
+        "later_transport_preconditioning_method"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Transport Preconditioning for Macro-Finance Posterior Simulation",
+      "year": 2025
+    },
+    {
+      "identifier": "synthetic:dsge-smc-adjacent",
+      "paper_key": "thmc_adj_001",
+      "relation_signals": [
+        "adjacent_filtering_method",
+        "not_a_seed_citation"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Sequential Monte Carlo Diagnostics for DSGE Estimation",
+      "year": 2021
+    },
+    {
+      "identifier": "synthetic:leaderboard-only-proxy",
+      "paper_key": "thmc_proxy_001",
+      "relation_signals": [
+        "benchmark_proxy_only",
+        "not_primary_technical_support"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "A Leaderboard of Transport HMC Wall-Clock Scores",
+      "year": 2024
+    },
+    {
+      "identifier": "synthetic:image-transport-noise",
+      "paper_key": "thmc_noise_001",
+      "relation_signals": [
+        "contains_transport_terms",
+        "application_domain_shift"
+      ],
+      "source_status": "metadata_only_fixture",
+      "title": "Image Transport Maps for Generative Art",
+      "year": 2023
+    }
+  ],
+  "request_id": "paper-all-visible-records-transport-hmc",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "seed_resolution": {
+    "canonical_candidate_key": "thmc_seed_001",
+    "seed_resolution_status": "synthetic_fixture"
+  },
+  "task_id": "transport_hmc_dsge_replay"
+}

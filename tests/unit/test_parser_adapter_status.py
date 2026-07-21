@@ -14,11 +14,7 @@ from research_assistant.schemas.parsed_document import ParsedDocument
 def test_parser_adapters_return_parsed_document_for_missing_file(tmp_path: Path) -> None:
     missing = tmp_path / 'missing.pdf'
     for parser in [PdftotextParser(), MinerUParser(), GROBIDParser(), MarkerParser(), MarkItDownParser()]:
-        try:
-            result = parser.parse(missing)
-        except Exception:
-            assert parser.name == 'pdftotext'
-            continue
+        result = parser.parse(missing)
         assert isinstance(result, ParsedDocument)
         assert result.parse_status in {'ok', 'partial', 'failed', 'unavailable', 'misconfigured'}
 

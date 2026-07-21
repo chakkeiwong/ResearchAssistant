@@ -1,0 +1,55 @@
+{
+  "added_paths": [
+    "docs/validation/surveybench_agent_trial_prompt_packet_2026-06-28.md",
+    "docs/validation/surveybench_online_replay_phase5/agent_trial_prompt_packet_2026-06-29.md",
+    "docs/validation/surveybench_live_intake_launcher_phase3_restricted_launcher/stress_restricted_launcher_prompt_2026-07-03.md",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/build_manifest.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/candidate_ledger.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/citation_map.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/claim_support.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/omission_risk.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/paper_classifications.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/ready_for_prose.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/source_safety_status.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/source_support.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/survey_packet.md"
+  ],
+  "baseline_commit": "1b36af06efc7e1c2c086934cd8800691ae8a6da7",
+  "cli_decoupling_candidate_sha256": "e7f627faa8dff38d64a9bc706d9679adfcf4bcaaeeac97d5d4746275cce89d4e",
+  "control_path_count": 40,
+  "exact_cumulative_unit_suite": [
+    "tests/unit/test_literature_survey_m16.py",
+    "tests/unit/test_literature_survey_m16_phase2.py",
+    "tests/unit/test_literature_survey_m16_phase3.py",
+    "tests/unit/test_literature_survey_m16_phase4.py",
+    "tests/unit/test_literature_survey_m16_phase5.py",
+    "tests/unit/test_literature_survey_m16_phase6.py",
+    "tests/unit/test_literature_survey_m16_phase7.py",
+    "tests/unit/test_literature_survey_m16_phase8.py",
+    "tests/unit/test_literature_survey_m16_phase9.py",
+    "tests/unit/test_literature_survey_m17.py"
+  ],
+  "exact_survey_script_suite": [
+    "tests/scripts/test_literature_survey_benchmark_feedback_summary.py",
+    "tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py",
+    "tests/scripts/test_literature_survey_phase5_command_validation.py",
+    "tests/scripts/test_literature_survey_phase6_boundary_validation.py",
+    "tests/scripts/test_literature_survey_phase7_validation_harness.py"
+  ],
+  "finding": "selected SurveyBench tests read three canonical prompt inputs, and the exact Phase 7 script test reads the 10-file canonical Phase 6 packet, outside the M17 successor manifest",
+  "payload_artifact_count": 1684,
+  "portable_phase10_test_repair": {
+    "candidate_sha256": "f3ad7a6efc601266ef3c157b1c4c327ca981c20b1c901846647eb0d21536f801",
+    "m17_sha256": "5de6d3eb5e88e22398f85521fe9a720626f0783caaf4cf704de44f9859d42117",
+    "path": "tests/scripts/test_literature_survey_m16_phase10_offline_e2e.py",
+    "status": "focused_regression_passed_pending_committed_clone_trace"
+  },
+  "protected_unrelated_count": 6,
+  "regular_file_mode_normalization": {
+    "executable": "0755",
+    "non_executable": "0644",
+    "source_mode_preserved_as": "source_mode_octal"
+  },
+  "schema_version": "ra-literature-survey-m18-dependency-audit-v2",
+  "status": "repaired_in_payload_manifest_pending_candidate_preflight"
+}

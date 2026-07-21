@@ -1,0 +1,93 @@
+{
+  "action_id": "resume_confirmed_public_discovery",
+  "approval_required": true,
+  "blockers": [],
+  "created_at": "2026-07-14T10:00:59+00:00",
+  "forbidden_actions": [
+    "do not run live/API/source/PDF/download/credential actions implicitly",
+    "do not run public discovery before public_discovery_confirmation.confirmed is true",
+    "do not treat reviewed sidecar discovery as final prose readiness",
+    "do not hide reviewed-evidence blockers",
+    "do not use credentials, private databases, paid model workers, hidden evaluator material, unbounded crawling, or outputs outside the mission directory without separate explicit approval"
+  ],
+  "gate_id": "public_metadata",
+  "generation_id": "g00000003-1b7a9300b833f0e6",
+  "mission_fingerprint": "4ca30ae7cc5a5a8debc5a7844244eee243398050c3d2801b7571b0a1c4f290a4",
+  "mission_id": "7b4305f1-5648-4f79-8275-8a2944e267f7",
+  "mission_status": "ready_for_local_continuation",
+  "public_discovery_confirmation": {
+    "confirmation_source": null,
+    "confirmed": false,
+    "confirmed_at": null,
+    "forbidden_actions": [
+      "credentials",
+      "private_databases",
+      "paid_model_worker_trials",
+      "hidden_evaluator_material",
+      "unbounded_crawling",
+      "writes_outside_mission_output",
+      "technical_claim_support_from_metadata_or_source_availability",
+      "final_prose_readiness_from_discovery_alone"
+    ],
+    "question": "Do you want RA to search public web/archive sources for this idea or paper?",
+    "schema_version": "ra-survey-public-discovery-confirmation-v1",
+    "scope": {
+      "allowed_actions": [
+        "local_cache_lookup",
+        "bounded_public_web_api_metadata",
+        "public_archive_search",
+        "public_source_status_lookup",
+        "capped_public_source_pdf_full_text_retrieval"
+      ],
+      "allowed_domains": [
+        "api.openalex.org",
+        "export.arxiv.org",
+        "arxiv.org"
+      ],
+      "caps": {
+        "max_metadata_records": 25,
+        "write_root": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori59/mission"
+      },
+      "output_dir": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori59/mission",
+      "providers": [
+        "openalex",
+        "arxiv"
+      ],
+      "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more"
+    },
+    "status": "confirmation_required",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "readiness_classification": null,
+  "ready_for_prose": false,
+  "required_artifacts": [
+    "build_manifest.json"
+  ],
+  "safe_next_commands": [
+    "ask once: Do you want RA to search public web/archive sources for this idea? If yes, rerun this workflow with --confirm-public-discovery. Planned bounded metadata command: ra survey build --topic \"Neural Optimal Transport for generative modeling and inference\" --seed openalex:w100 --out /tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori59/mission/public_metadata --mode public-metadata --public-metadata-provider openalex --public-metadata-provider arxiv --max-records 25"
+  ],
+  "schema_version": "ra-survey-public-source-next-action-v1",
+  "status": "confirmation_recorded_pending_workflow_resume",
+  "summary": "provider_metadata_is_not_a_phase5_local_action",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "survey completeness",
+    "source/PDF/full-text download completion",
+    "retraction/version safety",
+    "technical claim support",
+    "final prose readiness",
+    "product readiness",
+    "scientific correctness"
+  ]
+}

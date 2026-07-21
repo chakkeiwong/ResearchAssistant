@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "survey",
+    "run-public-source-workflow",
+    "--topic",
+    "Changed topic",
+    "--seed",
+    "arxiv:2201.12220v3",
+    "--out",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission",
+    "--metadata-dir",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_metadata",
+    "--source-status-dir",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/source_intake",
+    "--anchor-dir",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/source_anchors",
+    "--packet-dir",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission/public_source_packet",
+    "--resume",
+    "--run-safe-local"
+  ],
+  "payload": {
+    "blocked_reason": "mission_identity_mismatch",
+    "next_required_actions": [
+      "topic, seeds, budget, or output root changed"
+    ],
+    "output_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission",
+    "schema_version": "ra-survey-public-source-orchestration-result-v1",
+    "status": "blocked",
+    "what_is_not_concluded": [
+      "live web coverage",
+      "literature completeness",
+      "survey completeness",
+      "source/PDF/full-text download completion",
+      "retraction/version safety",
+      "technical claim support",
+      "final prose readiness",
+      "product readiness",
+      "scientific correctness"
+    ]
+  },
+  "return_code": 1,
+  "stderr": "",
+  "stdout": "{\n  \"blocked_reason\": \"mission_identity_mismatch\",\n  \"next_required_actions\": [\n    \"topic, seeds, budget, or output root changed\"\n  ],\n  \"output_dir\": \"/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/changed_topic_resume/mission\",\n  \"schema_version\": \"ra-survey-public-source-orchestration-result-v1\",\n  \"status\": \"blocked\",\n  \"what_is_not_concluded\": [\n    \"live web coverage\",\n    \"literature completeness\",\n    \"survey completeness\",\n    \"source/PDF/full-text download completion\",\n    \"retraction/version safety\",\n    \"technical claim support\",\n    \"final prose readiness\",\n    \"product readiness\",\n    \"scientific correctness\"\n  ]\n}\n"
+}

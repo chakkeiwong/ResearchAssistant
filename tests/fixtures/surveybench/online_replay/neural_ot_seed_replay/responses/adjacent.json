@@ -1,0 +1,27 @@
+{
+  "adjacent_candidates": [
+    {
+      "cluster_hint": "adjacent_density_modeling",
+      "paper_key": "p_adj_001",
+      "reason": "survey of nearby invertible density-modeling methods",
+      "relation": "adjacent_method"
+    },
+    {
+      "cluster_hint": "application_domain_shift",
+      "paper_key": "p_noise_001",
+      "reason": "shares words with the topic but is an application-domain branch",
+      "relation": "noisy_adjacent"
+    },
+    {
+      "cluster_hint": "architecture_search",
+      "paper_key": "p_noise_002",
+      "reason": "optimal transport appears in a different machine-learning workflow",
+      "relation": "false_positive"
+    }
+  ],
+  "endpoint": "adjacent",
+  "request_id": "adjacent-neural-ot",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "task_id": "neural_ot_seed_replay"
+}
+

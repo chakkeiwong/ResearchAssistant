@@ -1,0 +1,279 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "absent"
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "a4723cbb78ee37335f640bf3fb71ff68094c284d7ff5b51da07e408268afcedb",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "absent"
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "absent"
+    },
+    ".mission_state/CURRENT": {
+      "kind": "absent"
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "absent"
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "absent"
+    }
+  },
+  "case_id": "missing_public_confirmation",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "run-public-source-workflow",
+        "--topic",
+        "Neural Optimal Transport for generative modeling and inference",
+        "--seed",
+        "arxiv:2201.12220v3",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/missing_public_confirmation/mission",
+        "--run-safe-local"
+      ],
+      "evidence": "cli.json",
+      "return_code": 0
+    }
+  ],
+  "expected": {
+    "action": "public_metadata",
+    "reason": "provider_metadata_is_not_a_phase5_local_action",
+    "return_code": 0,
+    "status": "terminal_blocked_public_discovery_confirmation"
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": false,
+    "reviewed_packet": false
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [
+      ".mission_state",
+      "mission_control.json",
+      "next_action.json",
+      "offline_skeleton"
+    ],
+    "changed_paths": [
+      ".mission_state",
+      ".mission_state/CURRENT",
+      ".mission_state/GENESIS",
+      ".mission_state/generations",
+      ".mission_state/generations/g00000001-c28312fec9171501",
+      ".mission_state/generations/g00000001-c28312fec9171501/generation_manifest.json",
+      ".mission_state/generations/g00000001-c28312fec9171501/mission_control.json",
+      ".mission_state/generations/g00000001-c28312fec9171501/next_action.json",
+      ".mission_state/generations/g00000002-d1ed59cc17740e40",
+      ".mission_state/generations/g00000002-d1ed59cc17740e40/generation_manifest.json",
+      ".mission_state/generations/g00000002-d1ed59cc17740e40/mission_control.json",
+      ".mission_state/generations/g00000002-d1ed59cc17740e40/next_action.json",
+      ".mission_state/transactions",
+      ".mission_state/transactions/g00000001-c28312fec9171501.json",
+      ".mission_state/transactions/g00000002-d1ed59cc17740e40.json",
+      "mission_control.json",
+      "next_action.json",
+      "offline_skeleton",
+      "offline_skeleton/build_manifest.json",
+      "offline_skeleton/candidate_ledger.json",
+      "offline_skeleton/citation_map.json",
+      "offline_skeleton/claim_support.json",
+      "offline_skeleton/omission_risk.json",
+      "offline_skeleton/paper_classifications.json",
+      "offline_skeleton/source_support.json",
+      "offline_skeleton/survey_packet.md",
+      "offline_skeleton/workflow_state.json"
+    ],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "mission_tree": {
+    ".mission_state": {
+      "kind": "directory"
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "a4723cbb78ee37335f640bf3fb71ff68094c284d7ff5b51da07e408268afcedb",
+      "size_bytes": 204
+    },
+    ".mission_state/GENESIS": {
+      "kind": "file",
+      "sha256": "40e466fbb95ea9709016ad5a77265d42f653d38e45ce5bcb7e05ff14fd7882d2",
+      "size_bytes": 964
+    },
+    ".mission_state/generations": {
+      "kind": "directory"
+    },
+    ".mission_state/generations/g00000001-c28312fec9171501": {
+      "kind": "directory"
+    },
+    ".mission_state/generations/g00000001-c28312fec9171501/generation_manifest.json": {
+      "kind": "file",
+      "sha256": "f57cb6af641cb13450d74c03ddfd3d97b798ea78c425265fba66ad5e5f242ac9",
+      "size_bytes": 982
+    },
+    ".mission_state/generations/g00000001-c28312fec9171501/mission_control.json": {
+      "kind": "file",
+      "sha256": "0ec3f02a43bd3f9fed6aa4fc4d06353eaa9c6015bfb4ac2d661ad04cafe694bb",
+      "size_bytes": 20150
+    },
+    ".mission_state/generations/g00000001-c28312fec9171501/next_action.json": {
+      "kind": "file",
+      "sha256": "7e496b2a574a3398d130aa23dc2ea2116bafc921056a5410238fb06e4f214fae",
+      "size_bytes": 3542
+    },
+    ".mission_state/generations/g00000002-d1ed59cc17740e40": {
+      "kind": "directory"
+    },
+    ".mission_state/generations/g00000002-d1ed59cc17740e40/generation_manifest.json": {
+      "kind": "file",
+      "sha256": "0538de9b7df75ec759c086c94a488624a32740405c687ef870969877271d5e93",
+      "size_bytes": 1006
+    },
+    ".mission_state/generations/g00000002-d1ed59cc17740e40/mission_control.json": {
+      "kind": "file",
+      "sha256": "26e2d96e994cbaba4ebea5c23c7ad5034ca94ddc42fe680d6702b52af8ff563c",
+      "size_bytes": 25338
+    },
+    ".mission_state/generations/g00000002-d1ed59cc17740e40/next_action.json": {
+      "kind": "file",
+      "sha256": "5c099cd4eee413565056f4ac74fd7491e1204c825164ae36e8990a280d10ab13",
+      "size_bytes": 4057
+    },
+    ".mission_state/transactions": {
+      "kind": "directory"
+    },
+    ".mission_state/transactions/g00000001-c28312fec9171501.json": {
+      "kind": "file",
+      "sha256": "48c68b01f9dba3317dd3ce3976cc6ca06c6dd696eaf733ff38b083d3871fbb12",
+      "size_bytes": 735
+    },
+    ".mission_state/transactions/g00000002-d1ed59cc17740e40.json": {
+      "kind": "file",
+      "sha256": "8a2861ddd29385aa9dee970e9b6a47ced94385d5629023d8668a96aa6a7848e4",
+      "size_bytes": 759
+    },
+    "mission_control.json": {
+      "kind": "file",
+      "sha256": "26e2d96e994cbaba4ebea5c23c7ad5034ca94ddc42fe680d6702b52af8ff563c",
+      "size_bytes": 25338
+    },
+    "next_action.json": {
+      "kind": "file",
+      "sha256": "5c099cd4eee413565056f4ac74fd7491e1204c825164ae36e8990a280d10ab13",
+      "size_bytes": 4057
+    },
+    "offline_skeleton": {
+      "kind": "directory"
+    },
+    "offline_skeleton/build_manifest.json": {
+      "kind": "file",
+      "sha256": "ca00f016460c54a5fb9473cc0991436ca762365ee2f5cdb33b6a9860ca72d935",
+      "size_bytes": 4382
+    },
+    "offline_skeleton/candidate_ledger.json": {
+      "kind": "file",
+      "sha256": "918458eaa08b06fc5949d2d52233016b1762f4b0d42a32d9ea055d70f2fbf3ae",
+      "size_bytes": 608
+    },
+    "offline_skeleton/citation_map.json": {
+      "kind": "file",
+      "sha256": "3d0d69c1207a4b4b1c453fc44fedc96ccb1b4c9b96d7296d08776201bdd7ff48",
+      "size_bytes": 1268
+    },
+    "offline_skeleton/claim_support.json": {
+      "kind": "file",
+      "sha256": "259946fc5c8aa53e8b385cc9ed073608c5b5df5b571cb8229e4a8194c6457a45",
+      "size_bytes": 460
+    },
+    "offline_skeleton/omission_risk.json": {
+      "kind": "file",
+      "sha256": "efd8aaf05481ca50b61cff1a0542d3048d31afa9f7b21c24144841958b103ee4",
+      "size_bytes": 1077
+    },
+    "offline_skeleton/paper_classifications.json": {
+      "kind": "file",
+      "sha256": "5d0704f2ce4c8a91c11f20a0ea7deb33d398caebbd01d7c5372ab5118d9909a5",
+      "size_bytes": 785
+    },
+    "offline_skeleton/source_support.json": {
+      "kind": "file",
+      "sha256": "6b98bb62d8da8ff78fe58aea1dc1d0668dc03ca2ab79fb70f19f8418e7a2cdb5",
+      "size_bytes": 846
+    },
+    "offline_skeleton/survey_packet.md": {
+      "kind": "file",
+      "sha256": "2efa9bf7783b49216357a73f86a6a9d355ed342d4f01694ea571cce90a9b3eff",
+      "size_bytes": 1071
+    },
+    "offline_skeleton/workflow_state.json": {
+      "kind": "file",
+      "sha256": "0b103e0ca9567a554cfd548bbe4e72727c623fc798e40fe5bb8b4d43fbf4f3da",
+      "size_bytes": 1041
+    }
+  },
+  "observed": {
+    "action": "public_metadata",
+    "reason": "provider_metadata_is_not_a_phase5_local_action",
+    "return_code": 0,
+    "status": "terminal_blocked_public_discovery_confirmation"
+  },
+  "setup_status": "passed",
+  "status": "passed",
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

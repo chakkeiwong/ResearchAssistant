@@ -1,0 +1,127 @@
+{
+  "allowed_item_statuses": [
+    "review_required"
+  ],
+  "artifact_set_id": "s-7a790d3c3ede769d4d85d3a7d56eebc1c66c24de771b0853a5d47cf8c44cfcb1",
+  "coverage_exact_digests": {
+    "backward_snowball.json": {
+      "sha256": "e64e692062a43d3de50f39a03749e44bd482dc1f245f482b8d024b8da5d31ccb",
+      "size_bytes": 465
+    },
+    "citation_venue_metadata.json": {
+      "sha256": "a16e4f64ef8bf251740b4764cba66512da9b12c2a5c82be74ad9dffe64eb9454",
+      "size_bytes": 471
+    },
+    "coverage_manifest.json": {
+      "sha256": "72365506ce9d7fa8423ed839f1d7fd9c51ee90127bb1610a683452a52bcaff5d",
+      "size_bytes": 2338
+    },
+    "forward_snowball.json": {
+      "sha256": "120c3a80e649911ef0dee07754e61d8b2c5828fd7ae2e21e86c4cb18a2d9ba2f",
+      "size_bytes": 464
+    },
+    "omitted_paper_risks.json": {
+      "sha256": "6675293e121b0c59723c42e100ba45efca26830b6594a72b4ba0f24aacacad75",
+      "size_bytes": 467
+    },
+    "paper_classifications.json": {
+      "sha256": "161c0d8bf5980afbb24b34155a18bdbe88a299155efc5a23acd8f48dc5dd940e",
+      "size_bytes": 469
+    }
+  },
+  "coverage_lineage_sha256": "925c41d442b3514765b2fd39375804b090dc47d23cdd32d6a21c9ad6c05632aa",
+  "coverage_semantic_digests": {
+    "backward_snowball.json": "57de4e65f3ecf628569c4cea494248d0e321affacbc9848a8afaea4e66552ba9",
+    "citation_venue_metadata.json": "0b0085e7f6cc9991654fcea794305953f640e0229ac9e0846e36050f4c81b6c4",
+    "forward_snowball.json": "769c326848d421d26d4e6027d4b28177ed2237b9598a451a775d5616cb8d892e",
+    "omitted_paper_risks.json": "2768525d24719e3161491f1e1da6df266f34a0d0fa9c94a78deb1addab1a66ea",
+    "paper_classifications.json": "b443627ff479ba6ae9d1d8b1064cf0df6fba5638c8462dadfdcd76986c5f634d"
+  },
+  "forbidden_promotions": [
+    "review is not prose readiness"
+  ],
+  "items": [
+    {
+      "item_id": "claim_candidate-ec75573b405e54c591b64388",
+      "priority": "high",
+      "queue_type": "claim_candidate",
+      "semantic_item_sha256": "ec75573b405e54c591b643885c4d811edf836a33e7d65db19b331b7ba90c8c11",
+      "source_id": "claim-0",
+      "status": "review_required"
+    },
+    {
+      "item_id": "omission_risk-6d98353e61d2870d433771c1",
+      "priority": "high",
+      "queue_type": "omission_risk",
+      "semantic_item_sha256": "6d98353e61d2870d433771c1cdee8afd78cb9665e98ee23bc6f492d79727acbd",
+      "source_id": "omission-source",
+      "status": "review_required"
+    },
+    {
+      "item_id": "source_safety-61c33478dc49107205a97a20",
+      "priority": "high",
+      "queue_type": "source_safety",
+      "semantic_item_sha256": "61c33478dc49107205a97a20194378bc78ac649b1321050dbbac9ebda2f05337",
+      "source_id": "source-safety-source",
+      "status": "review_required"
+    },
+    {
+      "item_id": "workflow_blocker-0193f7b4bbff6950f0704f7d",
+      "priority": "high",
+      "queue_type": "workflow_blocker",
+      "ready_for_prose": false,
+      "reason": "no reviewed supported technical claim rows are present",
+      "required_evidence_queue_item_ids": [
+        "claim_candidate-ec75573b405e54c591b64388"
+      ],
+      "required_evidence_queue_type": "claim_candidate",
+      "resolution_class": "claim_review",
+      "semantic_item_sha256": "0193f7b4bbff6950f0704f7dceec470e7fd1a5f65b929159a1da708a63cbaf72",
+      "source_id": "cded3c617db1ecac42c78f02bbfe185676d8df0bdd3ecb9ca04f9b244e00f896",
+      "status": "blocked_pending_evidence"
+    }
+  ],
+  "mission_anchor_generation_id": "g00000001-b1f4612c9a4d765f",
+  "mission_fingerprint": "d8ca46b6f486214e93637ec46fdb5c733620188beb4ceecd12100b7ac81d98f8",
+  "mission_id": "22222222-2222-4222-8222-222222222222",
+  "packet_input_digests": {
+    "build_manifest": {
+      "relative_path": "build_manifest.json",
+      "sha256": "2437008876ea88d3bd654f0bebc58695a4b710d36a39c7a6f12ec6d477895c7d",
+      "size_bytes": 41
+    },
+    "claim_support": {
+      "relative_path": "claim_support.json",
+      "sha256": "2437008876ea88d3bd654f0bebc58695a4b710d36a39c7a6f12ec6d477895c7d",
+      "size_bytes": 41
+    },
+    "source_safety_status": {
+      "relative_path": "source_safety_status.json",
+      "sha256": "2437008876ea88d3bd654f0bebc58695a4b710d36a39c7a6f12ec6d477895c7d",
+      "size_bytes": 41
+    }
+  },
+  "queue_counts": {
+    "by_priority": {
+      "high": 4
+    },
+    "by_status": {
+      "blocked_pending_evidence": 1,
+      "review_required": 3
+    },
+    "by_type": {
+      "claim_candidate": 1,
+      "omission_risk": 1,
+      "source_safety": 1,
+      "workflow_blocker": 1
+    },
+    "total": 4
+  },
+  "queue_semantic_sha256": "99512f44a6bce5f55f7a1bbdb8273e09ea489df6ba9fe8d2349d143dd04a7cda",
+  "schema_version": "ra-survey-public-source-review-queue-v2",
+  "status": "review_required",
+  "topic": "Phase 3 four-type coverage matrix",
+  "what_is_not_concluded": [
+    "scientific correctness"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": "ra-literature-survey-m19a-static-audit-v1",
+  "status": "passed_with_recorded_harness_limitations",
+  "validated_commit": "945332f891e40cc02d53806bc3ca4b2157cc51e0",
+  "lineage": {
+    "product_candidate_parent_is_m18_closeout": true,
+    "harness_repair_parent_is_product_candidate": true,
+    "git_diff_check_passed": true
+  },
+  "network_boundary": {
+    "live_network_executed": false,
+    "live_output_root_absent": true,
+    "live_output_root": "docs/validation/literature_survey_m19_live_metadata_2026-07-14",
+    "catching_tests_monkeypatch_real_socket_creation": true,
+    "no_proxy_opener_and_redirect_rejection_covered": true,
+    "strace_or_external_packet_capture_performed": false,
+    "interpretation": "No live or provider process was launched. The no-network conclusion is based on execution scope and catching tests, not packet capture."
+  },
+  "write_and_inventory_boundary": {
+    "validation_top_level_before_close_records": [
+      "fake_run",
+      "junit",
+      "logs",
+      "pytest_tmp"
+    ],
+    "pytest_tmp_top_level": [
+      "affected_phase7",
+      "cumulative_m16_m17",
+      "supervisor",
+      "transport"
+    ],
+    "in_root_full_cli_basetemp_absent": true,
+    "fake_run_unknown_file_or_directory_count": 0,
+    "fake_run_nonregular_artifact_count": 0,
+    "pytest_scratch_contains_intentional_malformed_and_symlink_negative_fixtures": true,
+    "pytest_scratch_policy": "opaque retained test output inside the four allowlisted gate trees"
+  },
+  "fake_run_replay": {
+    "status": "passed",
+    "boundary_valid": true,
+    "request_ledger_status": "complete",
+    "request_count": 4,
+    "request_statuses": [
+      "unavailable_transport_error",
+      "unavailable_transport_error",
+      "unavailable_transport_error",
+      "unavailable_transport_error"
+    ],
+    "fixture_network_behavior": "deterministic_no_network_unavailable",
+    "record_count": 0,
+    "root_inventory_artifact_count": 18,
+    "summary_hash_bindings_replayed": true,
+    "route_manifest_sha256": "72a40b50ff3dd3e06630de8f9947ab57ae0f7651b84a6933f4ec2d88158c07b9",
+    "request_ledger_sha256": "a0a855ee6bdfd9d31f96324173e32c701dc09d9f15229428b1347959c9e8cee5",
+    "root_inventory_sha256": "ef9062808bdf27a3ac91b32e5d61e62129a33276d678bcee880af457c2fe11c3",
+    "hardening_summary_sha256": "ace9a4a7f2a52d8bf87cc3ea44f3fa77aa25aae8091b02e3ac6d9f15a4cb1ab2"
+  },
+  "protected_worktree": {
+    "status": "preserved",
+    "paths": {
+      ".gitignore": "29344e75c13a1a6d4e9b1bb653d106156cafb02ee61b1c99701c9a32f5ec9074",
+      "docs/benchmark_plan.md": "2395402f907a6d163979e37fa62d6975109c5e9ccfcb7322962b3a0a2e00a033",
+      "src/research_assistant/cli.py": "f29025639bf48b56dcf90979f2a9d24b63876deda4c23600d497c67fa054137c",
+      "src/research_assistant/ingest/arxiv_batch.py": "cda93366f622a8c52ed809570ad40b8062c309e29d8c9ab47aa8b971466152be",
+      "src/research_assistant/source/arxiv_source.py": "5ae7f4bb1aea9ab7d999f8e915760f92ae0e2fffcc31af4cf3b3e4db780576d8",
+      "tests/integration/test_arxiv_batch_intake.py": "bb9975537e134322449341bc1941a7582d714fc95b93fb9c86ce1beee712ce80",
+      "tests/unit/test_arxiv_source.py": "21bfb200b0a75d9e4bd7b536bff2d6b953b2866fc59a17e196b368443f716f9d"
+    }
+  },
+  "package_origin": {
+    "isolated_installed_import_passed": true,
+    "package_root": "/tmp/ra_m19_isolated_945332f/venv/lib/python3.11/site-packages/research_assistant",
+    "current_shell_import_with_pythonpath_unset": "not_installed_in_current_shell_environment",
+    "classification": "environment_harness_observation_not_product_failure"
+  },
+  "forbidden_actions": {
+    "gpu_used": false,
+    "push_performed": false,
+    "release_performed": false,
+    "protected_path_mutated_by_m19a": false,
+    "live_supervisor_entry_point_invoked": false
+  }
+}

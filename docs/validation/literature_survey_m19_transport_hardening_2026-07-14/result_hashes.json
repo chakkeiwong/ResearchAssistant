@@ -1,0 +1,38 @@
+{
+  "schema_version": "ra-literature-survey-m19a-result-hashes-v1",
+  "status": "complete",
+  "hash_algorithm": "sha256",
+  "validated_commit": "945332f891e40cc02d53806bc3ca4b2157cc51e0",
+  "hash_scope": "authoritative manifests, gate reports, fake-run boundary artifacts, close record, refreshed parent, draft approval packet, and terminal review bundle; excludes this file, retained pytest scratch, and external full-CLI basetemp",
+  "artifacts": {
+    "code_test_manifest.json": "3d3898764abe110f1bf8b9e86ebf990996dc0d785b4d43b39025be17df8e1717",
+    "decision_table.json": "1e3697b688820d53bad212cc4d2ecfb7685310bea8136416b380043bf0391603",
+    "fake_run/hardening_summary.json": "ace9a4a7f2a52d8bf87cc3ea44f3fa77aa25aae8091b02e3ac6d9f15a4cb1ab2",
+    "fake_run/request_ledger.json": "a0a855ee6bdfd9d31f96324173e32c701dc09d9f15229428b1347959c9e8cee5",
+    "fake_run/root_inventory.json": "ef9062808bdf27a3ac91b32e5d61e62129a33276d678bcee880af457c2fe11c3",
+    "fake_run/route_manifest.json": "72a40b50ff3dd3e06630de8f9947ab57ae0f7651b84a6933f4ec2d88158c07b9",
+    "inference_status.json": "8afeea8195e1f7379705d2e1eaca9b6bdea3cbaf6511a5ecca966a7f6bb0f88e",
+    "junit/affected_phase7.xml": "29bcfd86019f45475499a096d8061c5b562eb25a45e56764f9c52131ef9c376e",
+    "junit/cumulative_m16_m17.xml": "c085a39ff0c207e9f3ec36da98cb4751ae1dd8948323cecc4b54457122f910f6",
+    "junit/full_cli.xml": "2ce434ec32d21b08c3e7b121f4a4c7948c93959417e8748d794fc52fd86d3250",
+    "junit/supervisor.xml": "8c7043ef2341502a7694ca4740f67fb07dab3fc5108e3407efbbe41a27dd6c61",
+    "junit/transport.xml": "389d99580b48263370b16ad77c857689d9c7317644beb1dbb32f935c790c4266",
+    "logs/affected_phase7.log": "bcbc59aee0694ad22d131060485755c72d1ea3cc19473e766a21d3a375ef8cc6",
+    "logs/cumulative_m16_m17.log": "4b790301d7c318a4ecf7dcf804dadb9d38cff333c456af3d2131f969d3ef4969",
+    "logs/full_cli.log": "5c8bc4a35e81639f9048fc7719914b24e45f14be7c25e3ab640492d1ea034540",
+    "logs/supervisor.log": "cf5c3fdea40eb0bdc9b3ead39c2b701fbc7e8a8a93b81bd33efa766d0172f305",
+    "logs/transport.log": "c15b71be04f4376528c0ffb06a7288697e528de596c4cc548b1bdce763d39bd5",
+    "post_run_red_team.json": "20b0ab18841ce7696716afa79553914b95d968c769a8fd711131eeb23cfc451b",
+    "run_manifest.json": "26961de949251a31d1fdc997ed14c9ecd10c42f9955c1e8ffe962361152a7a90",
+    "static_audit.json": "3edc61a84dd27540faf5edcd1350337b8d7826363fd0621f8f9c6ec42de51c33",
+    "../../plans/literature_survey_north_star_m19_bounded_live_metadata_validation_subplan_2026-07-13.md": "9ab6420ca47a7a8917bf6f65f9ba9fbff0f356d649f4c5b1baad5d4fb936c425",
+    "../../plans/literature_survey_north_star_m19_exact_live_approval_packet_2026-07-14.md": "e8d05a8a32721e9078f62382ea7c9ad1a461e936dd601aa9e31f1ea1b295a038",
+    "../../plans/literature_survey_north_star_m19_metadata_transport_hardening_result_2026-07-14.md": "ddfe0b692c2b2cb98b60aeebcd655d6f2588582e63059f70c42ae69e85873c09",
+    "../../reviews/literature_survey_m19_transport_hardening_terminal_review_bundle_2026-07-14.md": "8e88f66d35e2b7a0e9791f0163ee430ecf7c52a931aaa1673120647048412f3e"
+  },
+  "excluded": {
+    "/tmp/ra_m19_full_cli_basetemp_attempt03": "retained_harness_scratch_not_authoritative",
+    "pytest_tmp/**": "retained_opaque_gate_output_not_recursively_hashed_here",
+    "result_hashes.json": "excluded_to_avoid_self_hash_cycle"
+  }
+}

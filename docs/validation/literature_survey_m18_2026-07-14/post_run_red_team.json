@@ -1,0 +1,15 @@
+{
+  "schema_version": "ra-literature-survey-m18-post-run-red-team-v1",
+  "status": "no_m18_continuation_veto",
+  "strongest_alternative_explanation": "The candidate is reproducible only in this WSL/Python 3.11 environment because the venv inherited system packages; offline wheel construction and RA origin checks do not prove dependency installation on a bare machine.",
+  "response": "M18 claims Git/local-alpha reproducibility in the observed environment only. It does not claim a lockfile-complete bare-machine install or cross-platform support.",
+  "result_that_would_overturn_the_conclusion": "A fresh clone of the exact candidate or closeout relationship fails payload replay, imports RA outside the installed venv, needs an uncommitted file, changes a protected path, or fails a required gate.",
+  "weakest_evidence": "System-site-packages means third-party dependency closure is environment-assisted rather than proven from an offline dependency wheelhouse.",
+  "observed_harness_repairs": [
+    "non-escalated strace was blocked before execution; the trusted rerun passed",
+    "a compatibility check initially named nonexistent run_arxiv_batch and was corrected to run_arxiv_batch_intake",
+    "the first Phase 10 selector selected zero tests and was superseded by an exact-node 2-test pass",
+    "several evidence-audit commands had path or one-line Python mistakes and were corrected"
+  ],
+  "interpretation": "These were validation-command repairs within attempt 1. They did not change the candidate, target, criteria, data, hardware, or boundary and do not justify an attempt-2 candidate repair."
+}

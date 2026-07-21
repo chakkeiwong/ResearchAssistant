@@ -1,0 +1,29 @@
+{
+  "schema_version": "ra-survey-m20a-run-manifest-v1",
+  "status": "blocked_review_nonconvergence_after_five_rounds",
+  "git_commit": "ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5",
+  "commands": [
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src pytest -q tests/unit/test_literature_survey_m19_transport.py tests/scripts/test_literature_survey_m19_live_metadata_supervisor.py tests/unit/test_literature_survey_m20_discovery.py --junitxml=docs/validation/literature_survey_m20_local_hardening_2026-07-14/junit/m19_m20_focused_round5_final.xml",
+    "CUDA_VISIBLE_DEVICES=-1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src pytest -q tests/unit/test_literature_survey_m16_phase7.py tests/unit/test_literature_survey_m16_phase8.py tests/unit/test_literature_survey_m17.py --junitxml=docs/validation/literature_survey_m20_local_hardening_2026-07-14/junit/affected_m16_m17_round5_final.xml"
+  ],
+  "environment": {
+    "python": "3.11.14",
+    "conda_environment": "tf-gpu",
+    "cpu_gpu_status": "CPU-only; GPU devices intentionally hidden with CUDA_VISIBLE_DEVICES=-1",
+    "network_status": "not used",
+    "provider_status": "not called"
+  },
+  "data_version": "M19 immutable result at f06ceb72cd1bb0628b01f206f9e82697e23cb0c7; no live data consumed by M20A",
+  "random_seeds": "N/A; deterministic unit tests",
+  "wall_time_seconds": {
+    "m19_m20_focused": 4.53,
+    "affected_m16_m17": 104.69
+  },
+  "outputs": [
+    "docs/validation/literature_survey_m20_local_hardening_2026-07-14/junit/m19_m20_focused_round5_final.xml",
+    "docs/validation/literature_survey_m20_local_hardening_2026-07-14/junit/affected_m16_m17_round5_final.xml",
+    "docs/validation/literature_survey_m20_local_hardening_2026-07-14/candidate_automaton.json"
+  ],
+  "plan_file": "docs/plans/literature_survey_north_star_m20_live_discovery_and_citation_frontier_subplan_2026-07-13.md",
+  "result_file": "docs/plans/literature_survey_north_star_m20a_local_hardening_blocker_result_2026-07-14.md"
+}

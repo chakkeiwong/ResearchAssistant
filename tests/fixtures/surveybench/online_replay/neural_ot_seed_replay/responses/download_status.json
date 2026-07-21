@@ -1,0 +1,34 @@
+{
+  "endpoint": "download-status",
+  "request_id": "download-status-all",
+  "schema_version": "ra-surveybench-online-replay-response-v1",
+  "statuses": [
+    {
+      "download_status": "downloaded_fixture",
+      "paper_key": "p_seed_001"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "p_ref_001"
+    },
+    {
+      "download_status": "blocked_fixture",
+      "paper_key": "p_cite_001",
+      "reason": "fixture simulates metadata-only access"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "p_adj_001"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "p_noise_001"
+    },
+    {
+      "download_status": "not_attempted",
+      "paper_key": "p_noise_002"
+    }
+  ],
+  "task_id": "neural_ot_seed_replay"
+}
+

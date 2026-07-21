@@ -1,0 +1,128 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "classical_optimal_transport",
+      "label": "Classical optimal transport and dynamic formulations",
+      "node_keys": [
+        "classical_ot_foundation"
+      ],
+      "survey_section_hint": "mathematical lineage"
+    },
+    {
+      "cluster_id": "neural_optimal_transport",
+      "label": "Neural optimal transport maps",
+      "node_keys": [
+        "seed_neural_ot",
+        "major_citing_work"
+      ],
+      "survey_section_hint": "direct neural transport methods"
+    },
+    {
+      "cluster_id": "adjacent_normalizing_flows",
+      "label": "Adjacent normalizing-flow methods",
+      "node_keys": [
+        "normalizing_flows_review"
+      ],
+      "survey_section_hint": "adjacent density-modeling literature"
+    }
+  ],
+  "edges": [
+    {
+      "confidence": "fixture_ground_truth",
+      "edge_type": "cites",
+      "evidence": "seed bibliography",
+      "source": "seed_neural_ot",
+      "target": "classical_ot_foundation"
+    },
+    {
+      "confidence": "fixture_ground_truth",
+      "edge_type": "cites",
+      "evidence": "forward citation metadata",
+      "source": "major_citing_work",
+      "target": "seed_neural_ot"
+    },
+    {
+      "confidence": "requires_review",
+      "edge_type": "adjacent_method",
+      "evidence": "topic expansion",
+      "source": "seed_neural_ot",
+      "target": "normalizing_flows_review"
+    }
+  ],
+  "expansion_policy": {
+    "adjacent_query_count": 2,
+    "backward_depth": 1,
+    "forward_depth": 1,
+    "max_downloads": 4,
+    "max_nodes": 8
+  },
+  "nodes": [
+    {
+      "cluster": "neural_optimal_transport",
+      "download_status": "downloaded_fixture",
+      "local_source_status": "available_fixture",
+      "paper_key": "seed_neural_ot",
+      "review_status": "requires_human_review",
+      "roles": [
+        "seed",
+        "direct_method"
+      ],
+      "survey_relevance": "central",
+      "title": "Synthetic Neural Optimal Transport Maps",
+      "year": 2021
+    },
+    {
+      "cluster": "classical_optimal_transport",
+      "download_status": "not_attempted",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "classical_ot_foundation",
+      "review_status": "requires_human_review",
+      "roles": [
+        "foundational"
+      ],
+      "survey_relevance": "lineage",
+      "title": "A Synthetic Dynamic Formulation of Optimal Transport",
+      "year": 2000
+    },
+    {
+      "cluster": "neural_optimal_transport",
+      "download_status": "blocked_fixture",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "major_citing_work",
+      "review_status": "requires_human_review",
+      "roles": [
+        "major_citing_work",
+        "direct_method"
+      ],
+      "survey_relevance": "forward_citation",
+      "title": "Synthetic Scalable Neural Transport for Inference",
+      "year": 2023
+    },
+    {
+      "cluster": "adjacent_normalizing_flows",
+      "download_status": "not_attempted",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "normalizing_flows_review",
+      "review_status": "requires_human_review",
+      "roles": [
+        "survey",
+        "adjacent_method"
+      ],
+      "survey_relevance": "adjacent_background",
+      "title": "A Synthetic Review of Normalizing Flows",
+      "year": 2019
+    }
+  ],
+  "schema_version": "ra-surveybench-citation-map-v1",
+  "seed_papers": [
+    "seed_neural_ot"
+  ],
+  "survey_packet_paths": {
+    "candidate_ledger": "expected_candidate_ledger.json",
+    "claim_support": "expected_claim_support.json",
+    "omission_risk": "expected_omission_risk.json",
+    "source_support": "expected_source_support.json"
+  },
+  "task_id": "neural_ot_seed_synthetic",
+  "topic": "Neural Optimal Transport for generative modeling and inference"
+}

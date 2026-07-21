@@ -1,0 +1,102 @@
+{
+  "artifact_set_id": "s-221a9a1e288f43990302ac133cdedb6219077ce45e29282845547989a43471aa",
+  "decision_type": "source_safety",
+  "decisions": [
+    {
+      "decision": "quarantined",
+      "fixture_only": true,
+      "observation_id": "so-16923ecb9f4482a5d28ba26764e8c46fa754d72a716d6f1be44b2d82fa529790",
+      "observation_set_id": "ss-83343743ad2e78fa07ede4c7b742667dab8c95ae80685de90ed68682cf53abd1",
+      "observation_set_manifest_sha256": "21ad0151d5f589d8a248efc2d2d9e1d462ebef769a3165d29ed6e46f6f09dce3",
+      "observation_sha256": "16923ecb9f4482a5d28ba26764e8c46fa754d72a716d6f1be44b2d82fa529790",
+      "queue_item_id": "source_safety-2d7a77e5241f0ec7ae0b776a",
+      "reason": "Synthetic fixture decision for engineering state-transition tests only.",
+      "reviewed_at": "2026-07-12T04:01:00Z",
+      "reviewer": "synthetic-fixture-reviewer",
+      "reviewer_authority": "legacy_ambiguous_review",
+      "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+      "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+      "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129"
+    }
+  ],
+  "mission_anchor_generation_id": "g00000007-0ebf5d89357a2631",
+  "mission_fingerprint": "1982a0fd42f12871c75c8d9b4faf3684967c8af2c236a2c408dd7b00fd71f923",
+  "mission_id": "d5ac9498-4de6-4b91-8049-a17dd5a32c5f",
+  "observation_set": {
+    "artifact_set_id": "s-221a9a1e288f43990302ac133cdedb6219077ce45e29282845547989a43471aa",
+    "fixture_only": true,
+    "mission_anchor_generation_id": "g00000007-0ebf5d89357a2631",
+    "mission_fingerprint": "1982a0fd42f12871c75c8d9b4faf3684967c8af2c236a2c408dd7b00fd71f923",
+    "mission_id": "d5ac9498-4de6-4b91-8049-a17dd5a32c5f",
+    "observations": [
+      {
+        "aliases": [
+          "openalex:w100"
+        ],
+        "canonical_identifier": "openalex:w100",
+        "checks_performed": [
+          "expression_of_concern",
+          "major_erratum_or_corrigendum",
+          "retraction",
+          "version_consistency",
+          "withdrawal"
+        ],
+        "claim_support_allowed": false,
+        "evidence_class": "recorded_status_check",
+        "final_url": "https://api.openalex.org/works/W100",
+        "fixture_only": true,
+        "notices": [
+          {
+            "detail": "Synthetic quarantined notice for engineering state-transition tests only.",
+            "notice_type": "quarantine",
+            "observed_at": "2026-07-12T04:00:00Z",
+            "source": "synthetic fixture status registry"
+          }
+        ],
+        "observation_id": "so-16923ecb9f4482a5d28ba26764e8c46fa754d72a716d6f1be44b2d82fa529790",
+        "observation_sha256": "16923ecb9f4482a5d28ba26764e8c46fa754d72a716d6f1be44b2d82fa529790",
+        "observed_at": "2026-07-12T04:00:00Z",
+        "outcome": "quarantined",
+        "provider": "openalex",
+        "queue_item_id": "source_safety-2d7a77e5241f0ec7ae0b776a",
+        "source_paper_id": "paper_openalex_w100_fc9a224b790d",
+        "source_record_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori66/mission/local_research/papers/source/records/paper_openalex_w100_fc9a224b790d.json",
+        "source_record_sha256": "748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+        "source_record_size_bytes": 977,
+        "source_version": "record-sha256:748fcbed3301e7b13d679e73b5ed56c65bd90e1e2b6db54d81f49981e0803c34",
+        "stable_metadata_paper_id": "p_dq_ed9221ee9d933fa9115590093e325e9c8f3b29a50f065b7d097e8cee87abb129",
+        "status_source": "synthetic fixture status registry",
+        "what_is_not_concluded": [
+          "authenticated human review",
+          "complete source safety",
+          "claim truth",
+          "literature completeness",
+          "live reliability",
+          "scientific correctness"
+        ]
+      }
+    ],
+    "predecessor_observation_set_id": null,
+    "predecessor_observation_set_manifest_sha256": null,
+    "queue_semantic_sha256": "ecdde3281864b9dece452fcb1d90ee9c0b70396562123c817a704a42d174c315",
+    "review_queue_sha256": "a713f4d0b7152a48ff8e93f86beca5fd838e10eceae19bd0270bea8a8309c52c",
+    "schema_version": "ra-survey-source-status-observation-set-v1",
+    "source_intake_status_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori66/mission/source_intake/phase4_source_intake_status.json",
+    "source_intake_status_sha256": "d8d5e8d06b1c51c74b4305afe26aec36e4e126937b385d70055b647e4543f63f",
+    "source_intake_status_size_bytes": 10450,
+    "source_outcome_ledger_path": "/tmp/ra_m19_isolated_bb4300c/docs/validation/literature_survey_m19_transport_hardening_round3_2026-07-14/pytest_tmp/cumulative_m16_m17/test_v3_source_outcome_authori66/mission/source_intake/source_intake_outcomes.json",
+    "source_outcome_ledger_sha256": "1400bd95ae3ad213f14550ba979bb67c30e7d92aca7475c9aca4958804577288",
+    "source_outcome_ledger_size_bytes": 9907,
+    "what_is_not_concluded": [
+      "authenticated human review",
+      "complete source safety",
+      "claim truth",
+      "literature completeness",
+      "live reliability",
+      "scientific correctness"
+    ]
+  },
+  "queue_semantic_sha256": "ecdde3281864b9dece452fcb1d90ee9c0b70396562123c817a704a42d174c315",
+  "review_queue_sha256": "a713f4d0b7152a48ff8e93f86beca5fd838e10eceae19bd0270bea8a8309c52c",
+  "schema_version": "ra-survey-source-safety-review-v3"
+}

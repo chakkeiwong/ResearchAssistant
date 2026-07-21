@@ -1,0 +1,61 @@
+{
+  "bootstrap_authority": {
+    "capability_name": "deterministic_fixture",
+    "capability_version": "1",
+    "confirmed_generation_id": "g00000002-ae2b08be53929400",
+    "effective_normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "manifest_sha256": "157ded8a3a68bf2df91812e2d2f9294e86082517e9f8a99a2cde9378a5d470ed",
+    "request_id": "br-4916cf7de135e8203fb4430daa53261c5751c07fb54c09210e436f4b19efe642",
+    "request_sha256": "4916cf7de135e8203fb4430daa53261c5751c07fb54c09210e436f4b19efe642",
+    "schema_version": "ra-survey-topic-bootstrap-authority-v1",
+    "set_id": "bs-3795ac560f83cebb1b389f65c05eb24c0e266482918ee5515f20c4fc65ce6a2e"
+  },
+  "clusters": [],
+  "edges": [],
+  "effective_seed_source": "selected_bootstrap_authority_not_original_mission_input",
+  "expansion_policy": {
+    "adjacent_query_count": 3,
+    "backward_depth": 1,
+    "forward_depth": 1,
+    "max_downloads": 20,
+    "max_nodes": 40
+  },
+  "next_required_actions": [
+    "add backward lineage from seed references",
+    "add forward citations from approved metadata source or replay fixture",
+    "add adjacent clusters with relevance reasons"
+  ],
+  "nodes": [
+    {
+      "bootstrap_manifest_sha256": "157ded8a3a68bf2df91812e2d2f9294e86082517e9f8a99a2cde9378a5d470ed",
+      "bootstrap_request_sha256": "4916cf7de135e8203fb4430daa53261c5751c07fb54c09210e436f4b19efe642",
+      "bootstrap_set_id": "bs-3795ac560f83cebb1b389f65c05eb24c0e266482918ee5515f20c4fc65ce6a2e",
+      "cluster": "pending_classification",
+      "download_status": "not_attempted",
+      "identifier": "arxiv:2201.12220v3",
+      "local_source_status": "pending_lookup",
+      "paper_key": "arxiv:2201.12220v3",
+      "review_status": "requires_human_review",
+      "roles": [
+        "seed"
+      ],
+      "survey_relevance": "central_seed_pending_metadata"
+    }
+  ],
+  "original_initial_seeds": [],
+  "schema_version": "ra-survey-bootstrap-effective-citation-map-v1",
+  "seed_papers": [
+    "arxiv:2201.12220v3"
+  ],
+  "status": "skeleton_pending_citation_expansion",
+  "survey_packet_paths": {
+    "candidate_ledger": "candidate_ledger.json",
+    "claim_support": "claim_support.json",
+    "omission_risk": "omission_risk.json",
+    "paper_classifications": "paper_classifications.json",
+    "source_support": "source_support.json"
+  },
+  "topic": "Neural Optimal Transport"
+}

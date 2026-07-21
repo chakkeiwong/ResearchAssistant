@@ -1,0 +1,64 @@
+{
+  "claims": [
+    {
+      "anchors": [
+        {
+          "kind": "section",
+          "label": "sec:transport-hmc-method",
+          "paper_key": "thmc_seed_001"
+        }
+      ],
+      "claim": "The synthetic seed is the central transport-assisted HMC method node for this benchmark task.",
+      "claim_id": "claim_transport_hmc_seed_method_node",
+      "paper_keys": [
+        "thmc_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "fixture_source_support"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "benchmark_table",
+          "label": "tab:wall-clock-scores",
+          "paper_key": "thmc_proxy_001"
+        }
+      ],
+      "claim": "Benchmark proxy scores support making transport-HMC the default sampler for DSGE inference.",
+      "claim_id": "claim_proxy_default_sampler_support",
+      "paper_keys": [
+        "thmc_proxy_001"
+      ],
+      "status": "supported",
+      "support_class": "benchmark_proxy"
+    },
+    {
+      "anchors": [
+        {
+          "kind": "citation_map_edge",
+          "label": "thmc_cite_001->thmc_seed_001",
+          "paper_key": "thmc_cite_001"
+        }
+      ],
+      "claim": "The replay citation surface marks thmc_cite_001 as citing the synthetic seed.",
+      "claim_id": "claim_transport_hmc_forward_citation",
+      "paper_keys": [
+        "thmc_cite_001",
+        "thmc_seed_001"
+      ],
+      "status": "supported",
+      "support_class": "fixture_graph_support"
+    }
+  ],
+  "schema_version": "ra-surveybench-claim-support-v1",
+  "task_id": "transport_hmc_dsge_replay",
+  "what_is_not_concluded": [
+    "live-web completeness",
+    "current citation counts",
+    "download reliability",
+    "scientific correctness",
+    "product readiness",
+    "survey completeness",
+    "domain generality"
+  ]
+}

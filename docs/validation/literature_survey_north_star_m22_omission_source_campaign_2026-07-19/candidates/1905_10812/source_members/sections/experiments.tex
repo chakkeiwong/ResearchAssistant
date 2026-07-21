@@ -1,0 +1,169 @@
+\section{EXPERIMENTS}
+%\begin{wrapfigure}{r}{0.40\textwidth}
+%    \vskip-1.6cm
+%    \centering
+%    \includegraphics[width=0.18\textwidth]{experiments/cube/newpoints_cube.png} \\
+%    \includegraphics[width=0.40\textwidth]{experiments/semiball/newpoints_semiball.png}
+%    \caption{In the global (top) and local (bottom) regularity settings with $d=2$, we plot $n=500$ i.i.d samples from $\mu$ (red) and $\nu$ (blue). Black lines show the displacements $x \mapsto \nabla \hat f_n(x)$ for some new points $x \not\in \supp{\mu}$, computed by solving QCQP~\eqref{eqn:newpoint}.
+%    }\label{fig:figures_semiball_cube}
+%    \vskip-1.8cm
+%\end{wrapfigure}
+All the computations were performed on a i9 2,9 GHz CPU, using MOSEK as a convex QCQP solver.
+
+\subsection{Numerical Estimation of Wasserstein Distances and Monge Maps}\label{sec:exp_stat}
+
+In this experiment, we consider two different settings:\newline
+\textbf{Global regularity:} $\mu$ is the uniform measure over the unit cube in $\Rd$, and $\nu = T_\sharp\mu$ where $T(x) = \Omega_d x$, where $\Omega_d$ is the diagonal matrix with diagonal coefficients: $0.8 + \frac{0.4}{d-1}(i-1)$, for $i \in \range{d}$. $T$ is the gradient of the convex function $f: x \mapsto \frac{1}{2}\|\Omega^{1/2}x\|^2$, so it is the optimal transport map. $f$ is globally $\scvx=0.8$-strongly convex and $L=1.2$-smooth.\newline
+\textbf{Local Regularity:} $\mu$ is the uniform measure over the unit ball in $\Rd$, and $\nu = T_\sharp\mu$ where $T(x_1,\ldots,x_d) = (x_1 + 2\sign(x_1), x_2, \ldots, x_d)$. As can be seen in Figure~\ref{fig:figures_semiball_cube} (bottom), $T$ splits the unit ball into two semi-balls. $T$ is a subgradient of the convex function $f: x \mapsto \frac{1}{2}\|x\|^2 + 2|x_1|$, so it is the optimal transport map. $f$ is $\scvx=1$-strongly convex, but is not smooth: $\nabla f$ is not even continuous. However, $f$ is $L=1$-smooth by parts.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.20\textwidth]{experiments/cube/newpoints_cube.png} \\
+    \includegraphics[width=0.40\textwidth]{experiments/semiball/newpoints_semiball.png}
+    \caption{In the global (top) and local (bottom) regularity settings with $d=2$, we plot $n=500$ i.i.d samples from $\mu$ (red) and $\nu$ (blue). Black lines show the displacements $x \mapsto \nabla \hat f_n(x)$ for some new points $x \in \supp(\mu) \setminus \supp(\hat\mu_n)$, computed by solving QCQP~\eqref{eqn:newpoint}.
+    }\label{fig:figures_semiball_cube}
+\end{figure}
+
+For each of those two settings, we consider i.i.d samples $x_1, \ldots, x_n \sim \mu$ and $y_1,  \ldots, y_n \sim \nu$ for different values of $n \in \N$, and denote by $\hat\mu_n$ and $\hat\nu_n$ the respective empirical measures on these points. Given a number of clusters $1 \leq K \leq n$, we compute the partition $\mathcal{E} = \{E_1, \ldots, E_K\}$ by running k-means with $K$ clusters on data $x_1, \ldots, x_n$. In both settings, we run the algorithms with $\hat\scvx=0.6$ and $\hat L=1.4$. We give experimental results on the statistical performance of our SSNB estimator, computed using Monte-Carlo integration, compared to the classical optimal transport estimator $\W_2(\hat\mu_n,\hat\nu_n)$. This performance depends on three parameters: the number $n$ of points, the dimension $d$ and the number of clusters $K$.
+
+In Figure~\ref{fig:dependence_on_K}, we plot the estimation error depending on the cluster ratio $K/n$ for fixed $n=60$ and $d=30$. In the global regularity setting (Figure~\ref{fig:dependence_on_K} top), the error seems to be exponentially increasing in $K$, whereas the computation time decreases with $K$: there is a trade-off between accuracy and computation time. In the local regularity setting (Figure~\ref{fig:dependence_on_K} bottom), the estimation error is large when the number of clusters is too small (because we ask for too much regularity) or too large. Interestingly, the number of clusters can be taken large and still leads to good results. In both settings, even a large number of clusters is enough to outperform the classical OT estimator, even when SSNB is computed with a much smaller number of points. Note that when $K/n = 1$, the SSNB estimator is basically equivalent (up to the Monte-Carlo integration error) to the classical OT estimator.
+%In Figure~\ref{fig:dependence_on_K}, we plot the estimation error depending on the cluster ratio $K/n$ for fixed $n=60$ and $d=30$. In the global regularity setting (Figure~\ref{fig:dependence_on_K} left), the error seems to be exponentially increasing in $K$, whereas the computation time decreases with $K$: there is a trade-off between accuracy and computation time. In the local regularity setting (Figure~\ref{fig:dependence_on_K} right), the estimation error is large when the number of clusters is too small (because we ask for too much regularity) or too large. Interestingly, the number of clusters can be taken large and still leads to good results. In both settings, even a large number of clusters is enough to outperform the classical OT estimator, even when SSNB is computed with a much smaller number of points. Note that when $K/n = 1$, the SSNB estimator is basically equivalent (up to the Monte-Carlo integration error) to the classical OT estimator.
+
+\begin{figure}[h!]
+    \includegraphics[width=0.48\textwidth]{experiments/cube/dependence_on_C.png}
+    \includegraphics[width=0.48\textwidth]{experiments/semiball/dependence_on_C_semiball.png}
+    \caption{In the global (top) and local (bottom) regularity settings, we plot (on a log-log scale) the estimation error $\vert \W_2(\mu,\nu) - \widehat\W_2(\mu,\nu) \vert$ (blue line) depending on the cluster ratio $K/n$, with fixed number of points $n=60$, dimension $d=30$ and Monte-Carlo samples $N=50$. The curves/shaded areas show the mean error/25\%-75\% percentiles over $20$ data samples. The bubbles show the mean running time for the SSNB estimator computation. We plot the classical estimation error for $n=60$ (light red dotted) and $n=1000$ (dark red dashed) for comparison.}\label{fig:dependence_on_K}
+    %\caption{In the global (left) and local (right) regularity settings, we plot (on a log-log scale) the estimation error $\vert \W_2(\mu,\nu) - \widehat\W_2(\mu,\nu) \vert$ (blue line) depending on the cluster ratio $K/n$, with fixed number of points $n=60$, dimension $d=30$ and Monte-Carlo samples $N=50$. The curves/shaded areas show the mean error/25\%-75\% percentiles over $20$ data samples. The bubbles show the mean running time for the SSNB estimator computation. We plot the classical estimation error for $n=60$ (light red dotted) and $n=1000$ (dark red dashed) for comparison.}\label{fig:dependence_on_K}
+\end{figure}
+
+In Figure~\ref{fig:dependence_on_n}, we plot the estimation error depending on the number of points $n$, for fixed cluster ratio $K/n$ and different dimension $d \in \{2, 30\}$. In both settings, and for both low ($d=2$) and high ($d=30$) dimension, the SSNB estimator seem to have the same rate as the classical OT estimator, but a much better constant in high dimension. This means that in high dimension, the SSNB estimator computed with a small number of points can be much more accurate that the classical OT estimator computed with a large number of points.
+
+\begin{figure}[h!]
+    \includegraphics[width=0.48\textwidth]{experiments/cube/estimation_W_cube.png}
+    \includegraphics[width=0.48\textwidth]{experiments/semiball/estimation_W_semiball.png}
+    \caption{In the global (top) and local (bottom) regularity settings, we plot the estimation error of SSNB $\vert \W_2(\mu,\nu) - \widehat\W_2(\mu,\nu) \vert$ (blue line) and classical OT estimator $\vert \W_2(\mu,\nu) - \W_2(\hat\mu_n,\hat\nu_n) \vert$ (red dotted) depending on the number of points $n \in \{50, 100, 250, 500, 1000\}$, for dimension $d \in \{2, 30\}$. Here, the cluster ratios are taken constant equal to $0.5$ (resp. $0.75$) for the global (resp. local) regularity experiment. The number of Monte-Carlo samples is $N=50$. The curves/shaded areas show the mean error/25\%-75\% percentiles over $20$ data samples.}\label{fig:dependence_on_n}
+    %\caption{In the global (left) and local (right) regularity settings, we plot the estimation error of SSNB $\vert \W_2(\mu,\nu) - \widehat\W_2(\mu,\nu) \vert$ (blue line) and classical OT estimator $\vert \W_2(\mu,\nu) - \W_2(\hat\mu_n,\hat\nu_n) \vert$ (red dotted) depending on the number of points $n \in \{50, 100, 250, 500, 1000\}$, for dimension $d \in \{2, 30\}$. Here, the cluster ratios are taken constant equal to $0.5$ (resp. $0.75$) for the global (resp. local) regularity experiment. The number of Monte-Carlo samples is $N=50$. The curves/shaded areas show the mean error/25\%-75\% percentiles over $20$ data samples.}\label{fig:dependence_on_n}
+\end{figure}
+
+\subsection{Domain Adaptation}
+
+Domain adaptation is a way to transfer knowledge from a source to a target dataset. The source dataset consists of labelled data, and the goal is to classify the target data. \citet{courty2016optimal, perrot2016mappingestimation} proposed to use optimal transport (and different regularized version of OT) to perform such a task: the OT map from the source dataset to the target dataset (seen as empirical measures over the source/target data) is computed. Then each target data is labelled  according to the label of its nearest neighbor among the transported source data.
+
+The Caltech-Office datasets A, C, D, W contain images of ten different objects coming from four different sources: Amazon, Caltech-256, DSLR and Webcam. We consider DeCAF6 features~\citep{donahue2014decaf}, which are sparse $4096$-dimensional vectors. For each pair of source/target datasets, both datasets are cut in half (train and test): hyperparameters are learnt on the train half and we report the mean ($\pm$ std) test accuracy over 10 random cuts, computed using a $1$-Nearest Neighbour classifier on the transported source data. Results for OT, entropic OT, Group-Lasso and entropy regularized OT and SSNB are given in Table~\ref{table:DA}.
+
+In order to compute the SSNB mapping, we \textit{a)} quantize the source using k-means in each class with $k=4$ centroids, \textit{b)} learn the SSNB map between the $40$ centroids and the target by solving~\eqref{eqn:SSNB}, \textit{c)} transport the source data by solving~\eqref{eqn:newpoint}.
+
+\begin{table}[!h]
+    \centering
+    \resizebox{0.48\textwidth}{!}{
+        \begin{tabular}{|c|c|c|c|c|}
+            \hline
+            \textbf{Domains} & \textbf{OT} & \textbf{OT-IT} & \textbf{OT-GL} & \textbf{SSNB} \\ \hline
+            \textbf{A} $\boldsymbol{\rightarrow}$ \textbf{C} & $74.0$ & $81.0\pm2.2$ & $\boldsymbol{86.6\pm1.0}$ & $83.9\pm1.6$ \\ \hline
+            \textbf{A} $\boldsymbol{\rightarrow}$ \textbf{D} & $65.0$ & $\boldsymbol{84.3\pm5.2}$ & $\boldsymbol{82.9\pm5.2}$ & $\boldsymbol{79.2\pm3.7}$ \\ \hline
+            \textbf{A} $\boldsymbol{\rightarrow}$ \textbf{W} & $65.0$ & $\boldsymbol{79.3\pm5.3}$ & $\boldsymbol{81.6\pm3.1}$ & $\boldsymbol{82.3\pm3.1}$ \\ \hline
+            \textbf{C} $\boldsymbol{\rightarrow}$ \textbf{A} & $75.3$ & $90.3\pm1.3$ & $\boldsymbol{91.1\pm1.8}$ & $\boldsymbol{91.9\pm1.1}$ \\ \hline
+            \textbf{C} $\boldsymbol{\rightarrow}$ \textbf{D} & $65.6$ & $\boldsymbol{83.9\pm4.0}$ & $\boldsymbol{85.8\pm2.3}$ & $81.1\pm4.9$ \\ \hline
+            \textbf{C} $\boldsymbol{\rightarrow}$ \textbf{W} & $64.8$ & $\boldsymbol{77.1\pm3.9}$ & $\boldsymbol{81.9\pm5.1}$ & $\boldsymbol{79.3\pm2.8}$ \\ \hline
+            \textbf{D} $\boldsymbol{\rightarrow}$ \textbf{A} & $69.6$ & $88.3\pm3.1$ & $\boldsymbol{90.5\pm1.9}$ & $\boldsymbol{91.2\pm0.8}$ \\ \hline
+            \textbf{D} $\boldsymbol{\rightarrow}$ \textbf{C} & $66.4$ & $78.0\pm2.9$ & $\boldsymbol{85.6\pm2.2}$ & $81.4\pm1.9$ \\ \hline
+            \textbf{D} $\boldsymbol{\rightarrow}$ \textbf{W} & $84.7$ & $\boldsymbol{96.1\pm2.1}$ & $93.8\pm2.1$ & $\boldsymbol{95.6\pm1.5}$ \\ \hline
+            \textbf{W} $\boldsymbol{\rightarrow}$ \textbf{A} & $66.4$ & $82.5\pm4.3$ & $\boldsymbol{89.3\pm2.7}$ & $\boldsymbol{89.8\pm2.9}$ \\ \hline
+            \textbf{W} $\boldsymbol{\rightarrow}$ \textbf{C} & $62.5$ & $74.8\pm2.3$ & $80.2\pm2.4$ & $\boldsymbol{82.7\pm1.4}$ \\ \hline
+            \textbf{W} $\boldsymbol{\rightarrow}$ \textbf{D} & $87.3$ & $\boldsymbol{97.5\pm2.1}$ & $\boldsymbol{96.4\pm3.7}$ & $\boldsymbol{95.9\pm3.2}$ \\ \hdashline
+            \textbf{Mean} & $70.6\pm7.8$ & $\boldsymbol{84.4\pm7.0}$ & $\boldsymbol{87.1\pm4.9}$ & $\boldsymbol{86.2\pm6.0}$ \\ \hline
+        \end{tabular}
+    }
+    \caption{OT-IT: Entropy regularized OT. OT-GL: Entropy + Group Lasso regularized OT. Search intervals for OT-IT and OT-GL are $\epsilon, \eta \in \{10^{-3}, \ldots,10^{3}\}$ with normalized cost, and for SSNB: $\ell \in \{0.2, 0.5, 0.7, 0.9\}$, $L \in \{0.3, 0.5, 0.7, 0.9, 1.3\}$. The best results are in bold.}\label{table:DA}
+\end{table}
+
+
+\subsection{Color Transfer}
+
+Given a source and a target image, the goal of color transfer is to transform the colors of the source image so that it looks similar to the target image color palette. Optimal transport has been used to carry out such a task, see \emph{e.g.}~\citep{bonneel2015sliced, ferradans2014regularized, rabin2014adaptive}. Each image is represented by a point cloud in the RGB color space identified with $[0,1]^3$. The optimal transport plan $\pi$ between the two point clouds give, up to a barycentric projection, a transfer color mapping.
+
+It is natural to ask that similar colors are transferred to similar colors, and that different colors are transferred to different colors. These two demands translate into the smoothness and strong convexity of the Brenier potential from which derives the color transfer mapping. We therefore propose to compute a SSNB potential and map between the source and target distributions in the color space.
+
+In order to make the computations tractable, we compute a k-means clustering with $30$ clusters for each point cloud, and compute the SSNB potential using the two empirical measures on the centroids.
+
+We then recompute a k-means clustering of the source point cloud with $1000$ clusters. For each of the $1000$ centroids, we compute its new color by solving QCQP~\eqref{eqn:newpoint}. A pixel in the original image then sees its color changed according to the transformation of its nearest neighbor among the $1000$ centroids.
+
+In Figure~\ref{fig:colortransfer}, we show the color-transferred results using OT, or SSNB potentials for different values of parameters $\scvx$ and $L$. Smaller values of $L$ give more uniform colors, while larger values of $\scvx$ give more contrast.
+%Larger images are available in the supplementary material.
+
+
+\begin{figure}[!h]
+	\centering
+    \captionsetup[subfigure]{justification=centering}
+   	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+        \includegraphics[width=\textwidth]{experiments/color_transfer/schiele.png}
+		\caption{Original $\quad$ Image}\label{fig:schiele}
+   	 \end{subfigure}
+	 \begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/vangogh.png}
+		\caption{Target Image \phantom{Classical OT, $\W \approx 0$}}\label{fig:vangogh}
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/OT.png}
+		\caption{Classical OT, $\W \approx 0$}
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=1,alpha=0.png}
+		\caption{$\scvx = 0, L = 1$, $\W \approx 1\times 10^{-2}$}
+		%0.010391708132814155
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=1,alpha=0,5.png}
+		\caption{$\scvx = .5, L = 1$, $\W \approx 1\times 10^{-2}$}
+		%0.010432414439691558
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=1,alpha=1.png}
+		\caption{$\scvx = 1, L = 1$, $\W \approx 2\times 10^{-2}$}
+		%0.026805420894911714
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=2,alpha=0.png}
+		\caption{$\scvx = 0, L = 2$, $\W \approx 4\times 10^{-3}$}
+		%0.004085754928400414
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=2,alpha=0,5.png}
+		\caption{$\scvx = .5, L = 2$, $\W \approx 5\times 10^{-3}$}
+		%0.005230525242641838
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=2,alpha=1.png}
+		\caption{$\scvx = 1, L = 2$, $\W \approx 2\times 10^{-2}$}
+		%0.024078972326104064
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=5,alpha=0.png}
+		\caption{$\scvx = 0, L = 5$, $\W \approx 2\times 10^{-4}$}
+		%0.0002532853131702077
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=5,alpha=0,5.png}
+		\caption{$\scvx = .5, L = 5$, $\W \approx 1\times 10^{-3}$}
+		%0.001449551799615776
+    \end{subfigure}
+	\begin{subfigure}[b]{0.15\textwidth}
+	    \centering
+		\includegraphics[width=\textwidth]{experiments/color_transfer/L=5,alpha=1.png}
+		\caption{$\scvx = 1, L = 5$, $\W \approx 2\times 10^{-2}$}
+		%0.022175290018327295
+    \end{subfigure}
+   	\caption{(a) Schiele's portrait. (b) Van Gogh's portrait. (c) Color transfer using classical OT. (d)-(l) Color transfer using SSNB map, for $\scvx \in \{0, 0.5, 1\}$ and $L \in \{1, 2, 5\}$. The value $\W$ corresponds to the Wasserstein distance between the color distribution of the image and the color distribution of Van Gogh's portrait. The smaller $\W$, the greater the fidelity to Van Gogh's portrait colors.}
+	 \label{fig:colortransfer}
+\end{figure}

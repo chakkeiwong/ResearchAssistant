@@ -1,0 +1,69 @@
+{
+  "attempt_limit": 1,
+  "command_argv": [
+    "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "-m",
+    "research_assistant.survey.m20_arxiv_only_live_runner",
+    "--repository-root",
+    "/home/chakwong/research-assistant",
+    "--output-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m20_arxiv_only_live_2026-07-18_20260718_150000"
+  ],
+  "completed_at_utc": "2026-07-17T20:43:05.773512+00:00",
+  "data_version": "arxiv:2201.12220v3;access:2026-07-17",
+  "environment": "project interpreter; deliberate CPU-only run",
+  "evidence_root_cap_bytes": 500000000,
+  "forward_coverage_policy": "unavailable_out_of_scope_non_blocking",
+  "hardware": "CPU-only; GPU devices intentionally hidden",
+  "preflight": {
+    "cpu_only": true,
+    "cuda_visible_devices": "-1",
+    "free_space_bytes": 859946176512,
+    "git_commit": "3890a41c75ab7d7db7ef45d5c3d98b6784170217",
+    "git_tree": "38152358cdacb457a4429e6b396aff56edf79cb3",
+    "identity_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m19_live_metadata_2026-07-14/public_metadata/identity_resolution.json",
+    "identity_sha256": "872ece31f867fc124d491aba486381421cd89949eb31fd0eface5f1767ab494a",
+    "migration_path": "/home/chakwong/research-assistant/docs/plans/literature_survey_north_star_m20_arxiv_only_governance_migration_2026-07-18.md",
+    "migration_sha256": "2da1317301b28610e62c53a3d786161d1c93d9d4ab342a2d9c5c0114e1f2dd1c",
+    "plan_path": "/home/chakwong/research-assistant/docs/plans/literature_survey_north_star_m20_arxiv_only_500mb_attempt_plan_2026-07-18.md",
+    "plan_sha256": "b0f33ef87d213c52334b6471176b14dc5a986e73abe2dedfe857306407b75581",
+    "python_executable": "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+    "repository_root": "/home/chakwong/research-assistant",
+    "runner_path": "/home/chakwong/research-assistant/src/research_assistant/survey/m20_arxiv_only_live_runner.py",
+    "runner_sha256": "ea4fc6bc6f7db056a4347a0810db019733b79848a0e363e4cbb6c9c65529c596",
+    "worker_path": "/home/chakwong/research-assistant/src/research_assistant/survey/m20_arxiv_backward_worker.py",
+    "worker_sha256": "9b2b82f34b3f407462da4fec898f9665362a465fa6447f53655bd8f27cd183fc",
+    "worktree_dirty": true
+  },
+  "preserved_execution_sources": [
+    {
+      "relative_path": "execution_sources/literature_survey_north_star_m20_arxiv_only_500mb_attempt_plan_2026-07-18.md",
+      "sha256": "b0f33ef87d213c52334b6471176b14dc5a986e73abe2dedfe857306407b75581",
+      "size_bytes": 8630
+    },
+    {
+      "relative_path": "execution_sources/literature_survey_north_star_m20_arxiv_only_governance_migration_2026-07-18.md",
+      "sha256": "2da1317301b28610e62c53a3d786161d1c93d9d4ab342a2d9c5c0114e1f2dd1c",
+      "size_bytes": 2575
+    },
+    {
+      "relative_path": "execution_sources/m20_arxiv_only_live_runner.py",
+      "sha256": "ea4fc6bc6f7db056a4347a0810db019733b79848a0e363e4cbb6c9c65529c596",
+      "size_bytes": 31964
+    },
+    {
+      "relative_path": "execution_sources/m20_arxiv_backward_worker.py",
+      "sha256": "9b2b82f34b3f407462da4fec898f9665362a465fa6447f53655bd8f27cd183fc",
+      "size_bytes": 11677
+    }
+  ],
+  "random_seeds": "N/A (deterministic source intake and parse)",
+  "request_limit": 1,
+  "retry_policy": "none",
+  "schema_version": "ra-literature-survey-m20-arxiv-only-live-v1-manifest",
+  "source_body_cap_bytes": 500000000,
+  "started_at_utc": "2026-07-17T20:42:59.052536+00:00",
+  "status": "closed",
+  "wall_time_seconds": 6.720952
+}

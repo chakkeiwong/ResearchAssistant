@@ -1,0 +1,44 @@
+{
+  "credential_interface": false,
+  "request_limit": 1,
+  "requests_dispatched": 1,
+  "retry_count": 0,
+  "routes": [
+    {
+      "accepted_body": {
+        "relative_path": "accepted_bodies/arxiv-source.body",
+        "sha256": "2eb686b1f5dd9b2fa95ed5185cfe5da4d8e93a2b7d8a294902962e9dac66bd0f",
+        "size_bytes": 26842514
+      },
+      "completed_at_utc": "2026-07-17T20:43:05.541788+00:00",
+      "completed_monotonic_offset_seconds": 6.489233,
+      "content_type": "application/gzip",
+      "declared_content_length": 26842514,
+      "error_code": null,
+      "error_details": {},
+      "final_url_matches_request": false,
+      "final_url_observation": {
+        "fragment_present": false,
+        "hostname": "arxiv.org",
+        "path": "/src/2201.12220v3",
+        "port_present": false,
+        "query_present": false,
+        "scheme": "https",
+        "url_shape": "parsed",
+        "userinfo_present": false
+      },
+      "http_status": 200,
+      "request_headers": [
+        "accept",
+        "user-agent"
+      ],
+      "request_method": "GET",
+      "request_url": "https://arxiv.org/e-print/2201.12220v3",
+      "route": "arxiv_source",
+      "started_at_utc": "2026-07-17T20:42:59.056888+00:00",
+      "started_monotonic_offset_seconds": 0.004295,
+      "status": "accepted"
+    }
+  ],
+  "schema_version": "ra-literature-survey-m20-arxiv-only-live-v1-route-ledger"
+}

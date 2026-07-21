@@ -1,0 +1,106 @@
+{
+  "artifact_rows": [
+    {
+      "name": "candidate_ledger.json",
+      "sha256": "cf952d9dea362f47b70aed722554e6ccf4e7f5d191b7a839cb51d0d51724d70e",
+      "size_bytes": 1740
+    },
+    {
+      "name": "citation_map.json",
+      "sha256": "f377d7965ab0f362edb9b1f12ef5d9290b16238a23dadfe906bdeb81877ecfd3",
+      "size_bytes": 2355
+    },
+    {
+      "name": "claim_support.json",
+      "sha256": "107177c1b2b85008e800ce86ed72906fb1062af584656973c2934810ee66733e",
+      "size_bytes": 1235
+    },
+    {
+      "name": "omission_risk.json",
+      "sha256": "16f678034afaefa682b64cc6927f728dd08160bd43a1c389b56669e0baf55db3",
+      "size_bytes": 1852
+    },
+    {
+      "name": "paper_classifications.json",
+      "sha256": "96e01b44fd62bd089c1f5019045564758a8279363895009d6eac4a99ff992899",
+      "size_bytes": 1862
+    },
+    {
+      "name": "source_support.json",
+      "sha256": "29b965b3ab94b76b5d188893d9e19de464f378ee3a25f8bc277d41f3804f1db6",
+      "size_bytes": 1923
+    },
+    {
+      "name": "survey_packet.md",
+      "sha256": "be74d0a58398371f95531909bf8bf1d70c3bd073b2e23250f317e57c81345fca",
+      "size_bytes": 1408
+    },
+    {
+      "name": "workflow_state.json",
+      "sha256": "2313f06d39a56b7ff46944eeca61bc725bea9a900307fd778e9451eceb4e8c94",
+      "size_bytes": 1596
+    }
+  ],
+  "bootstrap_authority": {
+    "capability_name": "deterministic_fixture",
+    "capability_version": "1",
+    "confirmed_generation_id": "g00000002-31833fb197475f32",
+    "effective_normalized_seed_keys": [
+      "arxiv:2201.12220v3"
+    ],
+    "manifest_sha256": "9622b67cd99f4274798d45255a4f1a6bf24b90b81968109290c0bce1794d2e0f",
+    "request_id": "br-66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+    "request_sha256": "66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+    "schema_version": "ra-survey-topic-bootstrap-authority-v1",
+    "set_id": "bs-fcac0fff5b75b1a58e14d0013858df461c3b95b540a019e6946b91f2d155ed7c"
+  },
+  "effective_seed_rows": [
+    {
+      "display": "arxiv:2201.12220v3",
+      "key": "arxiv:2201.12220v3"
+    }
+  ],
+  "original_initial_seeds": [],
+  "schema_version": "ra-survey-bootstrap-effective-seed-skeleton-manifest-v1",
+  "status": "bootstrap_effective_seed_skeleton_created",
+  "technical_claim_support_created": false,
+  "topic": "Neural Optimal Transport",
+  "workflow_state": {
+    "approval_required_for": [
+      "network/provider metadata",
+      "source/PDF/full-text",
+      "technical claim support"
+    ],
+    "blocked_reasons": [
+      "live metadata and source evidence are absent"
+    ],
+    "bootstrap_authority": {
+      "capability_name": "deterministic_fixture",
+      "capability_version": "1",
+      "confirmed_generation_id": "g00000002-31833fb197475f32",
+      "effective_normalized_seed_keys": [
+        "arxiv:2201.12220v3"
+      ],
+      "manifest_sha256": "9622b67cd99f4274798d45255a4f1a6bf24b90b81968109290c0bce1794d2e0f",
+      "request_id": "br-66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+      "request_sha256": "66cf61fdc9e49bda714afac43bc2917b3b433f1e2a2508184f95b3f8d7a27311",
+      "schema_version": "ra-survey-topic-bootstrap-authority-v1",
+      "set_id": "bs-fcac0fff5b75b1a58e14d0013858df461c3b95b540a019e6946b91f2d155ed7c"
+    },
+    "effective_seed_source": "selected_bootstrap_authority_not_original_mission_input",
+    "forbidden_jumps": [
+      "do not draft final prose from metadata-only or blocked packets",
+      "do not fetch source/PDF/full text without an explicit approved intake plan",
+      "do not treat metadata, citation counts, or source availability as technical claim support"
+    ],
+    "mode": "offline-skeleton",
+    "original_initial_seeds": [],
+    "ready_for_prose": false,
+    "ready_for_writer": false,
+    "safe_next_commands": [
+      "validate the selected bootstrap authority before any downstream metadata action"
+    ],
+    "schema_version": "ra-survey-bootstrap-effective-workflow-state-v1",
+    "state": "bootstrap_effective_seed_skeleton_created"
+  }
+}

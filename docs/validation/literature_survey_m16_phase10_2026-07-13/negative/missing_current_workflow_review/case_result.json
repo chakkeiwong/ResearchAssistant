@@ -1,0 +1,165 @@
+{
+  "authoritative_after": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "068cbb4ba08bbe36a3f8633d3f795581500e849adbbcef856fcf33bef7f330d8",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "c3a7e5d48410b8ac945f3ad2f6c26d781b9656d5eb732d2788f59fe44271de33",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "79700dfb1d245e1b6d2b92a341d8e33690bebb2288fef281be8df812c8419810",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "f1faae0ec9115b8b9099961af58a2a49996f1b1e6756b7c83e742f89729bf912",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "848d7a1d5a070760f6c528f0f949d19c1d9943d3a3417d79de5778f9aafaff70",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "58d32c077ae2e670187470fbd63229ed6578ce0696849d6a03110560218f34d3",
+      "size_bytes": 252
+    }
+  },
+  "authoritative_before": {
+    ".artifact_state/CURRENT": {
+      "kind": "file",
+      "sha256": "068cbb4ba08bbe36a3f8633d3f795581500e849adbbcef856fcf33bef7f330d8",
+      "size_bytes": 241
+    },
+    ".mission_state/CURRENT": {
+      "kind": "file",
+      "sha256": "ddb96eed918d5278768bbc7ffefe422b1fb3f132e7a5e7dce45248c1c48f6a07",
+      "size_bytes": 204
+    },
+    "hostile_review/final_packet_readiness.json": {
+      "kind": "absent"
+    },
+    "hostile_review/hostile_review_result.json": {
+      "kind": "absent"
+    },
+    "reviewed_claims/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "79700dfb1d245e1b6d2b92a341d8e33690bebb2288fef281be8df812c8419810",
+      "size_bytes": 242
+    },
+    "reviewed_evidence/reviewed_evidence_status.json": {
+      "kind": "absent"
+    },
+    "reviewed_final_packet/reviewed_final_packet.json": {
+      "kind": "absent"
+    },
+    "reviewed_omissions/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "f1faae0ec9115b8b9099961af58a2a49996f1b1e6756b7c83e742f89729bf912",
+      "size_bytes": 245
+    },
+    "reviewed_source_safety/DECISION_CURRENT": {
+      "kind": "file",
+      "sha256": "848d7a1d5a070760f6c528f0f949d19c1d9943d3a3417d79de5778f9aafaff70",
+      "size_bytes": 243
+    },
+    "reviewed_source_safety/OBSERVATION_CURRENT": {
+      "kind": "file",
+      "sha256": "58d32c077ae2e670187470fbd63229ed6578ce0696849d6a03110560218f34d3",
+      "size_bytes": 252
+    }
+  },
+  "case_id": "missing_current_workflow_review",
+  "cli_records": [
+    {
+      "argv": [
+        "survey",
+        "run-public-source-workflow",
+        "--topic",
+        "Neural Optimal Transport for generative modeling and inference",
+        "--seed",
+        "arxiv:2201.12220v3",
+        "--out",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/missing_current_workflow_review/mission",
+        "--metadata-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/missing_current_workflow_review/mission/public_metadata",
+        "--source-status-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/missing_current_workflow_review/mission/source_intake",
+        "--anchor-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/missing_current_workflow_review/mission/source_anchors",
+        "--packet-dir",
+        "/home/chakwong/research-assistant/docs/validation/literature_survey_m16_phase10_2026-07-13/negative/missing_current_workflow_review/mission/public_source_packet",
+        "--resume",
+        "--run-safe-local"
+      ],
+      "evidence": "cli.json",
+      "return_code": 0
+    }
+  ],
+  "expected": {
+    "action": "import_reviewed_workflow_blockers",
+    "reason": "explicit_review_input_is_required",
+    "return_code": 0,
+    "status": "terminal_blocked_human_review"
+  },
+  "forbidden_call_count": 0,
+  "forbidden_descendants": {
+    "hostile_result": false,
+    "readiness_view": false,
+    "reviewed_merge": false,
+    "reviewed_packet": false
+  },
+  "mission_mutation_contract": {
+    "allowed_changed_prefixes": [
+      ".mission_state",
+      "mission_control.json",
+      "next_action.json"
+    ],
+    "changed_paths": [
+      ".mission_state/CURRENT",
+      ".mission_state/generations/g00000009-4f92c14ed1272f25",
+      ".mission_state/generations/g00000009-4f92c14ed1272f25/generation_manifest.json",
+      ".mission_state/generations/g00000009-4f92c14ed1272f25/mission_control.json",
+      ".mission_state/generations/g00000009-4f92c14ed1272f25/next_action.json",
+      ".mission_state/transactions/g00000009-4f92c14ed1272f25.json",
+      "mission_control.json",
+      "next_action.json"
+    ],
+    "passed": true,
+    "unexpected_changed_paths": []
+  },
+  "observed": {
+    "action": "import_reviewed_workflow_blockers",
+    "reason": "explicit_review_input_is_required",
+    "return_code": 0,
+    "status": "terminal_blocked_human_review"
+  },
+  "setup_status": "passed",
+  "status": "passed",
+  "tripwire_counters": {
+    "gpu_visibility_violations": 0,
+    "model_or_subprocess_calls": 0,
+    "network_calls": 0,
+    "outside_write_calls": 0,
+    "provider_calls": 0,
+    "source_intake_calls": 0
+  }
+}

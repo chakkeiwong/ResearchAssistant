@@ -2,26 +2,22 @@
 
 ## Purpose
 
-The individual local/Git release requires evidence from real target
-environments before it can move beyond limited pilot status. This protocol
-records only sanitized metadata and command statuses. It is not a protocol for a
+The supported release is a Linux/WSL local tool. This protocol records only
+sanitized local Linux metadata and command statuses. It is not a protocol for a
 hosted service, shared database, SSO/RBAC deployment, or real-time collaboration
 platform.
 
 ## Required Validation Types
 
-- `colleague_onboarding`
-- `linux_wsl`
-- `macos`
-- `minimal_parser_tools`
-- `sanitized_corpus`
+- `linux_local`
+- `linux_parser_tools`
 
 ## Record Shape
 
 ```json
 {
   "schema_version": "individual-external-validation-v1",
-  "validation_type": "colleague_onboarding",
+  "validation_type": "linux_local",
   "platform": "Linux/WSL2",
   "python_version": "3.11.15",
   "install_method": "wheel",
@@ -57,5 +53,5 @@ ra individual-git-release gate-build
 ```
 
 Records should be stored under
-`local_research/governance/external_validation/` and remain local unless
-explicitly sanitized for sharing.
+`local_research/governance/individual_git_release/validation/` and remain local
+unless explicitly sanitized for sharing.
