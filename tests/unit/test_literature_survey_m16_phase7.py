@@ -1586,6 +1586,18 @@ def test_title_seed_v2_runs_intake_anchors_packet_and_replays(
         candidate["included"][0]["technical_claim_support"]
         == "not_supported_until_claim_mapping_review"
     )
+    source_support = json.loads((packet / "source_support.json").read_bytes())
+    selection = source_support["source_intake"]["source_selection"]
+    assert selection["selection_basis"] == "identity_resolution_seed_gate"
+    assert selection["source_availability_summary"]["selected_count"] == 1
+    assert selection["source_availability_is_not_technical_claim_support"] is True
+    source_safety = json.loads((packet / "source_safety_status.json").read_bytes())
+    assert source_safety["safety_policy"]["version_selection_is_not_safety_clearance"] is True
+    omission = json.loads((packet / "omission_risk.json").read_bytes())
+    assert not any(
+        str(row.get("risk_id", "")).startswith("selected_source_unavailable:")
+        for row in omission["risks"]
+    )
 
     alternate_metadata = mission / "alternate_metadata"
     alternate_metadata.mkdir()

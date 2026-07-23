@@ -1,0 +1,128 @@
+{
+  "risks": [
+    {
+      "acceptable_now": false,
+      "affected_papers": [
+        "doi:10.1145/3292500.3330668",
+        "doi:10.1007/s11277-020-07199-0",
+        "doi:10.1145/3397271.3401147",
+        "doi:10.1145/3397271.3401196",
+        "doi:10.1145/3543846",
+        "doi:10.1109/icsccc51823.2021.9478178",
+        "doi:10.48550/arxiv.2109.03540",
+        "doi:10.1016/j.knosys.2023.110335",
+        "doi:10.2139/ssrn.4202337",
+        "doi:10.1109/tnnls.2023.3280161",
+        "doi:10.1109/cits58301.2023.10188745",
+        "doi:10.25300/misq/2025/19488"
+      ],
+      "next_action": "Acquire lawful primary full text, resolve versions, check source safety, and inspect method, experiments, limitations, related work, and appendices.",
+      "reason": "All 12 automatically selected seeds are metadata-only in the local campaign.",
+      "reviewer_objection": "The highest-priority and direct-finance nominations were never read.",
+      "risk_id": "selected_seed_primary_sources_blocked",
+      "severity": "critical",
+      "status": "blocked"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["all retained and selected papers"],
+      "next_action": "Run a separately approved, bounded forward-citation campaign and record highly cited, recent, correcting, extending, replication, and negative works.",
+      "reason": "No forward queries were dispatched after the metadata campaign budget was exhausted.",
+      "reviewer_objection": "Recent follow-ups, corrections, replications, and negative results may be absent.",
+      "risk_id": "forward_snowball_blocked",
+      "severity": "critical",
+      "status": "blocked"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["all journal candidates"],
+      "next_action": "Supply a legal, verified, dated impact-factor registry and review venue/version mappings.",
+      "reason": "The operator registry contains no verified metric values.",
+      "reviewer_objection": "The requested high-impact-factor prioritization was not performed.",
+      "risk_id": "venue_metrics_unavailable",
+      "severity": "critical",
+      "status": "human_input_required"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": [
+        "doi:10.1287/inte.33.5.4.19245",
+        "doi:10.1016/j.ejor.2011.01.023",
+        "doi:10.1007/s10614-020-10042-0"
+      ],
+      "next_action": "Acquire and inspect the Bank One, credit-card profitability MDP, and retail-product RL primary texts.",
+      "reason": "Backward snowballing identified direct credit-card and retail-product decision papers that are not locally available.",
+      "reviewer_objection": "Direct financial-control lineage may be omitted while generic recommender papers dominate.",
+      "risk_id": "direct_finance_lineage_sources_blocked",
+      "severity": "high",
+      "status": "blocked"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": [
+        "doi:10.1145/1526709.1526735",
+        "title:off-policy-evaluation-for-slate-recommendation",
+        "title:personalized-ad-recommendation-with-reinforcement-learning"
+      ],
+      "next_action": "Inspect contextual-bandit, slate, and marketing competitors and define a fair comparison ladder.",
+      "reason": "Competitors are visible through backward snowballing but not technically inspected in this campaign.",
+      "reviewer_objection": "The survey may overstate the need for RL without treating bandit and slate alternatives fairly.",
+      "risk_id": "competitor_sources_blocked",
+      "severity": "high",
+      "status": "blocked"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["doi:10.1016/j.ejor.2023.12.025"],
+      "next_action": "Check the publisher page and correction/retraction indexes, then repair the prior local bibliography if it is wrong.",
+      "reason": "The inspected PDF header and a prior local bibliography disagree about the journal/version.",
+      "reviewer_objection": "Publication metadata and source safety are unresolved for the strongest local direct-credit-card source.",
+      "risk_id": "alfonso_sanchez_version_conflict",
+      "severity": "high",
+      "status": "blocked"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["all candidates in capped strata"],
+      "next_action": "Use a new bounded campaign to sample unvisited pages or justify a stopping rule after source review.",
+      "reason": "Core high-citation, deep-RL, recent, and constraint strata reported provider counts above the visible page.",
+      "reviewer_objection": "Famous or recent papers may sit beyond the first capped page.",
+      "risk_id": "capped_query_frontiers",
+      "severity": "high",
+      "status": "blocked"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["finance and credit-card query candidates"],
+      "next_action": "Inspect finance-title candidates and retain fraud, scoring, trading, and collections only as explicitly adjacent classes.",
+      "reason": "Credit-card and banking terminology admits fraud detection, credit scoring, trading, and generic financial control.",
+      "reviewer_objection": "The scope may confuse prediction or fraud detection with recommending a product, offer, or transaction action.",
+      "risk_id": "finance_scope_contamination",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["proprietary financial recommender deployments"],
+      "next_action": "Search public technical reports, patents, and industrial case studies in a separately scoped campaign, and label non-peer-reviewed evidence.",
+      "reason": "Direct financial-product recommender systems may use proprietary terminology or remain unpublished.",
+      "reviewer_objection": "Sparse academic results may reflect disclosure bias rather than absence of deployment.",
+      "risk_id": "proprietary_deployment_visibility",
+      "severity": "medium",
+      "status": "open"
+    },
+    {
+      "acceptable_now": false,
+      "affected_papers": ["fairness, suitability, explainability, privacy, and constrained-decision literature"],
+      "next_action": "Acquire primary regulatory/suitability and responsible-recommendation sources, then map technical constraints separately from legal obligations.",
+      "reason": "One fairness preprint and one generic constrained-RL paper do not cover financial consumer-protection requirements.",
+      "reviewer_objection": "Safety language may imply compliance without legal or domain evidence.",
+      "risk_id": "financial_safety_and_regulation_gap",
+      "severity": "high",
+      "status": "blocked"
+    }
+  ],
+  "schema_version": "ra-scholar-audit-omitted-paper-risks-v1",
+  "status": "unresolved_high_severity_risks",
+  "topic": "Reinforcement learning for recommender systems for financial products and credit cards"
+}

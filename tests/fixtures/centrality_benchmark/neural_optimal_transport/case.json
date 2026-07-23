@@ -1,0 +1,13 @@
+{
+  "schema_version": "ra-survey-centrality-benchmark-case-v1",
+  "case_id": "neural_optimal_transport",
+  "topic_contract_sha256": "2833fbd82a282350cddad2d29f9789609beeb8e5fbae55824ca8b481568a6dce",
+  "must_find": [
+    {"paper_id": "arxiv:2201.12220", "required_role": "DIRECT_METHOD", "source_block_allowed": false},
+    {"paper_id": "arxiv:2106.01954", "required_role": "COMPETITOR", "source_block_allowed": true}
+  ],
+  "must_reject": ["arxiv:1602.05629"],
+  "required_roles": ["COMPETITOR", "DIRECT_METHOD"],
+  "review_provenance": ["metadata:arxiv:2106.01954v2:2026-07-22", "source:98cdaa28:introduction-related-work-algorithm"],
+  "what_is_not_concluded": ["literature completeness", "universal topic recall"]
+}

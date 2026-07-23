@@ -59,6 +59,10 @@ timeout "${TIMEOUT_SECONDS}s" "${RA}" --help >/dev/null
 echo "timeout ${TIMEOUT_SECONDS}s ${RA} version"
 timeout "${TIMEOUT_SECONDS}s" "${RA}" version
 
+echo "timeout ${TIMEOUT_SECONDS}s ${PYTHON} -c load installed survey strategy"
+timeout "${TIMEOUT_SECONDS}s" "${PYTHON}" -c \
+  'from research_assistant.survey.topic_seed_strategy import load_strategy; assert load_strategy().profile_id == "rl_financial_recommender"'
+
 echo "timeout ${TIMEOUT_SECONDS}s ${RA} --root ${WORKSPACE} init"
 timeout "${TIMEOUT_SECONDS}s" "${RA}" --root "${WORKSPACE}" init
 

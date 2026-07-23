@@ -9,11 +9,11 @@ from pathlib import Path
 import pytest
 
 from research_assistant.cli import main
-from research_assistant.survey import build as survey_build
 from research_assistant.survey import orchestrate
 from research_assistant.survey.build import build_bootstrap_effective_seed_skeleton
 from research_assistant.survey.bootstrap import (
     MissionBootstrapStore,
+    UnavailableBootstrapCapability,
     validate_bootstrap_outcome,
 )
 from research_assistant.survey.mission_state import (
@@ -419,7 +419,7 @@ def test_topic_contract_canonical_bytes_exclude_selected_candidates_from_identit
     assert b"selected" not in expected_bytes
 
 
-def test_cli_omitted_seed_unconfirmed_then_unavailable_without_provider_call(
+def test_cli_omitted_seed_unconfirmed_then_general_bootstrap_unavailable(
     tmp_path: Path,
     capsys,
     monkeypatch: pytest.MonkeyPatch,
@@ -427,12 +427,19 @@ def test_cli_omitted_seed_unconfirmed_then_unavailable_without_provider_call(
     output = tmp_path / "cli-topic"
     provider_calls = 0
 
-    def forbidden_provider(**kwargs):
-        nonlocal provider_calls
-        provider_calls += 1
-        raise AssertionError("topic-only M17 must not enter public metadata collection")
+    class UnavailableGeneralCapability(UnavailableBootstrapCapability):
+        name = "general_topic_fixture_unavailable"
 
-    monkeypatch.setattr(survey_build, "_collect_public_metadata", forbidden_provider)
+        def run(self, request):
+            nonlocal provider_calls
+            provider_calls += 1
+            return super().run(request)
+
+    monkeypatch.setattr(
+        orchestrate,
+        "OpenAlexTopicBootstrapCapability",
+        lambda *_args, **_kwargs: UnavailableGeneralCapability(),
+    )
     first_code = main([
         "survey", "run-public-source-workflow", "--topic", TOPIC, "--out", str(output),
     ])
@@ -453,7 +460,7 @@ def test_cli_omitted_seed_unconfirmed_then_unavailable_without_provider_call(
     assert second["bootstrap_outcome"] == "unavailable"
     assert second["effective_seeds"] == [] and second["bootstrap_authority"] is None
     assert second["next_action"]["action_id"] == "terminal_blocked_bootstrap_unavailable"
-    assert provider_calls == 0
+    assert provider_calls == 1
 
     before = (output / ".mission_state" / "bootstrap" / "CURRENT").read_bytes()
     third_code = main([
@@ -463,7 +470,7 @@ def test_cli_omitted_seed_unconfirmed_then_unavailable_without_provider_call(
     assert third_code == 0
     assert third["bootstrap_outcome"] == "unavailable"
     assert (output / ".mission_state" / "bootstrap" / "CURRENT").read_bytes() == before
-    assert provider_calls == 0
+    assert provider_calls == 1
 
 
 def test_cli_explicit_empty_seed_is_not_topic_mode(tmp_path: Path, capsys) -> None:

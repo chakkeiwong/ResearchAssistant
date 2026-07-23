@@ -1,0 +1,21 @@
+{
+  "risks": [
+    {
+      "next_action": "Retry with approved API key or delayed public query in a separate phase.",
+      "risk": "Forward citation layer missing due to Semantic Scholar rate limit and sparse OpenAlex citation metadata.",
+      "severity": "high"
+    },
+    {
+      "next_action": "Inspect PDF/source references in a bounded source-analysis phase.",
+      "risk": "Backward reference layer missing because metadata source did not expose references and PDF was not inspected for references.",
+      "severity": "high"
+    },
+    {
+      "next_action": "Use topic-specific queries and reviewed classification before survey use.",
+      "risk": "Adjacent OpenAlex title-search candidates are noisy and cannot be treated as field coverage.",
+      "severity": "medium"
+    }
+  ],
+  "schema_version": "ra-surveybench-public-pilot-omission-risk-v1",
+  "task_id": "public_arxiv_neural_optimal_transport_2201_12220"
+}

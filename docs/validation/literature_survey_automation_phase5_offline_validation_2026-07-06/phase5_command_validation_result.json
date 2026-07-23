@@ -1,0 +1,142 @@
+{
+  "hidden_gold_boundary": {
+    "command_generation_inputs": [
+      "tests/fixtures/surveybench/online_replay/neural_ot_seed_replay/neural_ot_seed_replay.task.json",
+      "tests/fixtures/surveybench/online_replay/neural_ot_seed_replay/responses"
+    ],
+    "gold_dir": "tests/fixtures/surveybench/online_replay/neural_ot_seed_replay/scorer_packet",
+    "gold_used_only_for_scoring": true
+  },
+  "negative_cases": [
+    {
+      "case_id": "missing_backward_lineage_edge",
+      "description": "Remove the seed-to-reference citation edge.",
+      "details": [
+        "ready_status=ready",
+        "score_status=failed",
+        "scores.citation_map.edge_recall.score=0.6666666666666666"
+      ],
+      "expected_ready_status": "ready",
+      "expected_score_status": "failed",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_backward_lineage_edge",
+      "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_backward_lineage_edge/ready_for_prose_report.json",
+      "ready_status": "ready",
+      "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_backward_lineage_edge/replay_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "missing_source_status_row",
+      "description": "Remove one source-support row.",
+      "details": [
+        "ready_status=ready",
+        "score_status=failed",
+        "scores.source_support.status_accuracy.score=0.75"
+      ],
+      "expected_ready_status": "ready",
+      "expected_score_status": "failed",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_source_status_row",
+      "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_source_status_row/ready_for_prose_report.json",
+      "ready_status": "ready",
+      "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_source_status_row/replay_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "missing_classification_rows",
+      "description": "Remove all paper classifications.",
+      "details": [
+        "ready_status=blocked",
+        "score_status=passed",
+        "issue_codes=['required_list_empty']"
+      ],
+      "expected_ready_status": "blocked",
+      "expected_score_status": "passed",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_classification_rows",
+      "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_classification_rows/ready_for_prose_report.json",
+      "ready_status": "blocked",
+      "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_classification_rows/replay_score_report.json",
+      "score_status": "passed",
+      "vetoes": []
+    },
+    {
+      "case_id": "missing_supported_claim_anchor",
+      "description": "Strip anchors from a supported claim.",
+      "details": [
+        "ready_status=blocked",
+        "score_status=failed",
+        "vetoes=['unsupported_technical_claim']"
+      ],
+      "expected_ready_status": "blocked",
+      "expected_score_status": "failed",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_supported_claim_anchor",
+      "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_supported_claim_anchor/ready_for_prose_report.json",
+      "ready_status": "blocked",
+      "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_supported_claim_anchor/replay_score_report.json",
+      "score_status": "failed",
+      "vetoes": [
+        "unsupported_technical_claim"
+      ]
+    },
+    {
+      "case_id": "missing_omission_risks",
+      "description": "Remove omission-risk rows.",
+      "details": [
+        "ready_status=blocked",
+        "score_status=failed",
+        "issue_codes=['required_list_empty']"
+      ],
+      "expected_ready_status": "blocked",
+      "expected_score_status": "failed",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_omission_risks",
+      "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_omission_risks/ready_for_prose_report.json",
+      "ready_status": "blocked",
+      "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/missing_omission_risks/replay_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "false_supported_dominance_claim",
+      "description": "Add a supported forbidden dominance claim.",
+      "details": [
+        "ready_status=ready",
+        "score_status=failed",
+        "vetoes=['forbidden_claim']"
+      ],
+      "expected_ready_status": "ready",
+      "expected_score_status": "failed",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/false_supported_dominance_claim",
+      "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/false_supported_dominance_claim/ready_for_prose_report.json",
+      "ready_status": "ready",
+      "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/negative_command_packets/false_supported_dominance_claim/replay_score_report.json",
+      "score_status": "failed",
+      "vetoes": [
+        "forbidden_claim"
+      ]
+    }
+  ],
+  "positive": {
+    "packet_dir": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/positive_command_packet",
+    "ready_for_prose_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/positive_command_packet/ready_for_prose_report.json",
+    "ready_status": "ready",
+    "replay_score_report": "docs/validation/literature_survey_automation_phase5_offline_validation_2026-07-06/positive_command_packet/replay_score_report.json",
+    "score_status": "passed",
+    "vetoes": []
+  },
+  "schema_version": "ra-literature-survey-phase5-command-validation-v1",
+  "status": "passed",
+  "task_path": "tests/fixtures/surveybench/online_replay/neural_ot_seed_replay/neural_ot_seed_replay.task.json",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "product readiness",
+    "scientific correctness",
+    "real-agent reliability",
+    "survey prose quality"
+  ]
+}

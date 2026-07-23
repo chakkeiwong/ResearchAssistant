@@ -1,0 +1,107 @@
+{
+  "campaign_inputs": {
+    "queue_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m22_omission_frontier_triage_2026-07-19/inspection_queue.json",
+    "queue_sha256": "f3cdbb079da877dfdf69858cefddadae30757caebe39d5447374897bd2a1eca2",
+    "triage_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m22_omission_frontier_triage_2026-07-19/provisional_classification.json",
+    "triage_sha256": "4e3f26a74af92ac94b7b8ac0385f3f976242848190c88d008feaf42acfc5a851"
+  },
+  "candidate_ids": [
+    "1902.02934",
+    "1905.10812",
+    "1906.09691",
+    "2102.02992",
+    "2205.15269"
+  ],
+  "command_argv": [
+    "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+    "-m",
+    "research_assistant.survey.m22_omission_source_campaign",
+    "--repository-root",
+    "/home/chakwong/research-assistant",
+    "--output-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_north_star_m22_omission_source_campaign_2026-07-19"
+  ],
+  "completed_at_utc": "2026-07-19T08:11:42.725845+00:00",
+  "credential_interface": false,
+  "data_version": "exact five nominees from replayed 55-row M22 omission frontier",
+  "derived_reserve_bytes": 10000000,
+  "environment": "project interpreter; deliberate CPU-only source intake",
+  "evidence_root_cap_bytes": 300000000,
+  "git_commit": "15df2820aa7b0678c111211f48c7cbae454a114a",
+  "git_tree": "107dc7c1f94fc4c558e30193fcefb0664d89d6ca",
+  "hardware": "CPU-only; GPU devices intentionally hidden",
+  "pdf_fallback": false,
+  "per_source_cap_bytes": 50000000,
+  "plan_path": "/home/chakwong/research-assistant/docs/plans/literature_survey_north_star_m22_omission_frontier_triage_plan_2026-07-19.md",
+  "preserved_execution_sources": [
+    {
+      "relative_path": "execution_sources/literature_survey_north_star_m22_omission_frontier_triage_plan_2026-07-19.md",
+      "sha256": "ce469d0523ba84100b079786f6b6018e50f67ce9a3321ed2191f2e48580dfa7f",
+      "size_bytes": 7548
+    },
+    {
+      "relative_path": "execution_sources/provisional_classification.json",
+      "sha256": "4e3f26a74af92ac94b7b8ac0385f3f976242848190c88d008feaf42acfc5a851",
+      "size_bytes": 48364
+    },
+    {
+      "relative_path": "execution_sources/inspection_queue.json",
+      "sha256": "f3cdbb079da877dfdf69858cefddadae30757caebe39d5447374897bd2a1eca2",
+      "size_bytes": 3294
+    },
+    {
+      "relative_path": "execution_sources/m22_omission_source_campaign.py",
+      "sha256": "82b0977a90eec83508fa91cde6039a106b8d654e002a4aec5907ab9ce0194d3a",
+      "size_bytes": 26071
+    },
+    {
+      "relative_path": "execution_sources/omission_frontier_triage.py",
+      "sha256": "93a381dae87bbcc1acccea0f6bedaf0eac95ea3d10b6f1701403350e18c1684c",
+      "size_bytes": 8800
+    },
+    {
+      "relative_path": "execution_sources/m20_arxiv_backward_worker.py",
+      "sha256": "5a44d0e2af856a62aa44d1ec5931b87c7255e62fdee397540debfa2dfd7d3773",
+      "size_bytes": 11583
+    },
+    {
+      "relative_path": "execution_sources/m20_arxiv_only_live_runner.py",
+      "sha256": "ea4fc6bc6f7db056a4347a0810db019733b79848a0e363e4cbb6c9c65529c596",
+      "size_bytes": 31964
+    },
+    {
+      "relative_path": "execution_sources/m21_seven_source_campaign.py",
+      "sha256": "61844b917a367cff2ea42b544bfcf725383da583ffdd1b76242bd03cd48b12a7",
+      "size_bytes": 34325
+    },
+    {
+      "relative_path": "execution_sources/anchors.py",
+      "sha256": "ff97005f8901ebdb3cbce64cbbbb49f1e802aee7bac119ffdbab8cf1c5c3f35c",
+      "size_bytes": 19888
+    },
+    {
+      "relative_path": "execution_sources/latex_bundle.py",
+      "sha256": "9b5ef02943bd593b0363bc862e45ecee173680c1d805baf902b4cacf1e21c364",
+      "size_bytes": 1668
+    },
+    {
+      "relative_path": "execution_sources/latex_extract.py",
+      "sha256": "14eaf460ab3212b1a2006a26782091c5cd153738532b32545c301c07c72cf796",
+      "size_bytes": 7518
+    },
+    {
+      "relative_path": "execution_sources/latex_flatten.py",
+      "sha256": "ef12d8d48ec26582c8634d5279f7f267de94a5daeaf89ea467f30c86e9975f28",
+      "size_bytes": 2026
+    }
+  ],
+  "python_executable": "/home/chakwong/anaconda3/envs/tf-gpu/bin/python",
+  "python_version": "3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]",
+  "random_seeds": "N/A (deterministic source intake and parse)",
+  "request_limit": 5,
+  "retry_policy": "none",
+  "schema_version": "ra-literature-survey-m22-omission-source-campaign-v1-manifest",
+  "started_at_utc": "2026-07-19T08:10:04.119244+00:00",
+  "status": "closed",
+  "worktree_dirty": true
+}

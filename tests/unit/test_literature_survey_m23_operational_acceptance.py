@@ -37,8 +37,9 @@ def test_documentation_consistency_passes_current_operator_surface() -> None:
 def test_capability_matrix_preserves_scientific_limits() -> None:
     matrix = acceptance.capability_matrix()
     by_name = {row["capability"]: row for row in matrix["rows"]}
-    assert by_name["new_mission_public_scope"]["status"] == "arxiv_only"
+    assert by_name["new_mission_public_scope"]["status"] == "bounded_openalex_metadata"
     assert by_name["forward_citations"]["status"] == "unavailable_nonblocking"
+    assert by_name["central_papers_campaign"]["status"] == "bounded_topic_input"
     assert by_name["identifier_bearing_omission_frontier"]["status"] == "50_open"
     assert by_name["identifier_free_omission_frontier"]["status"] == "195_units_open"
     assert by_name["publication_or_release"]["status"] == "not_authorized"

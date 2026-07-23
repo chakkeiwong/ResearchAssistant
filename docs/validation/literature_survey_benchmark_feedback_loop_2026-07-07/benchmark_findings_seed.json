@@ -1,0 +1,137 @@
+{
+  "schema_version": "ra-literature-survey-benchmark-feedback-findings-v1",
+  "mission_id": "literature_survey_automation_one_command",
+  "generated_at": "2026-07-07T00:00:00Z",
+  "source_artifacts": [
+    "docs/plans/literature_survey_live_public_source_phase9_closeout_result_2026-07-07.md",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/build_manifest.json",
+    "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/phase7_validation_harness_result.json",
+    "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json"
+  ],
+  "findings": [
+    {
+      "finding_id": "LSBFL-001",
+      "source_artifact": "docs/plans/literature_survey_live_public_source_phase9_closeout_result_2026-07-07.md",
+      "summary": "One command does not orchestrate public metadata, source intake, anchors, packet composition, and approval gates end to end from only topic and seed.",
+      "severity": "high",
+      "affected_surface": "ra survey build",
+      "disposition": "code_task",
+      "recommended_task": "Add structured workflow-state and next-action output that guides the next exact command or gate without hiding approvals.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'survey_build or survey_packet or survey_anchors' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py"
+      ],
+      "status": "selected_for_phase2",
+      "not_concluded": [
+        "product readiness",
+        "autonomous end-to-end live/source workflow",
+        "final prose readiness"
+      ]
+    },
+    {
+      "finding_id": "LSBFL-002",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/build_manifest.json",
+      "summary": "Packet is writer-facing but not prose-ready because ready_for_prose is false and supported_claim_count is zero.",
+      "severity": "high",
+      "affected_surface": "ra survey packet",
+      "disposition": "code_task",
+      "recommended_task": "Add a claim-anchor mapping lane that keeps unsupported claims blocked until reviewed anchors exist.",
+      "rerun_checks": [
+        "PYTHONPATH=src:. pytest tests/scripts/test_literature_survey_phase7_validation_harness.py -q"
+      ],
+      "status": "open",
+      "not_concluded": [
+        "technical claim support",
+        "final prose readiness",
+        "scientific correctness"
+      ]
+    },
+    {
+      "finding_id": "LSBFL-003",
+      "source_artifact": "docs/plans/literature_survey_live_public_source_phase9_closeout_result_2026-07-07.md",
+      "summary": "Retraction, withdrawal, erratum, and version safety remain unchecked.",
+      "severity": "high",
+      "affected_surface": "source safety workflow",
+      "disposition": "deferred_boundary",
+      "recommended_task": "Plan a bounded public status check surface; do not infer safety from metadata-only artifacts.",
+      "rerun_checks": [
+        "approval-gated public status check or offline fixture negative, not Phase 0 local-only checks"
+      ],
+      "status": "open_boundary",
+      "not_concluded": [
+        "retraction safety",
+        "version correctness",
+        "source safety"
+      ]
+    },
+    {
+      "finding_id": "LSBFL-004",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/phase7_validation_harness_result.json",
+      "summary": "The weakened-blocker negative case required repair; future harness changes need explicit expected-signal observation.",
+      "severity": "medium",
+      "affected_surface": "validation harness",
+      "disposition": "code_task",
+      "recommended_task": "Keep negative cases explicit in the summarizer and require expected signal observation.",
+      "rerun_checks": [
+        "PYTHONPATH=src:. pytest tests/scripts/test_literature_survey_phase7_validation_harness.py -q"
+      ],
+      "status": "open",
+      "not_concluded": [
+        "real-agent reliability",
+        "complete negative-case coverage"
+      ]
+    },
+    {
+      "finding_id": "LSBFL-005",
+      "source_artifact": "docs/plans/literature_survey_live_public_source_phase9_closeout_result_2026-07-07.md",
+      "summary": "Status says PASSED_PENDING_FINAL_REVIEW although final review body records agreement.",
+      "severity": "low",
+      "affected_surface": "plan and result docs",
+      "disposition": "doc_task",
+      "recommended_task": "Patch stale status or record why it remains pending.",
+      "rerun_checks": [
+        "text consistency check in the feedback summarizer"
+      ],
+      "status": "open",
+      "not_concluded": [
+        "new product capability"
+      ]
+    },
+    {
+      "finding_id": "LSBFL-006",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "summary": "UX validation passes, but next-action guidance is not generated as a standalone machine-readable artifact for every ra survey build mode.",
+      "severity": "medium",
+      "affected_surface": "ra survey build",
+      "disposition": "code_task",
+      "recommended_task": "Emit workflow_state.json or equivalent next-action artifact for all build modes.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'survey_build or survey_packet or survey_anchors' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py"
+      ],
+      "status": "open",
+      "not_concluded": [
+        "autonomous one-command completion",
+        "hidden approval bypass"
+      ]
+    }
+  ],
+  "selected_next_tasks": [
+    {
+      "finding_ids": [
+        "LSBFL-001",
+        "LSBFL-006"
+      ],
+      "phase": "Phase 2",
+      "task": "Improve ra survey build workflow-state and next-action guidance while preserving explicit gates."
+    }
+  ],
+  "what_is_not_concluded": [
+    "product readiness",
+    "literature completeness",
+    "live web coverage",
+    "real-agent reliability",
+    "scientific correctness",
+    "final prose readiness"
+  ]
+}

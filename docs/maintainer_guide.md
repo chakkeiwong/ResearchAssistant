@@ -49,14 +49,23 @@ the range without a separately validated compatibility decision.
   supervised survey action. Mutable stage dispatch stays in
   `survey/orchestrate.py`; durable mission state stays in
   `survey/mission_state.py`.
+- `src/research_assistant/survey/campaign_process.py`: pure source-first
+  planning primitives. It validates the canonical `Paper -> SourceVersion ->
+  Inspection -> Claim` snapshot and its caller-supplied coverage requirements,
+  separates available evidence from access/omission work, and chooses a bounded
+  next action. It never runs network, credential, PDF, or human-review actions.
+- `src/research_assistant/survey/mission_plan.py`: read-only projection of the
+  complete product workflow. It binds the current mission-control and
+  next-action generation, exposes discovery through release stages, and never
+  becomes mission authority.
 
 ## Supported And Historical Code
 
-The active v0.1 contract is a local, single-user, Python 3.11 tool using public
-arXiv paths. OpenAlex-containing canonical mission fixtures are historical
-compatibility tests marked `legacy_provider`; they are intentionally visible
-but are not an active release promise. Do not make those tests pass by silently
-restoring credentials or broadening the provider contract.
+The active v0.1 contract is a local, single-user, Python 3.11 tool. Topic-only
+missions may use the bounded credential-free OpenAlex metadata bootstrap;
+explicit-seed source intake remains arXiv-first. OpenAlex-containing legacy
+mission fixtures are still historical compatibility tests and do not authorize
+credentials, source/PDF downloads, or unbounded provider work.
 
 The `industrial/` package and its CLI registration are future local scaffold
 artifacts. Their presence does not mean that shared database, service, RBAC,
@@ -104,6 +113,66 @@ characterization tests before moving their logic between modules.
 
 Use `CUDA_VISIBLE_DEVICES=-1` for deliberate CPU-only validation. These tests do
 not need a GPU.
+
+## Literature Survey Process
+
+All public survey functions are topic-generic. Domain query profiles, coverage
+matrices, and expected paper lists are regression fixtures only. Never add a
+topic-name or vocabulary check that silently selects a specialized strategy.
+If a survey needs domain-specific coverage cells, put them in that campaign's
+validated snapshot; do not add them to `campaign_process.py`.
+
+Every topic or explicit-seed mission can expose one operator-facing workflow
+map:
+
+```bash
+scripts/ra-dev survey mission-plan --mission-root /path/to/mission
+```
+
+The command writes `mission_plan.json` beneath the mission root and is safe to
+rerun as the mission advances. It performs no network, download, PDF,
+credential, human-review, or claim-promotion action. `current_stage` is the
+first incomplete stage; a blocked stage is an honest handoff, not a
+completeness claim.
+
+A selected topic mission must continue through the supported handoff rather
+than through manually copied identifiers:
+
+```bash
+scripts/ra-dev survey continue-topic \
+  --mission-root /path/to/selected-topic-mission \
+  --out /path/to/fresh-explicit-seed-mission
+```
+
+`survey/topic_continuation.py` owns this transition. It replay-validates the
+parent bootstrap authority, initializes the existing explicit-seed safe-local
+supervisor with the exact selected identifiers, and writes
+`topic_handoff.json` in the child. Parent and child roots must be disjoint.
+The child keeps its own public-discovery confirmation; never copy the parent's
+provider confirmation into it. The handoff is nomination provenance, not
+source, technical, human-review, or release evidence.
+
+Start a new survey with an explicit topic coverage contract and source
+preflight rather than an unqualified high-citation crawl. The local process
+planner is deterministic:
+
+```bash
+PYTHONPATH=src python3.11 -m research_assistant.cli survey process-plan \
+  --snapshot /path/to/campaign_snapshot.json \
+  --out /path/to/process-plan
+```
+
+The snapshot declares ordered `coverage_requirements`; each requirement has a
+stable `cell_id`, human label, unique contiguous priority, and a
+`direct_evidence_required` flag. Papers may reference only declared cells. The
+planner prioritizes open must-cite risks and then unresolved cells in declared
+order. It has no built-in RL, finance, card, medical, economics, or other
+domain cell. A replacement source does not inherit technical support from the
+unavailable paper.
+
+The command is local and side-effect bounded. It does not claim completeness or
+technical validity; those remain the existing source-inspection, safety-review,
+claim-support, snowball, and hostile-review gates.
 
 ## Trust Boundaries
 
@@ -183,6 +252,90 @@ confirmation, or a bounded local grant.
 
 Use a clean local clone for final release-gate reproduction.
 
+## Topic Discovery Strategies
+
+The public topic bootstrap always loads
+`src/research_assistant/survey/strategies/generic_topic.json`. The specialized
+RL/finance profile lives in
+`tests/fixtures/topic_seed_strategies/rl_financial_recommender.json`.
+It is a named regression fixture and must not be activated by inspecting the
+user's topic. The responsibilities are deliberately small:
+
+- `topic_seed_strategy.py` validates and loads the declarative profile;
+- `topic_seed_discovery.py` owns request budgeting, identity reconciliation,
+  ranking, and bounded public-provider response handling. The generic topic
+  profile is the only public default; domain profiles are explicit fixture data;
+- `mission_state.py` owns mission-bound aggregate limits; and
+- `orchestrate.py` binds the discovery result into the bootstrap artifacts.
+
+To add an alias, keep the relevant term list unique and sorted. To add a query
+layer, give it the next contiguous `priority`, use one of the validated
+`purpose` and `sort` values, and keep the total number of strata within the
+mission request budget. Unknown JSON fields fail validation by design.
+
+Run the focused regression set after every profile or ranking change:
+
+```bash
+CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src python3.11 -m pytest -q \
+  tests/unit/test_topic_seed_priority.py \
+  tests/unit/test_cli_architecture.py
+```
+
+Inspect `descriptive.budget_consumption`, every `query_layers` status, identity
+conflicts, and capped-frontier flags in the bootstrap outcome before using a
+nomination. `candidate_status=metadata_nomination` and
+`generic_topic_centrality_status=not_validated` are intentional. A selected
+seed is metadata-only until its identity, topic fit, paper role, primary
+technical source, source safety, and snowball evidence have been reviewed.
+Citation counts and venue metrics are priority signals only; missing venue
+metrics must stay `not_available`.
+
+`centrality.py` owns the strict evidence bundle, hard-veto truth table,
+deterministic assessment, and persisted-output replay validator.
+`centrality_benchmark.py` is evaluator-only and must never be imported by
+runtime selection. `topic_contract.py` owns topic scope and bounded generic
+route planning; its behavior is included in the OpenAlex capability version.
+`mission_plan.py` may project a replay-validated mission-local `centrality/`
+artifact, but centrality must not become a prerequisite for source intake:
+source inspection is required to construct centrality evidence.
+
+The autonomous campaign is split by authority so a maintainer can change one
+boundary without reading the entire workflow:
+
+- `central_papers_observations.py` owns strict observation/capability schemas
+  and the offline file adapter;
+- `central_papers_capability.py` owns bounded OpenAlex graph expansion and arXiv
+  source transport, but makes no topic-fit or centrality decision;
+- `central_papers_evidence.py` owns technical-section selection, conservative
+  topic/role inference, the six ledgers, omission risks, and evidence assembly;
+- `central_papers.py` owns campaign contracts, checkpoint chains, resume/replay,
+  snowball stop projection, reports, and terminal manifests.
+
+Never move evaluator labels into observation fixtures or runtime modules, and
+never infer a scholarly role from a discovery route. A provider-policy or
+budget change requires a capability fingerprint update and a fresh output
+root. Run the central-paper unit/CLI tests and the three-topic topic-input
+benchmark after changing any of these four modules.
+
+Run this focused set after changing any of those boundaries:
+
+```bash
+CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src python3.11 -m pytest -q \
+  tests/unit/test_topic_contract.py \
+  tests/unit/test_topic_seed_priority.py \
+  tests/unit/test_centrality.py \
+  tests/unit/test_snowball_round.py \
+  tests/unit/test_centrality_benchmark.py \
+  tests/unit/test_survey_mission_plan.py \
+  tests/integration/test_centrality_cli.py \
+  tests/integration/test_centrality_multitopic_benchmark.py \
+  tests/integration/test_survey_mission_plan_cli.py
+```
+
+Start a fresh mission when a profile digest or aggregate budget changes. Do not
+resume a mission into a different strategy and do not combine consumption from
+multiple attempts as though each attempt reset the campaign ceiling.
+
 ## LaTeX Report
 
 The tracked release report source is
@@ -209,3 +362,106 @@ Do not hand-edit generated release artifacts or evidence under `build/` and
 `dist/`. Recreate them with the documented scripts. Do not edit mission
 `.artifact_state` files to repair a workflow; use the supported resume/repair
 path so lineage and replay checks remain meaningful.
+
+## Literature Source Reconciliation
+
+Topic discovery does not require a venue-metrics registry. The OpenAlex path
+records citation counts and venue metrics as dated prioritization metadata; an
+empty or absent registry is `not_available`, never zero and never a technical
+evidence gate.
+
+When a selected paper cannot be fetched, use
+`research_assistant.survey.source_selection.select_available_sources()` (or
+`build_source_selection_ledger()`). It keeps available selected candidates,
+chooses a deterministic same-stratum replacement where possible, then uses a
+shared declared purpose or stable nomination rank. It records unavailable
+selections, fallback reasons, and unreplaced gaps. Availability is not claim
+support.
+
+Use `choose_preferred_source_version()` for multiple lawful copies. It prefers
+published/version-of-record material, then accepted manuscripts, then the
+latest lawful preprint, and records alternate versions and date mismatches.
+
+## Multi-provider seed discovery
+
+`survey seed-papers` is the retrieval-only boundary. Keep its modules separate:
+
+- `seed_paper_providers.py` owns exact-host transport, strict provider response
+  parsing, provider status, request/record/byte caps, and the raw observation
+  bundle;
+- `seed_papers.py` owns identity fusion, topic evidence, provider-local ranks,
+  dispositions, replay, and the seed report/manifest;
+- `topic_contract.py` owns bounded generic route planning.
+
+`seed_continuation.py` owns replay-validated transfer into an explicit-seed
+mission. It consumes only selected IDs whose rows are resolved and not
+quarantined; it must never infer extra papers. `seed_handoff.json` binds the
+on-disk parent campaign/report/manifest and child mission artifacts. Keep live
+transport diagnostics in `scripts/run_seed_papers_live_smoke.py`; do not mix
+live calls into the offline benchmark.
+
+The runtime provider set is OpenAlex, Crossref, and Semantic Scholar. Google
+Scholar scraping is intentionally unsupported because it has no stable public
+API contract. Do not add a citation-count aggregate: provider counts and ranks
+are incomparable and remain descriptive priority signals. Do not move
+`must_find`, `must_reject`, case names, or fixture paths into runtime modules.
+
+Run the focused seed gate after changing these boundaries:
+
+```bash
+CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src python3.11 -m pytest -q \
+  tests/unit/test_seed_papers.py \
+  tests/integration/test_seed_papers_cli.py \
+  tests/integration/test_seed_papers_benchmark.py \
+  tests/unit/test_cli_architecture.py
+```
+
+Regenerate the evaluator-owned raw-provider result with:
+
+```bash
+CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src python3.11 \
+  scripts/run_seed_papers_benchmark.py \
+  --result-path docs/validation/robust_seed_papers_benchmark_result_2026-07-22.json
+```
+
+The six-topic benchmark starts from raw provider envelopes, not prepared
+centrality evidence. It supports only the declared fixture retrieval gate;
+passing it does not establish arbitrary-topic recall or scholarly centrality.
+## Cooperative document boundary
+
+The scholarly document workflow is owned by
+`src/research_assistant/survey/document/`:
+
+- `contracts.py` validates caller-facing evidence and document contracts;
+- `planner.py` groups supported claims by mechanism and records reader-state
+  transitions;
+- `writer.py` defines the writer protocol and the scaffold-only baseline;
+- `projection.py` projects replay-valid central campaigns or hostile-reviewed
+  packets into the public document evidence contract;
+- `dynaremcp_adapter.py` owns the optional subprocess/JSON boundary;
+- `orchestrator.py` writes append-only run artifacts and final status.
+
+`survey/literature_review.py` composes the existing central-paper campaign,
+document projection, synthesis, optional LaTeX rendering, and optional
+DynareMCP QA. It does not introduce a second discovery state machine.
+
+Do not import DynareMCP Python modules into ResearchAssistant. The integration
+must remain a CLI/file boundary so both projects are independently installable.
+DynareMCP findings are structural candidates based on caller-supplied facts;
+they are not source truth, claim review, or publication approval.
+
+The public CLI is registered in `cli_registration/survey.py`, routed in
+`cli_actions/survey.py`, and injected by `cli.py`. Keep new document logic out
+of those three files. When changing the parser, review and update the explicit
+CLI inventory and fingerprint in `tests/unit/test_cli_architecture.py`.
+
+Run focused checks with:
+
+```bash
+pytest -q tests/unit/test_scholarly_document.py \
+  tests/integration/test_scholarly_document_cli.py \
+  tests/unit/test_cli_architecture.py
+```
+
+The cross-repository integration test invokes DynareMCP through a subprocess;
+it must never add the DynareMCP source tree to the ResearchAssistant process.

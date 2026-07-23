@@ -1,0 +1,56 @@
+{
+  "causal_inference": {
+    "must_find": ["doi:10.1000/causal-iv"],
+    "must_reject": ["doi:10.1000/causal-control"],
+    "topic": "Causal inference with instrumental variables"
+  },
+  "federated_privacy": {
+    "must_find": ["doi:10.1000/federated-privacy"],
+    "must_reject": ["openalex:w309"],
+    "topic": "Federated learning and privacy"
+  },
+  "graph_molecules": {
+    "must_find": ["doi:10.1000/graph-molecule"],
+    "must_reject": ["semantic_scholar:s509"],
+    "topic": "Graph neural networks for molecular property prediction"
+  },
+  "neural_optimal_transport": {
+    "must_find": ["doi:10.1000/neural-ot"],
+    "must_reject": ["openalex:w109"],
+    "topic": "Neural optimal transport"
+  },
+  "particle_filtering": {
+    "must_find": ["doi:10.1000/particle-filter"],
+    "must_reject": ["openalex:w209"],
+    "topic": "Particle filtering for nonlinear state-space models"
+  },
+  "hard_financial_recommenders": {
+    "must_find": [
+      "doi:10.1000/finance-foundation",
+      "doi:10.1000/finance-direct",
+      "doi:10.1000/finance-survey",
+      "doi:10.1000/finance-competitor"
+    ],
+    "must_reject": [
+      "doi:10.1000/portfolio-control",
+      "doi:10.1000/card-rl-direct"
+    ],
+    "required_facets": [
+      "financial products and credit cards",
+      "recommender systems",
+      "reinforcement learning"
+    ],
+    "required_roles": [
+      "FOUNDATIONAL",
+      "DIRECT_METHOD",
+      "SURVEY_OR_TUTORIAL",
+      "COMPETITOR"
+    ],
+    "topic": "Reinforcement learning for recommender systems in financial products and credit cards",
+    "required_aliases": ["contextual bandits"],
+    "exclusions": ["portfolio optimization"],
+    "scope_note": "Sequential personalization of financial-product and card recommendations.",
+    "expected_provider_gap": true,
+    "expected_conflict": "doi:10.1000/card-rl-direct"
+  }
+}

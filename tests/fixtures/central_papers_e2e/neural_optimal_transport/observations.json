@@ -1,0 +1,82 @@
+{
+  "schema_version": "ra-survey-central-papers-observations-v1",
+  "topic_contract_sha256": "66719bd0d641c5be9d551b455c042bdbb185ab52139b9a6e5a4c079f9325e4af",
+  "capability_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+  "accessed_at": "2026-07-22T00:00:00+00:00",
+  "discovery_status": "available",
+  "provider_statuses": [{"provider": "offline_source_fixture", "status": "available", "detail": "source-grounded benchmark observation"}],
+  "candidates": [
+    {
+      "paper_id": "arxiv:1602.05629",
+      "title": "Communication-Efficient Learning of Deep Networks from Decentralized Data",
+      "authors": ["H. Brendan McMahan"],
+      "year": 2017,
+      "identifiers": {"arxiv_id": "1602.05629", "doi": null, "openalex_id": "W2541884796"},
+      "identity_status": "resolved",
+      "discovery_round": 0,
+      "discovery_routes": ["high_citation_control"],
+      "discovery_origins": [],
+      "citation_count": 100000,
+      "venue_metric_status": "not_available",
+      "source": {
+        "status": "available",
+        "source_type": "arxiv_latex",
+        "evidence_ref": "source:2f671803",
+        "sections": [{"anchor_id": "section:federated-optimization", "title": "Federated optimization", "text": "We introduce the Federated Averaging algorithm for decentralized private data on mobile devices.", "evidence_ref": "source:2f671803:federated-optimization"}],
+        "bibliography": []
+      },
+      "safety": {"status": "no_issue_found", "evidence_refs": ["metadata:openalex:w2541884796:is_retracted=false:2026-07-22"], "limitations": ["publisher errata were not comprehensively checked"]},
+      "forward_citation_status": "empty",
+      "forward_citations": [],
+      "limitations": ["high-citation control is an explanatory discovery observation"]
+    },
+    {
+      "paper_id": "arxiv:2106.01954",
+      "title": "Do Neural Optimal Transport Solvers Work? A Continuous Wasserstein-2 Benchmark",
+      "authors": ["Alexander Korotin"],
+      "year": 2021,
+      "identifiers": {"arxiv_id": "2106.01954", "doi": null, "openalex_id": null},
+      "identity_status": "resolved",
+      "discovery_round": 1,
+      "discovery_routes": ["backward_snowball"],
+      "discovery_origins": ["arxiv:2201.12220"],
+      "citation_count": null,
+      "venue_metric_status": "not_available",
+      "source": {"status": "source_blocked", "source_type": "not_available", "evidence_ref": "source:arxiv:2106.01954:http-403", "sections": [], "bibliography": []},
+      "safety": {"status": "not_checked", "evidence_refs": [], "limitations": ["source safety was not checked because source acquisition was blocked"]},
+      "forward_citation_status": "not_available",
+      "forward_citations": [],
+      "limitations": ["technical source is unavailable"]
+    },
+    {
+      "paper_id": "arxiv:2201.12220",
+      "title": "Neural Optimal Transport",
+      "authors": ["Alexander Korotin"],
+      "year": 2022,
+      "identifiers": {"arxiv_id": "2201.12220", "doi": null, "openalex_id": "W4226072009"},
+      "identity_status": "resolved",
+      "discovery_round": 0,
+      "discovery_routes": ["broad_facets", "exact_high_citation"],
+      "discovery_origins": [],
+      "citation_count": null,
+      "venue_metric_status": "not_available",
+      "source": {
+        "status": "available",
+        "source_type": "arxiv_latex",
+        "evidence_ref": "source:98cdaa28",
+        "sections": [
+          {"anchor_id": "section:sec-derivation", "title": "Neural optimal transport derivation", "text": "We propose a neural optimal transport algorithm to compute deterministic and stochastic transport plans.", "evidence_ref": "source:98cdaa28:sec-derivation"},
+          {"anchor_id": "section:sec-related-work", "title": "Related work and benchmark comparison", "text": "Neural optimal transport methods are compared with a continuous Wasserstein-2 benchmark and existing optimal transport solvers.", "evidence_ref": "source:98cdaa28:sec-related-work"}
+        ],
+        "bibliography": [{"paper_id": "arxiv:2106.01954", "title": "Do Neural Optimal Transport Solvers Work? A Continuous Wasserstein-2 Benchmark", "evidence_ref": "source:98cdaa28:korotin2021neural"}]
+      },
+      "safety": {"status": "no_issue_found", "evidence_refs": ["metadata:openalex:w4226072009:is_retracted=false:2026-07-22"], "limitations": ["publisher errata were not comprehensively checked"]},
+      "forward_citation_status": "available",
+      "forward_citations": ["openalex:w4308671853"],
+      "limitations": ["forward citation sample is bounded"]
+    }
+  ],
+  "budget_consumption": {"metadata_records": 3, "metadata_requests": 3, "source_attempts": 3, "source_bytes": 1000},
+  "limitations": ["offline source-grounded evaluator observation"],
+  "benchmark_labels_consumed": false
+}

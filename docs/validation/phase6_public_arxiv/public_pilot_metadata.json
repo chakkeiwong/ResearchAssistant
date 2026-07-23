@@ -1,0 +1,149 @@
+{
+  "access_date": "2026-06-29",
+  "adjacent_or_noisy_candidates": [
+    {
+      "cited_by_count": 164,
+      "classification": "adjacent_or_noisy_candidate",
+      "doi": "https://doi.org/10.1038/s41592-023-01969-x",
+      "openalex_id": "https://openalex.org/W4387130479",
+      "source": "openalex_search",
+      "status": "metadata_only",
+      "title": "Learning single-cell perturbation responses using neural optimal transport",
+      "year": 2023
+    },
+    {
+      "cited_by_count": 267,
+      "classification": "adjacent_or_noisy_candidate",
+      "doi": "https://doi.org/10.48550/arxiv.1802.07191",
+      "openalex_id": "https://openalex.org/W2788853733",
+      "source": "openalex_search",
+      "status": "metadata_only",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    },
+    {
+      "cited_by_count": 207,
+      "classification": "adjacent_or_noisy_candidate",
+      "doi": null,
+      "openalex_id": "https://openalex.org/W2962750597",
+      "source": "openalex_search",
+      "status": "metadata_only",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    },
+    {
+      "cited_by_count": 19,
+      "classification": "adjacent_or_noisy_candidate",
+      "doi": "https://doi.org/10.1101/2021.12.15.472775",
+      "openalex_id": "https://openalex.org/W4200172249",
+      "source": "openalex_search",
+      "status": "metadata_only",
+      "title": "Learning Single-Cell Perturbation Responses using Neural Optimal Transport",
+      "year": 2021
+    },
+    {
+      "cited_by_count": 5707,
+      "classification": "adjacent_or_noisy_candidate",
+      "doi": "https://doi.org/10.1126/science.abj8754",
+      "openalex_id": "https://openalex.org/W3186179742",
+      "source": "openalex_search",
+      "status": "metadata_only",
+      "title": "Accurate prediction of protein structures and interactions using a three-track neural network",
+      "year": 2021
+    }
+  ],
+  "approved_scope": {
+    "allowed_domains": [
+      "export.arxiv.org",
+      "arxiv.org",
+      "api.semanticscholar.org",
+      "api.openalex.org"
+    ],
+    "max_adjacent_candidates": 4,
+    "max_citing_candidates": 4,
+    "max_metadata_candidates": 8,
+    "max_public_downloads": 1,
+    "max_reference_candidates": 4
+  },
+  "candidate_counts": {
+    "adjacent_candidates_retained": 5,
+    "citing_candidates_retained": 0,
+    "metadata_attempted": 5,
+    "reference_candidates_retained": 0,
+    "seed_candidates_retained": 1
+  },
+  "citation_metadata_limitations": [
+    "Semantic Scholar request was rate-limited with HTTP/API code 429.",
+    "OpenAlex exact DOI record was available but reported zero referenced works and only sparse citation metadata.",
+    "OpenAlex title search returned adjacent/noisy candidates and was not treated as citation evidence."
+  ],
+  "generated_at_utc": "2026-06-28T17:30:36.111970+00:00",
+  "query_attempts": [
+    {
+      "query": "id_list=2201.12220",
+      "returned": 1,
+      "source": "arxiv",
+      "status": "available"
+    },
+    {
+      "code": "429",
+      "message": "Too Many Requests. Please wait and try again or apply for a key for higher rate limits. https://www.semanticscholar.org/product/api#api-key-form",
+      "query": "paper/arXiv:2201.12220",
+      "source": "semantic_scholar",
+      "status": "blocked_by_rate_limit"
+    },
+    {
+      "message": "'https://arxiv.org/abs/2201.12220' is not a valid OpenAlex ID.",
+      "query": "ids.openalex:https://arxiv.org/abs/2201.12220",
+      "source": "openalex",
+      "status": "invalid_query"
+    },
+    {
+      "query": "doi:10.48550/arXiv.2201.12220",
+      "returned": 1,
+      "source": "openalex",
+      "status": "available"
+    },
+    {
+      "query": "search=Neural Optimal Transport&per-page=5",
+      "returned": 5,
+      "source": "openalex",
+      "status": "available_noisy"
+    }
+  ],
+  "schema_version": "ra-surveybench-public-pilot-metadata-v1",
+  "seed": {
+    "arxiv_id": "2201.12220v3",
+    "authors": [
+      "Alexander Korotin",
+      "Daniil Selikhanovych",
+      "Evgeny Burnaev"
+    ],
+    "doi": "https://doi.org/10.48550/arxiv.2201.12220",
+    "links": [
+      {
+        "href": "https://arxiv.org/abs/2201.12220v3",
+        "rel": "alternate",
+        "type": "text/html"
+      },
+      {
+        "href": "https://arxiv.org/pdf/2201.12220v3",
+        "rel": "related",
+        "title": "pdf",
+        "type": "application/pdf"
+      }
+    ],
+    "openalex_cited_by_count": 6,
+    "openalex_id": "https://openalex.org/W4226072009",
+    "openalex_referenced_work_count": 0,
+    "openalex_source": "arXiv (Cornell University)",
+    "paper_key": "korotin_2022_neural_optimal_transport",
+    "primary_category": "cs.LG",
+    "published": "2022-01-28T16:24:13Z",
+    "summary_present": true,
+    "title": "Neural Optimal Transport",
+    "updated": "2023-03-01T13:38:35Z",
+    "venue_or_journal_ref": "The 11th International Conference on Learning Representations (ICLR 2023)"
+  },
+  "task_id": "public_arxiv_neural_optimal_transport_2201_12220"
+}

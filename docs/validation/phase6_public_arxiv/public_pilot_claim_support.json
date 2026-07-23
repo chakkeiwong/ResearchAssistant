@@ -1,0 +1,26 @@
+{
+  "claims": [
+    {
+      "claim": "The public pilot seed metadata identifies arXiv 2201.12220v3 as Neural Optimal Transport.",
+      "claim_id": "claim_seed_metadata_identity",
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "status": "supported_for_identity_only",
+      "support_class": "metadata_support"
+    },
+    {
+      "claim": "The seed paper presents a neural-network algorithm for optimal transport.",
+      "claim_id": "claim_seed_technical_method",
+      "sources": [
+        "arxiv_summary_only",
+        "raw_pdf_not_inspected"
+      ],
+      "status": "not_supported_for_technical_claims",
+      "support_class": "source_gap_blocker"
+    }
+  ],
+  "schema_version": "ra-surveybench-public-pilot-claim-support-v1",
+  "task_id": "public_arxiv_neural_optimal_transport_2201_12220"
+}

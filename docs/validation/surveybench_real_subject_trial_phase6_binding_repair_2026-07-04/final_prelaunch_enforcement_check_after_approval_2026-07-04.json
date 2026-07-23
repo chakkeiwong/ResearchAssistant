@@ -1,0 +1,118 @@
+{
+  "approval_packet_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase6_binding_repair_2026-07-04/launch_approval_packet.json",
+  "approval_packet_sha256": "01192d16ba256a92d10b25a5bd12dda72f1f718b4ef3eb0a7b00917c0444bec0",
+  "approval_packet_status": "pending_human_approval",
+  "capture_contract": {
+    "denied_tool_capture_authoritative": false,
+    "denied_tool_capture_limitation": "Claude CLI denied-tool events are not separately exposed by this preflight; Phase 3 must preserve raw transcript/stderr and classify denied attempts from captured logs if present.",
+    "denied_tool_capture_path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/denied_tools.jsonl",
+    "stderr_capture": "stderr_stream_to_stderr_path",
+    "transcript_capture": "stdout_stream_to_transcript_path"
+  },
+  "cli_version": "claude-cli-local-sonnet-4-6",
+  "human_approval_granted": false,
+  "issues": [],
+  "model_id": "claude-sonnet-4-6",
+  "no_drift": {
+    "checks": {
+      "prompt": {
+        "actual_sha256": "306734a769524d04e254e5d83136444c8f09fd2558fbddf42960e01db8f438cb",
+        "expected_sha256": "306734a769524d04e254e5d83136444c8f09fd2558fbddf42960e01db8f438cb",
+        "path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/docs/validation/surveybench_live_intake_launcher_phase3_restricted_launcher/stress_restricted_launcher_prompt_2026-07-03.md",
+        "status": "passed"
+      },
+      "restricted_workspace_manifest": {
+        "actual_sha256": "3aa336db8b6168cf5fdc5663ed2ee80520b0e1ecc67d76d763ad2d467dc92a92",
+        "expected_sha256": "3aa336db8b6168cf5fdc5663ed2ee80520b0e1ecc67d76d763ad2d467dc92a92",
+        "path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/.ra_restricted_workspace_manifest.json",
+        "status": "passed"
+      },
+      "task": {
+        "actual_sha256": "19972213f730e27fb10932a2cf1147da65574f55c36962d9a3b5e4c7310b6285",
+        "expected_sha256": "19972213f730e27fb10932a2cf1147da65574f55c36962d9a3b5e4c7310b6285",
+        "path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json",
+        "status": "passed"
+      }
+    },
+    "issues": [],
+    "schema_version": "ra-surveybench-launch-no-drift-v1",
+    "status": "passed"
+  },
+  "resolved_subject_command": [
+    "claude",
+    "--bare",
+    "--no-session-persistence",
+    "--permission-mode",
+    "dontAsk",
+    "--settings",
+    "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/claude_subject_settings.json",
+    "--setting-sources",
+    "project",
+    "--model",
+    "claude-sonnet-4-6",
+    "-p",
+    "# SurveyBench Stress Restricted Launcher Prompt Packet - 2026-07-03\n\n## Task\n\nYou are given a topic and a seed paper. Use only the offline replay commands\nbelow to build a citation map and survey-ready evidence packet.\n\nTopic:\n\n`Neural Optimal Transport for generative modeling and inference`\n\nSeed:\n\n`arxiv:2201.12220`\n\nTask file:\n\n`tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json`\n\n## Allowed Commands\n\nUse a fresh session directory inside the provided workspace.\n\n```bash\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint search --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint paper --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint references --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint citations --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint adjacent --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint download-status --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint source-status --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint source-anchors --session <session-dir>\nPYTHONPATH=src python -m research_assistant.cli surveybench replay-call --task tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json --endpoint evidence-context --session <session-dir>\n```\n\n## Required Output Files\n\nWrite these JSON files into one output directory before writing any prose:\n\n- `candidate_ledger.json`\n- `citation_map.json`\n- `source_support.json`\n- `claim_support.json`\n- `omission_risk.json`\n- `trial_record.json`\n\nThe evidence packet files must be based only on replay responses and the event\nlog in your session directory.\n\n## Required Reasoning Discipline\n\n- Build a typed citation map, not a prose-only answer.\n- Resolve ambiguous seed candidates instead of assuming the first title match.\n- Include backward lineage, forward citations, adjacent clusters, source\n  status, download status, paper classifications, and omission risks.\n- Mark source-blocked, metadata-only, quarantined, or partial-frontier papers\n  explicitly.\n- Record partial forward-frontier continuation risk when the replay surface\n  exposes it.\n- Technical claims must point to replay source anchors or be marked\n  unsupported.\n- Forbidden or unsupported claims must not be used as conclusions.\n\n## Non-Claims\n\nCompleting this offline replay task does not prove real web coverage, Neural OT\nsurvey completeness, scientific priority, mathematical correctness, production\ndownload reliability, or release readiness.\n"
+  ],
+  "schema_version": "ra-surveybench-launch-enforcement-preflight-v1",
+  "status": "passed",
+  "subject_agent": "claude-code-sonnet-subject",
+  "subject_invoked": false,
+  "subject_prompt_delivery": {
+    "mode": "prompt_file_content_as_prompt_argument",
+    "path_string_is_not_prompt": true,
+    "prompt_file": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/docs/validation/surveybench_live_intake_launcher_phase3_restricted_launcher/stress_restricted_launcher_prompt_2026-07-03.md"
+  },
+  "subject_task_boundary": {
+    "live_web_api_download_credential_use_for_task": "forbidden",
+    "model_transport_exception": "Claude Code subject invocation may require model transport; the subject task must not use live web/API/download/credentials.",
+    "network_policy": "offline_replay_only_no_live_api_download_or_credentials",
+    "post_start_human_hints": "forbidden",
+    "subject_binding_preflight": {
+      "allowed_bash_pattern_count": 81,
+      "denied_tool_pattern_count": 12,
+      "permission_mode": "dontAsk",
+      "preflight_path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/subject_binding_preflight.json",
+      "profile_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+      "representative_probe_status": "passed",
+      "schema_version": "ra-surveybench-subject-binding-preflight-v1",
+      "settings_path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/claude_subject_settings.json",
+      "settings_sha256": "c5d297d82426b258049df71805237ff7b0301bca4880c6216267cee18c400b70",
+      "status": "passed",
+      "subject_invoked": false,
+      "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+      "wrapper_command_template": [
+        "claude",
+        "--bare",
+        "--no-session-persistence",
+        "--permission-mode",
+        "dontAsk",
+        "--settings",
+        "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/claude_subject_settings.json",
+        "--setting-sources",
+        "project",
+        "--model",
+        "<model-id>",
+        "-p",
+        "<restricted-prompt-file>"
+      ]
+    }
+  },
+  "supervisor_execution": {
+    "exit_status_path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/subject_exit_status.json",
+    "launch_not_executed_by_preflight": true,
+    "mode": "codex_visible_supervised_subprocess",
+    "stderr_path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/subject_stderr.txt",
+    "stdout_transcript_path": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace/governance/subject_transcript.jsonl",
+    "timeout_enforcement": "python_subprocess_timeout_on_phase3_launch",
+    "wall_time_seconds": 1800
+  },
+  "what_is_not_concluded": [
+    "human launch approval",
+    "subject invocation",
+    "agent reliability",
+    "execution-time blindness",
+    "survey quality",
+    "scientific correctness"
+  ],
+  "workspace_root": "/tmp/research_assistant_surveybench_phase6_binding_repair_workspace"
+}

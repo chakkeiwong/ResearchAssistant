@@ -1,0 +1,51 @@
+{
+  "artifact_paths": {
+    "build_manifest.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/build_manifest.json",
+    "candidate_ledger.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/candidate_ledger.json",
+    "citation_map.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/citation_map.json",
+    "claim_support.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/claim_support.json",
+    "omission_risk.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/omission_risk.json",
+    "paper_classifications.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/paper_classifications.json",
+    "source_support.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/source_support.json",
+    "survey_packet.md": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase1_workflow_contract_sample_packet_2026-07-06/survey_packet.md"
+  },
+  "forbidden_claims": [
+    "do not claim full literature coverage from skeleton output",
+    "do not claim technical source support without checked anchors",
+    "do not claim live web or download robustness from offline skeleton output"
+  ],
+  "milestones_path": "docs/plans/literature_survey_automation_milestones.json",
+  "mission": "topic + seed paper -> citation map -> survey-ready evidence packet",
+  "mission_control_path": "docs/plans/literature_survey_automation_mission_control_2026-07-06.md",
+  "mode": "offline-skeleton",
+  "next_required_actions": [
+    "wire offline replay evidence into this command",
+    "implement citation-map builder",
+    "implement source/download status collector",
+    "implement survey-ready packet composer",
+    "validate command output with SurveyBench"
+  ],
+  "schema_version": "ra-survey-build-manifest-v1",
+  "seed_papers": [
+    {
+      "identifier": "arxiv:2201.12220v3",
+      "paper_key": "seed_001",
+      "roles": [
+        "seed"
+      ],
+      "source": "user_seed"
+    }
+  ],
+  "status": "created_skeleton",
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "what_is_not_concluded": [
+    "backward lineage completeness",
+    "forward citation coverage",
+    "adjacent cluster coverage",
+    "source availability",
+    "claim support",
+    "survey prose quality",
+    "scientific correctness",
+    "product readiness"
+  ]
+}

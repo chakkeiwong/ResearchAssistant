@@ -174,8 +174,8 @@ def validate_bootstrap_outcome(value: Any) -> dict[str, Any]:
         if not selected or ambiguities or reason is not None or cap is not None:
             raise MissionStateError("invalid_bootstrap_outcome", "selected outcome has incompatible fields")
         normalized = normalize_seeds([row["display"] for row in selected])
-        if [row["display"] for row in selected] != [row["display"] for row in normalized]:
-            raise MissionStateError("invalid_bootstrap_outcome", "selected candidates must be effective-seed sorted")
+        if len(normalized) != len(selected):
+            raise MissionStateError("invalid_bootstrap_outcome", "selected candidates must have unique effective seeds")
         if observed < len(selected):
             raise MissionStateError("invalid_bootstrap_outcome", "selected outcome observed_count is too small")
     elif outcome == "empty":

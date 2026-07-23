@@ -1,0 +1,73 @@
+{
+  "schema_version": "ra-survey-central-papers-observations-v1",
+  "topic_contract_sha256": "0f2eea2d26b5841fdfaedd02e23a877336f2a192fabe77fa056d6dbca950964d",
+  "capability_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+  "accessed_at": "2026-07-22T00:00:00+00:00",
+  "discovery_status": "available",
+  "provider_statuses": [{"provider": "offline_source_fixture", "status": "available", "detail": "source-grounded benchmark observation"}],
+  "candidates": [
+    {
+      "paper_id": "arxiv:0805.3034",
+      "title": "Curse-of-dimensionality revisited: Collapse of the particle filter in very large scale systems",
+      "authors": ["Peter J. Bickel"],
+      "year": 2008,
+      "identifiers": {"arxiv_id": "0805.3034", "doi": null, "openalex_id": null},
+      "identity_status": "resolved",
+      "discovery_round": 1,
+      "discovery_routes": ["backward_snowball"],
+      "discovery_origins": ["arxiv:1509.09175"],
+      "citation_count": null,
+      "venue_metric_status": "not_available",
+      "source": {"status": "source_blocked", "source_type": "not_available", "evidence_ref": "source:arxiv:0805.3034:http-403", "sections": [], "bibliography": []},
+      "safety": {"status": "not_checked", "evidence_refs": [], "limitations": ["source safety was not checked because source acquisition was blocked"]},
+      "forward_citation_status": "not_available",
+      "forward_citations": [],
+      "limitations": ["technical source is unavailable"]
+    },
+    {
+      "paper_id": "arxiv:1509.09175",
+      "title": "An Introduction to Twisted Particle Filters and Parameter Estimation in Non-linear State-space Models",
+      "authors": ["Juha Ala-Luhtala"],
+      "year": 2016,
+      "identifiers": {"arxiv_id": "1509.09175", "doi": null, "openalex_id": "W2230126079"},
+      "identity_status": "resolved",
+      "discovery_round": 0,
+      "discovery_routes": ["broad_facets", "exact_high_citation"],
+      "discovery_origins": [],
+      "citation_count": null,
+      "venue_metric_status": "not_available",
+      "source": {
+        "status": "available",
+        "source_type": "arxiv_latex",
+        "evidence_ref": "source:ebc02d7d",
+        "sections": [{"anchor_id": "section:alg-particle-filter", "title": "Particle filtering algorithm and theory", "text": "We develop a particle filtering algorithm for nonlinear state space models and derive theoretical results.", "evidence_ref": "source:ebc02d7d:alg-particle-filter"}],
+        "bibliography": [{"paper_id": "arxiv:0805.3034", "title": "Curse-of-dimensionality revisited: Collapse of the particle filter in very large scale systems", "evidence_ref": "source:ebc02d7d:bickel2008collapse"}]
+      },
+      "safety": {"status": "no_issue_found", "evidence_refs": ["metadata:openalex:w2230126079:is_retracted=false:2026-07-22"], "limitations": ["publisher errata were not comprehensively checked"]},
+      "forward_citation_status": "available",
+      "forward_citations": ["openalex:w2803957777"],
+      "limitations": ["forward citation sample is bounded"]
+    },
+    {
+      "paper_id": "arxiv:2201.12220",
+      "title": "Neural Optimal Transport",
+      "authors": ["Alexander Korotin"],
+      "year": 2022,
+      "identifiers": {"arxiv_id": "2201.12220", "doi": null, "openalex_id": "W4226072009"},
+      "identity_status": "resolved",
+      "discovery_round": 0,
+      "discovery_routes": ["high_citation_control"],
+      "discovery_origins": [],
+      "citation_count": 100000,
+      "venue_metric_status": "not_available",
+      "source": {"status": "available", "source_type": "arxiv_latex", "evidence_ref": "source:98cdaa28", "sections": [{"anchor_id": "section:sec-derivation", "title": "Optimal transport derivation", "text": "We propose a neural optimal transport algorithm to learn transport plans.", "evidence_ref": "source:98cdaa28:sec-derivation"}], "bibliography": []},
+      "safety": {"status": "no_issue_found", "evidence_refs": ["metadata:openalex:w4226072009:is_retracted=false:2026-07-22"], "limitations": ["publisher errata were not comprehensively checked"]},
+      "forward_citation_status": "empty",
+      "forward_citations": [],
+      "limitations": ["high-citation control is an explanatory discovery observation"]
+    }
+  ],
+  "budget_consumption": {"metadata_records": 3, "metadata_requests": 3, "source_attempts": 3, "source_bytes": 1000},
+  "limitations": ["offline source-grounded evaluator observation"],
+  "benchmark_labels_consumed": false
+}

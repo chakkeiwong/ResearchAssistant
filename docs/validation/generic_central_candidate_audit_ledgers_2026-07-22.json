@@ -1,0 +1,44 @@
+{
+  "schema_version": "ra-survey-centrality-benchmark-audit-ledgers-v1",
+  "metadata_date": "2026-07-22",
+  "source_support": [
+    {"paper_id": "arxiv:0805.3034", "classification": "FOUNDATIONAL", "full_text_status": "source_blocked", "local_artifact": null, "inspected_technical_anchors": [], "allowed_claims": [], "forbidden_claims": ["technical support", "source safety", "validated centrality"]},
+    {"paper_id": "arxiv:1509.09175", "classification": "DIRECT_METHOD", "full_text_status": "inspected", "local_artifact": ".localresources/centrality_benchmark/sources/particle_filtering_direct.tex", "inspected_technical_anchors": ["alg:particle_filter", "thm:twisted_unbiased"], "allowed_claims": ["direct topic fit", "described particle-filter algorithm and theorem are present"], "forbidden_claims": ["paper claim correctness", "literature completeness"]},
+    {"paper_id": "arxiv:1602.05629", "classification": "FOUNDATIONAL", "full_text_status": "inspected", "local_artifact": ".localresources/centrality_benchmark/sources/federated_learning_foundation.tex", "inspected_technical_anchors": ["federated-averaging", "federated-optimization"], "allowed_claims": ["foundational federated-learning topic fit"], "forbidden_claims": ["paper claim correctness", "privacy guarantee"]},
+    {"paper_id": "arxiv:1611.04482", "classification": "DIRECT_METHOD", "full_text_status": "inspected", "local_artifact": ".localresources/centrality_benchmark/sources/secure_aggregation.tex", "inspected_technical_anchors": ["practical-secure-aggregation", "related-work"], "allowed_claims": ["direct secure-aggregation topic fit"], "forbidden_claims": ["protocol correctness", "complete privacy coverage"]},
+    {"paper_id": "arxiv:1912.04977", "classification": "SURVEY_OR_TUTORIAL", "full_text_status": "inspected", "local_artifact": ".localresources/centrality_benchmark/sources/federated_learning_survey.tex", "inspected_technical_anchors": ["concluding-remarks", "preserving-privacy"], "allowed_claims": ["survey scope includes federated-learning privacy and cited core papers"], "forbidden_claims": ["primary theorem support", "literature completeness"]},
+    {"paper_id": "arxiv:2106.01954", "classification": "COMPETITOR", "full_text_status": "source_blocked", "local_artifact": null, "inspected_technical_anchors": [], "allowed_claims": ["resolved identity and backward-reference occurrence"], "forbidden_claims": ["technical support", "source safety", "validated centrality"]},
+    {"paper_id": "arxiv:2201.12220", "classification": "DIRECT_METHOD", "full_text_status": "inspected", "local_artifact": ".localresources/centrality_benchmark/sources/neural_ot_seed.tex", "inspected_technical_anchors": ["sec-derivation", "sec-related-work"], "allowed_claims": ["direct neural optimal-transport topic fit", "method and related-work anchors are present"], "forbidden_claims": ["paper claim correctness", "solver superiority"]}
+  ],
+  "citation_venue_metadata": [
+    {"paper_id": "arxiv:1509.09175", "citation_count": 21, "citation_source": "OpenAlex W2230126079", "venue_metric": "not_available", "role": "explanatory_only"},
+    {"paper_id": "arxiv:1602.05629", "citation_count": "not_available_due_duplicate_openalex_records", "citation_observations": [5178, 5642], "citation_source": "OpenAlex W2541884796 and W4318619660", "venue_metric": "not_available", "role": "explanatory_only"},
+    {"paper_id": "arxiv:1611.04482", "citation_count": 190, "citation_source": "OpenAlex W2579186979 workshop/arXiv record", "venue_metric": "not_available", "role": "explanatory_only"},
+    {"paper_id": "arxiv:1912.04977", "citation_count": 4922, "citation_source": "OpenAlex W2995022099", "venue_metric": "not_available", "role": "explanatory_only"},
+    {"paper_id": "arxiv:2201.12220", "citation_count": 6, "citation_source": "OpenAlex W4226072009", "venue_metric": "not_available", "role": "explanatory_only"},
+    {"paper_ids": ["arxiv:0805.3034", "arxiv:2106.01954"], "citation_count": "not_available", "venue_metric": "not_available", "role": "explanatory_only"}
+  ],
+  "backward_snowball": [
+    {"seed_paper_id": "arxiv:2201.12220", "candidate_paper_id": "arxiv:2106.01954", "classification": "COMPETITOR", "action": "source_blocked_inspect_next", "evidence": "source:98cdaa28:korotin2021neural"},
+    {"seed_paper_id": "arxiv:1912.04977", "candidate_paper_id": "arxiv:1602.05629", "classification": "FOUNDATIONAL", "action": "included_and_inspected", "evidence": "survey bibliography and inspected federated-learning source"},
+    {"seed_paper_id": "arxiv:1912.04977", "candidate_paper_id": "arxiv:1611.04482", "classification": "DIRECT_METHOD", "action": "included_and_inspected", "evidence": "survey bibliography and inspected secure-aggregation source"}
+  ],
+  "forward_snowball": [
+    {"paper_id": "arxiv:1509.09175", "citing_work_id": "openalex:W2803957777", "query_source": "OpenAlex cites W2230126079", "query_date": "2026-07-22", "coverage": "bounded_top_one"},
+    {"paper_id": "arxiv:1912.04977", "citing_work_id": "openalex:W3176923149", "query_source": "OpenAlex cites W2995022099", "query_date": "2026-07-22", "coverage": "bounded_top_one"},
+    {"paper_id": "arxiv:2201.12220", "citing_work_id": "openalex:W4308671853", "query_source": "OpenAlex cites W4226072009", "query_date": "2026-07-22", "coverage": "bounded_top_one"},
+    {"paper_ids": ["arxiv:0805.3034", "arxiv:2106.01954"], "coverage": "not_available", "query_date": "2026-07-22"}
+  ],
+  "claim_support": [
+    {"claim": "candidate has direct or foundational topic fit", "support_class": "PRIMARY_TECHNICAL_SUPPORT", "scope": "only candidates with inspected local anchors"},
+    {"claim": "candidate has an external follow-up or separately reviewed survey mention", "support_class": "IMPLEMENTATION_EVIDENCE", "scope": "dated OpenAlex edge or inspected survey bibliography; centrality signal only"},
+    {"claim": "paper is correct or literature is complete", "support_class": "SOURCE_GAP_BLOCKER", "scope": "not claimed"}
+  ],
+  "omitted_paper_risks": [
+    {"paper_id": "arxiv:0805.3034", "risk": "foundational particle-filter-collapse source unavailable", "status": "open_source_blocked", "next_action": "inspect a lawful source if broader particle-filter coverage is pursued"},
+    {"paper_id": "arxiv:2106.01954", "risk": "direct neural-OT competitor source unavailable", "status": "open_source_blocked", "next_action": "inspect the source before promotion"},
+    {"paper_id": null, "risk": "benchmark topics and top-one forward samples may omit famous, recent, or direct competitors", "status": "open_scope_limit", "next_action": "expand evaluator-owned topics and snowball depth before a universal-recall claim"}
+  ],
+  "quarantined_sources": [],
+  "what_is_not_concluded": ["literature completeness", "paper claim correctness", "universal topic recall", "statistical ranking", "comprehensive retraction or errata clearance"]
+}

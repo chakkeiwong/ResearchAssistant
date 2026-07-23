@@ -1,0 +1,78 @@
+{
+  "anchors": [
+    {
+      "anchor_id": "anchor-a",
+      "location": "Section 3, Algorithm 1",
+      "paper_id": "paper-a",
+      "permitted_use": "technical_claim_support"
+    },
+    {
+      "anchor_id": "anchor-b",
+      "location": "Section 4, Table 2",
+      "paper_id": "paper-b",
+      "permitted_use": "technical_claim_support"
+    }
+  ],
+  "authority_class": "reviewed_primary",
+  "bundle_id": "generic-two-mechanism-fixture",
+  "claims": [
+    {
+      "allowed": true,
+      "anchor_ids": ["anchor-a"],
+      "claim_id": "claim-a",
+      "mechanism": "Sequential adaptation",
+      "paper_ids": ["paper-a"],
+      "section_id": "mechanism-adaptation",
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "text": "The checked algorithm updates its policy after each observed outcome."
+    },
+    {
+      "allowed": true,
+      "anchor_ids": ["anchor-b"],
+      "claim_id": "claim-b",
+      "mechanism": "Constrained allocation",
+      "paper_ids": ["paper-b"],
+      "section_id": "mechanism-allocation",
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "text": "The checked experiment evaluates allocation under an explicit feasibility constraint."
+    },
+    {
+      "allowed": false,
+      "anchor_ids": [],
+      "claim_id": "claim-blocked",
+      "mechanism": "Universal superiority",
+      "paper_ids": [],
+      "section_id": "not-drafted",
+      "support_class": "SOURCE_GAP_BLOCKER",
+      "text": "One mechanism is universally superior."
+    }
+  ],
+  "nonclaims": [
+    "universal superiority",
+    "semantic PDF review"
+  ],
+  "omissions": [
+    {
+      "paper_id": "paper-c",
+      "reason": "source unavailable"
+    }
+  ],
+  "papers": [
+    {
+      "paper_id": "paper-a",
+      "role": "FOUNDATIONAL",
+      "safety_status": "checked_clear",
+      "source_status": "available",
+      "title": "Sequential Decisions"
+    },
+    {
+      "paper_id": "paper-b",
+      "role": "COMPETITOR",
+      "safety_status": "checked_clear",
+      "source_status": "available",
+      "title": "Constrained Choices"
+    }
+  ],
+  "schema_version": "ra.scholarly_document_evidence.v1",
+  "topic": "A generic comparison of sequential and constrained decision mechanisms"
+}

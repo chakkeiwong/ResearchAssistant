@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import argparse
+
 from research_assistant.cli_registration.common import Handler, Subparsers
 
 
@@ -61,6 +63,114 @@ def register_survey_commands(sub: Subparsers, handler: Handler) -> None:
     survey_coverage.add_argument('--out', required=True, help='Output directory for coverage and snowballing ledgers')
     survey_coverage.add_argument('--force', action='store_true')
     survey_coverage.set_defaults(func=handler)
+    survey_process = survey_sub.add_parser(
+        'process-plan',
+        help='Build a bounded source-first survey process plan from a local campaign snapshot',
+        description='Build coverage, source-availability, and deterministic next-action reports from a local campaign snapshot. This command does not run network, source, PDF, credential, or human-review actions and does not claim literature completeness.',
+    )
+    survey_process.add_argument('--snapshot', required=True, help='Local canonical campaign snapshot JSON')
+    survey_process.add_argument('--out', required=True, help='Output directory for process-plan artifacts')
+    survey_process.add_argument('--force', action='store_true')
+    survey_process.set_defaults(func=handler)
+    survey_centrality = survey_sub.add_parser(
+        'assess-centrality',
+        help='Assess local candidate centrality from checked evidence without metadata-score promotion',
+        description='Validate a topic contract and local centrality evidence bundle, then write deterministic candidate verdicts. This command performs no network, source, PDF, credential, benchmark-label, or human-review action.',
+    )
+    survey_centrality.add_argument('--topic-contract', required=True, help='Canonical local topic contract JSON')
+    survey_centrality.add_argument('--evidence', required=True, help='Canonical local candidate centrality evidence JSON')
+    survey_centrality.add_argument('--out', required=True, help='Output directory for assessment and manifest JSON')
+    survey_centrality.add_argument('--force', action='store_true')
+    survey_centrality.set_defaults(func=handler)
+    survey_mission_plan = survey_sub.add_parser(
+        'mission-plan',
+        help='Project a read-only product workflow plan from an existing mission root',
+        description='Replay the active mission state and write a deterministic workflow plan. This command performs no discovery, download, PDF, credential, review, or claim-promotion action.',
+    )
+    survey_mission_plan.add_argument('--mission-root', required=True, help='Existing mission root')
+    survey_mission_plan.add_argument('--out', help='Mission-local output path; defaults to mission_plan.json')
+    survey_mission_plan.set_defaults(func=handler)
+    survey_continue = survey_sub.add_parser(
+        'continue-topic',
+        help='Create an isolated explicit-seed mission from a selected topic bootstrap',
+        description='Validate a selected topic bootstrap authority and create a fresh explicit-seed child mission. This performs no provider, source, PDF, credential, claim, or review action.',
+    )
+    survey_continue.add_argument('--mission-root', required=True, help='Selected topic mission root')
+    survey_continue.add_argument('--out', required=True, help='Fresh child mission root')
+    survey_continue.set_defaults(func=handler)
+    survey_seeds = survey_sub.add_parser(
+        'seed-papers',
+        help='Find bounded multi-provider seed-paper candidates for a scholarly topic',
+        description='Query or replay OpenAlex, Crossref, and Semantic Scholar metadata, reconcile identities, and write a seed-candidate report. Metadata ranks and provider agreement cannot establish topic centrality or paper correctness.',
+    )
+    survey_seeds.add_argument('--topic', required=True)
+    survey_seeds.add_argument('--out', required=True, help='Fresh or replayable seed campaign output directory')
+    survey_seeds.add_argument('--confirm-public-discovery', action='store_true', help='Allow bounded public OpenAlex, Crossref, and Semantic Scholar metadata requests')
+    survey_seeds.add_argument('--resume', action='store_true', help='Replay and validate an existing completed campaign without provider calls')
+    survey_seeds.add_argument('--observation-bundle', help='Local raw provider bundle for offline execution; evaluator labels are forbidden')
+    survey_seeds.add_argument('--max-selected', type=int, default=12, help='Maximum selected seed candidates (1-50; default: 12)')
+    survey_seeds.add_argument('--required-facet', action='append', help='Explicit required topic facet; repeat as needed')
+    survey_seeds.add_argument('--alias', action='append', help='Controlled topic alias or abbreviation; repeat as needed')
+    survey_seeds.add_argument('--exclude', action='append', help='Explicit out-of-scope term or phrase; repeat as needed')
+    survey_seeds.add_argument('--scope-note', help='Operator-supplied scope note retained in the topic contract')
+    survey_seeds.add_argument('--venue-metrics-registry', help='Optional canonical venue-metrics registry; required again on resume')
+    survey_seeds.set_defaults(func=handler)
+    survey_continue_seeds = survey_sub.add_parser(
+        'continue-seeds',
+        help='Create an explicit-seed mission from a replay-valid seed campaign',
+        description='Replay the complete seed campaign, transfer only resolved selected IDs, and bind parent and child hashes in seed_handoff.json. This performs no live provider call.',
+    )
+    survey_continue_seeds.add_argument('--seed-campaign', required=True, help='Completed seed-papers campaign root')
+    survey_continue_seeds.add_argument('--out', required=True, help='Fresh explicit-seed child mission root')
+    survey_continue_seeds.add_argument('--venue-metrics-registry', help='Original registry required for a venue-enriched parent campaign')
+    survey_continue_seeds.set_defaults(func=handler)
+    survey_central_papers = survey_sub.add_parser(
+        'central-papers',
+        help='Run a bounded topic-to-central-papers campaign with explicit blockers and nonclaims',
+        description='Discover, inspect, snowball, assess, and report central-paper candidates from a topic. Live OpenAlex/arXiv access requires --confirm-public-discovery. Citation and venue metadata remain prioritization signals only.',
+    )
+    survey_central_papers.add_argument('--topic', required=True)
+    survey_central_papers.add_argument('--out', required=True, help='Fresh or resumable campaign output directory')
+    survey_central_papers.add_argument('--confirm-public-discovery', action='store_true', help='Allow bounded public OpenAlex metadata and arXiv structured-source requests')
+    survey_central_papers.add_argument('--resume', action='store_true', help='Replay or continue the identical topic, budget, and capability without repeating recorded calls')
+    survey_central_papers.add_argument('--observation-bundle', help='Local raw observation bundle for offline execution; cannot contain topic-fit, role, or evaluator labels')
+    survey_central_papers.set_defaults(func=handler)
+    survey_document = survey_sub.add_parser(
+        "draft-document",
+        help="Build a source-bound LaTeX document scaffold from reviewed evidence",
+        description=(
+            "Build an argument-first, evidence-bound LaTeX scaffold from an explicit reviewed evidence bundle. "
+            "This does not claim prose, literature, scientific, or publication readiness."
+        ),
+    )
+    survey_document.add_argument("--evidence", required=True, help="Reviewed document evidence bundle JSON")
+    survey_document.add_argument("--contract", required=True, help="Document contract JSON")
+    survey_document.add_argument("--out", required=True, help="Fresh document-run output directory")
+    survey_document.add_argument("--dynaremcp-command", help="Optional DynareMCP executable command")
+    survey_document.add_argument("--compile-latex", action="store_true", help="Compile the generated LaTeX source when a local tool is available")
+    survey_document.set_defaults(func=handler)
+    survey_literature_review = survey_sub.add_parser(
+        "literature-review",
+        help="Run a topic-to-source-attributed survey campaign",
+        description=(
+            "Discover and inspect central papers, project checked source statements, synthesize a LaTeX survey candidate, "
+            "optionally compile it, and optionally run DynareMCP QA. The result preserves open risks and does not claim "
+            "literature completeness, scientific correctness, or publication readiness."
+        ),
+    )
+    survey_literature_review.add_argument("--topic", required=True)
+    survey_literature_review.add_argument("--out", required=True, help="Fresh or resumable topic-to-survey output root")
+    survey_literature_review.add_argument("--confirm-public-discovery", action="store_true", help="Allow bounded public OpenAlex/arXiv discovery and source requests")
+    survey_literature_review.add_argument("--observation-bundle", help="Offline raw central-paper observation bundle for replay/testing")
+    survey_literature_review.add_argument("--resume", action="store_true", help="Replay or continue the same topic and capability")
+    survey_literature_review.add_argument("--dynaremcp-command", help="Optional DynareMCP executable command")
+    survey_literature_review.add_argument(
+        "--compile-latex",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Compile LaTeX with the local toolchain (default: enabled)",
+    )
+    survey_literature_review.set_defaults(func=handler)
     survey_reviewed_packet = survey_sub.add_parser(
         'compose-reviewed-final-packet',
         help='Compose the current immutable reviewed packet for hostile review',
@@ -117,6 +227,7 @@ def register_survey_commands(sub: Subparsers, handler: Handler) -> None:
     survey_run.add_argument('--reviewed-workflow-blockers-dir', help='Existing reviewed_workflow_blockers.json sidecar directory for local resume discovery')
     survey_run.add_argument('--reviewed-evidence-dir', help='Existing reviewed_evidence_status.json merge directory for local resume discovery')
     survey_run.add_argument('--local-evidence-root', help='Mission-local root used only to replay reviewed project-derivation or implementation-evidence claims')
+    survey_run.add_argument('--venue-metrics-registry', help='Optional canonical local venue-metrics registry for citation/impact-factor prioritization; topic mode only')
     survey_run.add_argument('--force', action='store_true')
     survey_run.set_defaults(func=handler)
 

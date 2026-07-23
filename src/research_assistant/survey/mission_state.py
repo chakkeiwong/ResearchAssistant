@@ -62,6 +62,27 @@ DEFAULT_ALLOWED_DOMAINS = ("arxiv.org", "export.arxiv.org")
 MAX_METADATA_RECORDS = 25
 MAX_SOURCE_RECORDS = 5
 MAX_BYTES_PER_SOURCE = 52_428_800
+MAX_CAMPAIGN_SOURCE_RECORDS = 30
+MAX_METADATA_REQUESTS = 24
+MAX_TOTAL_METADATA_RECORDS = 600
+MAX_UNIQUE_CANDIDATES = 300
+MAX_BYTES_PER_METADATA_RESPONSE = 2_000_000
+MAX_TOTAL_METADATA_BYTES = 48_000_000
+MAX_TOTAL_SOURCE_BYTES = 500 * 1024 * 1024
+MAX_PAGES_PER_QUERY = 2
+MAX_SELECTED_SEEDS = 12
+
+AGGREGATE_METADATA_BUDGET_FIELDS = {
+    "max_metadata_requests",
+    "max_records_per_metadata_response",
+    "max_total_metadata_records",
+    "max_unique_candidates",
+    "max_bytes_per_metadata_response",
+    "max_total_metadata_bytes",
+    "max_total_source_bytes",
+    "max_pages_per_query",
+    "max_selected_seeds",
+}
 
 GENERATION_ID_RE = re.compile(r"^g[0-9]{8}-[0-9a-f]{16}$")
 ATOMIC_TEMP_RE = re.compile(
@@ -126,15 +147,36 @@ def normalize_seeds(values: list[str]) -> list[dict[str, str]]:
     return [by_key[key] for key in sorted(by_key)]
 
 
-def discovery_budget(output_dir: Path) -> dict[str, Any]:
-    return {
-        "providers": list(DEFAULT_PROVIDERS),
-        "allowed_domains": list(DEFAULT_ALLOWED_DOMAINS),
+def discovery_budget(
+    output_dir: Path,
+    *,
+    providers: tuple[str, ...] | list[str] | None = None,
+    allowed_domains: tuple[str, ...] | list[str] | None = None,
+    aggregate_metadata: bool = False,
+) -> dict[str, Any]:
+    provider_values = list(DEFAULT_PROVIDERS if providers is None else providers)
+    domain_values = list(DEFAULT_ALLOWED_DOMAINS if allowed_domains is None else allowed_domains)
+    budget = {
+        "providers": provider_values,
+        "allowed_domains": domain_values,
         "max_metadata_records": MAX_METADATA_RECORDS,
-        "max_source_records": MAX_SOURCE_RECORDS,
+        "max_source_records": MAX_CAMPAIGN_SOURCE_RECORDS if aggregate_metadata else MAX_SOURCE_RECORDS,
         "max_bytes_per_source": MAX_BYTES_PER_SOURCE,
         "write_root": str(output_dir.resolve()),
     }
+    if aggregate_metadata:
+        budget.update({
+            "max_metadata_requests": MAX_METADATA_REQUESTS,
+            "max_records_per_metadata_response": MAX_METADATA_RECORDS,
+            "max_total_metadata_records": MAX_TOTAL_METADATA_RECORDS,
+            "max_unique_candidates": MAX_UNIQUE_CANDIDATES,
+            "max_bytes_per_metadata_response": MAX_BYTES_PER_METADATA_RESPONSE,
+            "max_total_metadata_bytes": MAX_TOTAL_METADATA_BYTES,
+            "max_total_source_bytes": MAX_TOTAL_SOURCE_BYTES,
+            "max_pages_per_query": MAX_PAGES_PER_QUERY,
+            "max_selected_seeds": MAX_SELECTED_SEEDS,
+        })
+    return budget
 
 
 def validate_budget(value: Any) -> dict[str, Any]:
@@ -146,12 +188,19 @@ def validate_budget(value: Any) -> dict[str, Any]:
         "max_bytes_per_source",
         "write_root",
     }
-    _require_exact_keys(value, required, "discovery_budget")
+    actual = set(value) if isinstance(value, dict) else set()
+    if actual == required | AGGREGATE_METADATA_BUDGET_FIELDS:
+        aggregate = True
+    elif actual == required:
+        aggregate = False
+    else:
+        raise MissionStateError("invalid_schema", "discovery_budget fields are not exact")
     providers = _validate_lowercase_list(value["providers"], "providers")
     domains = _validate_lowercase_list(value["allowed_domains"], "allowed_domains")
+    aggregate_source_profile = aggregate and providers == ["openalex"]
     numeric_caps = {
         "max_metadata_records": MAX_METADATA_RECORDS,
-        "max_source_records": MAX_SOURCE_RECORDS,
+        "max_source_records": MAX_CAMPAIGN_SOURCE_RECORDS if aggregate_source_profile else MAX_SOURCE_RECORDS,
         "max_bytes_per_source": MAX_BYTES_PER_SOURCE,
     }
     result: dict[str, Any] = {"providers": providers, "allowed_domains": domains}
@@ -164,6 +213,28 @@ def validate_budget(value: Any) -> dict[str, Any]:
     if not isinstance(write_root, str) or not write_root:
         raise MissionStateError("invalid_budget", "write_root must be a nonempty string")
     result["write_root"] = str(Path(write_root).resolve())
+    if aggregate:
+        aggregate_caps = {
+            "max_metadata_requests": MAX_METADATA_REQUESTS,
+            "max_records_per_metadata_response": MAX_METADATA_RECORDS,
+            "max_total_metadata_records": MAX_TOTAL_METADATA_RECORDS,
+            "max_unique_candidates": MAX_UNIQUE_CANDIDATES,
+            "max_bytes_per_metadata_response": MAX_BYTES_PER_METADATA_RESPONSE,
+            "max_total_metadata_bytes": MAX_TOTAL_METADATA_BYTES,
+            "max_total_source_bytes": MAX_TOTAL_SOURCE_BYTES,
+            "max_pages_per_query": MAX_PAGES_PER_QUERY,
+            "max_selected_seeds": MAX_SELECTED_SEEDS,
+        }
+        for field, hard_cap in aggregate_caps.items():
+            number = value[field]
+            if isinstance(number, bool) or not isinstance(number, int) or not 1 <= number <= hard_cap:
+                raise MissionStateError("invalid_budget", f"{field} must be an integer in [1, {hard_cap}]")
+            result[field] = number
+        if result["max_records_per_metadata_response"] != result["max_metadata_records"]:
+            raise MissionStateError(
+                "invalid_budget",
+                "max_metadata_records and max_records_per_metadata_response must agree",
+            )
     return result
 
 
@@ -642,6 +713,9 @@ class MissionStateManager:
         resume: bool,
         force: bool,
         input_mode: str = EXPLICIT_SEED_INPUT_MODE,
+        discovery_providers: tuple[str, ...] | list[str] | None = None,
+        discovery_allowed_domains: tuple[str, ...] | list[str] | None = None,
+        aggregate_metadata_budget: bool = False,
         now: Callable[[], str] = _utc_now,
         nonce_factory: Callable[[], str] = lambda: secrets.token_hex(16),
         mission_id_factory: Callable[[], str] = lambda: str(uuid.uuid4()),
@@ -658,7 +732,12 @@ class MissionStateManager:
         else:
             raise MissionStateError("invalid_input_mode", "mission input mode is unsupported")
         self.input_mode = input_mode
-        self.budget = discovery_budget(self.output_dir)
+        self.budget = discovery_budget(
+            self.output_dir,
+            providers=discovery_providers,
+            allowed_domains=discovery_allowed_domains,
+            aggregate_metadata=aggregate_metadata_budget,
+        )
         self.request_fingerprint = (
             mission_fingerprint(self.normalized_topic, self.normalized_seeds, self.budget)
             if input_mode == EXPLICIT_SEED_INPUT_MODE

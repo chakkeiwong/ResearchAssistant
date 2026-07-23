@@ -116,8 +116,9 @@ For a colleague-facing individual install path, start with [docs/installation.md
 
 ## Literature Survey Workflow
 
-The active survey workflow is credential-free and arXiv-only by default. Start
-a durable topic mission without inventing a paper seed:
+The active survey workflow is credential-free. Topic-only missions use bounded
+OpenAlex metadata nomination; explicit-seed local source work remains
+arXiv-first. Start a durable topic mission without inventing a paper seed:
 
 ```bash
 ra survey run-public-source-workflow \
@@ -125,10 +126,11 @@ ra survey run-public-source-workflow \
   --out /tmp/ra-survey-topic
 ```
 
-The first run stops at the one public-discovery confirmation. The installed
-default currently has no live topic-bootstrap adapter, so a confirmed resume
-closes honestly as `terminal_blocked_bootstrap_unavailable`; it does not call
-OpenAlex, read credentials, or pretend that live topic discovery succeeded.
+The first run stops at the one public-discovery confirmation. After
+confirmation, the bounded generic topic-bootstrap adapter nominates candidates
+when the configured public provider is available; provider failure closes
+honestly as `terminal_blocked_bootstrap_unavailable`. It does not read
+credentials or claim that a nominated candidate is technically verified.
 
 For an exact paper identifier, build the available local evidence skeleton:
 
@@ -141,9 +143,66 @@ ra survey run-public-source-workflow \
 ```
 
 The command stops before public metadata or source transport until the bounded
-public-discovery confirmation is recorded. New missions advertise only arXiv
-metadata/source-package scope; forward-citation coverage is unavailable and
-non-blocking, and PDF fallback is not part of the active workflow.
+public-discovery confirmation is recorded. Explicit-seed local source work
+advertises arXiv metadata/source-package scope; forward-citation coverage is
+unavailable and non-blocking, and PDF fallback is not part of the active
+workflow.
+
+After checked source inspection and snowball review, evaluate a canonical local
+centrality evidence bundle with `ra survey assess-centrality --topic-contract
+<json> --evidence <json> --out <mission>/centrality`. Refresh `ra survey
+mission-plan --mission-root <mission>` to see validated, relevant, rejected,
+blocked, and quarantined counts. The command does not fetch or review sources;
+metadata rank, citations, venue metrics, and availability cannot promote a
+paper.
+
+For a bounded topic-to-central-papers campaign, use:
+
+```bash
+ra survey central-papers \
+  --topic "Reinforcement learning for financial-product recommenders" \
+  --out /tmp/ra-central-papers \
+  --confirm-public-discovery
+```
+
+This command nominates candidates with OpenAlex, attempts arXiv structured
+source acquisition, expands bounded reference and citing identities, writes
+the six literature-audit ledgers, and returns validated, rejected,
+quarantined, and blocked dispositions. Use `--resume` only with the identical
+topic and capability. This is bounded evidence construction, not a claim of
+literature completeness, paper correctness, or expert semantic review.
+
+For the retrieval-only seed-candidate queue, use:
+
+```bash
+ra survey seed-papers \
+  --topic "Reinforcement learning for financial-product recommenders" \
+  --out /tmp/ra-seed-papers \
+  --confirm-public-discovery
+```
+
+This queries bounded OpenAlex, Crossref, and Semantic Scholar metadata,
+reconciles DOI/arXiv/OpenAlex identities, and writes provider gaps and
+provider-local priority signals. Google Scholar is not automated because it
+has no supported public API. A selected row is still metadata-only: inspect
+its primary source and run the centrality/snowball workflow before treating it
+as a seed paper for scholarly claims.
+
+For compound topics, repeat `--required-facet`, `--alias`, and `--exclude` to
+record controlled terminology and scope. Selection balances required facets
+and metadata-only scholarly role hypotheses while preserving abstract/concept
+evidence and provider-local priority signals. Continue a replay-valid portfolio
+without manual copying:
+
+```bash
+ra survey continue-seeds \
+  --seed-campaign /tmp/ra-seed-papers \
+  --out /tmp/ra-seed-inspection
+```
+
+The hash-bound handoff starts the existing explicit-seed source workflow. It
+does not establish source safety, technical support, centrality, or literature
+completeness.
 
 Use `ra survey qualitative-assessment` to record concise merits, concerns,
 uncertainties, exact evidence references, and a next action. Qualitative

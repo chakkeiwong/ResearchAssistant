@@ -33,6 +33,7 @@ from research_assistant.survey.mission_state import (
     validate_budget,
     validate_generation_binding_readonly,
 )
+from research_assistant.survey.source_selection import build_source_selection_ledger
 
 
 SOURCE_INTAKE_CAPABILITY_SCHEMA = "ra-survey-mission-source-capability-v1"
@@ -44,6 +45,7 @@ METADATA_AUTHORITY_V2_SCHEMA = "ra-survey-source-intake-metadata-authority-v2"
 
 OUTCOMES_FILE = "source_intake_outcomes.json"
 STATUS_FILE = "phase4_source_intake_status.json"
+SOURCE_SELECTION_FILE = "source_selection_reconciliation.json"
 METADATA_PACKET_FILES = {
     "candidate_ledger.json",
     "citation_map.json",
@@ -959,8 +961,8 @@ def run_mission_source_intake(
     _preflight_output_root(
         mission,
         intake_root,
-        exact_allowed={OUTCOMES_FILE, STATUS_FILE},
-        allowed_subset=None,
+        exact_allowed=None,
+        allowed_subset={OUTCOMES_FILE, STATUS_FILE, SOURCE_SELECTION_FILE},
         label="source intake",
     )
     expected_record_names = {
@@ -990,10 +992,16 @@ def run_mission_source_intake(
             "outcome_count": len(validated["outcomes"]),
         }
     ledger_path = intake_root / OUTCOMES_FILE
-    if ledger_path.exists() or ledger_path.is_symlink():
+    selection_path = intake_root / SOURCE_SELECTION_FILE
+    if (
+        ledger_path.exists()
+        or ledger_path.is_symlink()
+        or selection_path.exists()
+        or selection_path.is_symlink()
+    ):
         raise MissionStateError(
             "partial_source_intake_residue",
-            "outcome ledger exists without the status commit marker",
+            "source-intake artifact exists without the status commit marker",
         )
 
     outcomes: list[dict[str, Any]] = []
@@ -1002,7 +1010,10 @@ def run_mission_source_intake(
     exhausted_bytes = False
     max_calls = budget["max_source_records"]
     capability_calls = 0
-    cumulative_cap = max_calls * budget["max_bytes_per_source"]
+    cumulative_cap = budget.get(
+        "max_total_source_bytes",
+        max_calls * budget["max_bytes_per_source"],
+    )
     seen_papers: dict[str, tuple[Path, bytes]] = {}
 
     for index, candidate in enumerate(candidates):
@@ -1158,6 +1169,19 @@ def run_mission_source_intake(
     ledger_bytes = pretty_json_bytes(ledger_payload)
     intake_root.mkdir(parents=True, exist_ok=True)
     _atomic_write(ledger_path, ledger_bytes, label="source_intake_outcomes", crash_hook=crash_hook)
+    selection_payload = _source_selection_payload(
+        topic=snapshot.contract["normalized_topic"]["display"],
+        candidates=candidates,
+        outcomes=outcomes,
+        budget=budget,
+        metadata_authority=authority,
+    )
+    _atomic_write(
+        selection_path,
+        pretty_json_bytes(selection_payload),
+        label="source_selection_reconciliation",
+        crash_hook=crash_hook,
+    )
     status_payload = {
         "schema_version": SOURCE_INTAKE_STATUS_SCHEMA,
         "status": "completed_with_outcomes",
@@ -1251,8 +1275,8 @@ def validate_mission_source_intake(
     _preflight_output_root(
         mission,
         intake_root,
-        exact_allowed={OUTCOMES_FILE, STATUS_FILE},
-        allowed_subset=None,
+        exact_allowed=None,
+        allowed_subset={OUTCOMES_FILE, STATUS_FILE, SOURCE_SELECTION_FILE},
         label="source intake",
     )
     status, status_raw = _read_phase6_json(status_file, label="source intake status")
@@ -1460,7 +1484,35 @@ def validate_mission_source_intake(
             allowed_subset=None,
             label="source records",
         )
-    required_paths = [*(str(path) for path in record_paths), str(ledger_path), str(status_file)]
+    selection_path = intake_root / SOURCE_SELECTION_FILE
+    if selection_path.exists() or selection_path.is_symlink():
+        selection_file = _regular_file(
+            selection_path,
+            root=mission,
+            label="source selection reconciliation",
+        )
+        selection, _ = _read_phase6_json(
+            selection_file,
+            label="source selection reconciliation",
+        )
+        expected_selection = _source_selection_payload(
+            topic=snapshot.contract["normalized_topic"]["display"],
+            candidates=candidates,
+            outcomes=outcomes,
+            budget=validate_budget(status["discovery_budget"]),
+            metadata_authority=authority,
+        )
+        if selection != expected_selection:
+            raise MissionStateError(
+                "source_selection_reconciliation_mismatch",
+                "source selection reconciliation differs from authoritative outcomes",
+            )
+    else:
+        selection_file = None
+    required_paths = [*(str(path) for path in record_paths), str(ledger_path)]
+    if selection_file is not None:
+        required_paths.append(str(selection_file))
+    required_paths.append(str(status_file))
     return {
         "paper_ids": status["authoritative_paper_ids"],
         "project_root": mission,
@@ -1470,7 +1522,66 @@ def validate_mission_source_intake(
         "status_bytes": status_raw,
         "outcomes": outcomes,
         "required_output_paths": required_paths,
+        "source_selection": selection if selection_file is not None else None,
     }
+
+
+def _source_selection_payload(
+    *,
+    topic: str,
+    candidates: list[dict[str, Any]],
+    outcomes: list[dict[str, Any]],
+    budget: dict[str, Any],
+    metadata_authority: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    selected_ids: set[str] = set()
+    selection_candidates = [dict(row) for row in candidates]
+    identity_path = (
+        Path(metadata_authority["metadata_root"]) / "identity_resolution.json"
+        if isinstance(metadata_authority, dict)
+        and metadata_authority.get("schema_version") == METADATA_AUTHORITY_V2_SCHEMA
+        else None
+    )
+    if identity_path is not None and identity_path.is_file() and not identity_path.is_symlink():
+        identity, _ = _read_builder_json(identity_path, label="identity resolution")
+        selected_ids = {
+            row["selected_paper_id"]
+            for row in identity.get("seed_resolutions") or []
+            if isinstance(row, dict) and isinstance(row.get("selected_paper_id"), str)
+        }
+        relevance_path = Path(metadata_authority["metadata_root"]) / "relevance_ranking.json"
+        if relevance_path.is_file() and not relevance_path.is_symlink():
+            relevance, _ = _read_builder_json(relevance_path, label="relevance ranking")
+            rank_by_id = {
+                row["paper_id"]: row
+                for row in relevance.get("rows") or []
+                if isinstance(row, dict) and isinstance(row.get("paper_id"), str)
+            }
+            for candidate in selection_candidates:
+                ranking = rank_by_id.get(candidate["candidate_id"], {})
+                candidate["combined_nomination_rank"] = ranking.get("final_rank")
+                candidate["citation_count"] = ranking.get("citation_count")
+                candidate["stratum"] = ranking.get("disposition") or "unspecified"
+    selected = [
+        row for row in selection_candidates if row["candidate_id"] in selected_ids
+    ]
+    selection_basis = "identity_resolution_seed_gate" if selected else "seed_role"
+    if not selected:
+        selected = [
+            row for row in selection_candidates if "seed" in row.get("roles", [])
+        ]
+    if not selected:
+        selection_basis = "intake_candidate_universe"
+        selected = selection_candidates
+    payload = build_source_selection_ledger(
+        topic=topic,
+        selected_candidates=selected,
+        eligible_candidates=selection_candidates,
+        availability_outcomes=outcomes,
+        seed_cap=min(len(selected), budget.get("max_selected_seeds", len(selected))),
+    )
+    payload["selection_basis"] = selection_basis
+    return payload
 
 
 def _validate_shared_bindings(
@@ -1787,7 +1898,11 @@ def _validate_outcomes(
                     "available record size exceeds the per-record budget",
                 )
             accepted_bytes += size
-            if accepted_bytes > budget["max_source_records"] * budget["max_bytes_per_source"]:
+            cumulative_cap = budget.get(
+                "max_total_source_bytes",
+                budget["max_source_records"] * budget["max_bytes_per_source"],
+            )
+            if accepted_bytes > cumulative_cap:
                 raise MissionStateError(
                     "source_record_byte_count_mismatch",
                     "available record sizes exceed the cumulative budget",
@@ -2013,6 +2128,7 @@ __all__ = [
     "SOURCE_INTAKE_CAPABILITY_SCHEMA",
     "SOURCE_INTAKE_OUTCOMES_SCHEMA",
     "SOURCE_INTAKE_STATUS_SCHEMA",
+    "SOURCE_SELECTION_FILE",
     "SourceCandidateRequest",
     "SourceCapabilityResult",
     "build_source_intake_metadata_authority",

@@ -1,0 +1,123 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "seed_neural_optimal_transport",
+      "node_keys": [
+        "korotin_2022_neural_optimal_transport"
+      ],
+      "status": "seed_only"
+    },
+    {
+      "cluster_id": "adjacent_or_noisy_openalex_candidates",
+      "node_keys": [
+        "openalex_adjacent_1",
+        "openalex_adjacent_2",
+        "openalex_adjacent_3",
+        "openalex_adjacent_4",
+        "openalex_adjacent_5"
+      ],
+      "status": "metadata_only"
+    }
+  ],
+  "edges": [],
+  "missing_layers": [
+    {
+      "layer": "forward_citations",
+      "reason": "Semantic Scholar rate-limited; OpenAlex exact record sparse.",
+      "status": "metadata_unavailable_or_rate_limited"
+    },
+    {
+      "layer": "backward_references",
+      "reason": "OpenAlex exact DOI record returned zero referenced works; PDF not inspected for references in this bounded phase.",
+      "status": "metadata_unavailable"
+    }
+  ],
+  "nodes": [
+    {
+      "claim_support_status": "source_gap_for_technical_claims",
+      "metadata_sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "paper_key": "korotin_2022_neural_optimal_transport",
+      "roles": [
+        "seed",
+        "direct_method_candidate"
+      ],
+      "source_status": "downloaded_raw_tmp_not_inspected",
+      "title": "Neural Optimal Transport",
+      "year": 2022
+    },
+    {
+      "claim_support_status": "metadata_only_not_evidence",
+      "metadata_sources": [
+        "openalex_search"
+      ],
+      "paper_key": "openalex_adjacent_1",
+      "roles": [
+        "adjacent_or_noisy_candidate"
+      ],
+      "source_status": "metadata_only",
+      "title": "Learning single-cell perturbation responses using neural optimal transport",
+      "year": 2023
+    },
+    {
+      "claim_support_status": "metadata_only_not_evidence",
+      "metadata_sources": [
+        "openalex_search"
+      ],
+      "paper_key": "openalex_adjacent_2",
+      "roles": [
+        "adjacent_or_noisy_candidate"
+      ],
+      "source_status": "metadata_only",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    },
+    {
+      "claim_support_status": "metadata_only_not_evidence",
+      "metadata_sources": [
+        "openalex_search"
+      ],
+      "paper_key": "openalex_adjacent_3",
+      "roles": [
+        "adjacent_or_noisy_candidate"
+      ],
+      "source_status": "metadata_only",
+      "title": "Neural Architecture Search with Bayesian Optimisation and Optimal Transport",
+      "year": 2018
+    },
+    {
+      "claim_support_status": "metadata_only_not_evidence",
+      "metadata_sources": [
+        "openalex_search"
+      ],
+      "paper_key": "openalex_adjacent_4",
+      "roles": [
+        "adjacent_or_noisy_candidate"
+      ],
+      "source_status": "metadata_only",
+      "title": "Learning Single-Cell Perturbation Responses using Neural Optimal Transport",
+      "year": 2021
+    },
+    {
+      "claim_support_status": "metadata_only_not_evidence",
+      "metadata_sources": [
+        "openalex_search"
+      ],
+      "paper_key": "openalex_adjacent_5",
+      "roles": [
+        "adjacent_or_noisy_candidate"
+      ],
+      "source_status": "metadata_only",
+      "title": "Accurate prediction of protein structures and interactions using a three-track neural network",
+      "year": 2021
+    }
+  ],
+  "schema_version": "ra-surveybench-public-pilot-citation-map-v1",
+  "seed_papers": [
+    "korotin_2022_neural_optimal_transport"
+  ],
+  "task_id": "public_arxiv_neural_optimal_transport_2201_12220",
+  "topic": "Neural Optimal Transport bounded public arXiv pilot"
+}

@@ -8,6 +8,7 @@ from types import MappingProxyType
 from typing import Any
 
 from research_assistant.survey.mission_state import MissionStateError
+from research_assistant.survey.campaign_process import write_process_plan
 
 
 Report = dict[str, Any]
@@ -35,6 +36,15 @@ class SurveyServices:
     validate_human_attestation: Callable[..., Report]
     build_assessment: Callable[..., Report]
     write_assessment: Callable[..., Report]
+    write_process_plan: Callable[..., Report]
+    write_centrality_assessment: Callable[..., Report]
+    write_mission_plan_from_root: Callable[..., Report]
+    continue_topic_mission: Callable[..., Report]
+    continue_seed_paper_campaign: Callable[..., Report]
+    run_seed_paper_campaign: Callable[..., Report]
+    run_central_papers_campaign: Callable[..., Report]
+    draft_document: Callable[..., Report]
+    run_literature_review: Callable[..., Report]
 
 
 def execute_survey_action(args: argparse.Namespace, services: SurveyServices) -> int:
@@ -104,6 +114,148 @@ def _coverage_ledgers(args: argparse.Namespace, services: SurveyServices) -> int
     return _emit_status(report, services, {"coverage_ledgers_composed"})
 
 
+def _process_plan(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.write_process_plan(
+        snapshot_path=Path(args.snapshot),
+        output_dir=Path(args.out),
+        force=args.force,
+    )
+    return _emit_status(report, services, {"process_plan_written"})
+
+
+def _assess_centrality(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.write_centrality_assessment(
+        topic_contract_path=Path(args.topic_contract),
+        evidence_path=Path(args.evidence),
+        output_dir=Path(args.out),
+        force=args.force,
+    )
+    return _emit_status(report, services, {"centrality_assessment_written"})
+
+
+def _mission_plan(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.write_mission_plan_from_root(
+        mission_root=Path(args.mission_root),
+        output_path=Path(args.out) if args.out else None,
+    )
+    return _emit_status(report, services, {"mission_plan_written", "mission_plan_reused"})
+
+
+def _continue_topic(args: argparse.Namespace, services: SurveyServices) -> int:
+    try:
+        report = services.continue_topic_mission(
+            parent_root=Path(args.mission_root),
+            child_root=Path(args.out),
+        )
+    except MissionStateError as exc:
+        report = {
+            "schema_version": "ra-survey-topic-continuation-result-v1",
+            "status": "blocked",
+            "blocked_reason": exc.code,
+            "next_required_actions": [str(exc)],
+            "what_is_not_concluded": [
+                "canonical seed-paper truth",
+                "source availability or safety",
+                "technical claim support",
+                "literature completeness",
+                "scientific correctness",
+                "release approval",
+            ],
+        }
+    return _emit_status(report, services, {"topic_handoff_written", "topic_handoff_reused"})
+
+
+def _central_papers(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.run_central_papers_campaign(
+        topic=args.topic,
+        output_dir=Path(args.out),
+        confirm_public_discovery=args.confirm_public_discovery,
+        resume=args.resume,
+        observation_bundle=(Path(args.observation_bundle) if args.observation_bundle else None),
+    )
+    services.print_json(report)
+    return 0
+
+
+def _draft_document(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.draft_document(
+        evidence_path=Path(args.evidence),
+        contract_path=Path(args.contract),
+        output_dir=Path(args.out),
+        dynaremcp_command=args.dynaremcp_command,
+        compile_latex=args.compile_latex,
+    )
+    return _emit_status(
+        report,
+        services,
+        {
+            "document_scaffold_only",
+            "source_attributed_evidence_survey",
+            "reviewed_survey_candidate_synthesized",
+        },
+    )
+
+
+def _literature_review(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.run_literature_review(
+        topic=args.topic,
+        output_dir=Path(args.out),
+        confirm_public_discovery=args.confirm_public_discovery,
+        observation_bundle=Path(args.observation_bundle) if args.observation_bundle else None,
+        resume=args.resume,
+        dynaremcp_command=args.dynaremcp_command,
+        compile_latex=args.compile_latex,
+    )
+    return _emit_status(
+        report,
+        services,
+        {"source_attributed_evidence_survey", "reviewed_survey_candidate_synthesized"},
+    )
+
+
+def _seed_papers(args: argparse.Namespace, services: SurveyServices) -> int:
+    report = services.run_seed_paper_campaign(
+        topic=args.topic,
+        output_dir=Path(args.out),
+        confirm_public_discovery=args.confirm_public_discovery,
+        resume=args.resume,
+        observation_bundle=(Path(args.observation_bundle) if args.observation_bundle else None),
+        max_selected=args.max_selected,
+        venue_metrics_registry=(Path(args.venue_metrics_registry) if args.venue_metrics_registry else None),
+        required_facets=args.required_facet,
+        aliases=args.alias,
+        exclusions=args.exclude,
+        scope_note=args.scope_note,
+    )
+    services.print_json(report)
+    return 0 if report["status"] == "seed_candidates_selected" else 1
+
+
+def _continue_seeds(args: argparse.Namespace, services: SurveyServices) -> int:
+    try:
+        report = services.continue_seed_paper_campaign(
+            seed_campaign_root=Path(args.seed_campaign),
+            child_root=Path(args.out),
+            venue_metrics_registry=(
+                Path(args.venue_metrics_registry) if args.venue_metrics_registry else None
+            ),
+        )
+    except MissionStateError as exc:
+        report = {
+            "schema_version": "ra-survey-seed-continuation-result-v1",
+            "status": "blocked",
+            "blocked_reason": exc.code,
+            "next_required_actions": [str(exc)],
+            "what_is_not_concluded": [
+                "literature completeness",
+                "paper correctness",
+                "source availability or safety",
+                "topic centrality",
+            ],
+        }
+    return _emit_status(report, services, {"seed_handoff_written", "seed_handoff_reused"})
+
+
 def _compose_reviewed_final_packet(args: argparse.Namespace, services: SurveyServices) -> int:
     report = services.compose_reviewed_final_packet(
         mission_root=Path(args.mission_root),
@@ -158,6 +310,9 @@ def _run_public_source_workflow(args: argparse.Namespace, services: SurveyServic
         ),
         reviewed_evidence_dir=Path(args.reviewed_evidence_dir) if args.reviewed_evidence_dir else None,
         local_evidence_root=Path(args.local_evidence_root) if args.local_evidence_root else None,
+        venue_metrics_registry=(
+            Path(args.venue_metrics_registry) if getattr(args, "venue_metrics_registry", None) else None
+        ),
     )
     return _emit_status(report, services, {"blocked_at_gate", "ready_for_local_continuation"})
 
@@ -298,6 +453,15 @@ SURVEY_ACTION_HANDLERS: Mapping[str, ActionHandler] = MappingProxyType({
     "anchors": _anchors,
     "packet": _packet,
     "coverage-ledgers": _coverage_ledgers,
+    "process-plan": _process_plan,
+    "assess-centrality": _assess_centrality,
+    "mission-plan": _mission_plan,
+    "continue-topic": _continue_topic,
+    "seed-papers": _seed_papers,
+    "continue-seeds": _continue_seeds,
+    "central-papers": _central_papers,
+    "draft-document": _draft_document,
+    "literature-review": _literature_review,
     "compose-reviewed-final-packet": _compose_reviewed_final_packet,
     "hostile-review": _hostile_review,
     "run-public-source-workflow": _run_public_source_workflow,

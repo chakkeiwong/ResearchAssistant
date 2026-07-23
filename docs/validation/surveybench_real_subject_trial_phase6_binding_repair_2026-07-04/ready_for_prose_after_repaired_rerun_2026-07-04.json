@@ -1,0 +1,47 @@
+{
+  "blocked_reasons": [
+    "missing_required_replay_calls",
+    "missing_packet_files"
+  ],
+  "derivation_sources": [
+    "task.endpoints",
+    "agent-visible event_log events",
+    "visible output directory filenames and JSON schema_version fields",
+    "visible packet content shape"
+  ],
+  "event_count": 0,
+  "helper": "ready-for-prose",
+  "invalid_packet_files": [],
+  "missing_packet_files": [
+    "candidate_ledger.json",
+    "citation_map.json",
+    "source_support.json",
+    "claim_support.json",
+    "omission_risk.json"
+  ],
+  "missing_required_endpoints": [
+    "search",
+    "references",
+    "citations",
+    "adjacent",
+    "download-status",
+    "source-anchors"
+  ],
+  "packet_issues": [],
+  "required_packet_files": [
+    "candidate_ledger.json",
+    "citation_map.json",
+    "source_support.json",
+    "claim_support.json",
+    "omission_risk.json"
+  ],
+  "schema_version": "ra-surveybench-ready-for-prose-v1",
+  "status": "blocked",
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+  "what_is_not_concluded": [
+    "scorer pass",
+    "claim support correctness",
+    "survey quality",
+    "live-web coverage"
+  ]
+}

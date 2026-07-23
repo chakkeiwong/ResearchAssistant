@@ -1,0 +1,569 @@
+{
+  "causal_inference": {
+    "accessed_at": "2026-07-22T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 2,
+            "purpose": "foundational_or_high_citation",
+            "query": "Causal inference with instrumental variables",
+            "request_url": "https://api.crossref.org/fixture/causal",
+            "response": {
+              "message": {
+                "items": [
+                  {
+                    "DOI": "10.1000/causal-iv",
+                    "URL": "https://doi.org/10.1000/causal-iv",
+                    "author": [{"family": "Angrist", "given": "Joshua"}],
+                    "container-title": ["Econometrica"],
+                    "is-referenced-by-count": 3500,
+                    "published": {"date-parts": [[1996]]},
+                    "title": ["Identification of Causal Inference with Instrumental Variables"]
+                  },
+                  {
+                    "DOI": "10.1000/causal-control",
+                    "URL": "https://doi.org/10.1000/causal-control",
+                    "author": [{"family": "Control", "given": "Case"}],
+                    "container-title": ["Statistics"],
+                    "is-referenced-by-count": 9000,
+                    "published": {"date-parts": [[2000]]},
+                    "title": ["Causal Inference with Matching Methods"]
+                  }
+                ],
+                "total-results": 2
+              }
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "openalex",
+        "requests": [
+          {
+            "capped": false,
+            "detail": "fixture unavailable",
+            "provider_total": null,
+            "purpose": "foundational_or_high_citation",
+            "query": "Causal inference with instrumental variables",
+            "request_url": "https://api.openalex.org/fixture/causal",
+            "response": null,
+            "route_id": "exact_high_citation",
+            "status": "not_available"
+          }
+        ],
+        "status": "not_available"
+      },
+      {
+        "provider": "semantic_scholar",
+        "requests": [
+          {
+            "capped": false,
+            "detail": "fixture unavailable",
+            "provider_total": null,
+            "purpose": "foundational_or_high_citation",
+            "query": "Causal inference with instrumental variables",
+            "request_url": "https://api.semanticscholar.org/fixture/causal",
+            "response": null,
+            "route_id": "exact_high_citation",
+            "status": "not_available"
+          }
+        ],
+        "status": "not_available"
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v1",
+    "topic_contract_sha256": "be4af06ab56fec4a65570a4e548ce9f407af8c008f781837cec53065e14a46ac"
+  },
+  "federated_privacy": {
+    "accessed_at": "2026-07-22T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 1,
+            "purpose": "foundational_or_high_citation",
+            "query": "Federated learning and privacy",
+            "request_url": "https://api.crossref.org/fixture/federated",
+            "response": {
+              "message": {
+                "items": [
+                  {
+                    "DOI": "10.1000/federated-privacy",
+                    "URL": "https://doi.org/10.1000/federated-privacy",
+                    "author": [{"family": "McMahan", "given": "Brendan"}],
+                    "container-title": ["Proceedings"],
+                    "is-referenced-by-count": 12000,
+                    "published": {"date-parts": [[2017]]},
+                    "title": ["Privacy-Preserving Federated Learning"]
+                  }
+                ],
+                "total-results": 1
+              }
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "openalex",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 2,
+            "purpose": "foundational_or_high_citation",
+            "query": "Federated learning and privacy",
+            "request_url": "https://api.openalex.org/fixture/federated",
+            "response": {
+              "meta": {"count": 2},
+              "results": [
+                {
+                  "authorships": [{"author": {"display_name": "Brendan McMahan"}}],
+                  "cited_by_count": 13000,
+                  "display_name": "Privacy-Preserving Federated Learning",
+                  "doi": "https://doi.org/10.1000/federated-privacy",
+                  "id": "https://openalex.org/W301",
+                  "ids": {"openalex": "https://openalex.org/W301"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Proceedings"}},
+                  "publication_year": 2017
+                },
+                {
+                  "authorships": [{"author": {"display_name": "Popular Author"}}],
+                  "cited_by_count": 50000,
+                  "display_name": "Federated Learning Optimization",
+                  "doi": null,
+                  "id": "https://openalex.org/W309",
+                  "ids": {"openalex": "https://openalex.org/W309"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Proceedings"}},
+                  "publication_year": 2018
+                }
+              ]
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "semantic_scholar",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 0,
+            "purpose": "foundational_or_high_citation",
+            "query": "Federated learning and privacy",
+            "request_url": "https://api.semanticscholar.org/fixture/federated",
+            "response": {"data": [], "total": 0},
+            "route_id": "exact_high_citation",
+            "status": "empty"
+          }
+        ],
+        "status": "empty"
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v1",
+    "topic_contract_sha256": "975f1fa48120f88d25ad1dbaa05825df7ba9ae3c1c16f3230c03d0a14957ec69"
+  },
+  "graph_molecules": {
+    "accessed_at": "2026-07-22T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "requests": [
+          {
+            "capped": true,
+            "detail": null,
+            "provider_total": 100,
+            "purpose": "foundational_or_high_citation",
+            "query": "Graph neural networks for molecular property prediction",
+            "request_url": "https://api.crossref.org/fixture/graph",
+            "response": {"message": {"items": [], "total-results": 100}},
+            "route_id": "exact_high_citation",
+            "status": "capped"
+          }
+        ],
+        "status": "capped"
+      },
+      {
+        "provider": "openalex",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 1,
+            "purpose": "foundational_or_high_citation",
+            "query": "Graph neural networks for molecular property prediction",
+            "request_url": "https://api.openalex.org/fixture/graph",
+            "response": {
+              "meta": {"count": 1},
+              "results": [
+                {
+                  "authorships": [{"author": {"display_name": "Molecule Author"}}],
+                  "cited_by_count": 4200,
+                  "display_name": "Graph Neural Networks for Molecular Property Prediction",
+                  "doi": "https://doi.org/10.1000/graph-molecule",
+                  "id": "https://openalex.org/W501",
+                  "ids": {"openalex": "https://openalex.org/W501"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Chemistry"}},
+                  "publication_year": 2019
+                }
+              ]
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "semantic_scholar",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 2,
+            "purpose": "foundational_or_high_citation",
+            "query": "Graph neural networks for molecular property prediction",
+            "request_url": "https://api.semanticscholar.org/fixture/graph",
+            "response": {
+              "data": [
+                {
+                  "authors": [{"name": "Molecule Author"}],
+                  "citationCount": 4300,
+                  "externalIds": {"DOI": "10.1000/graph-molecule"},
+                  "paperId": "S501",
+                  "title": "Graph Neural Networks for Molecular Property Prediction",
+                  "url": "https://www.semanticscholar.org/paper/S501",
+                  "venue": "Chemistry",
+                  "year": 2019
+                },
+                {
+                  "authors": [{"name": "Survey Author"}],
+                  "citationCount": 15000,
+                  "externalIds": {},
+                  "paperId": "S509",
+                  "title": "Graph Neural Networks: A Survey",
+                  "url": "https://www.semanticscholar.org/paper/S509",
+                  "venue": "Computing",
+                  "year": 2020
+                }
+              ],
+              "total": 2
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v1",
+    "topic_contract_sha256": "1fc5ebf0d2df599e9f77117701edb2e2162dc6bbe88b2eb6f3374924c3636291"
+  },
+  "neural_optimal_transport": {
+    "accessed_at": "2026-07-22T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 1,
+            "purpose": "direct_method",
+            "query": "Neural optimal transport",
+            "request_url": "https://api.crossref.org/fixture/neural-ot",
+            "response": {
+              "message": {
+                "items": [
+                  {
+                    "DOI": "10.1000/neural-ot",
+                    "URL": "https://doi.org/10.1000/neural-ot",
+                    "author": [{"family": "Korotin", "given": "Alexander"}],
+                    "container-title": ["Learning"],
+                    "is-referenced-by-count": 120,
+                    "published": {"date-parts": [[2022]]},
+                    "title": ["Neural Optimal Transport"]
+                  }
+                ],
+                "total-results": 1
+              }
+            },
+            "route_id": "broad_facets",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "openalex",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 2,
+            "purpose": "direct_method",
+            "query": "Neural optimal transport",
+            "request_url": "https://api.openalex.org/fixture/neural-ot",
+            "response": {
+              "meta": {"count": 2},
+              "results": [
+                {
+                  "authorships": [{"author": {"display_name": "Alexander Korotin"}}],
+                  "cited_by_count": 125,
+                  "display_name": "Neural Optimal Transport",
+                  "doi": "https://doi.org/10.1000/neural-ot",
+                  "id": "https://openalex.org/W101",
+                  "ids": {"openalex": "https://openalex.org/W101"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Learning"}},
+                  "publication_year": 2022
+                },
+                {
+                  "authorships": [{"author": {"display_name": "Control Author"}}],
+                  "cited_by_count": 25000,
+                  "display_name": "Neural Machine Translation",
+                  "doi": null,
+                  "id": "https://openalex.org/W109",
+                  "ids": {"openalex": "https://openalex.org/W109"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Language"}},
+                  "publication_year": 2014
+                }
+              ]
+            },
+            "route_id": "broad_facets",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "semantic_scholar",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 1,
+            "purpose": "direct_method",
+            "query": "Neural optimal transport",
+            "request_url": "https://api.semanticscholar.org/fixture/neural-ot",
+            "response": {
+              "data": [
+                {
+                  "authors": [{"name": "Alexander Korotin"}],
+                  "citationCount": 130,
+                  "externalIds": {"DOI": "10.1000/neural-ot"},
+                  "paperId": "S101",
+                  "title": "Neural Optimal Transport",
+                  "url": "https://www.semanticscholar.org/paper/S101",
+                  "venue": "Learning",
+                  "year": 2022
+                }
+              ],
+              "total": 1
+            },
+            "route_id": "broad_facets",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v1",
+    "topic_contract_sha256": "66719bd0d641c5be9d551b455c042bdbb185ab52139b9a6e5a4c079f9325e4af"
+  },
+  "particle_filtering": {
+    "accessed_at": "2026-07-22T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 1,
+            "purpose": "foundational_or_high_citation",
+            "query": "Particle filtering for nonlinear state-space models",
+            "request_url": "https://api.crossref.org/fixture/particle",
+            "response": {
+              "message": {
+                "items": [
+                  {
+                    "DOI": "10.1000/particle-filter",
+                    "URL": "https://doi.org/10.1000/particle-filter",
+                    "author": [{"family": "Doucet", "given": "Arnaud"}],
+                    "container-title": ["Statistics"],
+                    "is-referenced-by-count": 8000,
+                    "published": {"date-parts": [[2001]]},
+                    "title": ["Particle Filtering for Nonlinear State-Space Models"]
+                  }
+                ],
+                "total-results": 1
+              }
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "openalex",
+        "requests": [
+          {
+            "capped": true,
+            "detail": null,
+            "provider_total": 200,
+            "purpose": "foundational_or_high_citation",
+            "query": "Particle filtering for nonlinear state-space models",
+            "request_url": "https://api.openalex.org/fixture/particle",
+            "response": {
+              "meta": {"count": 200},
+              "results": [
+                {
+                  "authorships": [{"author": {"display_name": "Arnaud Doucet"}}],
+                  "cited_by_count": 8100,
+                  "display_name": "Particle Filtering for Nonlinear State-Space Models",
+                  "doi": "https://doi.org/10.1000/particle-filter",
+                  "id": "https://openalex.org/W201",
+                  "ids": {"openalex": "https://openalex.org/W201"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Statistics"}},
+                  "publication_year": 2001
+                },
+                {
+                  "authorships": [{"author": {"display_name": "Physics Author"}}],
+                  "cited_by_count": 30000,
+                  "display_name": "Particle Physics Event Filtering",
+                  "doi": null,
+                  "id": "https://openalex.org/W209",
+                  "ids": {"openalex": "https://openalex.org/W209"},
+                  "is_retracted": false,
+                  "primary_location": {"source": {"display_name": "Physics"}},
+                  "publication_year": 2010
+                }
+              ]
+            },
+            "route_id": "exact_high_citation",
+            "status": "capped"
+          }
+        ],
+        "status": "capped"
+      },
+      {
+        "provider": "semantic_scholar",
+        "requests": [
+          {
+            "capped": false,
+            "detail": "fixture unavailable",
+            "provider_total": null,
+            "purpose": "foundational_or_high_citation",
+            "query": "Particle filtering for nonlinear state-space models",
+            "request_url": "https://api.semanticscholar.org/fixture/particle",
+            "response": null,
+            "route_id": "exact_high_citation",
+            "status": "not_available"
+          }
+        ],
+        "status": "not_available"
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v1",
+    "topic_contract_sha256": "0f2eea2d26b5841fdfaedd02e23a877336f2a192fabe77fa056d6dbca950964d"
+  }
+,
+  "hard_financial_recommenders": {
+    "accessed_at": "2026-07-22T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "status": "available",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "provider_total": 6,
+            "purpose": "foundational_or_high_citation",
+            "query": "Reinforcement learning for recommender systems in financial products and credit cards",
+            "request_url": "https://api.crossref.org/fixture/hard-financial",
+            "response": {
+              "message": {
+                "total-results": 6,
+                "items": [
+                  {"DOI":"10.1000/finance-foundation","title":["Reinforcement Learning for Recommender Systems in Financial Products"],"abstract":"We survey reinforcement learning recommender systems for financial products and credit cards; this foundational work establishes the problem setting.","author":[{"given":"Foundational","family":"Author"}],"published":{"date-parts":[[2012]]},"is-referenced-by-count":8000,"container-title":["Journal of Finance"],"URL":"https://doi.org/10.1000/finance-foundation"},
+                  {"DOI":"10.1000/card-rl-direct","title":["Contextual Bandit Recommendation for Credit Cards"],"abstract":"We introduce a recent reinforcement learning recommender systems method for financial products and credit cards using contextual bandits.","author":[{"given":"Recent","family":"Author"}],"published":{"date-parts":[[2024]]},"is-referenced-by-count":4,"container-title":["Applied AI"],"URL":"https://doi.org/10.1000/card-rl-direct"},
+                  {"DOI":"10.1000/finance-direct","title":["Sequential Personalization for Financial Product Recommendations"],"abstract":"We introduce a direct reinforcement learning recommender systems method for financial products and credit cards using contextual bandits.","author":[{"given":"Direct","family":"Author"}],"published":{"date-parts":[[2025]]},"is-referenced-by-count":3,"container-title":["RecSys Applications"],"URL":"https://doi.org/10.1000/finance-direct"},
+                  {"DOI":"10.1000/finance-survey","title":["A Survey of Financial Product Recommender Systems"],"abstract":"This survey reviews reinforcement learning recommender systems for financial products and credit cards and identifies open problems.","author":[{"given":"Survey","family":"Author"}],"published":{"date-parts":[[2020]]},"is-referenced-by-count":500,"container-title":["ACM Computing Surveys"],"URL":"https://doi.org/10.1000/finance-survey"},
+                  {"DOI":"10.1000/finance-competitor","title":["Benchmarking Deep Recommendation for Financial Products"],"abstract":"A benchmark compares reinforcement learning and contextual bandit recommender systems for financial products and credit cards against competing methods.","author":[{"given":"Benchmark","family":"Author"}],"published":{"date-parts":[[2021]]},"is-referenced-by-count":120,"container-title":["RecSys"],"URL":"https://doi.org/10.1000/finance-competitor"},
+                  {"DOI":"10.1000/portfolio-control","title":["Portfolio Optimization with Reinforcement Learning"],"abstract":"This high-citation study applies reinforcement learning to portfolio optimization rather than recommender systems for financial products and credit cards.","author":[{"given":"Control","family":"Author"}],"published":{"date-parts":[[2018]]},"is-referenced-by-count":20000,"container-title":["Operations Research"],"URL":"https://doi.org/10.1000/portfolio-control"}
+                ]
+              }
+            },
+            "route_id": "exact_high_citation",
+            "status": "available"
+          }
+        ]
+      },
+      {
+        "provider": "openalex",
+        "status": "capped",
+        "requests": [
+          {
+            "capped": true,
+            "detail": null,
+            "provider_total": 100,
+            "purpose": "foundational_or_high_citation",
+            "query": "Reinforcement learning for recommender systems in financial products and credit cards",
+            "request_url": "https://api.openalex.org/fixture/hard-financial",
+            "response": {"meta":{"count":100},"results":[{"id":"https://openalex.org/W900","display_name":"Unrelated Version of Card Recommendation","authorships":[{"author":{"display_name":"Conflict Author"}}],"publication_year":2024,"doi":"https://doi.org/10.1000/card-rl-direct","cited_by_count":1,"ids":{"openalex":"https://openalex.org/W900"},"primary_location":{"source":{"display_name":"Applied AI"}},"is_retracted":false}]},
+            "route_id": "exact_high_citation",
+            "status": "capped"
+          }
+        ]
+      },
+      {
+        "provider": "semantic_scholar",
+        "status": "not_available",
+        "requests": [
+          {
+            "capped": false,
+            "detail": "fixture provider outage",
+            "provider_total": null,
+            "purpose": "foundational_or_high_citation",
+            "query": "Reinforcement learning for recommender systems in financial products and credit cards",
+            "request_url": "https://api.semanticscholar.org/fixture/hard-financial",
+            "response": null,
+            "route_id": "exact_high_citation",
+            "status": "not_available"
+          }
+        ]
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v1",
+    "topic_contract_sha256": "cc98acda1f880a2fd448a4bf799f054477c781988cdcc93a0212947e9ecf796f"
+  }
+}

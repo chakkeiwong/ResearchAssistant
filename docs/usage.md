@@ -110,6 +110,164 @@ ra export-context --review-status approved --output /tmp/paper_context.json
 Human review decisions are explicit. Machine extraction and generated proposals
 do not automatically become accepted `technical_audit` conclusions.
 
+## Topic-Only Literature Discovery
+
+For the retrieval-only multi-provider seed queue:
+
+```bash
+scripts/ra-dev survey seed-papers \
+  --topic "Causal inference with instrumental variables" \
+  --out /tmp/ra-seed-papers \
+  --confirm-public-discovery
+```
+
+The output distinguishes selected candidates, identity conflicts, capped
+frontiers, empty providers, and unavailable providers. It does not prove
+centrality. Pass chosen `selected_paper_ids` as repeated `--seed` values to
+`run-public-source-workflow` before making scholarly claims. `central-papers`
+currently runs its own discovery and does not import `seed_report.json`.
+Google Scholar is not queried automatically.
+
+For a controlled compound topic, retain scope and terminology in the campaign
+contract instead of relying on silent synonym invention:
+
+```bash
+scripts/ra-dev survey seed-papers \
+  --topic "Reinforcement learning for recommender systems in financial products and credit cards" \
+  --required-facet "reinforcement learning" \
+  --required-facet "recommender systems" \
+  --required-facet "financial products and credit cards" \
+  --alias "contextual bandits" \
+  --exclude "portfolio optimization" \
+  --scope-note "Sequential personalization of financial-product and card recommendations." \
+  --out /tmp/ra-seed-papers \
+  --confirm-public-discovery
+```
+
+The selector fills required facet slots first, then role slots for
+`FOUNDATIONAL`, `DIRECT_METHOD`, `SURVEY_OR_TUTORIAL`, `COMPETITOR`, and other
+metadata-only hypotheses. Abstract and concept matches remain separate from
+title matches. Citation counts, recency, provider agreement, and optional
+venue metrics only prioritize the inspection queue.
+
+After replay validation, hand the selected identities to the explicit-seed
+workflow without manual copying:
+
+```bash
+scripts/ra-dev survey continue-seeds \
+  --seed-campaign /tmp/ra-seed-papers \
+  --out /tmp/ra-seed-inspection
+```
+
+`seed_handoff.json` binds the seed campaign, report, manifest, exact selected
+IDs, and child mission artifacts. A venue-enriched campaign must be resumed or
+continued with the same canonical `--venue-metrics-registry` file. The handoff
+transfers metadata nominations only; source, safety, technical, snowball, and
+human-review gates remain downstream.
+
+The offline raw-provider benchmark is `scripts/run_seed_papers_benchmark.py`.
+It is a six-case regression gate, not an externally curated recall estimate.
+The separately authorized `scripts/run_seed_papers_live_smoke.py` command
+records exact hosts, budgets, response-schema status, provider gaps, and
+nonclaims. It tests transport health, not retrieval recall.
+
+```bash
+scripts/ra-dev survey run-public-source-workflow \
+  --topic "Causal inference with instrumental variables" \
+  --seed doi:10.1000/causal-iv \
+  --out /tmp/ra-seed-inspection \
+  --run-safe-local
+```
+
+For the single-command bounded central-paper campaign:
+
+```bash
+scripts/ra-dev survey central-papers \
+  --topic "Particle filtering for nonlinear state-space models" \
+  --out /tmp/ra-central-papers \
+  --confirm-public-discovery
+```
+
+The output contains immutable campaign/capability contracts, chained
+`rounds/` checkpoints, six files under `ledgers/`, centrality evidence and
+assessment, `snowball_decision.json`, `campaign_report.json`, and a terminal
+hash manifest. `--resume` requires the identical topic and capability. Offline
+tests may pass `--observation-bundle`; the strict schema rejects topic-fit,
+role, verdict, and evaluator-label fields.
+
+Read the result as a bounded disposition report. `BLOCKED` preserves a
+candidate whose source, identity, safety, or provider evidence is missing.
+`VALIDATED_CENTRAL` means the recorded evidence passed the hard-veto assessor;
+it does not establish literature completeness, scientific correctness, or
+publication readiness.
+
+Topic-only missions use a bounded, provider-scoped seed-discovery capability.
+The public path always uses the generic strategy. Specialized profiles such as
+RL/finance are regression fixtures and are never selected from topic wording.
+Use a fresh output root for every live attempt. A venue registry is optional
+enrichment; omitting it records venue metrics as unavailable:
+
+```bash
+CUDA_VISIBLE_DEVICES=-1 scripts/ra-dev survey run-public-source-workflow \
+  --topic "Reinforcement learning for recommender systems in financial products and credit cards" \
+  --out /tmp/rl-finance-survey-attempt-1 \
+  --run-safe-local \
+  --confirm-public-discovery
+```
+
+Add `--venue-metrics-registry /absolute/path/to/venue_metrics.json` when a
+licensed local registry is available.
+
+If supplied, the registry must use the schema validated by `venue_metrics.py`.
+Obtain licensed impact-factor values through the institution and do not
+redistribute them with the repository. Citation and venue values are priority
+signals only, never technical evidence or a completeness gate.
+
+For a repeatable local process plan, first provide a canonical campaign
+snapshot and run:
+
+```bash
+scripts/ra-dev survey process-plan \
+  --snapshot /path/to/campaign_snapshot.json \
+  --out /tmp/topic-process-plan
+```
+
+The snapshot supplies its own ordered `coverage_requirements`. The planner has
+no domain-specific default matrix. RL/finance snapshots are regression examples
+only; any topic may provide a validated coverage contract using the same
+schema.
+
+This writes coverage, availability, and next-action JSON without network,
+source, PDF, credential, or human-review actions. Open must-cite risks are
+prioritized, followed by unresolved coverage requirements in their declared
+order; unavailable papers remain in the access/omission queue.
+
+Inspect the bootstrap outcome's aggregate consumption, per-stratum status,
+identity conflicts, and capped frontiers. Use `--resume` only with the unchanged
+topic, strategy digest, budget, registry digest, and output root. A changed
+strategy or budget requires a fresh mission. Across retry roots, maintain one
+campaign tally; a fresh root does not reset the research campaign ceiling.
+The bootstrap nominates candidates; it does not validate that they are
+genuinely central to the topic.
+
+Once candidate identities have checked source anchors, source-safety status,
+roles, and independent snowball or survey evidence, run the local evidence
+gate:
+
+```bash
+scripts/ra-dev survey assess-centrality \
+  --topic-contract /path/to/topic_contract.json \
+  --evidence /path/to/centrality_evidence.json \
+  --out /path/to/mission/centrality
+scripts/ra-dev survey mission-plan --mission-root /path/to/mission
+```
+
+The standalone assessor is topic-generic and deterministic. It does not fetch
+or inspect papers; use `central-papers` when bounded evidence construction is
+required. The three-topic benchmark is not a literature-completeness or
+universal-recall claim. See `docs/literature_survey_operator_guide.md` for the
+evidence fields and verdict boundary.
+
 ## Research Artifacts
 
 ```bash

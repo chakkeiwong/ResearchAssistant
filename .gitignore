@@ -21,6 +21,12 @@ local_research/papers/source/
 local_research/governance/
 hoffman.json
 
+# Untracked source/PDF caches used by local scholarly campaigns. Durable
+# promotion and claim evidence belongs under tracked docs/validation records;
+# downloaded papers and parser fixtures remain local-only.
+.localresources/
+SMEwallet/
+
 # Build artifacts
 build/
 dist/
@@ -43,15 +49,31 @@ out.txt
 
 # Generated validation and run output. Promotion/claim evidence is kept as
 # explicitly force-added compact records; raw payloads and replay transcripts
-# remain local and reproducible.
+# remain local and reproducible. Because this directory was historically
+# tracked, the closeout cleanup also removes non-evidence paths from the index.
 docs/validation/*
 !docs/validation/.gitkeep
 
+# Generated campaign and replay trees outside docs/validation.
+operator_workspace/
+**/pytest_tmp/
+**/.mission_state/
+**/.artifact_state/
+**/logs/
+**/negative/
+**/replay/
+**/accepted_bodies/
+**/source_members/
+**/human_review_packet/source_reading/
+
 # New planning/review notes are generated session artifacts. Existing tracked
-# history remains tracked; current promotion/claim records are force-added by
-# the closeout commit when they are selected as durable evidence.
+# evidence is kept only when it is explicitly force-added by the closeout
+# commit. Templates and the current restart memo are source documents.
 docs/plans/*
 docs/reviews/*
+!docs/plans/templates/
+!docs/plans/templates/**
+!docs/plans/reset_memo_2026-07-23.md
 
 # Test, coverage, and tool caches
 .pytest_cache/

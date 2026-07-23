@@ -1,0 +1,179 @@
+{
+  "cases": [
+    {
+      "case_id": "neural_optimal_transport",
+      "descriptive_ranking_used_for_pass": false,
+      "fixture_sha256": {
+        "case.json": "0b1c24649df8843ed56d5c02cfd6e92971e9a6a5948e510069a372b6ecdbfd10",
+        "evidence.json": "a1b5c956afd7b032ec1d1d7c6685af964ed26d09ccec137007691643ca5f27c9",
+        "topic_contract.json": "f6afbfe82f69f865fd26ffc4e12ee809b87298fdc3b81d189ad5adc396bef152"
+      },
+      "forbidden_promotions": [],
+      "must_find_results": [
+        {
+          "observed_verdict": "VALIDATED_CENTRAL",
+          "paper_id": "arxiv:2201.12220",
+          "passed": true,
+          "required_role": "DIRECT_METHOD",
+          "role_present": true,
+          "source_block_allowed": false
+        },
+        {
+          "observed_verdict": "BLOCKED",
+          "paper_id": "arxiv:2106.01954",
+          "passed": true,
+          "required_role": "COMPETITOR",
+          "role_present": true,
+          "source_block_allowed": true
+        }
+      ],
+      "must_reject_results": [
+        {
+          "observed_verdict": "REJECTED_OFF_TOPIC",
+          "paper_id": "arxiv:1602.05629",
+          "passed": true
+        }
+      ],
+      "ranking_statistically_supported": false,
+      "required_role_status": {
+        "COMPETITOR": true,
+        "DIRECT_METHOD": true
+      },
+      "result_sha256": "a9c535136898268b09d7f4e0cc94edbd9861427e4b8ec392318e2059b9e32566",
+      "schema_version": "ra-survey-centrality-benchmark-result-v1",
+      "status": "passed",
+      "what_is_not_concluded": [
+        "literature completeness",
+        "performance on unreviewed topics",
+        "paper claim correctness"
+      ]
+    },
+    {
+      "case_id": "particle_filtering",
+      "descriptive_ranking_used_for_pass": false,
+      "fixture_sha256": {
+        "case.json": "074ef3a5d80466b666b2fc38f3e0fe05a13523a9dc8a70e0666dbe94d89b6d0d",
+        "evidence.json": "09a4d9b4f2b37b89c6004c9da17d09805e3588c8190b987fbde4448bc1db23c0",
+        "topic_contract.json": "d5dd54188e16a18c1f55560e16b2c85d2ff75c646f809a2c1d9782a0c2b99ad8"
+      },
+      "forbidden_promotions": [],
+      "must_find_results": [
+        {
+          "observed_verdict": "BLOCKED",
+          "paper_id": "arxiv:0805.3034",
+          "passed": true,
+          "required_role": "FOUNDATIONAL",
+          "role_present": true,
+          "source_block_allowed": true
+        },
+        {
+          "observed_verdict": "VALIDATED_CENTRAL",
+          "paper_id": "arxiv:1509.09175",
+          "passed": true,
+          "required_role": "DIRECT_METHOD",
+          "role_present": true,
+          "source_block_allowed": false
+        }
+      ],
+      "must_reject_results": [
+        {
+          "observed_verdict": "REJECTED_OFF_TOPIC",
+          "paper_id": "arxiv:2201.12220",
+          "passed": true
+        }
+      ],
+      "ranking_statistically_supported": false,
+      "required_role_status": {
+        "DIRECT_METHOD": true,
+        "FOUNDATIONAL": true
+      },
+      "result_sha256": "8013972e1d558cadd3def0767834566c8ff49c31f95d5052bdfa986b1bc06cd4",
+      "schema_version": "ra-survey-centrality-benchmark-result-v1",
+      "status": "passed",
+      "what_is_not_concluded": [
+        "literature completeness",
+        "performance on unreviewed topics",
+        "paper claim correctness"
+      ]
+    },
+    {
+      "case_id": "federated_privacy",
+      "descriptive_ranking_used_for_pass": false,
+      "fixture_sha256": {
+        "case.json": "a009f3d7fab7e4c97100000b76ac4315494bcbdd474c23b4f0b0187dde7a81e7",
+        "evidence.json": "39c2dc865cb94a76fd2d067362339c3d8b75a9ca06e87329e55b140e9349d997",
+        "topic_contract.json": "24fd75c56e3beb4a480422ba53f13b52d84007a6c68ed2aa48978007e083987c"
+      },
+      "forbidden_promotions": [],
+      "must_find_results": [
+        {
+          "observed_verdict": "VALIDATED_CENTRAL",
+          "paper_id": "arxiv:1602.05629",
+          "passed": true,
+          "required_role": "FOUNDATIONAL",
+          "role_present": true,
+          "source_block_allowed": false
+        },
+        {
+          "observed_verdict": "VALIDATED_CENTRAL",
+          "paper_id": "arxiv:1611.04482",
+          "passed": true,
+          "required_role": "DIRECT_METHOD",
+          "role_present": true,
+          "source_block_allowed": false
+        },
+        {
+          "observed_verdict": "VALIDATED_CENTRAL",
+          "paper_id": "arxiv:1912.04977",
+          "passed": true,
+          "required_role": "SURVEY_OR_TUTORIAL",
+          "role_present": true,
+          "source_block_allowed": false
+        }
+      ],
+      "must_reject_results": [
+        {
+          "observed_verdict": "REJECTED_OFF_TOPIC",
+          "paper_id": "arxiv:1509.09175",
+          "passed": true
+        }
+      ],
+      "ranking_statistically_supported": false,
+      "required_role_status": {
+        "DIRECT_METHOD": true,
+        "FOUNDATIONAL": true,
+        "SURVEY_OR_TUTORIAL": true
+      },
+      "result_sha256": "3b06e8461a7d402db7f5635ba4dd899e457948a2f372707e645fbfbd35a131fb",
+      "schema_version": "ra-survey-centrality-benchmark-result-v1",
+      "status": "passed",
+      "what_is_not_concluded": [
+        "literature completeness",
+        "performance on unreviewed topics",
+        "paper claim correctness"
+      ]
+    }
+  ],
+  "environment": {
+    "cuda_visible_devices": "-1",
+    "platform": "linux_wsl",
+    "python": "3.11"
+  },
+  "executed_at": "2026-07-22",
+  "schema_version": "ra-survey-centrality-benchmark-suite-result-v1",
+  "source_manifest_sha256": "743e6b4732befd17ad4f8a401065f3ccdc934f05cfe2528e8aeafaf2e4fad34b",
+  "status": "passed",
+  "summary": {
+    "case_count": 3,
+    "forbidden_promotion_count": 0,
+    "must_find_count": 7,
+    "must_reject_count": 3,
+    "passed_case_count": 3
+  },
+  "what_is_not_concluded": [
+    "literature completeness",
+    "paper claim correctness",
+    "performance on unreviewed topics",
+    "universal topic recall"
+  ]
+}

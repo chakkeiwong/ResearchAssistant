@@ -1,0 +1,229 @@
+{
+  "boundary_contract": {
+    "external_model_or_api_used": false,
+    "hidden_gold_used": false,
+    "positive_pass_means_final_prose_ready": false,
+    "positive_pass_means_writer_packet_only": true,
+    "raw_artifacts_allowed": false
+  },
+  "mutation_strength": {
+    "minimum_required_invariants": [
+      "citation_map_edges_visible",
+      "source_support_present",
+      "claim_support_not_promoted",
+      "omission_risks_visible",
+      "raw_private_artifacts_absent",
+      "source_safety_present_and_blocking",
+      "ready_for_prose_blockers_visible",
+      "workflow_state_not_ready_for_prose",
+      "manifest_consistent_with_safety"
+    ],
+    "observed_negative_count": 12,
+    "status": "passed",
+    "target_invariants": [
+      "citation_map_edges_visible",
+      "claim_support_not_promoted",
+      "manifest_consistent_with_safety",
+      "omission_risks_visible",
+      "raw_private_artifacts_absent",
+      "ready_for_prose_blockers_visible",
+      "source_safety_present_and_blocking",
+      "source_support_present",
+      "workflow_state_not_ready_for_prose"
+    ],
+    "total_negative_count": 12,
+    "unobserved_case_ids": []
+  },
+  "negative_cases": [
+    {
+      "case_id": "missing_citation_edges",
+      "description": "Remove all citation-map edges.",
+      "expected_signal": "citation_map edges must not be empty",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_citation_edges",
+      "target_invariant": "citation_map_edges_visible",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_citation_edges/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "citation_map edges must not be empty"
+      ]
+    },
+    {
+      "case_id": "missing_source_support",
+      "description": "Remove required source-support ledger.",
+      "expected_signal": "missing_files",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_source_support",
+      "target_invariant": "source_support_present",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_source_support/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "missing_files: source_support.json"
+      ]
+    },
+    {
+      "case_id": "unsupported_claim_row",
+      "description": "Add a metadata-only supported technical claim row.",
+      "expected_signal": "claim_support must not contain supported claim rows",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/unsupported_claim_row",
+      "target_invariant": "claim_support_not_promoted",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/unsupported_claim_row/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "claim_support must not contain supported claim rows; Phase 6 expected blocked claims only"
+      ]
+    },
+    {
+      "case_id": "claim_candidate_promoted",
+      "description": "Promote a review-required claim candidate into apparent support.",
+      "expected_signal": "claim_candidates[0] must remain review_required",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/claim_candidate_promoted",
+      "target_invariant": "claim_support_not_promoted",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/claim_candidate_promoted/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "claim_candidates[0] must remain review_required",
+        "claim_candidates[0] review_status must remain requires_review",
+        "claim_candidates[0] must not allow claim support",
+        "claim_candidates[0] support_class must mark candidate as not support"
+      ]
+    },
+    {
+      "case_id": "missing_omission_risks",
+      "description": "Remove omission-risk and metadata-only paper rows.",
+      "expected_signal": "omission_risk must retain risks or metadata-only paper rows",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_omission_risks",
+      "target_invariant": "omission_risks_visible",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_omission_risks/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "omission_risk must retain risks or metadata-only paper rows"
+      ]
+    },
+    {
+      "case_id": "raw_private_artifact_leak",
+      "description": "Add a forbidden raw LaTeX key to a packet JSON artifact.",
+      "expected_signal": "forbidden raw/private keys",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/raw_private_artifact_leak",
+      "target_invariant": "raw_private_artifacts_absent",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/raw_private_artifact_leak/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "JSON packet includes forbidden raw/private keys"
+      ]
+    },
+    {
+      "case_id": "missing_safety_status",
+      "description": "Remove the source-safety status artifact.",
+      "expected_signal": "missing_files",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_safety_status",
+      "target_invariant": "source_safety_present_and_blocking",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_safety_status/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "missing_files: source_safety_status.json"
+      ]
+    },
+    {
+      "case_id": "missing_safety_rows",
+      "description": "Keep the safety artifact but remove all sourced-paper safety rows.",
+      "expected_signal": "source_safety_status must include one row per sourced paper",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_safety_rows",
+      "target_invariant": "source_safety_present_and_blocking",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/missing_safety_rows/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "source_safety_status must include one row per sourced paper",
+        "source_safety_status row count must match manifest source_safety_blocker_count in Phase 6"
+      ]
+    },
+    {
+      "case_id": "safety_gate_falsely_cleared",
+      "description": "Mark source safety checked clear without explicit Phase 6 safety evidence.",
+      "expected_signal": "source_safety_status must not be checked_clear",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/safety_gate_falsely_cleared",
+      "target_invariant": "source_safety_present_and_blocking",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/safety_gate_falsely_cleared/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "source_safety_status must not be checked_clear in Phase 6 without explicit safety evidence",
+        "source_safety_status must retain blocking rows until safety checks are explicit",
+        "source_safety_status.rows[0] must not be checked_clear in Phase 6 fixture",
+        "source_safety_status.rows[1] must not be checked_clear in Phase 6 fixture",
+        "source_safety_status.rows[2] must not be checked_clear in Phase 6 fixture",
+        "manifest source_safety_status must match source_safety_status.json",
+        "manifest source_safety_blocker_count must match source_safety_status.json"
+      ]
+    },
+    {
+      "case_id": "manifest_safety_count_drift",
+      "description": "Make the manifest safety blocker count disagree with the safety ledger.",
+      "expected_signal": "source_safety_status row count must match manifest source_safety_blocker_count",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/manifest_safety_count_drift",
+      "target_invariant": "manifest_consistent_with_safety",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/manifest_safety_count_drift/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "source_safety_status row count must match manifest source_safety_blocker_count in Phase 6",
+        "manifest source_safety_blocker_count must match source_safety_status.json"
+      ]
+    },
+    {
+      "case_id": "ready_for_prose_weakened",
+      "description": "Remove required ready-for-prose blockers while leaving ready_for_prose false.",
+      "expected_signal": "ready_for_prose blockers missing required blocker",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/ready_for_prose_weakened",
+      "target_invariant": "ready_for_prose_blockers_visible",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/ready_for_prose_weakened/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "ready_for_prose blockers missing required blocker: technical claims are still blocked",
+        "ready_for_prose blockers missing required blocker: no reviewed supported technical claim rows",
+        "ready_for_prose blockers missing required blocker: retraction/version safety is not checked clear",
+        "ready_for_prose blockers missing required blocker: omission and reviewer-risk rows require review"
+      ]
+    },
+    {
+      "case_id": "workflow_state_falsely_ready",
+      "description": "Mark workflow state ready for prose while packet ledgers remain blocked.",
+      "expected_signal": "workflow_state ready_for_prose must remain false",
+      "expected_signal_observed": true,
+      "packet_dir": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/workflow_state_falsely_ready",
+      "target_invariant": "workflow_state_not_ready_for_prose",
+      "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/negative_packets/workflow_state_falsely_ready/packet_validation.json",
+      "validation_status": "failed",
+      "violations": [
+        "workflow_state ready_for_prose must remain false until packet gates are clear",
+        "workflow_state must not mark public-source packet ready for prose while Phase 6 gates are blocked",
+        "workflow_state must retain blocked reasons while packet gates are blocked"
+      ]
+    }
+  ],
+  "phase6_packet_dir": "docs/validation/literature_survey_live_public_source_phase6_2026-07-07",
+  "positive": {
+    "packet_ready_for_writer": true,
+    "ready_for_prose": false,
+    "status": "passed",
+    "supported_claim_count": 0,
+    "validation_report": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/positive_packet_validation.json",
+    "violations": []
+  },
+  "schema_version": "ra-literature-survey-live-public-source-phase7-validation-v1",
+  "status": "passed",
+  "what_is_not_concluded": [
+    "product readiness",
+    "real-agent reliability",
+    "scientific correctness",
+    "literature completeness",
+    "final survey prose quality"
+  ]
+}

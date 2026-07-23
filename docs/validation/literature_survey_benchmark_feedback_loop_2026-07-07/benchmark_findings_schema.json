@@ -1,0 +1,71 @@
+{
+  "allowed_disposition": [
+    "code_task",
+    "doc_task",
+    "deferred_boundary",
+    "wont_fix"
+  ],
+  "allowed_severity": [
+    "high",
+    "medium",
+    "low"
+  ],
+  "allowed_status": [
+    "selected_for_phase2",
+    "selected_for_phase5",
+    "addressed_for_current_harness",
+    "addressed_for_current_modes",
+    "partial_claim_candidate_surface",
+    "partial_local_safety_surface",
+    "partial_supervised_review_queue",
+    "partial_supervised_orchestration",
+    "partial_reviewed_claim_import",
+    "partial_reviewed_source_safety_import",
+    "partial_reviewed_omission_import",
+    "partial_reviewed_evidence_merge",
+    "partial_resume_orchestration",
+    "partial_coverage_ledgers",
+    "partial_hostile_review_gate",
+    "queued_for_claim_review",
+    "queued_for_source_safety_review",
+    "queued_for_omission_review",
+    "queued_for_reviewed_evidence_merge",
+    "queued_for_resume_orchestration",
+    "queued_for_coverage_ledgers",
+    "queued_for_mission_cleanup",
+    "open_boundary",
+    "open",
+    "closed",
+    "blocked"
+  ],
+  "finding_required_fields": [
+    "finding_id",
+    "source_artifact",
+    "summary",
+    "severity",
+    "affected_surface",
+    "disposition",
+    "recommended_task",
+    "rerun_checks",
+    "status",
+    "not_concluded"
+  ],
+  "forbidden_claims": [
+    "product readiness",
+    "literature completeness",
+    "live web coverage",
+    "real-agent reliability",
+    "scientific correctness",
+    "final prose readiness from metadata-only or benchmark-only evidence"
+  ],
+  "required_top_level_fields": [
+    "schema_version",
+    "mission_id",
+    "generated_at",
+    "source_artifacts",
+    "findings",
+    "selected_next_tasks",
+    "what_is_not_concluded"
+  ],
+  "schema_version": "ra-literature-survey-benchmark-feedback-schema-v1"
+}

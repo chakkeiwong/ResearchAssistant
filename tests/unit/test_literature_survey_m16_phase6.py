@@ -287,6 +287,53 @@ def test_fixture_intake_materializes_available_only_authority_and_replays(tmp_pa
     status = validated["status"]
     assert status["ready_for_claim_support"] is False
     assert status["source_support"][0]["technical_claim_support"] is False
+    selection = validated["source_selection"]
+    assert selection["schema_version"] == "ra-survey-source-selection-reconciliation-v1"
+    assert selection["selection_basis"] == "seed_role"
+    assert selection["source_availability_summary"] == {
+        "selected_count": 1,
+        "retained_count": 1,
+        "unavailable_selected_count": 0,
+        "substitution_count": 0,
+    }
+
+
+def test_source_selection_reconciliation_tamper_is_rejected(tmp_path: Path) -> None:
+    mission = tmp_path / "mission"
+    manager, snapshot, metadata = _checkpoint_source_authority(mission)
+    try:
+        run_mission_source_intake(
+            mission_root=mission,
+            metadata_root=metadata,
+            snapshot=snapshot,
+            capability=MissionSourceCapability(_available),
+        )
+        path = mission / "source_intake" / "source_selection_reconciliation.json"
+        selection = _load(path)
+        selection["selection_basis"] = "tampered"
+        path.write_bytes(pretty_json_bytes(selection))
+        with pytest.raises(MissionStateError) as error:
+            validate_mission_source_intake(mission_root=mission, snapshot=snapshot)
+    finally:
+        manager.abort()
+    assert error.value.code == "source_selection_reconciliation_mismatch"
+
+
+def test_legacy_source_intake_without_reconciliation_remains_replayable(tmp_path: Path) -> None:
+    mission = tmp_path / "mission"
+    manager, snapshot, metadata = _checkpoint_source_authority(mission)
+    try:
+        run_mission_source_intake(
+            mission_root=mission,
+            metadata_root=metadata,
+            snapshot=snapshot,
+            capability=MissionSourceCapability(_available),
+        )
+        (mission / "source_intake" / "source_selection_reconciliation.json").unlink()
+        validated = validate_mission_source_intake(mission_root=mission, snapshot=snapshot)
+    finally:
+        manager.abort()
+    assert validated["source_selection"] is None
 
 
 def test_complete_status_is_idempotent_and_never_recalls_capability(tmp_path: Path) -> None:

@@ -1,0 +1,110 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "classical_optimal_transport",
+      "label": "Classical optimal transport and dynamic formulations",
+      "node_keys": [
+        "p_ref_001"
+      ],
+      "survey_section_hint": "mathematical lineage"
+    },
+    {
+      "cluster_id": "neural_optimal_transport",
+      "label": "Neural optimal transport maps",
+      "node_keys": [
+        "p_cite_001",
+        "p_seed_001"
+      ],
+      "survey_section_hint": "direct neural transport methods"
+    }
+  ],
+  "edges": [
+    {
+      "confidence": "fixture_metadata",
+      "edge_type": "cites",
+      "evidence": "references endpoint",
+      "source": "p_seed_001",
+      "target": "p_ref_001"
+    },
+    {
+      "confidence": "fixture_metadata",
+      "edge_type": "cited_by",
+      "evidence": "citations endpoint page 1",
+      "source": "p_cite_001",
+      "target": "p_seed_001"
+    }
+  ],
+  "expansion_policy": {
+    "adjacent_query_count": 2,
+    "backward_depth": 1,
+    "forward_depth": 1,
+    "forward_frontier": {
+      "continuation_risk_key": "frontier_continuation_unobserved",
+      "has_more": true,
+      "status": "partial_frontier"
+    },
+    "max_downloads": 4,
+    "max_nodes": 8
+  },
+  "nodes": [
+    {
+      "cluster": "neural_optimal_transport",
+      "download_status": "downloaded_fixture",
+      "local_source_status": "available_fixture",
+      "paper_key": "p_seed_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "seed",
+        "direct_method"
+      ],
+      "survey_relevance": "central",
+      "title": "Neural Optimal Transport",
+      "year": 2022
+    },
+    {
+      "cluster": "classical_optimal_transport",
+      "download_status": "not_attempted",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "p_ref_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "foundational"
+      ],
+      "survey_relevance": "lineage",
+      "title": "A Computational Fluid Mechanics Solution to the Monge-Kantorovich Mass Transfer Problem",
+      "year": 2000
+    },
+    {
+      "cluster": "neural_optimal_transport",
+      "download_status": "blocked_fixture",
+      "local_source_status": "metadata_only_fixture",
+      "paper_key": "p_cite_001",
+      "review_status": "requires_human_review",
+      "roles": [
+        "major_citing_work",
+        "direct_method"
+      ],
+      "survey_relevance": "forward_citation",
+      "title": "Scalable Neural Transport Methods for Inference",
+      "year": 2023
+    }
+  ],
+  "schema_version": "ra-surveybench-citation-map-v1",
+  "seed_papers": [
+    "p_seed_001"
+  ],
+  "survey_packet_paths": {
+    "candidate_ledger": "candidate_ledger.json",
+    "claim_support": "claim_support.json",
+    "omission_risk": "omission_risk.json",
+    "source_support": "source_support.json"
+  },
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "what_is_not_concluded": [
+    "complete forward citation coverage",
+    "current citation counts",
+    "live web coverage",
+    "scientific priority"
+  ]
+}

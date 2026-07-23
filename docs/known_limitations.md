@@ -4,17 +4,48 @@
 - Git sharing is repository/snapshot based. The tool does not provide live multi-user editing, shared database writes, SSO/RBAC, hosted UI, or server-side locking.
 - Workspace merge/import is conservative: conflicts involving accepted audit facts require human resolution.
 - Live LLM/provider calls are disabled by default and are not part of the individual release workflow.
-- New literature-survey missions are credential-free and arXiv-only by
-  default. OpenAlex and other credentialed citation providers are out of the
-  active mission scope.
-- Topic-only mission identity and confirmation are implemented, but the
-  installed default has no live topic-bootstrap adapter. After confirmation it
-  stops honestly as `terminal_blocked_bootstrap_unavailable`.
+- New literature-survey missions are credential-free. Topic-only missions use
+  bounded OpenAlex metadata nomination; explicit-seed source intake remains
+  arXiv-first. Other credentialed providers remain out of scope.
+- Topic-only mission identity and confirmation are implemented with a bounded
+  generic OpenAlex metadata bootstrap. Provider, response, identity, and
+  budget failures still stop honestly as `terminal_blocked_bootstrap_unavailable`;
+  a successful bootstrap remains metadata-only candidate nomination.
+- The bounded `survey central-papers` workflow autonomously nominates, attempts
+  arXiv structured-source acquisition, expands OpenAlex reference/citing
+  identities, constructs six audit ledgers, and assesses candidates. Its
+  source-grounded classifier remains a deterministic heuristic rather than
+  expert semantic judgment. The topic-input benchmark covers three reviewed
+  topics; it does not establish universal recall on arbitrary topics.
+- Autonomous full-text acquisition is arXiv-source-only. Publisher XML/HTML,
+  lawful PDF fallback, and other repositories are not campaign providers;
+  affected candidates remain source-blocked rather than treated as absent.
+- Source-safety automation is limited to available OpenAlex retraction flags.
+  Publisher errata, corrigenda, expressions of concern, and version conflicts
+  are not comprehensively checked.
+- `survey seed-papers` adds bounded OpenAlex, Crossref, and Semantic Scholar
+  metadata fusion with DOI/arXiv/OpenAlex identity reconciliation. It remains
+  a candidate queue: provider-local ranks, citation counts, venue fields, and
+  multi-provider agreement cannot establish centrality or correctness.
+- Google Scholar is not an automated provider because it has no supported
+  public API. Crossref and Semantic Scholar coverage, schemas, rate limits,
+  and citation metadata may be incomplete or unavailable.
+- The seed-retrieval benchmark covers six evaluator-owned raw-provider cases,
+  including a compound financial-recommender case with abstract evidence,
+  role/facet balancing, an identity conflict, and provider gaps; it is not an
+  externally curated recall estimate for arbitrary topics.
+- `survey seed-papers` supports caller-supplied facets, aliases, exclusions,
+  scope notes, optional venue-metric registries, and replay-validated automatic
+  handoff into an explicit-seed mission. Metadata role hypotheses remain
+  unverified until primary-source inspection.
+- `run_seed_papers_live_smoke.py` is a bounded transport/schema diagnostic and
+  requires explicit confirmation. It does not measure recall, centrality, or
+  provider quality.
 - The successful M22 topic case is a retained deterministic topic-selection
   replay joined to production source/omission evidence. It is not live topic-
   discovery validation.
-- Forward-citation coverage is unavailable and non-blocking. It must not be
-  represented as zero citations or complete coverage.
+- Forward-citation coverage is a bounded OpenAlex sample. Provider failure is
+  unavailable, not zero; successful sampling is not complete citation coverage.
 - M22 retains 50 identifier-bearing source-uninspected omission risks and 195
   identifier-free bibliography units with unresolved identity/count meaning.
 - Qualitative assessments record merits, concerns, uncertainties, evidence
@@ -67,3 +98,21 @@
 - Local MCP external/live evidence should be indexed in
   `docs/validation/local_mcp_external_validation_records.md`; absence of a
   record means the corresponding external/live claim remains unvalidated.
+## Scholarly document scaffold
+
+`ra survey literature-review --topic ...` now connects the generic central-paper
+campaign to a source-attributed evidence survey candidate. It does not
+automatically clear source, claim, omission, or hostile-review decisions.
+Blocked candidates remain visible as omission risks, and a topic campaign may
+finish with an exact open-risk status.
+
+`ra survey draft-document` and `ra survey literature-review` use a deterministic
+authority-aware synthesis baseline. They can compile LaTeX when requested, but
+do not independently inspect the rendered PDF, establish literature
+completeness or claim truth, or produce publication-ready prose. Topic-only
+survey candidates report what checked source sections state; they do not
+independently validate those statements.
+
+DynareMCP integration is optional and limited to document structure and exact
+consistency diagnostics over caller-supplied facts. A clean result does not
+establish technical support, prose quality, or publication readiness.

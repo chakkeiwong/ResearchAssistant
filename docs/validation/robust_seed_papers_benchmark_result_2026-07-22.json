@@ -1,0 +1,398 @@
+{
+  "cases": [
+    {
+      "benchmark_labels_consumed": false,
+      "bundle_sha256": "d36b5c52045b23266c88bc7d1aa4fab521215e791e602f6223a1e8662f82ec31",
+      "case_id": "causal_inference",
+      "conflict_observed": null,
+      "coverage_gaps": [
+        "Google Scholar is unavailable as an automated route because it has no supported public API",
+        "provider openalex is not_available",
+        "provider openalex route exact_high_citation is not_available",
+        "provider semantic_scholar is not_available",
+        "provider semantic_scholar route exact_high_citation is not_available"
+      ],
+      "expected_conflict": null,
+      "expected_provider_gap": false,
+      "facet_coverage": [
+        "causal inference",
+        "instrumental variables"
+      ],
+      "forbidden_selected": [],
+      "missing_must_find": [],
+      "missing_required_facets": [],
+      "missing_required_roles": [],
+      "must_find": [
+        "doi:10.1000/causal-iv"
+      ],
+      "must_reject": [
+        "doi:10.1000/causal-control"
+      ],
+      "provider_gap_observed": true,
+      "provider_statuses": [
+        {
+          "provider": "crossref",
+          "status": "available"
+        },
+        {
+          "provider": "openalex",
+          "status": "not_available"
+        },
+        {
+          "provider": "semantic_scholar",
+          "status": "not_available"
+        }
+      ],
+      "replay_identical": true,
+      "role_coverage": [
+        "BACKGROUND"
+      ],
+      "selected_paper_ids": [
+        "doi:10.1000/causal-iv"
+      ],
+      "status": "passed",
+      "topic": "Causal inference with instrumental variables",
+      "uncovered_facets": [],
+      "uncovered_roles": [
+        "FOUNDATIONAL",
+        "DIRECT_METHOD",
+        "SURVEY_OR_TUTORIAL",
+        "COMPETITOR",
+        "EMPIRICAL_EXAMPLE"
+      ]
+    },
+    {
+      "benchmark_labels_consumed": false,
+      "bundle_sha256": "10b7c2fef1e3174713b9ae32369013e19a295063b34a9a3ed17eee21c6203344",
+      "case_id": "federated_privacy",
+      "conflict_observed": null,
+      "coverage_gaps": [
+        "Google Scholar is unavailable as an automated route because it has no supported public API"
+      ],
+      "expected_conflict": null,
+      "expected_provider_gap": false,
+      "facet_coverage": [
+        "federated learning",
+        "privacy"
+      ],
+      "forbidden_selected": [],
+      "missing_must_find": [],
+      "missing_required_facets": [],
+      "missing_required_roles": [],
+      "must_find": [
+        "doi:10.1000/federated-privacy"
+      ],
+      "must_reject": [
+        "openalex:w309"
+      ],
+      "provider_gap_observed": false,
+      "provider_statuses": [
+        {
+          "provider": "crossref",
+          "status": "available"
+        },
+        {
+          "provider": "openalex",
+          "status": "available"
+        },
+        {
+          "provider": "semantic_scholar",
+          "status": "empty"
+        }
+      ],
+      "replay_identical": true,
+      "role_coverage": [
+        "BACKGROUND"
+      ],
+      "selected_paper_ids": [
+        "doi:10.1000/federated-privacy"
+      ],
+      "status": "passed",
+      "topic": "Federated learning and privacy",
+      "uncovered_facets": [],
+      "uncovered_roles": [
+        "FOUNDATIONAL",
+        "DIRECT_METHOD",
+        "SURVEY_OR_TUTORIAL",
+        "COMPETITOR",
+        "EMPIRICAL_EXAMPLE"
+      ]
+    },
+    {
+      "benchmark_labels_consumed": false,
+      "bundle_sha256": "1b510c7e92a59e6f53096326a3ee1dd0bdc233996d4489cf21153a89a1a11abc",
+      "case_id": "graph_molecules",
+      "conflict_observed": null,
+      "coverage_gaps": [
+        "Google Scholar is unavailable as an automated route because it has no supported public API",
+        "provider crossref is capped",
+        "provider crossref route exact_high_citation is capped"
+      ],
+      "expected_conflict": null,
+      "expected_provider_gap": false,
+      "facet_coverage": [
+        "graph neural networks",
+        "molecular property prediction"
+      ],
+      "forbidden_selected": [],
+      "missing_must_find": [],
+      "missing_required_facets": [],
+      "missing_required_roles": [],
+      "must_find": [
+        "doi:10.1000/graph-molecule"
+      ],
+      "must_reject": [
+        "semantic_scholar:s509"
+      ],
+      "provider_gap_observed": true,
+      "provider_statuses": [
+        {
+          "provider": "crossref",
+          "status": "capped"
+        },
+        {
+          "provider": "openalex",
+          "status": "available"
+        },
+        {
+          "provider": "semantic_scholar",
+          "status": "available"
+        }
+      ],
+      "replay_identical": true,
+      "role_coverage": [
+        "BACKGROUND"
+      ],
+      "selected_paper_ids": [
+        "doi:10.1000/graph-molecule"
+      ],
+      "status": "passed",
+      "topic": "Graph neural networks for molecular property prediction",
+      "uncovered_facets": [],
+      "uncovered_roles": [
+        "FOUNDATIONAL",
+        "DIRECT_METHOD",
+        "SURVEY_OR_TUTORIAL",
+        "COMPETITOR",
+        "EMPIRICAL_EXAMPLE"
+      ]
+    },
+    {
+      "benchmark_labels_consumed": false,
+      "bundle_sha256": "cda1277d8a3e6cab112367fc235ac59ccfb88b7fd32940c67e886e9588325f50",
+      "case_id": "hard_financial_recommenders",
+      "conflict_observed": true,
+      "coverage_gaps": [
+        "Google Scholar is unavailable as an automated route because it has no supported public API",
+        "provider openalex is capped",
+        "provider openalex route exact_high_citation is capped",
+        "provider semantic_scholar is not_available",
+        "provider semantic_scholar route exact_high_citation is not_available"
+      ],
+      "expected_conflict": "doi:10.1000/card-rl-direct",
+      "expected_provider_gap": true,
+      "facet_coverage": [
+        "financial products and credit cards",
+        "recommender systems",
+        "reinforcement learning"
+      ],
+      "forbidden_selected": [],
+      "missing_must_find": [],
+      "missing_required_facets": [],
+      "missing_required_roles": [],
+      "must_find": [
+        "doi:10.1000/finance-competitor",
+        "doi:10.1000/finance-direct",
+        "doi:10.1000/finance-foundation",
+        "doi:10.1000/finance-survey"
+      ],
+      "must_reject": [
+        "doi:10.1000/card-rl-direct",
+        "doi:10.1000/portfolio-control"
+      ],
+      "provider_gap_observed": true,
+      "provider_statuses": [
+        {
+          "provider": "crossref",
+          "status": "available"
+        },
+        {
+          "provider": "openalex",
+          "status": "capped"
+        },
+        {
+          "provider": "semantic_scholar",
+          "status": "not_available"
+        }
+      ],
+      "replay_identical": true,
+      "role_coverage": [
+        "FOUNDATIONAL",
+        "DIRECT_METHOD",
+        "SURVEY_OR_TUTORIAL",
+        "COMPETITOR"
+      ],
+      "selected_paper_ids": [
+        "doi:10.1000/finance-foundation",
+        "doi:10.1000/finance-survey",
+        "doi:10.1000/finance-competitor",
+        "doi:10.1000/finance-direct"
+      ],
+      "status": "passed",
+      "topic": "Reinforcement learning for recommender systems in financial products and credit cards",
+      "uncovered_facets": [],
+      "uncovered_roles": [
+        "EMPIRICAL_EXAMPLE",
+        "BACKGROUND"
+      ]
+    },
+    {
+      "benchmark_labels_consumed": false,
+      "bundle_sha256": "51790bde13151fa6cbb8e26c2a9b643f95b4ef7e49ef227bde41192fa6a7aed5",
+      "case_id": "neural_optimal_transport",
+      "conflict_observed": null,
+      "coverage_gaps": [
+        "Google Scholar is unavailable as an automated route because it has no supported public API"
+      ],
+      "expected_conflict": null,
+      "expected_provider_gap": false,
+      "facet_coverage": [
+        "neural optimal transport"
+      ],
+      "forbidden_selected": [],
+      "missing_must_find": [],
+      "missing_required_facets": [],
+      "missing_required_roles": [],
+      "must_find": [
+        "doi:10.1000/neural-ot"
+      ],
+      "must_reject": [
+        "openalex:w109"
+      ],
+      "provider_gap_observed": false,
+      "provider_statuses": [
+        {
+          "provider": "crossref",
+          "status": "available"
+        },
+        {
+          "provider": "openalex",
+          "status": "available"
+        },
+        {
+          "provider": "semantic_scholar",
+          "status": "available"
+        }
+      ],
+      "replay_identical": true,
+      "role_coverage": [
+        "DIRECT_METHOD"
+      ],
+      "selected_paper_ids": [
+        "doi:10.1000/neural-ot"
+      ],
+      "status": "passed",
+      "topic": "Neural optimal transport",
+      "uncovered_facets": [],
+      "uncovered_roles": [
+        "FOUNDATIONAL",
+        "SURVEY_OR_TUTORIAL",
+        "COMPETITOR",
+        "EMPIRICAL_EXAMPLE",
+        "BACKGROUND"
+      ]
+    },
+    {
+      "benchmark_labels_consumed": false,
+      "bundle_sha256": "5cf740b1cd424c5f26630b71ea611b7787daa1341ed79ce8d5e57f0686033339",
+      "case_id": "particle_filtering",
+      "conflict_observed": null,
+      "coverage_gaps": [
+        "Google Scholar is unavailable as an automated route because it has no supported public API",
+        "provider openalex is capped",
+        "provider openalex route exact_high_citation is capped",
+        "provider semantic_scholar is not_available",
+        "provider semantic_scholar route exact_high_citation is not_available"
+      ],
+      "expected_conflict": null,
+      "expected_provider_gap": false,
+      "facet_coverage": [
+        "nonlinear state-space models",
+        "particle filtering"
+      ],
+      "forbidden_selected": [],
+      "missing_must_find": [],
+      "missing_required_facets": [],
+      "missing_required_roles": [],
+      "must_find": [
+        "doi:10.1000/particle-filter"
+      ],
+      "must_reject": [
+        "openalex:w209"
+      ],
+      "provider_gap_observed": true,
+      "provider_statuses": [
+        {
+          "provider": "crossref",
+          "status": "available"
+        },
+        {
+          "provider": "openalex",
+          "status": "capped"
+        },
+        {
+          "provider": "semantic_scholar",
+          "status": "not_available"
+        }
+      ],
+      "replay_identical": true,
+      "role_coverage": [
+        "BACKGROUND"
+      ],
+      "selected_paper_ids": [
+        "doi:10.1000/particle-filter"
+      ],
+      "status": "passed",
+      "topic": "Particle filtering for nonlinear state-space models",
+      "uncovered_facets": [],
+      "uncovered_roles": [
+        "FOUNDATIONAL",
+        "DIRECT_METHOD",
+        "SURVEY_OR_TUTORIAL",
+        "COMPETITOR",
+        "EMPIRICAL_EXAMPLE"
+      ]
+    }
+  ],
+  "environment": {
+    "cuda_visible_devices": "-1",
+    "platform": "linux",
+    "python": "3.11"
+  },
+  "inference_status": {
+    "centrality_validated": false,
+    "next_evidence_needed": "externally curated live-corpus recall and primary-source inspection",
+    "ranking_statistically_supported": false,
+    "retrieval_gate": "supported_within_6_raw_provider_fixture_cases"
+  },
+  "result_sha256": "3449650ee2a687290a44487beab284fdc3b3b30cb797ba93588ce807c49a9acc",
+  "schema_version": "ra-survey-seed-paper-benchmark-result-v2",
+  "status": "passed",
+  "summary": {
+    "case_count": 6,
+    "facet_gap_count": 0,
+    "forbidden_selected_count": 0,
+    "missing_must_find_count": 0,
+    "must_find_count": 9,
+    "passed_case_count": 6,
+    "role_gap_count": 0
+  },
+  "what_is_not_concluded": [
+    "literature completeness",
+    "canonical best paper",
+    "paper correctness",
+    "provider reliability",
+    "universal topic recall",
+    "centrality"
+  ]
+}

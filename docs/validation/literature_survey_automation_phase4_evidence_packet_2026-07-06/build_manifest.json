@@ -1,0 +1,37 @@
+{
+  "artifact_paths": {
+    "build_manifest.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/build_manifest.json",
+    "candidate_ledger.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/candidate_ledger.json",
+    "citation_map.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/citation_map.json",
+    "claim_support.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/claim_support.json",
+    "omission_risk.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/omission_risk.json",
+    "paper_classifications.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/paper_classifications.json",
+    "source_support.json": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/source_support.json",
+    "survey_packet.md": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase4_evidence_packet_2026-07-06/survey_packet.md"
+  },
+  "forbidden_claims": [
+    "do not claim ready-for-prose status from incomplete offline-replay output",
+    "do not claim live web coverage from visible replay output",
+    "do not claim scientific completeness from partial frontier or replay metadata"
+  ],
+  "milestones_path": "docs/plans/literature_survey_automation_milestones.json",
+  "mission": "topic + seed paper -> citation map -> survey-ready evidence packet",
+  "mission_control_path": "docs/plans/literature_survey_automation_mission_control_2026-07-06.md",
+  "mode": "offline-replay",
+  "next_required_actions": [
+    "draft survey prose from the structured packet while preserving claim traces",
+    "preserve partial-frontier and source-gap caveats in prose",
+    "validate the packet against offline replay or negative-case harnesses after edits"
+  ],
+  "packet_issues": [],
+  "replay_task_id": "neural_ot_seed_replay",
+  "schema_version": "ra-survey-build-manifest-v1",
+  "status": "ready_for_prose",
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "what_is_not_concluded": [
+    "live web coverage",
+    "literature completeness",
+    "scientific correctness",
+    "product readiness"
+  ]
+}

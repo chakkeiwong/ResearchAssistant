@@ -1,0 +1,48 @@
+{
+  "checklist": [
+    {"finding": "The most-cited selected survey and the direct-finance selected seed remain metadata-only.", "gate": "famous_and_direct_papers_inspected", "pass": false, "severity": "critical"},
+    {"finding": "Finance scope contamination is recognized but candidate-level full-text triage is incomplete.", "gate": "fraud_scoring_trading_distinguished", "pass": false, "severity": "high"},
+    {"finding": "Contextual-bandit and slate competitors are in the omission register but are not fully inspected.", "gate": "competitors_treated_fairly", "pass": false, "severity": "high"},
+    {"finding": "Recent nominations exist, but forward snowballing and correction/replication searches were not run.", "gate": "recent_correcting_negative_coverage", "pass": false, "severity": "critical"},
+    {"finding": "OpenAlex counts are dated and explicitly used only as priority metadata.", "gate": "citation_metadata_dated_and_limited", "pass": true, "severity": "none"},
+    {"finding": "No verified impact-factor values were supplied.", "gate": "verified_venue_metrics", "pass": false, "severity": "critical"},
+    {"finding": "Capped frontiers and proprietary-work risk are visible.", "gate": "frontier_and_proprietary_risk_visible", "pass": true, "severity": "none"},
+    {"finding": "No inspected source is cleared by an external retraction/errata/version check; one direct source has a journal conflict.", "gate": "source_safety_and_version_resolution", "pass": false, "severity": "critical"},
+    {"finding": "Allowed scoped observations have technical anchors and forbidden claims are explicit.", "gate": "claim_anchor_mapping", "pass": true, "severity": "none"},
+    {"finding": "The six required ledgers exist and record blockers rather than fabricating evidence.", "gate": "six_ledgers_present", "pass": true, "severity": "none"}
+  ],
+  "decision": "blocked_for_scoped_survey_prose",
+  "engineering_ledger": {
+    "decision": "new_missions_have_bounded_strategy_and_budget_contracts",
+    "limitations": [
+      "attempt 3 retains its immutable older fingerprint without max_unique_candidates or max_total_source_bytes",
+      "cross-root campaign retry consumption is not enforced by one shared campaign authority"
+    ]
+  },
+  "next_required_actions": [
+    "supply and validate the venue-metrics registry",
+    "acquire and inspect selected-seed and direct-competitor primary sources",
+    "resolve source safety and the Alfonso-Sanchez version conflict",
+    "authorize a new bounded forward-snowball and capped-frontier campaign",
+    "repeat hostile review after the critical and high-severity omission risks are resolved"
+  ],
+  "schema_version": "ra-scholar-audit-hostile-review-v1",
+  "scholarly_validity_ledger": {
+    "decision": "blocked",
+    "reason": "Primary-source, source-safety, venue, forward-snowball, and omission gates remain open."
+  },
+  "scientific_interpretation_ledger": {
+    "allowed": [
+      "Direct local finance evidence concerns credit-limit control and CRM actions, not a complete financial-product recommendation comparison.",
+      "Offline evaluation, distribution shift, and constraints are material method families for this topic."
+    ],
+    "forbidden": [
+      "literature completeness",
+      "RL superiority",
+      "high-impact-factor coverage",
+      "financial suitability or regulatory compliance",
+      "production readiness"
+    ]
+  },
+  "topic": "Reinforcement learning for recommender systems for financial products and credit cards"
+}

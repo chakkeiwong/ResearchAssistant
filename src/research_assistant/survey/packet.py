@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from research_assistant.survey.source_selection import SOURCE_SELECTION_SCHEMA
+
 
 SURVEY_PUBLIC_SOURCE_PACKET_RESULT_SCHEMA_VERSION = "ra-survey-public-source-packet-result-v1"
 SURVEY_PUBLIC_SOURCE_PACKET_MANIFEST_SCHEMA_VERSION = "ra-survey-public-source-packet-manifest-v1"
@@ -38,6 +40,9 @@ REQUIRED_INPUT_FILES = {
     "anchor_source_support": ("anchor_dir", "source_support.json"),
     "anchor_claim_support": ("anchor_dir", "claim_support.json"),
     "quarantine_register": ("anchor_dir", "quarantine_register.json"),
+}
+OPTIONAL_INPUT_FILES = {
+    "source_selection": ("source_status_dir", "source_selection_reconciliation.json"),
 }
 
 TECHNICAL_CLAIM_BLOCKER = (
@@ -124,7 +129,11 @@ def compose_public_source_evidence_packet(
         source_status_dir=source_status_dir,
         anchor_dir=anchor_dir,
     )
-    missing = [name for name, path in input_paths.items() if not path.exists()]
+    missing = [
+        name
+        for name in REQUIRED_INPUT_FILES
+        if name not in input_paths or not input_paths[name].exists()
+    ]
     if missing:
         return _blocked(
             "missing_required_input",
@@ -137,6 +146,21 @@ def compose_public_source_evidence_packet(
         )
 
     inputs = {name: _read_json(path) for name, path in input_paths.items()}
+    source_selection = inputs.get("source_selection")
+    if source_selection is not None and (
+        inputs["source_intake_status"].get("schema_version")
+        != MISSION_SOURCE_INTAKE_V2_SCHEMA_VERSION
+        or source_selection.get("schema_version") != SOURCE_SELECTION_SCHEMA
+        or source_selection.get("topic") != topic
+    ):
+        return _blocked(
+            "invalid_source_selection_reconciliation",
+            "source selection must be a topic-bound canonical V2 intake artifact",
+            output_dir,
+            next_required_actions=[
+                "remove the foreign reconciliation or resume the canonical mission source-intake stage"
+            ],
+        )
     if not (inputs["metadata_omission_risk"].get("risks") or inputs["metadata_omission_risk"].get("metadata_only_papers")):
         return _blocked(
             "missing_omission_risk_rows",
@@ -192,10 +216,17 @@ def _resolve_input_paths(*, metadata_dir: Path, source_status_dir: Path, anchor_
         "source_status_dir": source_status_dir.resolve(),
         "anchor_dir": anchor_dir.resolve(),
     }
-    return {
+    required = {
         name: roots[root_name] / file_name
         for name, (root_name, file_name) in REQUIRED_INPUT_FILES.items()
     }
+    optional = {
+        name: roots[root_name] / file_name
+        for name, (root_name, file_name) in OPTIONAL_INPUT_FILES.items()
+        if (roots[root_name] / file_name).is_file()
+        and not (roots[root_name] / file_name).is_symlink()
+    }
+    return {**required, **optional}
 
 
 def _source_status_schema(path: Path) -> str | None:
@@ -222,12 +253,18 @@ def _composed_payloads(
     source_gap_rows = anchor_source_support.get("source_gap_rows") or []
     blocked_claims = anchor_claim_support.get("blocked_claims") or []
     supported_claims = anchor_claim_support.get("claims") or []
+    source_selection = inputs.get("source_selection")
     source_safety_status = _compose_source_safety_status(
         topic=topic,
         quarantine_register=inputs["quarantine_register"],
         source_support=anchor_source_support,
+        source_selection=source_selection,
     )
-    omission_risk = _compose_omission_risk(inputs["metadata_omission_risk"], anchor_claim_support)
+    omission_risk = _compose_omission_risk(
+        inputs["metadata_omission_risk"],
+        anchor_claim_support,
+        source_selection,
+    )
 
     ready = _ready_for_prose_report(
         topic=topic,
@@ -243,6 +280,7 @@ def _composed_payloads(
         metadata_source_support=inputs["metadata_source_support"],
         source_intake_status=source_intake_status,
         anchor_source_support=anchor_source_support,
+        source_selection=source_selection,
     )
     claim_support = _compose_claim_support(
         topic=topic,
@@ -387,6 +425,7 @@ def _compose_source_support(
     metadata_source_support: dict[str, Any],
     source_intake_status: dict[str, Any],
     anchor_source_support: dict[str, Any],
+    source_selection: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     return {
         "schema_version": "ra-survey-public-source-support-v1",
@@ -406,6 +445,12 @@ def _compose_source_support(
             "failures": source_intake_status.get("failures") or [],
             "approved_candidate_ids": source_intake_status.get("approved_candidate_ids") or [],
             "raw_artifact_policy": source_intake_status.get("raw_artifact_policy") or {},
+            "source_selection": source_selection or {
+                "status": "not_available_legacy_intake",
+                "substitutions": [],
+                "unreplaced_unavailable": [],
+                "source_availability_is_not_technical_claim_support": True,
+            },
         },
         "papers": anchor_source_support.get("papers") or [],
         "source_gap_rows": anchor_source_support.get("source_gap_rows") or [],
@@ -427,6 +472,7 @@ def _compose_source_safety_status(
     topic: str,
     quarantine_register: dict[str, Any],
     source_support: dict[str, Any],
+    source_selection: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     source_rows_by_paper_id = {
         str(row.get("paper_id")): row
@@ -485,6 +531,8 @@ def _compose_source_safety_status(
             "source_availability_safety_allowed": False,
             "unchecked_safety_allows_claim_support": False,
             "required_clear_status": "checked_clear",
+            "source_version_selection": (source_selection or {}).get("selected_versions") or {},
+            "version_selection_is_not_safety_clearance": True,
         },
         "next_required_actions": [
             "run approved retraction, withdrawal, erratum, and version checks for every sourced paper",
@@ -615,6 +663,7 @@ def _claim_candidates_from_anchors(anchors: list[dict[str, Any]]) -> list[dict[s
 def _compose_omission_risk(
     metadata_omission_risk: dict[str, Any],
     anchor_claim_support: dict[str, Any],
+    source_selection: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     risks = [dict(row) for row in metadata_omission_risk.get("risks") or []]
     if not anchor_claim_support.get("claims"):
@@ -632,6 +681,15 @@ def _compose_omission_risk(
         "reason": "Phase 5 quarantine ledger records retraction/version safety as not checked.",
         "next_action": "run retraction, withdrawal, erratum, and version checks before using papers as support",
     })
+    for candidate_key in (source_selection or {}).get("unreplaced_unavailable") or []:
+        risks.append({
+            "risk_id": f"selected_source_unavailable:{candidate_key}",
+            "severity": "high",
+            "status": "blocked",
+            "reason": "Selected paper has no available lawful replacement in the bounded candidate pool.",
+            "next_action": "supply a lawful source or retain this explicit source-gap disposition",
+            "candidate_key": candidate_key,
+        })
     return {
         "schema_version": "ra-survey-public-source-omission-risk-v1",
         "status": "omission_and_safety_risks_visible",

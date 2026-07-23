@@ -1,0 +1,265 @@
+{
+  "findings": [
+    {
+      "affected_surface": "ra survey run-public-source-workflow",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-001",
+      "not_concluded": [
+        "product readiness",
+        "autonomous end-to-end live/source workflow",
+        "final prose readiness"
+      ],
+      "recommended_task": "Use the review queue as the handoff for claim-review and safety-review import lanes without hiding live metadata/source/safety approvals.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'survey_build or survey_packet or survey_anchors or run_public_source_workflow' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_supervised_review_queue",
+      "summary": "A supervised orchestration command and local review queue are now visible and tested, but they still stop at explicit approval/review gates instead of autonomously completing public metadata, source intake, anchors, packet composition, and claim review."
+    },
+    {
+      "affected_surface": "ra survey import-claim-review",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-002",
+      "not_concluded": [
+        "technical claim support",
+        "final prose readiness",
+        "scientific correctness"
+      ],
+      "recommended_task": "Keep reviewed claims as an auditable sidecar until source-safety and omission-review lanes can be imported with explicit evidence.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'import_claim_review or run_public_source_workflow or survey_packet' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. pytest tests/scripts/test_literature_survey_phase7_validation_harness.py -q"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_reviewed_claim_import",
+      "summary": "Reviewed-claim import is now visible as a local sidecar path, but the packet remains not prose-ready because reviewed claims do not clear source-safety or omission gates."
+    },
+    {
+      "affected_surface": "ra survey import-source-safety-review",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-003",
+      "not_concluded": [
+        "retraction safety",
+        "version correctness",
+        "source safety"
+      ],
+      "recommended_task": "Keep source-safety decisions as an auditable sidecar until omission review and reviewed-evidence merge gates exist.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'source_safety_review or run_public_source_workflow or survey_packet' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. pytest tests/scripts/test_literature_survey_phase7_validation_harness.py -q",
+        "python scripts/literature_survey_phase6_packet_validation.py docs/validation/literature_survey_live_public_source_phase6_2026-07-07"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_reviewed_source_safety_import",
+      "summary": "Reviewed source-safety import is now visible as a local sidecar path, but it does not resolve omissions, merge claims, or prove complete retraction/version coverage."
+    },
+    {
+      "affected_surface": "validation harness",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-004",
+      "not_concluded": [
+        "real-agent reliability",
+        "complete negative-case coverage"
+      ],
+      "recommended_task": "Keep mutation-strength coverage explicit in the summarizer and require expected signal observation.",
+      "rerun_checks": [
+        "PYTHONPATH=src:. pytest tests/scripts/test_literature_survey_phase7_validation_harness.py -q"
+      ],
+      "severity": "medium",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/phase7_validation_harness_result.json",
+      "status": "addressed_for_current_harness",
+      "summary": "The weakened-blocker negative case required repair; current harness now records mutation-strength coverage and expected-signal observation."
+    },
+    {
+      "affected_surface": "plan and result docs",
+      "disposition": "doc_task",
+      "finding_id": "LSBFL-005",
+      "not_concluded": [
+        "new product capability"
+      ],
+      "recommended_task": "Patch stale status or record why it remains pending.",
+      "rerun_checks": [
+        "text consistency check in the feedback summarizer"
+      ],
+      "severity": "low",
+      "source_artifact": "docs/plans/literature_survey_live_public_source_phase9_closeout_result_2026-07-07.md",
+      "status": "closed",
+      "summary": "Status says PASSED_PENDING_FINAL_REVIEW although final review body records agreement."
+    },
+    {
+      "affected_surface": "ra survey build",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-006",
+      "not_concluded": [
+        "autonomous one-command completion",
+        "hidden approval bypass"
+      ],
+      "recommended_task": "Keep workflow-state checks in the UX harness while extending the supervised command surface.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'survey_build or survey_packet or survey_anchors' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py"
+      ],
+      "severity": "medium",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "addressed_for_current_modes",
+      "summary": "Workflow-state guidance exists for the current modes validated by Phase 8, but it does not establish autonomous one-command completion."
+    },
+    {
+      "affected_surface": "ra survey import-omission-review",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-007",
+      "not_concluded": [
+        "literature completeness",
+        "omission acceptability",
+        "final prose readiness"
+      ],
+      "recommended_task": "Keep omission decisions as an auditable sidecar until a reviewed-evidence merge gate can combine all sidecars safely.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'omission_review or run_public_source_workflow or survey_packet' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. python scripts/literature_survey_benchmark_feedback_summary.py"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_reviewed_omission_import",
+      "summary": "Reviewed omission-risk import is now visible as a local sidecar path, but it does not merge claims, clear source safety, or prove literature completeness."
+    },
+    {
+      "affected_surface": "ra survey merge-reviewed-evidence",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-008",
+      "not_concluded": [
+        "final prose readiness",
+        "product readiness",
+        "scientific correctness"
+      ],
+      "recommended_task": "Keep merge status as an auditable readiness/blocker sidecar until run-public-source-workflow can discover it and guide the next action.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'merge_reviewed_evidence or import_claim_review or source_safety_review or omission_review' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. python scripts/literature_survey_benchmark_feedback_summary.py"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_reviewed_evidence_merge",
+      "summary": "Reviewed evidence merge is now visible as a local blocker-preserving gate, but the supervised workflow does not yet discover sidecars and resume from merge status."
+    },
+    {
+      "affected_surface": "ra survey run-public-source-workflow",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-009",
+      "not_concluded": [
+        "autonomous end-to-end workflow",
+        "hidden approval bypass",
+        "product readiness"
+      ],
+      "recommended_task": "Use resume orchestration as the control point for the next coverage/snowballing ledger slice without hiding live metadata/source approval gates.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'run_public_source_workflow or merge_reviewed_evidence' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. python scripts/literature_survey_benchmark_feedback_summary.py"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_resume_orchestration",
+      "summary": "run-public-source-workflow now discovers reviewed sidecars and merge status during resume, preserves reviewed-evidence blockers, and emits next_action guidance, but it still stops short of coverage/snowballing completion and hostile review."
+    },
+    {
+      "affected_surface": "ra survey coverage-ledgers",
+      "disposition": "code_task",
+      "finding_id": "LSBFL-010",
+      "not_concluded": [
+        "literature completeness",
+        "final prose readiness",
+        "product readiness"
+      ],
+      "recommended_task": "Add a hostile review/final readiness gate that combines reviewed_evidence_status.json and coverage ledgers before any prose-ready decision.",
+      "rerun_checks": [
+        "PYTHONPATH=src pytest tests/integration/test_cli_commands.py -k 'coverage_ledgers or run_public_source_workflow' -q",
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. python scripts/literature_survey_benchmark_feedback_summary.py"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+      "status": "partial_hostile_review_gate",
+      "summary": "Coverage and snowballing ledgers are now composed locally from existing packet artifacts with metadata-only and omission-risk boundaries, but hostile review/final readiness still needs to consume them."
+    },
+    {
+      "affected_surface": "mission control and milestones",
+      "disposition": "doc_task",
+      "finding_id": "LSBFL-011",
+      "not_concluded": [
+        "product readiness",
+        "literature completeness",
+        "scientific correctness"
+      ],
+      "recommended_task": "Patch mission control, milestone JSON, and execution ledgers so future agents see the single-command capability and remaining approval-bound blockers accurately.",
+      "rerun_checks": [
+        "python -m json.tool docs/plans/literature_survey_automation_milestones.json",
+        "git diff --check",
+        "PYTHONPATH=src:. python scripts/literature_survey_benchmark_feedback_summary.py"
+      ],
+      "severity": "medium",
+      "source_artifact": "docs/plans/literature_survey_goal_execution_phase7_mission_cleanup_result_2026-07-10.md",
+      "status": "closed",
+      "summary": "The local workflow now exposes reviewed sidecars, coverage ledgers, and a hostile review blocker gate, so mission control and milestones need final alignment with actual capability and approval-bound blockers."
+    },
+    {
+      "affected_surface": "survey evidence blockers",
+      "disposition": "deferred_boundary",
+      "finding_id": "LSBFL-012",
+      "not_concluded": [
+        "final prose readiness",
+        "literature completeness",
+        "product readiness",
+        "scientific correctness"
+      ],
+      "recommended_task": "Import reviewed decisions that close open omission/reviewed-evidence blockers, or request exact bounded live metadata/source approval for blocked snowball frontiers.",
+      "rerun_checks": [
+        "python scripts/literature_survey_phase8_ux_validation.py",
+        "PYTHONPATH=src:. python scripts/literature_survey_benchmark_feedback_summary.py"
+      ],
+      "severity": "high",
+      "source_artifact": "docs/plans/literature_survey_goal_execution_phase7_mission_cleanup_result_2026-07-10.md",
+      "status": "open_boundary",
+      "summary": "Local execution is complete through hostile-review blocker reporting; remaining progress requires reviewed blocker-closing evidence or explicit bounded metadata/source expansion approval."
+    }
+  ],
+  "generated_at": "2026-07-09T21:25:57Z",
+  "mission_id": "literature_survey_automation_one_command",
+  "schema_version": "ra-literature-survey-benchmark-feedback-findings-v1",
+  "selected_next_tasks": [
+    {
+      "finding_ids": [
+        "LSBFL-012"
+      ],
+      "phase": "Approval-bound blocker",
+      "task": "Resolve the actual survey blockers: import reviewed decisions that close reviewed-evidence/omission gaps, or request explicit bounded live metadata/source approval for blocked snowball frontiers."
+    }
+  ],
+  "source_artifacts": [
+    "docs/plans/literature_survey_live_public_source_phase9_closeout_result_2026-07-07.md",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/build_manifest.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/claim_support.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/source_safety_status.json",
+    "docs/validation/literature_survey_live_public_source_phase6_2026-07-07/omission_risk.json",
+    "docs/validation/literature_survey_live_public_source_phase7_2026-07-07/phase7_validation_harness_result.json",
+    "docs/validation/literature_survey_live_public_source_phase8_2026-07-07/phase8_ux_validation_result.json",
+    "docs/plans/literature_survey_goal_execution_phase7_mission_cleanup_result_2026-07-10.md"
+  ],
+  "what_is_not_concluded": [
+    "product readiness",
+    "literature completeness",
+    "live web coverage",
+    "real-agent reliability",
+    "scientific correctness",
+    "final prose readiness"
+  ]
+}

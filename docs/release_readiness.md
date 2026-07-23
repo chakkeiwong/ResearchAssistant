@@ -13,11 +13,17 @@ claim.
 - Source-bound eight-command release gate passes.
 - Linux local validation records cover platform, parser smoke, merge rehearsal,
   and synthetic workspace performance.
-- Complete test inventory passes: `1722 passed, 229 skipped`.
+- Complete CPU-only test inventory passes: `1835 passed, 229 skipped` across
+  unit, CLI integration, remaining integration, and script partitions.
 - Wheel, sdist, and generated artifact manifest are hash-validated locally.
 - Disposable workspace install, demo, privacy, and release-report checks pass.
-- Offline defaults, arXiv-only active survey scope, and protected output checks
+- Offline defaults, credential-free bounded topic metadata scope, arXiv-first
+  source intake, and protected output checks
   remain explicit.
+- Seed-paper robustness covers abstract/concept evidence, facet/role balance,
+  identity conflicts, provider-gap reporting, venue-registry replay, and
+  automatic explicit-seed handoff in six raw-provider fixture cases. The live
+  transport smoke remains separately authorized and is not a recall gate.
 
 ## Remaining Actions
 

@@ -6,6 +6,33 @@ Personal Research Assistant
 ## Product goal
 Provide a trustworthy local-first workflow for ingesting, reviewing, discovering, and organizing research papers without silently attaching the wrong metadata or hiding uncertainty.
 
+## Generic-tools policy
+
+Product functions solve topic-independent research problems. A domain-specific
+query profile, coverage matrix, vocabulary, or expected paper set may exist as
+an explicitly named regression fixture, but it must never be selected
+automatically or embedded in a public default.
+
+Topic-only discovery has two distinct claims:
+
+1. Candidate nomination ranks bounded metadata results for later inspection.
+2. Central-candidate validation determines, from topic fit, resolved identity,
+   primary sources, paper role, and backward/forward snowball evidence, whether
+   a candidate is genuinely central to the supplied topic.
+
+Citation counts, venue metrics, title-token matches, and source availability
+are prioritization or diagnostic signals only. Engineering candidate nomination
+and handoff are implemented. A generic, deterministic centrality assessor now
+promotes only candidates with resolved identity, safe inspected source,
+direct/foundational topic fit, an eligible scholarly role, and independent
+centrality evidence. Its evaluator-owned benchmark covers three unrelated
+topics with high-citation off-topic controls. `survey central-papers` now
+constructs that bundle through bounded OpenAlex/arXiv capabilities,
+source-grounded inference, backward/forward expansion, six audit ledgers, and
+replay-safe checkpoints. Remaining gaps are broader provider/source coverage,
+expert-grade semantic classification, comprehensive source-safety checks, and
+external-topic recall validation, not another metadata score.
+
 ## Target user
 One serious local researcher first. The product is optimized for a single-user CLI workflow running on a local machine with an inspectable file-based store.
 
@@ -20,6 +47,16 @@ One serious local researcher first. The product is optimized for a single-user C
 8. Download open-access candidates into an inbox with persisted proposal metadata.
 9. Mark papers as approved, needs review, or rejected without losing provenance.
 10. Export trusted paper context for downstream writing and coding workflows.
+11. Run a bounded topic-to-central-papers campaign that reports validated
+    candidates together with blocked sources, uncovered roles, omission risks,
+    budgets, provenance, and nonclaims.
+12. Run a retrieval-only `survey seed-papers` campaign that fuses bounded
+    OpenAlex, Crossref, and Semantic Scholar metadata into an inspectable,
+    identity-safe candidate queue with provider gaps and replay evidence.
+13. Configure generic topic facets, controlled aliases, exclusions, and scope
+    notes; balance selected candidates across required facets and scholarly
+    roles; and hand the replay-valid selected portfolio into an explicit-seed
+    source mission with hash-bound provenance.
 
 ## Core product promises
 - Structured-source-first for arXiv papers when LaTeX source is available.
@@ -37,6 +74,8 @@ One serious local researcher first. The product is optimized for a single-user C
 - No opaque metadata auto-merges.
 - No bulk scraping or broad web crawling.
 - No unsupported silent auto-organization of the paper library.
+- No task-specific vocabulary, coverage cells, or ranking rules in generic
+  product defaults.
 - No high-stakes claim verification without explicit evidence support.
 - No GUI-first rewrite at this stage.
 - No database requirement for v0.1.

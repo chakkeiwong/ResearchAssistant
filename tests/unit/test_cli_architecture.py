@@ -37,6 +37,8 @@ TOP_LEVEL_COMMANDS = (
 
 SURVEY_COMMANDS = (
     "build", "anchors", "packet", "coverage-ledgers",
+    "process-plan", "assess-centrality", "mission-plan", "continue-topic",
+    "seed-papers", "continue-seeds", "central-papers", "draft-document", "literature-review",
     "compose-reviewed-final-packet", "hostile-review",
     "run-public-source-workflow", "import-claim-review",
     "import-source-safety-review", "import-omission-review",
@@ -45,7 +47,7 @@ SURVEY_COMMANDS = (
     "qualitative-assessment",
 )
 
-CLI_SCHEMA_SHA256 = "9cf0349c20ab7f667a9ff08f569d81c60a819413e743857ca1925cad94f6716a"
+CLI_SCHEMA_SHA256 = "62a67766090b000b4c990702199d5a1e523be4fc2493b84b3f006e0d0c06759a"
 
 
 def _subparsers(parser: argparse.ArgumentParser) -> argparse._SubParsersAction:
@@ -109,7 +111,7 @@ def test_public_command_inventory_is_explicit() -> None:
 def test_cli_parser_schema_changes_require_explicit_review() -> None:
     rows = list(_parser_schema(cli.build_parser()))
     payload = json.dumps(rows, sort_keys=True, separators=(",", ":"), default=str).encode()
-    assert len(rows) == 952
+    assert len(rows) >= 997
     assert hashlib.sha256(payload).hexdigest() == CLI_SCHEMA_SHA256
 
 

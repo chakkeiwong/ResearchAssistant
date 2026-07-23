@@ -1,0 +1,32 @@
+{
+  "profile_id": "rl_financial_recommender",
+  "profile_version": 1,
+  "eligibility_policy": "all_required_topic_groups",
+  "required_topic_groups": {
+    "recommender": ["recommendation", "recommender"],
+    "reinforcement_learning": ["reinforcement learning"]
+  },
+  "selected_seed_cap": 12,
+  "strategy_nonclaims": [
+    "literature completeness",
+    "scientific superiority",
+    "substantive relevance truth",
+    "technical correctness"
+  ],
+  "strata": [
+    {"filter": "title.search:reinforcement learning,title.search:recommender systems", "kind": "core_high_citation", "priority": 1, "purpose": "foundational_or_high_citation", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:deep reinforcement learning,title.search:recommender", "kind": "deep_rl_high_citation", "priority": 2, "purpose": "direct_method", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:recommender systems", "kind": "core_recent", "priority": 3, "purpose": "recent_follow_up", "sort": "publication_date:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:recommendation,title.search:financial", "kind": "financial_recommendation", "priority": 4, "purpose": "direct_finance_application", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:financial product", "kind": "financial_product", "priority": 5, "purpose": "direct_finance_application", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:next best offer", "kind": "next_best_offer", "priority": 6, "purpose": "direct_finance_application", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:credit card", "kind": "credit_card", "priority": 7, "purpose": "adjacent_credit_card", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:banking", "kind": "banking", "priority": 8, "purpose": "adjacent_finance", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:financial institution", "kind": "financial_institution", "priority": 9, "purpose": "adjacent_finance", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:contextual bandit,title.search:recommendation", "kind": "contextual_bandit", "priority": 10, "purpose": "competitor", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:slate recommendation,title.search:reinforcement learning", "kind": "slate_recommendation", "priority": 11, "purpose": "direct_method", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:fair recommender", "kind": "fairness", "priority": 12, "purpose": "safety_regulation", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:explainable recommendation", "kind": "explainability", "priority": 13, "purpose": "safety_regulation", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:reinforcement learning,title.search:constrained recommendation", "kind": "constraints", "priority": 14, "purpose": "safety_regulation", "sort": "cited_by_count:desc"}
+  ]
+}

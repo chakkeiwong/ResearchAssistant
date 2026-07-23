@@ -1,0 +1,266 @@
+{
+  "command": [
+    "/tmp/research-assistant-m20b3-install-7283a00e/venv/bin/python",
+    "-I",
+    "-m",
+    "research_assistant.survey.m20_live_supervisor",
+    "--packet",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/m20b4_live_packet.json",
+    "--output-root",
+    "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b4_live_2026-07-15",
+    "--execute-approved-m20b4"
+  ],
+  "credential_interface": "OPENALEX_API_KEY",
+  "execution_commit": "7283a00ea64da2435ffc4ea1987c474389b6a25c",
+  "execution_tree": "321ce60e88f7fe918a813aa0913f948f2d728b3d",
+  "forbidden_actions": [
+    "execute_without_separate_exact_human_m20b4_authorization",
+    "source_pdf_full_text_access",
+    "push",
+    "release",
+    "retry_or_rerun"
+  ],
+  "installed_member_manifest": {
+    "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/artifacts/installed_member_manifest.json",
+    "sha256": "641469d7b4e7ea16cd09551c46a4f0a84dabfdf6e652bec6fe4187cf8a508518"
+  },
+  "network_scope": [
+    "api.openalex.org:443",
+    "export.arxiv.org:443"
+  ],
+  "nonclaims": [
+    "provider_reliability",
+    "literature_completeness",
+    "source_support",
+    "scientific_correctness",
+    "product_readiness",
+    "m20_or_north_star_completion"
+  ],
+  "one_attempt_rule": "one_exact_attempt_no_retries_or_reruns",
+  "output_root": "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b4_live_2026-07-15",
+  "packet_contract_sha256": "475b15f8e3af79447608616232984744cedca53da59a90642754c5644213dfda",
+  "repository_root": "/tmp/research-assistant-m20b3-7283a00e",
+  "request_budget": {
+    "campaign_cost_cap_usd": "0.01",
+    "per_request_body_cap_bytes": 2000000,
+    "proxy_policy": "disabled",
+    "redirect_cap": 0,
+    "request_cap": 5,
+    "retry_cap": 0,
+    "socket_timeout_seconds": 30,
+    "total_body_cap_bytes": 10000000,
+    "whole_attempt_seconds": 367
+  },
+  "route_manifest": {
+    "arxiv_seed": "arxiv:2201.12220v3",
+    "campaign_cost_cap_usd": "0.01",
+    "credential_interface": "OPENALEX_API_KEY",
+    "openalex_id": "openalex:W4387130479",
+    "outcome_automaton_sha256": "a1f3d6126de27880ebb9804dcb075091b9694fc9b8d36f005e327b29bdefc0b7",
+    "per_request_body_cap_bytes": 2000000,
+    "proxy_policy": "disabled",
+    "redirect_cap": 0,
+    "request_cap": 5,
+    "retry_cap": 0,
+    "routes": [
+      {
+        "descriptor": {
+          "host": "export.arxiv.org",
+          "method": "GET",
+          "ordered_query_parameters": [
+            [
+              "search_query",
+              "all:Neural Optimal Transport for generative modeling and inference"
+            ],
+            [
+              "max_results",
+              "10"
+            ],
+            [
+              "start",
+              "0"
+            ],
+            [
+              "sortBy",
+              "relevance"
+            ],
+            [
+              "sortOrder",
+              "descending"
+            ]
+          ],
+          "path_segments": [
+            "api",
+            "query"
+          ],
+          "provider": "arxiv",
+          "response_role": "topic_identity",
+          "route_kind": "arxiv_topic",
+          "schema_version": "ra-literature-survey-m20-arxiv-descriptor-v1"
+        },
+        "request_binding_sha256": "a43edadfa1093f8bf2b05ed0619d92f1bdf4cc48a2a944422a72993142eac4b0",
+        "request_index": 1
+      },
+      {
+        "descriptor": {
+          "api_key_requirement": "required_external_not_present",
+          "host": "api.openalex.org",
+          "method": "GET",
+          "ordered_query_parameters": [
+            [
+              "search",
+              "Neural Optimal Transport for generative modeling and inference"
+            ],
+            [
+              "per_page",
+              "10"
+            ],
+            [
+              "select",
+              "id,display_name,authorships,publication_year,doi,cited_by_count,referenced_works,ids,type,publication_date"
+            ]
+          ],
+          "path_segments": [
+            "works"
+          ],
+          "provider": "openalex",
+          "response_role": "topic_identity",
+          "route_kind": "topic_list",
+          "schema_version": "ra-survey-m20-openalex-request-descriptor-v1"
+        },
+        "request_binding_sha256": "0aa7c60525ef3c58e88904bac7bb9d8492fdd6e98444195230b101bf5ac4265e",
+        "request_index": 2
+      },
+      {
+        "descriptor": {
+          "host": "export.arxiv.org",
+          "method": "GET",
+          "ordered_query_parameters": [
+            [
+              "id_list",
+              "2201.12220v3"
+            ],
+            [
+              "max_results",
+              "5"
+            ],
+            [
+              "start",
+              "0"
+            ],
+            [
+              "sortBy",
+              "relevance"
+            ],
+            [
+              "sortOrder",
+              "descending"
+            ]
+          ],
+          "path_segments": [
+            "api",
+            "query"
+          ],
+          "provider": "arxiv",
+          "response_role": "explicit_identity",
+          "route_kind": "arxiv_seed",
+          "schema_version": "ra-literature-survey-m20-arxiv-descriptor-v1"
+        },
+        "request_binding_sha256": "4a700b00fda8689f7d78efb688465f5319b2e03c960ed1c0a15600de4c49b612",
+        "request_index": 3
+      },
+      {
+        "descriptor": {
+          "api_key_requirement": "required_external_not_present",
+          "host": "api.openalex.org",
+          "method": "GET",
+          "ordered_query_parameters": [
+            [
+              "select",
+              "id,display_name,authorships,publication_year,doi,cited_by_count,referenced_works,ids,type,publication_date"
+            ]
+          ],
+          "path_segments": [
+            "works",
+            "W4387130479"
+          ],
+          "provider": "openalex",
+          "response_role": "direct_identity_and_backward",
+          "route_kind": "direct_singleton",
+          "schema_version": "ra-survey-m20-openalex-request-descriptor-v1"
+        },
+        "request_binding_sha256": "73d7719960123cd04fb5db7b3d5e24f026e8142cd4b2ea13a176126c35c87a7a",
+        "request_index": 4
+      },
+      {
+        "descriptor": {
+          "api_key_requirement": "required_external_not_present",
+          "host": "api.openalex.org",
+          "method": "GET",
+          "ordered_query_parameters": [
+            [
+              "filter",
+              "cites:W4387130479"
+            ],
+            [
+              "per_page",
+              "10"
+            ],
+            [
+              "sort",
+              "-cited_by_count"
+            ],
+            [
+              "select",
+              "id,display_name,authorships,publication_year,doi,cited_by_count,referenced_works,ids,type,publication_date"
+            ]
+          ],
+          "path_segments": [
+            "works"
+          ],
+          "provider": "openalex",
+          "response_role": "forward_frontier",
+          "route_kind": "forward_list",
+          "schema_version": "ra-survey-m20-openalex-request-descriptor-v1"
+        },
+        "request_binding_sha256": "46be981853918ff770a9d6bec6e9997e783cd209805bafb7bb68a0d497ff067c",
+        "request_index": 5
+      }
+    ],
+    "schema_version": "ra-literature-survey-m20-route-manifest-v1",
+    "socket_timeout_seconds": 30,
+    "status": "frozen",
+    "topic": "Neural Optimal Transport for generative modeling and inference",
+    "total_body_cap_bytes": 10000000,
+    "whole_attempt_seconds": 367
+  },
+  "route_manifest_sha256": "1953c772402f0e245498ca41464d1839a1c1fd56e9d8bec17aba77b751538773",
+  "runtime_modules": {
+    "research_assistant.survey.discovery_capability": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/discovery_capability.py",
+      "sha256": "317929ad18e933380efda3d9f4e11895389365953f88d65a41fe1215d42ce464"
+    },
+    "research_assistant.survey.m20_live_supervisor": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/m20_live_supervisor.py",
+      "sha256": "96890d38f984bb579fdcc79eff1487dd39925a198d5d955980099a6ba7a30fb6"
+    },
+    "research_assistant.survey.m20_live_worker": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/m20_live_worker.py",
+      "sha256": "ef873948aa3c61dea87a82a0af9d85154f7e8a2762961c4274dc941da1129157"
+    },
+    "research_assistant.survey.openalex_adapter": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/openalex_adapter.py",
+      "sha256": "e079e50a5e6024eda3425393816ecfe75e05608a1e8c99890648af3c28ffd31e"
+    },
+    "research_assistant.survey.openalex_credential_cost": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/openalex_credential_cost.py",
+      "sha256": "9fe8f51937589c07d2cfe2e03807f96834f42e14fdadde56c5b6da1423717a8c"
+    }
+  },
+  "schema_version": "ra-literature-survey-m20b4-live-packet-v1",
+  "status": "reviewed_proposal_m20b4_not_authorized",
+  "wheel": {
+    "path": "/home/chakwong/research-assistant/docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/artifacts/research_assistant-0.1.0-py3-none-any.whl",
+    "sha256": "f871620f5bde6c7aad073fe2b8b83dcaeb73c01d3758bf7cb64fe9240e922b34"
+  }
+}

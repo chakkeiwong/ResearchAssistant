@@ -1,0 +1,162 @@
+{
+  "candidates": [
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "FOUNDATIONAL",
+      "identifier": "isbn:9780262039246",
+      "reason": "foundational MDP, bandit, off-policy, and policy-gradient background",
+      "referenced_by": ["Alfonso and Sanchez 2024", "Levine et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Reinforcement Learning: An Introduction"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "FOUNDATIONAL",
+      "identifier": "jmlr:6:503-556",
+      "reason": "foundational batch fitted-Q method",
+      "referenced_by": ["Levine et al. 2020", "Kumar et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Tree-Based Batch Mode Reinforcement Learning"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "COMPETITOR",
+      "identifier": "arxiv:1103.4601v2",
+      "reason": "contextual-bandit doubly robust evaluation competitor",
+      "referenced_by": ["Jiang and Li 2016", "Levine et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Doubly Robust Policy Evaluation and Learning"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "DIRECT_METHOD",
+      "identifier": "arxiv:1511.03722v3",
+      "reason": "sequential off-policy value evaluation method",
+      "referenced_by": ["Levine et al. 2020", "Thomas and Brunskill 2016"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Doubly Robust Off-policy Value Evaluation for Reinforcement Learning"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "DIRECT_METHOD",
+      "identifier": "arxiv:1604.00923v1",
+      "reason": "data-efficient sequential off-policy evaluation extensions",
+      "referenced_by": ["Jiang and Li 2016", "Levine et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Data-Efficient Off-Policy Policy Evaluation for Reinforcement Learning"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "DIRECT_METHOD",
+      "identifier": "arxiv:1812.02900v3",
+      "reason": "batch-constrained offline RL method",
+      "referenced_by": ["Kumar et al. 2020", "Levine et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Off-Policy Deep Reinforcement Learning without Exploration"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "DIRECT_METHOD",
+      "identifier": "arxiv:2006.04779v3",
+      "reason": "conservative offline RL method",
+      "referenced_by": ["Levine et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Conservative Q-Learning for Offline Reinforcement Learning"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "DIRECT_METHOD",
+      "identifier": "arxiv:1705.10528v1",
+      "reason": "constrained-MDP method; relevant to financial decision constraints but not proof of compliance",
+      "referenced_by": ["Kumar et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Constrained Policy Optimization"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "FOUNDATIONAL",
+      "identifier": "arxiv:1509.02971v6",
+      "reason": "continuous-action deep actor-critic method used as technical lineage",
+      "referenced_by": ["Levine et al. 2020"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Continuous Control with Deep Reinforcement Learning"
+    },
+    {
+      "action": "inspect_next",
+      "classification": "COMPETITOR",
+      "identifier": "doi:10.1145/1526709.1526735",
+      "reason": "canonical contextual-bandit recommender competitor identified by the offline-RL tutorial",
+      "referenced_by": ["Levine et al. 2020", "Kumar et al. 2020"],
+      "source_status": "source_not_local",
+      "title": "A Contextual-Bandit Approach to Personalized News Article Recommendation"
+    },
+    {
+      "action": "inspect_next",
+      "classification": "DIRECT_METHOD",
+      "identifier": "title:off-policy-evaluation-for-slate-recommendation",
+      "reason": "slate OPE is directly relevant to recommending sets of products",
+      "referenced_by": ["Levine et al. 2020"],
+      "source_status": "source_not_local",
+      "title": "Off-Policy Evaluation for Slate Recommendation"
+    },
+    {
+      "action": "inspect_next",
+      "classification": "EMPIRICAL_EXAMPLE",
+      "identifier": "title:personalized-ad-recommendation-with-reinforcement-learning",
+      "reason": "digital-marketing sequential recommendation is an adjacent application",
+      "referenced_by": ["Levine et al. 2020"],
+      "source_status": "source_not_local",
+      "title": "Personalized Ad Recommendation Systems for Life-Time Value Optimization with Guarantees"
+    },
+    {
+      "action": "source_blocked",
+      "classification": "DIRECT_METHOD",
+      "identifier": "doi:10.1287/inte.33.5.4.19245",
+      "reason": "direct Bank One credit-card line and price control paper",
+      "referenced_by": ["prior local credit-card NPV survey"],
+      "source_status": "local_blocker_page_only",
+      "title": "Managing Credit Lines and Prices for Bank One Credit Cards"
+    },
+    {
+      "action": "inspect_next",
+      "classification": "DIRECT_METHOD",
+      "identifier": "doi:10.1016/j.ejor.2011.01.023",
+      "reason": "credit-card profitability modeled by an MDP; direct domain lineage",
+      "referenced_by": ["Alfonso and Sanchez 2024"],
+      "source_status": "source_not_local",
+      "title": "Modelling the Profitability of Credit Cards by Markov Decision Processes"
+    },
+    {
+      "action": "inspect_next",
+      "classification": "DIRECT_METHOD",
+      "identifier": "doi:10.1007/s10614-020-10042-0",
+      "reason": "retail-product money-management RL application found in the direct credit-card paper's literature review",
+      "referenced_by": ["Alfonso and Sanchez 2024"],
+      "source_status": "source_not_local",
+      "title": "Modified Q-Learning for Vasicek"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "EMPIRICAL_EXAMPLE",
+      "identifier": "arxiv:1504.01840v1",
+      "reason": "direct-marketing/CRM control example with important evaluation limitations",
+      "referenced_by": ["prior local credit-card NPV survey"],
+      "source_status": "local_primary_text_inspected",
+      "title": "Autonomous CRM Control via CLV Approximation with Deep Reinforcement Learning in Discrete and Continuous Action Space"
+    },
+    {
+      "action": "cite_after_source_safety_clearance",
+      "classification": "DIRECT_METHOD",
+      "identifier": "doi:10.1016/j.ejor.2023.12.025",
+      "reason": "direct credit-card limit control application",
+      "referenced_by": ["prior local credit-card NPV survey"],
+      "source_status": "local_primary_text_inspected_with_version_conflict",
+      "title": "Credit Card Limit Management Using Reinforcement Learning"
+    }
+  ],
+  "inspection_scope": "references and related-work sections of the 12 locally cached sources plus prior local bibliographies used as navigation aids",
+  "schema_version": "ra-scholar-audit-backward-snowball-v1",
+  "status": "partial_local_round_complete",
+  "topic": "Reinforcement learning for recommender systems for financial products and credit cards",
+  "uninspected_reference_remainder": "References outside foundational, direct, competitor, evaluation, and finance-domain classes were not exhaustively transcribed. The 12 metadata-selected seed bibliographies remain blocked because their full texts are not local."
+}

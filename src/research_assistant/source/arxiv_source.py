@@ -115,7 +115,13 @@ def unpack_arxiv_source(package_path: Path, unpack_dir: Path) -> dict[str, Any]:
     return diagnostics
 
 
-def fetch_arxiv_structured_source(arxiv_id: str, *, root: Path | None = None, paper_id: str | None = None) -> StructuredSourceRecord:
+def fetch_arxiv_structured_source(
+    arxiv_id: str,
+    *,
+    root: Path | None = None,
+    paper_id: str | None = None,
+    max_bytes: int = DEFAULT_MAX_SOURCE_PACKAGE_BYTES,
+) -> StructuredSourceRecord:
     paths = get_paths(root)
     resolved_paper_id = paper_id or canonical_paper_id(f'arxiv:{arxiv_id}')
     artifact_root = arxiv_artifact_root(paths.papers_source, resolved_paper_id)
@@ -126,7 +132,10 @@ def fetch_arxiv_structured_source(arxiv_id: str, *, root: Path | None = None, pa
     diagnostics: dict[str, Any] = {'arxiv_id': arxiv_id}
 
     try:
-        download_arxiv_source(arxiv_id, original_path)
+        if max_bytes == DEFAULT_MAX_SOURCE_PACKAGE_BYTES:
+            download_arxiv_source(arxiv_id, original_path)
+        else:
+            download_arxiv_source(arxiv_id, original_path, max_bytes=max_bytes)
         source_statuses.append(_status('arxiv_source', 'available', result_count=1))
     except urllib.error.HTTPError as exc:
         source_statuses.append(_status('arxiv_source', 'unavailable', code=exc.code, reason=str(exc)))

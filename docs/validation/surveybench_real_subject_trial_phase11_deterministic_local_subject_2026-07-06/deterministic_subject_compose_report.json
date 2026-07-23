@@ -1,0 +1,77 @@
+{
+  "derivation_rules": [
+    "seed, duplicate, lineage, forward-citation, adjacent, false-positive, and quarantine rows are derived from visible replay relations and status payloads",
+    "source and download support rows are derived from visible source-status, download-status, and source-anchors payloads",
+    "supported claim rows are derived from visible evidence-context anchors and graph edge anchors",
+    "omission risks are derived from visible backward lineage, adjacent candidates, and partial forward-frontier markers"
+  ],
+  "derivation_sources": [
+    "task.topic and task.seed_papers",
+    "agent-visible replay response files",
+    "agent-visible event_log events when a session is supplied",
+    "schema-only packet field contracts"
+  ],
+  "event_count": 9,
+  "helper": "packet-compose",
+  "loaded_response_sources": [
+    "responses_dir/adjacent.json",
+    "responses_dir/citations.json",
+    "responses_dir/download_status.json",
+    "responses_dir/evidence_context.json",
+    "responses_dir/paper.json",
+    "responses_dir/references.json",
+    "responses_dir/search.json",
+    "responses_dir/source_anchors.json",
+    "responses_dir/source_status.json"
+  ],
+  "missing_response_sources": [],
+  "missing_session_calls": [],
+  "packet_file_summaries": {
+    "candidate_ledger.json": {
+      "duplicates": 1,
+      "excluded": 3,
+      "included": 4
+    },
+    "citation_map.json": {
+      "clusters": 3,
+      "edges": 3,
+      "nodes": 4
+    },
+    "claim_support.json": {
+      "claims": 4
+    },
+    "omission_risk.json": {
+      "risks": 3
+    },
+    "source_support.json": {
+      "papers": 6
+    }
+  },
+  "required_packet_files": [
+    "candidate_ledger.json",
+    "citation_map.json",
+    "source_support.json",
+    "claim_support.json",
+    "omission_risk.json"
+  ],
+  "schema_version": "ra-surveybench-packet-compose-v1",
+  "skipped_sensitive_source_count": 0,
+  "status": "ready",
+  "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+  "trial_record_file": "trial_record.json",
+  "what_is_not_concluded": [
+    "scorer pass",
+    "survey prose quality",
+    "live-web coverage",
+    "scientific completeness",
+    "product readiness"
+  ],
+  "written_files": [
+    "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet/candidate_ledger.json",
+    "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet/citation_map.json",
+    "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet/source_support.json",
+    "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet/claim_support.json",
+    "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet/omission_risk.json",
+    "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet/trial_record.json"
+  ]
+}

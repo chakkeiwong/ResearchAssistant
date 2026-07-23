@@ -1,0 +1,33 @@
+{
+  "schema_version": "ra-survey-build-cli-result-v1",
+  "status": "partial",
+  "mode": "offline-replay",
+  "topic": "Neural Optimal Transport for generative modeling and inference",
+  "seed_count": 1,
+  "output_dir": "/tmp/neural_ot_packet",
+  "artifact_paths": {
+    "candidate_ledger.json": "/tmp/neural_ot_packet/candidate_ledger.json",
+    "citation_map.json": "/tmp/neural_ot_packet/citation_map.json",
+    "source_support.json": "/tmp/neural_ot_packet/source_support.json",
+    "paper_classifications.json": "/tmp/neural_ot_packet/paper_classifications.json",
+    "claim_support.json": "/tmp/neural_ot_packet/claim_support.json",
+    "omission_risk.json": "/tmp/neural_ot_packet/omission_risk.json",
+    "survey_packet.md": "/tmp/neural_ot_packet/survey_packet.md",
+    "build_manifest.json": "/tmp/neural_ot_packet/build_manifest.json"
+  },
+  "next_required_actions": [
+    "repair incomplete claim-support and omission-risk rows before prose drafting"
+  ],
+  "remaining_gaps": [
+    "some selected papers still have metadata-only or blocked source status",
+    "claim support is incomplete for at least one technical claim",
+    "omission-risk review is still open for at least one frontier cluster"
+  ],
+  "what_is_not_concluded": [
+    "survey prose readiness",
+    "live web coverage",
+    "literature completeness",
+    "scientific correctness",
+    "product readiness"
+  ]
+}

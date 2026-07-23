@@ -1,0 +1,41 @@
+{
+  "campaign": {
+    "attempt_roots": [
+      "/tmp/rl-finance-survey-gap-closure-20260721-a1",
+      "/tmp/rl-finance-survey-gap-closure-20260721-a2",
+      "/tmp/rl-finance-survey-gap-closure-20260721-a3"
+    ],
+    "cross_attempt_budget_overrun": true,
+    "metadata_calls_after_overrun": 0,
+    "provider": "openalex",
+    "successful_attempt": "/tmp/rl-finance-survey-gap-closure-20260721-a3",
+    "topic": "Reinforcement learning for recommender systems for financial products and credit cards"
+  },
+  "environment": {
+    "cuda_visible_devices": "-1 for Python test/release commands",
+    "machine": "Linux/WSL2 x86_64",
+    "python": "3.11.14",
+    "git_head_at_execution_start": "db9bf8e74d4aa91e5c0be0390f6b0babc03d0c0e"
+  },
+  "release_checks": {
+    "complete_suite": {"status": "passed", "passed": 1740, "skipped": 229},
+    "focused_suite": {"status": "passed", "passed": 176},
+    "packaging_smoke": "passed",
+    "clean_install_smoke": "passed",
+    "release_smoke": "passed",
+    "release_candidate_gate": "passed",
+    "release_gate_evidence": "dist/release_gate_evidence.json",
+    "artifact_manifest": "dist/release_artifacts_manifest.json",
+    "optional_lint_type_checks": "not_run; ruff and mypy unavailable"
+  },
+  "scholarly_checks": {
+    "backward_snowball": "partial_local_round_complete",
+    "claim_support": "scoped_claim_map_with_blockers",
+    "forward_snowball": "blocked_campaign_budget_exhausted",
+    "hostile_review": "blocked_for_scoped_survey_prose",
+    "venue_metrics": "unmet",
+    "source_safety": "pending_external_checks",
+    "selected_seed_primary_sources": "blocked_locally"
+  },
+  "schema_version": "ra-rl-financial-recommender-execution-manifest-v1"
+}

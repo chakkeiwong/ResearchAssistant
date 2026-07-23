@@ -1,0 +1,278 @@
+{
+  "cases": [
+    {
+      "campaign": {
+        "benchmark_labels_consumed": false,
+        "budget_consumption": {
+          "metadata_records": 4,
+          "metadata_requests": 4,
+          "source_attempts": 4,
+          "source_bytes": 1000
+        },
+        "dispositions": {
+          "REJECTED_OFF_TOPIC": [
+            "arxiv:1509.09175"
+          ],
+          "VALIDATED_CENTRAL": [
+            "arxiv:1602.05629",
+            "arxiv:1611.04482",
+            "arxiv:1912.04977"
+          ]
+        },
+        "snowball_status": "blocked_open_omission_risk",
+        "stop_reason": "no_novelty_with_open_high_or_critical_risk",
+        "uncovered_roles": [
+          "COMPETITOR"
+        ]
+      },
+      "case_id": "federated_privacy",
+      "evaluation": {
+        "case_id": "federated_privacy_topic_input",
+        "descriptive_ranking_used_for_pass": false,
+        "forbidden_promotions": [],
+        "must_find_results": [
+          {
+            "observed_verdict": "VALIDATED_CENTRAL",
+            "paper_id": "arxiv:1602.05629",
+            "passed": true,
+            "required_role": "FOUNDATIONAL",
+            "role_present": true,
+            "source_block_allowed": false
+          },
+          {
+            "observed_verdict": "VALIDATED_CENTRAL",
+            "paper_id": "arxiv:1611.04482",
+            "passed": true,
+            "required_role": "DIRECT_METHOD",
+            "role_present": true,
+            "source_block_allowed": false
+          },
+          {
+            "observed_verdict": "VALIDATED_CENTRAL",
+            "paper_id": "arxiv:1912.04977",
+            "passed": true,
+            "required_role": "SURVEY_OR_TUTORIAL",
+            "role_present": true,
+            "source_block_allowed": false
+          }
+        ],
+        "must_reject_results": [
+          {
+            "observed_verdict": "REJECTED_OFF_TOPIC",
+            "paper_id": "arxiv:1509.09175",
+            "passed": true
+          }
+        ],
+        "ranking_statistically_supported": false,
+        "required_role_status": {
+          "DIRECT_METHOD": true,
+          "FOUNDATIONAL": true,
+          "SURVEY_OR_TUTORIAL": true
+        },
+        "result_sha256": "46e2ef3ec54bf3fbd0405fcba266e861f9d639a16b6936e7afd0e88b50d2532c",
+        "schema_version": "ra-survey-centrality-benchmark-result-v1",
+        "status": "passed",
+        "what_is_not_concluded": [
+          "literature completeness",
+          "performance on unreviewed topics",
+          "paper claim correctness"
+        ]
+      },
+      "fixture_sha256": {
+        "case.json": "6a31c3d7ca1d87ab9cf815f19ee149f8367dc0df4a55bd6b566c684e0ddbfebf",
+        "observations.json": "c4b15cf69dbf92dd977469e488a39b8138b278c43d3ab695c63550872460e0ed"
+      },
+      "topic": "Federated learning and privacy"
+    },
+    {
+      "campaign": {
+        "benchmark_labels_consumed": false,
+        "budget_consumption": {
+          "metadata_records": 3,
+          "metadata_requests": 3,
+          "source_attempts": 3,
+          "source_bytes": 1000
+        },
+        "dispositions": {
+          "BLOCKED": [
+            "arxiv:2106.01954"
+          ],
+          "REJECTED_OFF_TOPIC": [
+            "arxiv:1602.05629"
+          ],
+          "VALIDATED_CENTRAL": [
+            "arxiv:2201.12220"
+          ]
+        },
+        "snowball_status": "blocked_open_omission_risk",
+        "stop_reason": "no_novelty_with_open_high_or_critical_risk",
+        "uncovered_roles": [
+          "COMPETITOR",
+          "FOUNDATIONAL",
+          "SURVEY_OR_TUTORIAL"
+        ]
+      },
+      "case_id": "neural_optimal_transport",
+      "evaluation": {
+        "case_id": "neural_optimal_transport_topic_input",
+        "descriptive_ranking_used_for_pass": false,
+        "forbidden_promotions": [],
+        "must_find_results": [
+          {
+            "observed_verdict": "BLOCKED",
+            "paper_id": "arxiv:2106.01954",
+            "passed": true,
+            "required_role": "COMPETITOR",
+            "role_present": true,
+            "source_block_allowed": true
+          },
+          {
+            "observed_verdict": "VALIDATED_CENTRAL",
+            "paper_id": "arxiv:2201.12220",
+            "passed": true,
+            "required_role": "DIRECT_METHOD",
+            "role_present": true,
+            "source_block_allowed": false
+          }
+        ],
+        "must_reject_results": [
+          {
+            "observed_verdict": "REJECTED_OFF_TOPIC",
+            "paper_id": "arxiv:1602.05629",
+            "passed": true
+          }
+        ],
+        "ranking_statistically_supported": false,
+        "required_role_status": {
+          "COMPETITOR": true,
+          "DIRECT_METHOD": true
+        },
+        "result_sha256": "75811e94d199c8337ee820c06ebbe6196d6c516745ec7187983f1585d6209531",
+        "schema_version": "ra-survey-centrality-benchmark-result-v1",
+        "status": "passed",
+        "what_is_not_concluded": [
+          "literature completeness",
+          "performance on unreviewed topics",
+          "paper claim correctness"
+        ]
+      },
+      "fixture_sha256": {
+        "case.json": "af5b68f3cabd2a92e2de89e8e72173193a545dd201378e82a14c1ab277c70c17",
+        "observations.json": "7dd7ca2420ad314b27ff51436b69cc70b5ef82e100831dec0e7b97350a394649"
+      },
+      "topic": "Neural optimal transport"
+    },
+    {
+      "campaign": {
+        "benchmark_labels_consumed": false,
+        "budget_consumption": {
+          "metadata_records": 3,
+          "metadata_requests": 3,
+          "source_attempts": 3,
+          "source_bytes": 1000
+        },
+        "dispositions": {
+          "BLOCKED": [
+            "arxiv:0805.3034"
+          ],
+          "REJECTED_OFF_TOPIC": [
+            "arxiv:2201.12220"
+          ],
+          "VALIDATED_CENTRAL": [
+            "arxiv:1509.09175"
+          ]
+        },
+        "snowball_status": "blocked_open_omission_risk",
+        "stop_reason": "no_novelty_with_open_high_or_critical_risk",
+        "uncovered_roles": [
+          "COMPETITOR",
+          "FOUNDATIONAL",
+          "SURVEY_OR_TUTORIAL"
+        ]
+      },
+      "case_id": "particle_filtering",
+      "evaluation": {
+        "case_id": "particle_filtering_topic_input",
+        "descriptive_ranking_used_for_pass": false,
+        "forbidden_promotions": [],
+        "must_find_results": [
+          {
+            "observed_verdict": "BLOCKED",
+            "paper_id": "arxiv:0805.3034",
+            "passed": true,
+            "required_role": "FOUNDATIONAL",
+            "role_present": true,
+            "source_block_allowed": true
+          },
+          {
+            "observed_verdict": "VALIDATED_CENTRAL",
+            "paper_id": "arxiv:1509.09175",
+            "passed": true,
+            "required_role": "DIRECT_METHOD",
+            "role_present": true,
+            "source_block_allowed": false
+          }
+        ],
+        "must_reject_results": [
+          {
+            "observed_verdict": "REJECTED_OFF_TOPIC",
+            "paper_id": "arxiv:2201.12220",
+            "passed": true
+          }
+        ],
+        "ranking_statistically_supported": false,
+        "required_role_status": {
+          "DIRECT_METHOD": true,
+          "FOUNDATIONAL": true
+        },
+        "result_sha256": "3c7a735d58fc103eb76ab533e839a03d061628a1f34bc4a53d094fa1b1b4fa43",
+        "schema_version": "ra-survey-centrality-benchmark-result-v1",
+        "status": "passed",
+        "what_is_not_concluded": [
+          "literature completeness",
+          "performance on unreviewed topics",
+          "paper claim correctness"
+        ]
+      },
+      "fixture_sha256": {
+        "case.json": "ed1214e8fc2638beeb41c8cc59c6c13447728b65e83ac23d4ccc192ef2c38c47",
+        "observations.json": "e1a9775a2e99c0d2045e54d5a0c8fcb05dbfd4dd04db6ccae91e242b2d28aad3"
+      },
+      "topic": "Particle filtering for nonlinear state-space models"
+    }
+  ],
+  "environment": {
+    "cuda_visible_devices": "-1",
+    "platform": "linux",
+    "python": "3.11"
+  },
+  "inference_status": {
+    "default_readiness": "bounded_local_campaign_only",
+    "descriptive_only": [
+      "budget consumption",
+      "citation metadata",
+      "stop reason"
+    ],
+    "hard_veto_screen": "supported_within_three_evaluator_owned_cases",
+    "next_evidence_needed": "more unrelated externally reviewed topics and broader source providers",
+    "statistically_supported_ranking": false
+  },
+  "result_sha256": "257278bd6f6f44dd4d6a097ebf3b3965d2189efbcf9117baaf07f6cb7042900d",
+  "schema_version": "ra-survey-central-papers-e2e-benchmark-result-v1",
+  "status": "passed",
+  "summary": {
+    "case_count": 3,
+    "forbidden_promotion_count": 0,
+    "must_find_count": 7,
+    "must_reject_count": 3,
+    "passed_case_count": 3
+  },
+  "what_is_not_concluded": [
+    "literature completeness",
+    "paper claim correctness",
+    "performance on unreviewed topics",
+    "provider reliability",
+    "publication readiness",
+    "universal topic recall"
+  ]
+}

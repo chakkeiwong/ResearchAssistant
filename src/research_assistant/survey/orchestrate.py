@@ -11,6 +11,7 @@ from research_assistant.survey.bootstrap import (
     MissionBootstrapStore,
     UnavailableBootstrapCapability,
 )
+from research_assistant.survey.topic_seed_discovery import OpenAlexTopicBootstrapCapability
 
 from research_assistant.survey.anchors import build_source_anchor_packet
 from research_assistant.survey.build import (
@@ -78,6 +79,7 @@ from research_assistant.survey.reviewed_packet import (
     validate_reviewed_final_packet,
 )
 from research_assistant.survey.source_safety_review import resolve_current_source_safety
+from research_assistant.survey.mission_plan import write_mission_plan
 from research_assistant.survey.review_decisions import workflow_blocker_resolution
 from research_assistant.survey.packet import compose_public_source_evidence_packet
 from research_assistant.survey.next_action import (
@@ -130,6 +132,8 @@ ORCHESTRATION_NONCLAIMS = [
 PUBLIC_DISCOVERY_DEFAULT_PROVIDERS = ["arxiv"]
 PUBLIC_DISCOVERY_ALLOWED_DOMAINS = ["arxiv.org", "export.arxiv.org"]
 PUBLIC_DISCOVERY_MAX_METADATA_RECORDS = 25
+TOPIC_BOOTSTRAP_PROVIDERS = ["openalex"]
+TOPIC_BOOTSTRAP_ALLOWED_DOMAINS = ["api.openalex.org"]
 
 
 def run_public_source_workflow(
@@ -154,11 +158,13 @@ def run_public_source_workflow(
     local_evidence_root: Path | None = None,
     source_capability: MissionSourceCapability | None = None,
     bootstrap_capability: MissionBootstrapCapability | None = None,
+    venue_metrics_registry: Path | None = None,
 ) -> dict[str, Any]:
     output_dir = output_dir.resolve()
     manager: MissionStateManager | None = None
     input_mode = TOPIC_INPUT_MODE if seeds is None else EXPLICIT_SEED_INPUT_MODE
     initial_seeds = [] if seeds is None else seeds
+    topic_bootstrap = input_mode == TOPIC_INPUT_MODE
     try:
         manager = MissionStateManager(
             output_dir=output_dir,
@@ -168,6 +174,19 @@ def run_public_source_workflow(
             confirm_public_discovery=confirm_public_discovery,
             resume=resume,
             force=force,
+            discovery_providers=(
+                TOPIC_BOOTSTRAP_PROVIDERS
+                if topic_bootstrap
+                else None
+            ),
+            discovery_allowed_domains=(
+                TOPIC_BOOTSTRAP_ALLOWED_DOMAINS
+                if topic_bootstrap
+                else None
+            ),
+            aggregate_metadata_budget=(
+                topic_bootstrap
+            ),
         )
         snapshot = manager.begin()
         snapshot = manager.checkpoint_confirmation()
@@ -177,7 +196,14 @@ def run_public_source_workflow(
                 snapshot=snapshot,
                 output_dir=output_dir,
                 resume=resume,
-                bootstrap_capability=bootstrap_capability,
+                bootstrap_capability=(
+                    bootstrap_capability
+                    or (
+                        OpenAlexTopicBootstrapCapability(venue_metrics_registry)
+                        if topic_bootstrap
+                        else None
+                    )
+                ),
             )
         if run_safe_local:
             return _run_safe_local_supervisor(
@@ -250,6 +276,8 @@ def _blocked_topic_result(
     confirmation = _public_discovery_confirmation(
         output_dir=output_dir,
         confirmation={"confirmed": False, "confirmed_at": None, "confirmation_source": None},
+        providers=TOPIC_BOOTSTRAP_PROVIDERS,
+        allowed_domains=TOPIC_BOOTSTRAP_ALLOWED_DOMAINS,
     )
     next_action = {
         "schema_version": SURVEY_NEXT_ACTION_SCHEMA_VERSION,
@@ -351,7 +379,12 @@ def _topic_next_action(
         "gate_id": "topic_bootstrap",
         "approval_required": not confirmation["confirmed"],
         "safe_next_commands": [
-            "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+            (
+                "ra survey continue-topic --mission-root "
+                f"{output_dir} --out <fresh-child-mission-root>"
+                if action_id == "topic_bootstrap_selected_local_continuation"
+                else "rerun run-public-source-workflow with the same topic and output root, --resume, and the required confirmation if not already recorded"
+            )
         ],
         "blockers": [] if mission_status == "ready_for_local_continuation" else [action_id],
         "required_artifacts": required,
@@ -424,6 +457,14 @@ def _topic_mission_control_payload(
 
 
 def _topic_workflow_result(mission_control: dict[str, Any], next_action: dict[str, Any]) -> dict[str, Any]:
+    mission_root = Path(mission_control["output_dir"])
+    artifact_paths = {
+        "mission_control.json": str(mission_root / "mission_control.json"),
+        "next_action.json": str(mission_root / "next_action.json"),
+    }
+    mission_plan_path = mission_root / "mission_plan.json"
+    if mission_plan_path.is_file():
+        artifact_paths["mission_plan.json"] = str(mission_plan_path)
     return {
         "schema_version": TOPIC_SURVEY_ORCHESTRATION_RESULT_SCHEMA_VERSION,
         "status": mission_control["status"],
@@ -443,10 +484,9 @@ def _topic_workflow_result(mission_control: dict[str, Any], next_action: dict[st
         "mission_fingerprint": mission_control["mission_fingerprint"],
         "generation_id": mission_control["generation_id"],
         "artifact_paths": {
-            "mission_control.json": str(Path(mission_control["output_dir"]) / "mission_control.json"),
-            "next_action.json": str(Path(mission_control["output_dir"]) / "next_action.json"),
+            **artifact_paths,
             **(
-                {"bootstrap_effective_seed_skeleton": str(Path(mission_control["output_dir"]) / "offline_skeleton")}
+                {"bootstrap_effective_seed_skeleton": str(mission_root / "offline_skeleton")}
                 if mission_control["phase_statuses"].get("offline_skeleton", {}).get("exists")
                 else {}
             ),
@@ -479,6 +519,9 @@ def _run_topic_bootstrap_locked(
     confirmation = _public_discovery_confirmation(
         output_dir=output_dir,
         confirmation=snapshot.contract["public_discovery_confirmation"],
+        providers=snapshot.contract["discovery_budget"]["providers"],
+        allowed_domains=snapshot.contract["discovery_budget"]["allowed_domains"],
+        discovery_budget=snapshot.contract["discovery_budget"],
     )
     if not confirmation["confirmed"]:
         bootstrap = {
@@ -506,7 +549,11 @@ def _run_topic_bootstrap_locked(
         "action": "topic_bootstrap",
         "status": bootstrap["attempt_state"],
         "outcome": bootstrap["outcome"],
-        "network_or_provider_called": False,
+        "network_or_provider_called": bool(
+            bootstrap.get("authority")
+            and bootstrap["authority"].get("capability_name")
+            in {"openalex_topic_seed_bootstrap", "openalex_citation_venue_priority_bootstrap"}
+        ),
         "source_pdf_full_text_attempted": False,
     }]
     phase_statuses: dict[str, Any] = {}
@@ -543,6 +590,13 @@ def _run_topic_bootstrap_locked(
         and current.get("phase_statuses") == phase_statuses
         and isinstance(snapshot.next_action, dict)
     ):
+        if current.get("status") == "ready_for_local_continuation":
+            write_mission_plan(
+                mission_control=current,
+                next_action=snapshot.next_action,
+                output_path=output_dir / "mission_plan.json",
+                force=True,
+            )
         manager.abort()
         return _topic_workflow_result(current, snapshot.next_action)
     next_action = _topic_next_action(
@@ -561,9 +615,17 @@ def _run_topic_bootstrap_locked(
         phase_statuses=phase_statuses,
     )
     committed = manager.commit(mission_control, next_action)
+    committed_mission = committed.mission_control or mission_control
+    committed_next_action = committed.next_action or next_action
+    write_mission_plan(
+        mission_control=committed_mission,
+        next_action=committed_next_action,
+        output_path=output_dir / "mission_plan.json",
+        force=True,
+    )
     return _topic_workflow_result(
-        committed.mission_control or mission_control,
-        committed.next_action or next_action,
+        committed_mission,
+        committed_next_action,
     )
 
 
@@ -606,6 +668,9 @@ def _run_public_source_workflow_locked(
     public_discovery_confirmation = _public_discovery_confirmation(
         output_dir=output_dir,
         confirmation=contract["public_discovery_confirmation"],
+        providers=contract["discovery_budget"]["providers"],
+        allowed_domains=contract["discovery_budget"]["allowed_domains"],
+        discovery_budget=contract["discovery_budget"],
     )
 
     skeleton_status = _artifact_status(skeleton_dir, "build_manifest.json")
@@ -914,6 +979,14 @@ def _run_public_source_workflow_locked(
     committed = manager.commit(mission_control, next_action)
     committed_mission = committed.mission_control or mission_control
     committed_next_action = committed.next_action or next_action
+    if committed_mission.get("status") == "ready_for_local_continuation":
+        write_mission_plan(
+            mission_control=committed_mission,
+            next_action=committed_next_action,
+            output_path=output_dir / "mission_plan.json",
+            force=True,
+        )
+        artifact_paths["mission_plan.json"] = str(output_dir / "mission_plan.json")
     return _workflow_result(
         mission_control=committed_mission,
         next_action=committed_next_action,
@@ -1879,14 +1952,41 @@ def _finish_supervisor(
             if action.get("action") == "survey_build_offline_skeleton":
                 action["status"] = transition.get("stage_result", {}).get("status")
     committed = manager.commit(mission_payload, next_payload)
+    committed_mission = committed.mission_control or mission_payload
+    committed_next_action = committed.next_action or next_payload
+    if committed_mission.get("schema_version") in {
+        SURVEY_MISSION_CONTROL_SCHEMA_VERSION,
+        TOPIC_MISSION_CONTROL_SCHEMA,
+    }:
+        plan_mission = dict(committed_mission)
+        if plan_mission.get("input_mode") is None:
+            plan_mission["input_mode"] = EXPLICIT_SEED_INPUT_MODE
+        if plan_mission.get("effective_seeds") is None:
+            plan_mission["effective_seeds"] = list(plan_mission.get("seeds") or [])
+        if (
+            plan_mission.get("status") in {"ready_for_local_continuation", "blocked_at_gate"}
+            and isinstance(plan_mission.get("public_discovery_confirmation"), dict)
+            and isinstance(plan_mission["public_discovery_confirmation"].get("confirmed"), bool)
+        ):
+            write_mission_plan(
+                mission_control=plan_mission,
+                next_action=committed_next_action,
+                output_path=Path(plan_mission["output_dir"]) / "mission_plan.json",
+                force=True,
+            )
     public = dict(observation)
     public.update({
-        "status": (committed.mission_control or mission_payload)["status"],
+        "status": committed_mission["status"],
         "mission_id": committed.contract["mission_id"],
         "mission_fingerprint": committed.contract["mission_fingerprint"],
         "generation_id": committed.current_pointer["generation_id"] if committed.current_pointer else None,
-        "next_action": committed.next_action or next_payload,
-        "safe_next_commands": (committed.next_action or next_payload).get("safe_next_commands", []),
+        "next_action": committed_next_action,
+        "safe_next_commands": committed_next_action.get("safe_next_commands", []),
+        "mission_plan_path": (
+            str(Path(committed_mission["output_dir"]) / "mission_plan.json")
+            if (Path(committed_mission["output_dir"]) / "mission_plan.json").is_file()
+            else None
+        ),
         "local_supervisor": supervisor,
     })
     return public
@@ -1909,6 +2009,9 @@ def _observation_from_snapshot(manager: MissionStateManager, output_dir: Path, *
         "public_discovery_confirmation": _public_discovery_confirmation(
             output_dir=output_dir,
             confirmation=snapshot.contract["public_discovery_confirmation"],
+            providers=snapshot.contract["discovery_budget"]["providers"],
+            allowed_domains=snapshot.contract["discovery_budget"]["allowed_domains"],
+            discovery_budget=snapshot.contract["discovery_budget"],
         ),
         "actions": [],
         "next_gate": {"gate_id": "invalid_artifact", "status": code},
@@ -2004,8 +2107,47 @@ def _path_is_within(path: Path, root: Path) -> bool:
     return True
 
 
-def _public_discovery_confirmation(*, output_dir: Path, confirmation: dict[str, Any]) -> dict[str, Any]:
+def _public_discovery_confirmation(
+    *,
+    output_dir: Path,
+    confirmation: dict[str, Any],
+    providers: list[str] | None = None,
+    allowed_domains: list[str] | None = None,
+    discovery_budget: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     confirmed = confirmation["confirmed"]
+    provider_scope = list(PUBLIC_DISCOVERY_DEFAULT_PROVIDERS if providers is None else providers)
+    domain_scope = list(PUBLIC_DISCOVERY_ALLOWED_DOMAINS if allowed_domains is None else allowed_domains)
+    if provider_scope == TOPIC_BOOTSTRAP_PROVIDERS:
+        allowed_actions = ["local_cache_lookup", "bounded_public_openalex_metadata_topic_search"]
+    else:
+        allowed_actions = [
+            "local_cache_lookup",
+            "bounded_public_arxiv_metadata",
+            "public_arxiv_archive_search",
+            "public_arxiv_source_status_lookup",
+            "capped_public_arxiv_source_package_retrieval",
+        ]
+    caps = {
+        "max_metadata_records": PUBLIC_DISCOVERY_MAX_METADATA_RECORDS,
+        "write_root": str(output_dir),
+    }
+    if discovery_budget is not None:
+        caps = {
+            key: value
+            for key, value in discovery_budget.items()
+            if key.startswith("max_metadata_")
+            or key.startswith("max_records_per_metadata_")
+            or key.startswith("max_total_metadata_")
+            or key in {
+                "max_bytes_per_metadata_response",
+                "max_pages_per_query",
+                "max_selected_seeds",
+                "max_total_source_bytes",
+                "max_unique_candidates",
+            }
+        }
+        caps["write_root"] = str(output_dir)
     return {
         "schema_version": SURVEY_PUBLIC_DISCOVERY_CONFIRMATION_SCHEMA_VERSION,
         "confirmed": confirmed,
@@ -2014,19 +2156,10 @@ def _public_discovery_confirmation(*, output_dir: Path, confirmation: dict[str, 
         "confirmation_source": confirmation["confirmation_source"],
         "question": "Do you want RA to search public web/archive sources for this idea or paper?",
         "scope": {
-        "allowed_actions": [
-            "local_cache_lookup",
-            "bounded_public_arxiv_metadata",
-            "public_arxiv_archive_search",
-            "public_arxiv_source_status_lookup",
-            "capped_public_arxiv_source_package_retrieval",
-        ],
-            "providers": PUBLIC_DISCOVERY_DEFAULT_PROVIDERS,
-            "allowed_domains": PUBLIC_DISCOVERY_ALLOWED_DOMAINS,
-            "caps": {
-                "max_metadata_records": PUBLIC_DISCOVERY_MAX_METADATA_RECORDS,
-                "write_root": str(output_dir),
-            },
+        "allowed_actions": allowed_actions,
+            "providers": provider_scope,
+            "allowed_domains": domain_scope,
+            "caps": caps,
             "output_dir": str(output_dir),
             "raw_response_policy": "save normalized metadata only unless a later bounded source artifact explicitly permits more",
         },

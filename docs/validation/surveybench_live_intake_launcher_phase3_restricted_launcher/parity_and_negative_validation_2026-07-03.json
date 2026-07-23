@@ -1,0 +1,228 @@
+{
+  "negative_detector_report": {
+    "cases": {
+      "boundary_leakage": true,
+      "runner_policy": true,
+      "semantic_parity_mismatch": true
+    },
+    "schema_version": "ra-surveybench-restricted-negative-detector-report-v1",
+    "status": "passed"
+  },
+  "nonclaims": [
+    "no real subject launch",
+    "no validated execution-time blindness claim",
+    "no agent reliability claim",
+    "no product readiness claim",
+    "no scientific correctness claim"
+  ],
+  "parity_report": {
+    "profile_id": "neural_ot_seed_ambiguity_partial_frontier_replay",
+    "reports": [
+      {
+        "boundary": {
+          "command_shape": [
+            "-m",
+            "research_assistant.cli",
+            "surveybench",
+            "replay-call"
+          ],
+          "import_closure": [
+            "src/research_assistant/__init__.py",
+            "src/research_assistant/cli.py"
+          ],
+          "no_outside_artifact_access": true,
+          "visible_env_key_set": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "PATH",
+            "PYTHONDONTWRITEBYTECODE",
+            "PYTHONNOUSERSITE",
+            "PYTHONPATH",
+            "TMPDIR",
+            "XDG_CACHE_HOME",
+            "XDG_CONFIG_HOME",
+            "XDG_DATA_HOME"
+          ],
+          "visible_file_set": [
+            ".ra_restricted_workspace_manifest.json",
+            "docs/validation/surveybench_live_intake_launcher_phase3_restricted_launcher/stress_restricted_launcher_prompt_2026-07-03.md",
+            "pyproject.toml",
+            "src/research_assistant/__init__.py",
+            "src/research_assistant/cli.py",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/adjacent.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/citations.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/download_status.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/evidence_context.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/paper.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/references.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/search.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/source_anchors.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/source_status.json"
+          ]
+        },
+        "endpoint": "search",
+        "parity": {
+          "boundary_checks": [
+            "visible_file_set",
+            "visible_env_key_set",
+            "command_shape",
+            "import_closure",
+            "no_outside_artifact_access"
+          ],
+          "mismatches": [],
+          "schema_version": "ra-surveybench-restricted-parity-report-v1",
+          "status": "passed",
+          "tolerated_diffs": [
+            "absolute paths under session/workspace roots",
+            "timestamps if introduced later",
+            "temporary run ids",
+            "same-session sequence offsets",
+            "JSON object key ordering"
+          ]
+        },
+        "runner_status": "passed"
+      },
+      {
+        "boundary": {
+          "command_shape": [
+            "-m",
+            "research_assistant.cli",
+            "surveybench",
+            "replay-call"
+          ],
+          "import_closure": [
+            "src/research_assistant/__init__.py",
+            "src/research_assistant/cli.py"
+          ],
+          "no_outside_artifact_access": true,
+          "visible_env_key_set": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "PATH",
+            "PYTHONDONTWRITEBYTECODE",
+            "PYTHONNOUSERSITE",
+            "PYTHONPATH",
+            "TMPDIR",
+            "XDG_CACHE_HOME",
+            "XDG_CONFIG_HOME",
+            "XDG_DATA_HOME"
+          ],
+          "visible_file_set": [
+            ".ra_restricted_workspace_manifest.json",
+            "docs/validation/surveybench_live_intake_launcher_phase3_restricted_launcher/stress_restricted_launcher_prompt_2026-07-03.md",
+            "pyproject.toml",
+            "src/research_assistant/__init__.py",
+            "src/research_assistant/cli.py",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/adjacent.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/citations.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/download_status.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/evidence_context.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/paper.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/references.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/search.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/source_anchors.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/source_status.json"
+          ]
+        },
+        "endpoint": "citations",
+        "parity": {
+          "boundary_checks": [
+            "visible_file_set",
+            "visible_env_key_set",
+            "command_shape",
+            "import_closure",
+            "no_outside_artifact_access"
+          ],
+          "mismatches": [],
+          "schema_version": "ra-surveybench-restricted-parity-report-v1",
+          "status": "passed",
+          "tolerated_diffs": [
+            "absolute paths under session/workspace roots",
+            "timestamps if introduced later",
+            "temporary run ids",
+            "same-session sequence offsets",
+            "JSON object key ordering"
+          ]
+        },
+        "runner_status": "passed"
+      },
+      {
+        "boundary": {
+          "command_shape": [
+            "-m",
+            "research_assistant.cli",
+            "surveybench",
+            "replay-call"
+          ],
+          "import_closure": [
+            "src/research_assistant/__init__.py",
+            "src/research_assistant/cli.py"
+          ],
+          "no_outside_artifact_access": true,
+          "visible_env_key_set": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "PATH",
+            "PYTHONDONTWRITEBYTECODE",
+            "PYTHONNOUSERSITE",
+            "PYTHONPATH",
+            "TMPDIR",
+            "XDG_CACHE_HOME",
+            "XDG_CONFIG_HOME",
+            "XDG_DATA_HOME"
+          ],
+          "visible_file_set": [
+            ".ra_restricted_workspace_manifest.json",
+            "docs/validation/surveybench_live_intake_launcher_phase3_restricted_launcher/stress_restricted_launcher_prompt_2026-07-03.md",
+            "pyproject.toml",
+            "src/research_assistant/__init__.py",
+            "src/research_assistant/cli.py",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/neural_ot_seed_ambiguity_partial_frontier_replay.task.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/adjacent.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/citations.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/download_status.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/evidence_context.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/paper.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/references.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/search.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/source_anchors.json",
+            "tests/fixtures/surveybench/online_replay/neural_ot_seed_ambiguity_partial_frontier_replay/responses/source_status.json"
+          ]
+        },
+        "endpoint": "source-status",
+        "parity": {
+          "boundary_checks": [
+            "visible_file_set",
+            "visible_env_key_set",
+            "command_shape",
+            "import_closure",
+            "no_outside_artifact_access"
+          ],
+          "mismatches": [],
+          "schema_version": "ra-surveybench-restricted-parity-report-v1",
+          "status": "passed",
+          "tolerated_diffs": [
+            "absolute paths under session/workspace roots",
+            "timestamps if introduced later",
+            "temporary run ids",
+            "same-session sequence offsets",
+            "JSON object key ordering"
+          ]
+        },
+        "runner_status": "passed"
+      }
+    ],
+    "schema_version": "ra-surveybench-restricted-parity-smoke-report-v1",
+    "status": "passed",
+    "task_id": "neural_ot_seed_ambiguity_partial_frontier_replay"
+  },
+  "schema_version": "ra-surveybench-live-intake-launcher-phase3-validation-v1",
+  "status": "passed",
+  "subject_invoked": false,
+  "workspace_root": "/tmp/research_assistant_surveybench_phase3_stress_workspace"
+}

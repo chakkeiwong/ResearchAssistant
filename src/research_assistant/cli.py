@@ -211,8 +211,17 @@ from research_assistant.survey.reviewed_merge import merge_reviewed_evidence
 from research_assistant.survey.reviewed_packet import compose_reviewed_final_packet
 from research_assistant.survey.source_safety_review import import_reviewed_source_safety
 from research_assistant.survey.qualitative_assessment import build_assessment, write_assessment
+from research_assistant.survey.campaign_process import write_process_plan
+from research_assistant.survey.centrality import write_centrality_assessment
+from research_assistant.survey.mission_plan import write_mission_plan_from_root
+from research_assistant.survey.topic_continuation import continue_topic_mission
+from research_assistant.survey.seed_continuation import continue_seed_paper_campaign
+from research_assistant.survey.central_papers import run_central_papers_campaign
+from research_assistant.survey.seed_papers import run_seed_paper_campaign
 from research_assistant.survey.workflow_blocker_review import import_reviewed_workflow_blockers
 from research_assistant.survey.mission_state import MissionStateError
+from research_assistant.survey.document.orchestrator import draft_document
+from research_assistant.survey.literature_review import run_literature_review
 
 
 SURVEY_WRITE_OUTPUT_FIELDS = {
@@ -220,6 +229,15 @@ SURVEY_WRITE_OUTPUT_FIELDS = {
     "anchors": ("out",),
     "packet": ("out",),
     "coverage-ledgers": ("out",),
+    "process-plan": ("out",),
+    "assess-centrality": ("out",),
+    "mission-plan": ("out",),
+    "continue-topic": ("out",),
+    "seed-papers": ("out",),
+    "continue-seeds": ("out",),
+    "central-papers": ("out",),
+    "draft-document": ("out",),
+    "literature-review": ("out",),
     "compose-reviewed-final-packet": ("out",),
     "hostile-review": ("out",),
     "run-public-source-workflow": ("out",),
@@ -645,6 +663,39 @@ def cmd_parser_benchmark_smoke(args: argparse.Namespace) -> int:
     return _print_json(parser_benchmark_smoke(root=Path(args.root) if args.root else None))
 
 
+def _survey_services() -> SurveyServices:
+    return SurveyServices(
+        print_json=_print_json,
+        human_attestation_blocked=_human_attestation_blocked,
+        build_survey_evidence_packet=build_survey_evidence_packet,
+        build_source_anchor_packet=build_source_anchor_packet,
+        compose_public_source_evidence_packet=compose_public_source_evidence_packet,
+        compose_coverage_ledgers=compose_coverage_ledgers,
+        compose_reviewed_final_packet=compose_reviewed_final_packet,
+        run_hostile_review_gate=run_hostile_review_gate,
+        run_public_source_workflow=run_public_source_workflow,
+        import_reviewed_claims=import_reviewed_claims,
+        import_reviewed_source_safety=import_reviewed_source_safety,
+        import_reviewed_omissions=import_reviewed_omissions,
+        import_reviewed_workflow_blockers=import_reviewed_workflow_blockers,
+        merge_reviewed_evidence=merge_reviewed_evidence,
+        prepare_human_review_packet=prepare_human_review_packet,
+        render_human_review_materials=render_human_review_materials,
+        validate_human_attestation=validate_human_attestation,
+        build_assessment=build_assessment,
+        write_assessment=write_assessment,
+        write_process_plan=write_process_plan,
+        write_centrality_assessment=write_centrality_assessment,
+        write_mission_plan_from_root=write_mission_plan_from_root,
+        continue_topic_mission=continue_topic_mission,
+        continue_seed_paper_campaign=continue_seed_paper_campaign,
+        run_seed_paper_campaign=run_seed_paper_campaign,
+        run_central_papers_campaign=run_central_papers_campaign,
+        draft_document=draft_document,
+        run_literature_review=run_literature_review,
+    )
+
+
 def cmd_survey(args: argparse.Namespace) -> int:
     try:
         _guard_survey_write_paths(args)
@@ -663,30 +714,7 @@ def cmd_survey(args: argparse.Namespace) -> int:
             ],
         })
         return 1
-    return execute_survey_action(
-        args,
-        SurveyServices(
-            print_json=_print_json,
-            human_attestation_blocked=_human_attestation_blocked,
-            build_survey_evidence_packet=build_survey_evidence_packet,
-            build_source_anchor_packet=build_source_anchor_packet,
-            compose_public_source_evidence_packet=compose_public_source_evidence_packet,
-            compose_coverage_ledgers=compose_coverage_ledgers,
-            compose_reviewed_final_packet=compose_reviewed_final_packet,
-            run_hostile_review_gate=run_hostile_review_gate,
-            run_public_source_workflow=run_public_source_workflow,
-            import_reviewed_claims=import_reviewed_claims,
-            import_reviewed_source_safety=import_reviewed_source_safety,
-            import_reviewed_omissions=import_reviewed_omissions,
-            import_reviewed_workflow_blockers=import_reviewed_workflow_blockers,
-            merge_reviewed_evidence=merge_reviewed_evidence,
-            prepare_human_review_packet=prepare_human_review_packet,
-            render_human_review_materials=render_human_review_materials,
-            validate_human_attestation=validate_human_attestation,
-            build_assessment=build_assessment,
-            write_assessment=write_assessment,
-        ),
-    )
+    return execute_survey_action(args, _survey_services())
 
 
 def _guard_survey_write_paths(args: argparse.Namespace) -> None:
@@ -704,6 +732,20 @@ def _guard_survey_write_paths(args: argparse.Namespace) -> None:
         metadata_dir = getattr(args, "metadata_dir", None)
         if metadata_dir:
             assert_public_write_path_allowed(Path(metadata_dir))
+        venue_registry = getattr(args, "venue_metrics_registry", None)
+        if venue_registry:
+            lexical_registry = Path(venue_registry).expanduser()
+            if lexical_registry.is_symlink():
+                raise MissionStateError(
+                    "invalid_venue_metrics_registry",
+                    "venue metrics registry must not be a symlink",
+                )
+            registry_path = lexical_registry.resolve(strict=True)
+            if not registry_path.is_file():
+                raise MissionStateError(
+                    "invalid_venue_metrics_registry",
+                    "venue metrics registry must be a regular file",
+                )
 
 
 def _human_attestation_blocked(exc: MissionStateError) -> dict[str, Any]:

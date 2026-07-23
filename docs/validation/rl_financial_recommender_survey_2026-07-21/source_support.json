@@ -1,0 +1,238 @@
+{
+  "audit_date": "2026-07-21",
+  "decision": "partial_primary_source_inspection_blocked_for_final_prose",
+  "local_source_count": 12,
+  "nonclaims": [
+    "literature completeness",
+    "publication or retraction clearance",
+    "product suitability",
+    "scientific superiority"
+  ],
+  "papers": [
+    {
+      "allowed_observations": [
+        "defines core reinforcement-learning and Markov-decision-process concepts",
+        "covers contextual bandits and off-policy learning as foundational material"
+      ],
+      "authors": ["Richard S. Sutton", "Andrew G. Barto"],
+      "checked_anchors": ["Chapter 2", "Chapter 3", "Chapter 5", "Chapter 11", "Chapter 13"],
+      "classification": "FOUNDATIONAL",
+      "forbidden_claims": ["finance-domain evidence", "recommender-system empirical evidence"],
+      "identifier": "isbn:9780262039246",
+      "local_path": ".localresources/rl_financial_recommender/primary/sutton_barto_rl_2018.pdf",
+      "publication_status": "book_second_edition_local_pdf",
+      "sha256": "f1df4739245b64b2411932d76f3f996e687f674cc51040f84f0fb1ff02fb4e4d",
+      "source_safety_status": "pending_external_retraction_or_errata_check",
+      "technical_inspection_status": "inspected",
+      "title": "Reinforcement Learning: An Introduction",
+      "year": 2018
+    },
+    {
+      "allowed_observations": [
+        "formulates fitted Q iteration for a fixed batch of transition tuples",
+        "evaluates tree-based regressors on control benchmarks"
+      ],
+      "authors": ["Damien Ernst", "Pierre Geurts", "Louis Wehenkel"],
+      "checked_anchors": ["Section 2", "Section 3", "Figure 1", "Section 5", "Section 6"],
+      "classification": "FOUNDATIONAL",
+      "forbidden_claims": ["finance-domain validation", "safe deployment"],
+      "identifier": "jmlr:6:503-556",
+      "local_path": ".localresources/rl_financial_recommender/primary/ernst_fitted_q_iteration_2005.pdf",
+      "publication_status": "JMLR_published_version_local_pdf",
+      "sha256": "ad7e51b742883a20b50df3c019d1ebe4a4ec6270a9e51366a3ab4036b24a6083",
+      "source_safety_status": "pending_external_retraction_or_errata_check",
+      "technical_inspection_status": "inspected",
+      "title": "Tree-Based Batch Mode Reinforcement Learning",
+      "year": 2005
+    },
+    {
+      "allowed_observations": [
+        "develops doubly robust evaluation for contextual-bandit policies",
+        "reports experiments on public classification and internet-advertising data"
+      ],
+      "authors": ["Miroslav Dudik", "John Langford", "Lihong Li"],
+      "checked_anchors": ["Section 2", "Theorem 1", "Theorem 2", "Section 5", "Section 6"],
+      "classification": "COMPETITOR",
+      "forbidden_claims": ["sequential-MDP evaluation without additional assumptions", "financial-product validation"],
+      "identifier": "arxiv:1103.4601v2",
+      "local_path": ".localresources/rl_financial_recommender/primary/dudik_doubly_robust_policy_evaluation_2011.pdf",
+      "publication_status": "ICML_2011_author_version_local_pdf",
+      "sha256": "fd0c6570334e8479ba91e0c287a111d90ca145a473c00b8b224b7b47ddf9b010",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Doubly Robust Policy Evaluation and Learning",
+      "year": 2011
+    },
+    {
+      "allowed_observations": [
+        "extends doubly robust off-policy value evaluation to sequential reinforcement learning",
+        "states unbiasedness and variance results under the paper's assumptions"
+      ],
+      "authors": ["Nan Jiang", "Lihong Li"],
+      "checked_anchors": ["Section 3.2", "Section 4", "Theorem 1", "Theorem 2", "Section 6", "Section 7"],
+      "classification": "DIRECT_METHOD",
+      "forbidden_claims": ["guaranteed low variance in every setting", "financial-domain validation"],
+      "identifier": "arxiv:1511.03722v3",
+      "local_path": ".localresources/rl_financial_recommender/primary/jiang_li_doubly_robust_ope_rl_2015.pdf",
+      "publication_status": "ICML_2016_author_version_local_pdf",
+      "sha256": "df2a2a5c0e5eb6545413143ad44ea185bc97d7f08d56d2308263825791e459e9",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Doubly Robust Off-policy Value Evaluation for Reinforcement Learning",
+      "year": 2016
+    },
+    {
+      "allowed_observations": [
+        "derives weighted doubly robust and MAGIC off-policy estimators",
+        "reports MSE comparisons and states behavior-policy, support, and stationarity limitations"
+      ],
+      "authors": ["Philip S. Thomas", "Emma Brunskill"],
+      "checked_anchors": ["Section 4", "Section 5", "experimental results", "Appendix J"],
+      "classification": "DIRECT_METHOD",
+      "forbidden_claims": ["automatic validity when behavior propensities are unknown", "financial-domain validation"],
+      "identifier": "arxiv:1604.00923v1",
+      "local_path": ".localresources/rl_financial_recommender/primary/thomas_brunskill_data_efficient_ope_2016.pdf",
+      "publication_status": "ICML_2016_author_version_local_pdf",
+      "sha256": "7d9c2a48ad85c997c896137529bb10f60a115e6c34912318648e4a64b23947f4",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Data-Efficient Off-Policy Policy Evaluation for Reinforcement Learning",
+      "year": 2016
+    },
+    {
+      "allowed_observations": [
+        "attributes a fixed-batch failure mode to extrapolation error",
+        "proposes the batch-constrained BCQ algorithm and evaluates it on control benchmarks"
+      ],
+      "authors": ["Scott Fujimoto", "David Meger", "Doina Precup"],
+      "checked_anchors": ["Section 3", "Section 4", "Algorithm 1", "Theorem 1", "Theorem 2", "Section 5", "Section 7"],
+      "classification": "DIRECT_METHOD",
+      "forbidden_claims": ["finance-domain performance", "unconditional convergence for deep BCQ"],
+      "identifier": "arxiv:1812.02900v3",
+      "local_path": ".localresources/rl_financial_recommender/primary/fujimoto_bcq_2018.pdf",
+      "publication_status": "ICML_2019_author_version_local_pdf",
+      "sha256": "3c0a3d01b7922b7d73d7bee0d8f0cf21b46df6ea99110378d89f7c1bd45b7011",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Off-Policy Deep Reinforcement Learning without Exploration",
+      "year": 2019
+    },
+    {
+      "allowed_observations": [
+        "proposes conservative Q-learning for offline reinforcement learning",
+        "proves lower-bound properties in stated function classes and reports benchmark experiments"
+      ],
+      "authors": ["Aviral Kumar", "Aurick Zhou", "George Tucker", "Sergey Levine"],
+      "checked_anchors": ["Section 3", "Algorithm 1", "Section 6", "Table 4", "Section 7"],
+      "classification": "DIRECT_METHOD",
+      "forbidden_claims": ["deep-network lower-bound guarantee in every setting", "finance-domain performance"],
+      "identifier": "arxiv:2006.04779v3",
+      "local_path": ".localresources/rl_financial_recommender/primary/kumar_conservative_q_learning_2020.pdf",
+      "publication_status": "NeurIPS_2020_author_version_local_pdf",
+      "sha256": "2bae51a0b45635ab714df39446cd656a9f4f1c503f512d6d0ce1eec3198d1716",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Conservative Q-Learning for Offline Reinforcement Learning",
+      "year": 2020
+    },
+    {
+      "allowed_observations": [
+        "formulates constrained policy optimization for constrained MDPs",
+        "states worst-case performance and constraint bounds under explicit assumptions"
+      ],
+      "authors": ["Joshua Achiam", "David Held", "Aviv Tamar", "Pieter Abbeel"],
+      "checked_anchors": ["Section 3", "Theorem 1", "Proposition 1", "Proposition 2", "Algorithm 1", "Section 8"],
+      "classification": "DIRECT_METHOD",
+      "forbidden_claims": ["financial-regulation compliance", "financial-product suitability", "domain-general empirical safety"],
+      "identifier": "arxiv:1705.10528v1",
+      "local_path": ".localresources/rl_financial_recommender/primary/achiam_constrained_policy_optimization_2017.pdf",
+      "publication_status": "ICML_2017_author_version_local_pdf",
+      "sha256": "3f93760d9b472af5b17f2f4b887950beaaad7fc501962390986857f242549a59",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Constrained Policy Optimization",
+      "year": 2017
+    },
+    {
+      "allowed_observations": [
+        "presents DDPG for continuous action spaces",
+        "reports simulated-control experiments and explicitly lacks nonlinear-function-approximation convergence guarantees"
+      ],
+      "authors": ["Timothy P. Lillicrap", "Jonathan J. Hunt", "Alexander Pritzel", "Nicolas Heess", "Tom Erez", "Yuval Tassa", "David Silver", "Daan Wierstra"],
+      "checked_anchors": ["Section 3", "Algorithm 1", "Section 4", "Section 6"],
+      "classification": "FOUNDATIONAL",
+      "forbidden_claims": ["offline-policy validity", "finance-domain validation"],
+      "identifier": "arxiv:1509.02971v6",
+      "local_path": ".localresources/rl_financial_recommender/primary/lillicrap_ddpg_2015.pdf",
+      "publication_status": "ICLR_2016_author_version_local_pdf",
+      "sha256": "34ef677ecdee8c2a72721c70c7d849191be72af39ac8691a12e8c2979a28feda",
+      "source_safety_status": "pending_external_retraction_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Continuous Control with Deep Reinforcement Learning",
+      "year": 2016
+    },
+    {
+      "allowed_observations": [
+        "surveys offline-RL problem formulations, algorithms, limitations, and application areas",
+        "identifies distribution shift and off-policy evaluation as central concerns"
+      ],
+      "authors": ["Sergey Levine", "Aviral Kumar", "George Tucker", "Justin Fu"],
+      "checked_anchors": ["Section 3", "Section 4", "Section 5", "Section 6", "Section 7"],
+      "classification": "SURVEY_OR_TUTORIAL",
+      "forbidden_claims": ["primary support for methods attributed to other papers", "finance-domain validation"],
+      "identifier": "arxiv:2005.01643v3",
+      "local_path": ".localresources/rl_financial_recommender/primary/levine_offline_rl_tutorial_2020.pdf",
+      "publication_status": "arxiv_tutorial_local_pdf",
+      "sha256": "3c5e18cbf6efeeb129e0b6fc6f2b076c4349291b7d34e5920913744df1411342",
+      "source_safety_status": "pending_external_withdrawal_or_version_check",
+      "technical_inspection_status": "inspected_for_orientation_and_snowballing",
+      "title": "Offline Reinforcement Learning: Tutorial, Review, and Perspectives on Open Problems",
+      "year": 2020
+    },
+    {
+      "allowed_observations": [
+        "applies deep Q-learning to direct-marketing actions and customer-lifetime-value approximation",
+        "reports an observational policy-alignment evaluation on KDD Cup 1998 mailing data"
+      ],
+      "authors": ["Yuriy Tkachenko"],
+      "checked_anchors": ["Section 3", "Section 4", "Section 6", "Table 1", "Section 8"],
+      "classification": "EMPIRICAL_EXAMPLE",
+      "forbidden_claims": ["causal policy improvement", "financial-product recommendation", "production validation"],
+      "identifier": "arxiv:1504.01840v1",
+      "local_path": ".localresources/rl_financial_recommender/primary/tkachenko_crm_clv_deep_rl_2015.pdf",
+      "publication_status": "arxiv_preprint_local_pdf",
+      "sha256": "207a94841e516983adac18648f67f87687e860ef24febf3cc69f08ef1210a989",
+      "source_safety_status": "pending_external_withdrawal_or_version_check",
+      "technical_inspection_status": "inspected",
+      "title": "Autonomous CRM Control via CLV Approximation with Deep Reinforcement Learning in Discrete and Continuous Action Space",
+      "year": 2015
+    },
+    {
+      "allowed_observations": [
+        "formulates credit-card limit adjustment as reinforcement learning with expected-revenue and expected-loss terms",
+        "uses historical financial-product data to build a simulator and reports synthetic policy experiments"
+      ],
+      "authors": ["Victor Alfonso", "Juan M. Sanchez"],
+      "checked_anchors": ["Section 2", "Section 4", "Section 5", "Section 6", "Section 8"],
+      "classification": "DIRECT_METHOD",
+      "forbidden_claims": ["selection among different financial products", "live-policy superiority", "general financial suitability"],
+      "identifier": "doi:10.1016/j.ejor.2023.12.025",
+      "local_path": ".localresources/rl_financial_recommender/primary/alfonso_sanchez_credit_limit_rl_2023.pdf",
+      "publication_status": "published_header_checked_EJOR_315_2_802_817",
+      "sha256": "2c6e7fabf136b7a03a1ed6da581410f90b716afa7392e36bb6577ab50e2073d4",
+      "source_safety_status": "pending_publisher_retraction_and_bibliography_conflict_check",
+      "technical_inspection_status": "inspected",
+      "title": "Credit Card Limit Management Using Reinforcement Learning",
+      "version_conflict": "The PDF header says European Journal of Operational Research 315(2):802-817 and DOI 10.1016/j.ejor.2023.12.025; a prior local bibliography says International Journal of Forecasting 40(1):100-117.",
+      "year": 2024
+    }
+  ],
+  "schema_version": "ra-scholar-audit-source-support-v1",
+  "seed_source_status": {
+    "local_full_text_available": 0,
+    "metadata_only_selected_seeds": 12,
+    "status": "all_automatic_seed_sources_blocked_locally",
+    "technical_claim_support_from_selected_seeds": false
+  },
+  "topic": "Reinforcement learning for recommender systems for financial products and credit cards"
+}

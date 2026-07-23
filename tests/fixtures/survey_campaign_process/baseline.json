@@ -1,0 +1,55 @@
+{
+  "schema_version": "ra-survey-campaign-process-v2",
+  "topic": "Reinforcement learning for recommender systems for financial products and credit cards",
+  "coverage_requirements": [
+    {"cell_id": "direct_product_or_card_recommendation", "label": "Direct product or card recommendation", "priority": 1, "direct_evidence_required": true},
+    {"cell_id": "next_best_offer_or_financial_personalization", "label": "Next-best-offer or financial personalization", "priority": 2, "direct_evidence_required": true},
+    {"cell_id": "contextual_bandit_or_rl_recommender", "label": "Contextual bandit or RL recommender", "priority": 3, "direct_evidence_required": false},
+    {"cell_id": "offline_logged_feedback_evaluation", "label": "Offline or logged-feedback evaluation", "priority": 4, "direct_evidence_required": false},
+    {"cell_id": "safety_fairness_suitability_regulation", "label": "Safety, fairness, suitability, or regulation", "priority": 5, "direct_evidence_required": false},
+    {"cell_id": "foundational_and_high_citation", "label": "Foundational and high-citation methods", "priority": 6, "direct_evidence_required": false},
+    {"cell_id": "competitor_and_recent_negative_evidence", "label": "Competitor and recent or negative evidence", "priority": 7, "direct_evidence_required": false}
+  ],
+  "papers": [
+    {"paper_id": "p01", "title": "Self-supervised reinforcement learning for recommender systems", "state": "CLAIM_MAPPED", "coverage_cells": ["contextual_bandit_or_rl_recommender", "foundational_and_high_citation", "offline_logged_feedback_evaluation"], "roles": ["direct_method", "foundational_or_high_citation"], "selected": true, "source_required": true, "citation_count": 215},
+    {"paper_id": "p02", "title": "Reinforcement learning for slate-based recommender systems", "state": "CLAIM_MAPPED", "coverage_cells": ["contextual_bandit_or_rl_recommender", "foundational_and_high_citation", "offline_logged_feedback_evaluation"], "roles": ["direct_method", "competitor"], "selected": true, "source_required": true, "citation_count": 80},
+    {"paper_id": "p03", "title": "Reinforcement learning recommender system using biclustering", "state": "CLAIM_MAPPED", "coverage_cells": ["contextual_bandit_or_rl_recommender"], "roles": ["direct_method"], "selected": true, "source_required": true, "citation_count": 12},
+    {"paper_id": "p04", "title": "Personalized transaction recommendations in financial institutions", "state": "CLAIM_MAPPED", "coverage_cells": ["next_best_offer_or_financial_personalization", "offline_logged_feedback_evaluation"], "roles": ["adjacent_finance"], "selected": true, "source_required": true, "citation_count": 3},
+    {"paper_id": "p05", "title": "Reinforcement learning for credit-limit control", "state": "CLAIM_MAPPED", "coverage_cells": ["safety_fairness_suitability_regulation"], "roles": ["adjacent_credit_card", "safety_regulation"], "selected": true, "source_required": true, "citation_count": 4},
+    {"paper_id": "p06", "title": "Direct financial product recommendation candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["direct_product_or_card_recommendation"], "roles": ["direct_finance_application"], "selected": true, "source_required": true, "citation_count": 18},
+    {"paper_id": "p07", "title": "Credit card offer recommendation candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["direct_product_or_card_recommendation"], "roles": ["direct_finance_application"], "selected": true, "source_required": true, "citation_count": 11},
+    {"paper_id": "p08", "title": "Contextual bandit competitor candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["competitor_and_recent_negative_evidence"], "roles": ["competitor"], "selected": true, "source_required": true, "citation_count": 39},
+    {"paper_id": "p09", "title": "Recent recommender reassessment candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["competitor_and_recent_negative_evidence"], "roles": ["recent_follow_up"], "selected": true, "source_required": true, "citation_count": 7},
+    {"paper_id": "p10", "title": "Fairness in financial recommendation candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["safety_fairness_suitability_regulation"], "roles": ["safety_regulation"], "selected": true, "source_required": true, "citation_count": 9},
+    {"paper_id": "p11", "title": "Explainable financial recommender candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["safety_fairness_suitability_regulation"], "roles": ["safety_regulation"], "selected": true, "source_required": true, "citation_count": 6},
+    {"paper_id": "p12", "title": "High-citation recommender survey candidate", "state": "SOURCE_BLOCKED", "coverage_cells": ["foundational_and_high_citation"], "roles": ["foundational_or_high_citation"], "selected": true, "source_required": true, "citation_count": 479}
+  ],
+  "source_versions": [
+    {"source_id": "s01", "paper_id": "p01", "source_identifier": "arxiv:p01", "version_relation": "author_preprint", "version_date": "2024-01-01", "publication_date": "2024-02-01", "available": true, "lawful": true, "quarantined": false, "metadata_conflict": false},
+    {"source_id": "s02", "paper_id": "p02", "source_identifier": "arxiv:p02", "version_relation": "author_preprint", "version_date": "2023-01-01", "publication_date": "2023-02-01", "available": true, "lawful": true, "quarantined": false, "metadata_conflict": false},
+    {"source_id": "s03", "paper_id": "p03", "source_identifier": "ceur:p03", "version_relation": "repository_copy", "version_date": "2022-01-01", "publication_date": "2022-02-01", "available": true, "lawful": true, "quarantined": false, "metadata_conflict": false},
+    {"source_id": "s04", "paper_id": "p04", "source_identifier": "arxiv:p04", "version_relation": "author_preprint", "version_date": "2023-01-01", "publication_date": "2023-02-01", "available": true, "lawful": true, "quarantined": false, "metadata_conflict": false},
+    {"source_id": "s05", "paper_id": "p05", "source_identifier": "arxiv:p05", "version_relation": "author_preprint", "version_date": "2021-01-01", "publication_date": "2021-02-01", "available": true, "lawful": true, "quarantined": false, "metadata_conflict": false}
+  ],
+  "inspections": [
+    {"inspection_id": "i01", "paper_id": "p01", "status": "inspected", "technical_anchors": ["algorithm", "experiment"], "inspected_sections": ["method", "evaluation"]},
+    {"inspection_id": "i02", "paper_id": "p02", "status": "inspected", "technical_anchors": ["proposition", "experiment"], "inspected_sections": ["method", "evaluation"]},
+    {"inspection_id": "i03", "paper_id": "p03", "status": "inspected", "technical_anchors": ["algorithm"], "inspected_sections": ["method"]},
+    {"inspection_id": "i04", "paper_id": "p04", "status": "inspected", "technical_anchors": ["experiment"], "inspected_sections": ["method", "limitations"]},
+    {"inspection_id": "i05", "paper_id": "p05", "status": "inspected", "technical_anchors": ["experiment"], "inspected_sections": ["method", "limitations"]}
+  ],
+  "claims": [
+    {"claim_id": "c01", "paper_id": "p01", "support_class": "primary_technical_support", "status": "supported", "source_sections": ["method", "evaluation"]},
+    {"claim_id": "c02", "paper_id": "p02", "support_class": "primary_technical_support", "status": "supported", "source_sections": ["method", "evaluation"]},
+    {"claim_id": "c03", "paper_id": "p03", "support_class": "primary_technical_support", "status": "supported", "source_sections": ["method"]},
+    {"claim_id": "c04", "paper_id": "p04", "support_class": "primary_technical_support", "status": "supported", "source_sections": ["method", "limitations"]},
+    {"claim_id": "c05", "paper_id": "p05", "support_class": "primary_technical_support", "status": "supported", "source_sections": ["method", "limitations"]}
+  ],
+  "citation_relations": [],
+  "omission_risks": [
+    {"risk_id": "r01", "paper_id": "p06", "category": "direct_finance_product_card", "severity": "critical", "status": "open", "must_cite": true, "next_action": "obtain a lawful source or record an explicit omission disposition"},
+    {"risk_id": "r02", "paper_id": "p08", "category": "competitor_coverage", "severity": "high", "status": "open", "must_cite": false, "next_action": "inspect a contextual-bandit competitor"},
+    {"risk_id": "r03", "paper_id": "p09", "category": "recent_negative_evidence", "severity": "high", "status": "open", "must_cite": false, "next_action": "inspect recent or negative evidence"}
+  ],
+  "selection_summary": {"selected_count": 12, "retained_count": 5, "substitution_count": 2, "unreplaced_count": 7}
+}

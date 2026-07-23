@@ -52,8 +52,7 @@ ra survey run-public-source-workflow \
 ```
 
 This records an empty original seed list and stops at the public-discovery
-confirmation. To record the confirmation and observe the currently unavailable
-live topic-bootstrap boundary:
+confirmation. To record the confirmation and run the bounded topic-bootstrap capability:
 
 ```bash
 ra survey run-public-source-workflow \
@@ -63,9 +62,11 @@ ra survey run-public-source-workflow \
   --confirm-public-discovery
 ```
 
-The expected local default outcome is
-`terminal_blocked_bootstrap_unavailable`. That is an honest terminal, not a
-request for a credential and not evidence of live topic-discovery quality.
+The outcome is `selected`, `empty`, `capped`, or
+`terminal_blocked_bootstrap_unavailable` when the bounded provider is
+unavailable. Any result is a metadata-only candidate nomination, not a
+credential request or evidence of technical correctness or live coverage
+quality.
 
 Explicit arXiv seed with local-only evidence skeleton:
 
@@ -99,6 +100,30 @@ ra survey qualitative-assessment \
 
 See `docs/literature_survey_operator_guide.md` before interpreting mission
 states or writing survey prose.
+
+To see the complete bounded workflow and next handoff:
+
+```bash
+ra survey mission-plan --mission-root /tmp/ra-survey-seed
+```
+
+This writes a refreshable `mission_plan.json` under the mission root. It is a
+workflow view only; it does not perform discovery, source acquisition, review,
+or claim promotion.
+
+When a topic mission reports `topic_bootstrap_selected_local_continuation`,
+continue the selected identities into a separate explicit-seed mission:
+
+```bash
+ra survey continue-topic \
+  --mission-root /tmp/ra-survey-topic \
+  --out /tmp/ra-survey-topic-child
+```
+
+The command validates the selected bootstrap authority and writes
+`topic_handoff.json` in the child. The child is still only a nominated-seed
+mission: source resolution, source safety, technical inspection, snowballing,
+claim mapping, human review, hostile review, and release remain separate gates.
 
 ## Share Through Git
 

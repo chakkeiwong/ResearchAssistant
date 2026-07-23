@@ -77,5 +77,6 @@ Local files are written under `local_research/` and `.research-assistant/` in th
 
 For support and safe diagnostic sharing, see `docs/support.md`.
 
-The current survey default is credential-free arXiv-only. OpenAlex, provider
-keys, PDF fallback, and public release are not installation prerequisites.
+The current survey default is credential-free with bounded OpenAlex metadata
+nomination for topic-only missions. Provider keys, PDF fallback, and public
+release are not installation prerequisites.

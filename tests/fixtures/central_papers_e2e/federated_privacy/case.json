@@ -1,0 +1,14 @@
+{
+  "schema_version": "ra-survey-centrality-benchmark-case-v1",
+  "case_id": "federated_privacy_topic_input",
+  "topic_contract_sha256": "975f1fa48120f88d25ad1dbaa05825df7ba9ae3c1c16f3230c03d0a14957ec69",
+  "must_find": [
+    {"paper_id": "arxiv:1602.05629", "required_role": "FOUNDATIONAL", "source_block_allowed": false},
+    {"paper_id": "arxiv:1611.04482", "required_role": "DIRECT_METHOD", "source_block_allowed": false},
+    {"paper_id": "arxiv:1912.04977", "required_role": "SURVEY_OR_TUTORIAL", "source_block_allowed": false}
+  ],
+  "must_reject": ["arxiv:1509.09175"],
+  "required_roles": ["DIRECT_METHOD", "FOUNDATIONAL", "SURVEY_OR_TUTORIAL"],
+  "review_provenance": ["evaluator:source-grounded-centrality:2026-07-22"],
+  "what_is_not_concluded": ["literature completeness", "universal topic recall"]
+}

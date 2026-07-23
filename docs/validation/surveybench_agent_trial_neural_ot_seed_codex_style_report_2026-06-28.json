@@ -1,0 +1,138 @@
+{
+  "actual_dir": "/home/chakwong/research-assistant/tests/fixtures/surveybench/agent_trial/neural_ot_seed_codex_style_output",
+  "diagnostics": {
+    "primary_pass_requires": [
+      "all required node, edge, cluster, candidate, source, anchor, and high-risk omission recall scores equal 1.0",
+      "no structural errors",
+      "no vetoes"
+    ],
+    "required_output_count": 5,
+    "resolved_anchor_count": 4,
+    "scored_against": "actual_dir",
+    "what_is_not_concluded": [
+      "real-world citation coverage",
+      "scientific influence",
+      "literature survey quality",
+      "web search or download capability",
+      "real paper source verification"
+    ]
+  },
+  "errors": [],
+  "fixture": "/home/chakwong/research-assistant/tests/fixtures/surveybench/tasks/neural_ot_seed_synthetic.task.json",
+  "schema_version": "ra-surveybench-report-v1",
+  "scores": {
+    "candidate_ledger": {
+      "duplicate_case_recall": {
+        "actual": 1,
+        "expected": 1,
+        "extra": [],
+        "matched": 1,
+        "missing": [],
+        "score": 1.0
+      },
+      "excluded_false_positive_recall": {
+        "actual": 1,
+        "expected": 1,
+        "extra": [],
+        "matched": 1,
+        "missing": [],
+        "score": 1.0
+      },
+      "included_required_paper_recall": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      }
+    },
+    "citation_map": {
+      "required_cluster_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "required_edge_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "required_node_recall": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      },
+      "source_status_accuracy": {
+        "expected": 8,
+        "matched": 8,
+        "mismatched": [],
+        "nodes_checked": 4,
+        "score": 1.0
+      }
+    },
+    "claim_support": {
+      "claim_count": 4,
+      "forbidden_claim_flags": [
+        "claim_forbidden_dominance"
+      ],
+      "forbidden_claim_hits": [],
+      "supported_claim_anchor_recall": {
+        "actual": 2,
+        "expected": 2,
+        "extra": [],
+        "matched": 2,
+        "missing": [],
+        "score": 1.0
+      },
+      "unsupported_nonforbidden_claims": []
+    },
+    "omission_risk": {
+      "high_severity_required_paper_recall": {
+        "actual": 2,
+        "expected": 2,
+        "extra": [],
+        "matched": 2,
+        "missing": [],
+        "score": 1.0
+      },
+      "high_severity_risk_count": 2
+    },
+    "source_support": {
+      "checked_anchor_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "fixture_status_accuracy": {
+        "expected": 8,
+        "matched": 8,
+        "mismatched": [],
+        "score": 1.0
+      },
+      "source_support_recall": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      }
+    }
+  },
+  "status": "passed",
+  "task_id": "neural_ot_seed_synthetic",
+  "vetoes": []
+}

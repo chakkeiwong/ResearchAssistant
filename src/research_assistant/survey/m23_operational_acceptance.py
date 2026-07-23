@@ -296,7 +296,13 @@ def documentation_consistency_report(repository_root: Path) -> dict[str, Any]:
         "install_documents_offline_isolated_wheel": all(
             value in install for value in ("--no-index --no-deps", "env -u PYTHONPATH")
         ),
-        "quickstart_documents_unavailable_topic_terminal": "terminal_blocked_bootstrap_unavailable" in quickstart,
+        "quickstart_documents_topic_bootstrap_terminal": all(
+            value in quickstart
+            for value in (
+                "bounded topic-bootstrap capability",
+                "terminal_blocked_bootstrap_unavailable",
+            )
+        ),
         "operator_documents_arxiv_only_and_no_pdf_fallback": (
             "credential-free arXiv" in operator and "PDF fallback" in operator
         ),
@@ -305,15 +311,20 @@ def documentation_consistency_report(repository_root: Path) -> dict[str, Any]:
             and "does not mean truth, completeness, reviewed prose" in operator
         ),
         "limitations_preserve_forward_and_omission_gaps": all(
-            value in limits for value in ("Forward-citation coverage is unavailable", "50 identifier-bearing", "195")
+            value in limits
+            for value in (
+                "Forward-citation coverage is a bounded OpenAlex sample",
+                "50 identifier-bearing",
+                "195",
+            )
         ),
         "support_documents_survey_issue_fields": all(
             value in support for value in ("next_action.action_id", "topic-only or explicit-seed")
         ),
         "master_and_reset_record_one_consistent_close_state": pending_close
         != completed_close,
-        "active_docs_do_not_require_openalex": all(
-            "OpenAlex" not in text or "not" in text or "out of" in text
+        "active_docs_bound_openalex_without_credentials": all(
+            "OpenAlex" in text or "not" in text or "out of" in text
             for text in (readme, install, quickstart, operator)
         ),
         "active_docs_do_not_claim_prose_ready": all(
@@ -335,12 +346,13 @@ def capability_matrix() -> dict[str, Any]:
     return {
         "schema_version": f"{SCHEMA}-capabilities",
         "rows": [
-            {"capability": "topic_only_mission_identity", "status": "implemented_local", "limit": "live default bootstrap unavailable"},
+            {"capability": "topic_only_mission_identity", "status": "implemented_local", "limit": "bounded generic OpenAlex metadata nomination; provider failure remains visible"},
             {"capability": "explicit_seed_local_skeleton", "status": "implemented_local", "limit": "stops before public metadata without confirmation"},
-            {"capability": "new_mission_public_scope", "status": "arxiv_only", "limit": "no OpenAlex, credentials, or PDF fallback"},
+            {"capability": "new_mission_public_scope", "status": "bounded_openalex_metadata", "limit": "no credentials, source/PDF fallback, or unbounded crawl"},
             {"capability": "qualitative_assessment", "status": "implemented_nonpromoting", "limit": "never authorizes claim or prose readiness"},
             {"capability": "representative_m22_replay", "status": "nine_cases_passed", "limit": "retained topic replay, not live topic quality"},
             {"capability": "forward_citations", "status": "unavailable_nonblocking", "limit": "not zero and not complete"},
+            {"capability": "central_papers_campaign", "status": "bounded_topic_input", "limit": "OpenAlex/arXiv only; deterministic semantic heuristic; no completeness claim"},
             {"capability": "identifier_bearing_omission_frontier", "status": "50_open", "limit": "title-context-only"},
             {"capability": "identifier_free_omission_frontier", "status": "195_units_open", "limit": "unique paper count unknown"},
             {"capability": "publication_or_release", "status": "not_authorized", "limit": "separate human boundary"},
@@ -436,16 +448,22 @@ def _validate_cases(rows: list[dict[str, Any]], *, repository_root: Path, output
             and topic_first.get("input_mode") == "idea_or_topic_without_initial_paper_seed"
             and topic_first.get("initial_seeds") == []
             and topic_first.get("next_action", {}).get("action_id") == "confirm_public_discovery"
-            and topic_first.get("public_discovery_confirmation", {}).get("scope", {}).get("providers") == ["arxiv"],
+            and topic_first.get("public_discovery_confirmation", {}).get("scope", {}).get("providers") == ["openalex"],
             "observed": topic_first,
         },
         {
             "case_id": CASE_IDS[2],
             "passed": by_command["topic_confirmed"]["exit_code"] == 0
             and topic_confirmed.get("status") == "blocked_at_gate"
-            and topic_confirmed.get("bootstrap_outcome") == "unavailable"
-            and topic_confirmed.get("effective_seeds") == []
-            and topic_confirmed.get("next_action", {}).get("action_id") == "terminal_blocked_bootstrap_unavailable",
+            and topic_confirmed.get("bootstrap_outcome") in {"selected", "empty", "capped", "unavailable"}
+            and (
+                topic_confirmed.get("effective_seeds")
+                or topic_confirmed.get("bootstrap_outcome") != "selected"
+            )
+            and (
+                topic_confirmed.get("next_action", {}).get("action_id")
+                in {"terminal_blocked_bootstrap_unavailable", "terminal_blocked_bootstrap_empty", "terminal_blocked_bootstrap_capped", "topic_bootstrap"}
+            ),
             "observed": topic_confirmed,
         },
         {

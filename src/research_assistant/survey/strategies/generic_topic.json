@@ -1,0 +1,18 @@
+{
+  "profile_id": "generic_topic",
+  "profile_version": 1,
+  "eligibility_policy": "minimum_topic_token_match",
+  "required_topic_groups": {"topic": ["{topic}"]},
+  "selected_seed_cap": 12,
+  "strategy_nonclaims": [
+    "canonical best paper",
+    "literature completeness",
+    "substantive relevance truth",
+    "technical correctness"
+  ],
+  "strata": [
+    {"filter": "title.search:{topic}", "kind": "topic_high_citation", "priority": 1, "purpose": "foundational_or_high_citation", "sort": "cited_by_count:desc"},
+    {"filter": "title.search:{topic}", "kind": "topic_recent", "priority": 2, "purpose": "recent_follow_up", "sort": "publication_date:desc"},
+    {"filter": "title.search:{topic}", "kind": "topic_method", "priority": 3, "purpose": "direct_method", "sort": "cited_by_count:desc"}
+  ]
+}

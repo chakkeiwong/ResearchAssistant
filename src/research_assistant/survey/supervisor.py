@@ -44,6 +44,7 @@ from research_assistant.survey.mission_state import (
     pretty_json_bytes,
 )
 from research_assistant.survey.packet import (
+    OPTIONAL_INPUT_FILES,
     PUBLIC_SOURCE_PACKET_FILES,
     REQUIRED_INPUT_FILES,
     SURVEY_PUBLIC_SOURCE_PACKET_MANIFEST_SCHEMA_VERSION,
@@ -56,6 +57,7 @@ from research_assistant.survey.source_intake import (
     SOURCE_INTAKE_STATUS_SCHEMA,
     validate_mission_source_intake,
 )
+from research_assistant.survey.source_selection import SOURCE_SELECTION_SCHEMA
 
 
 LOCAL_SUPERVISOR_SCHEMA_VERSION = "ra-survey-local-supervisor-v1"
@@ -327,6 +329,19 @@ def validate_public_source_packet_inputs(
                 f"public packet input fields differ from the exact schema: {role}",
             )
         payloads[role] = payload
+    for role, (root_name, file_name) in OPTIONAL_INPUT_FILES.items():
+        root = roots[root_name]
+        path = root / file_name
+        if not path.exists() and not path.is_symlink():
+            continue
+        _assert_no_symlink_chain(root, path)
+        payload = _read_json_object(_regular_file(path, role), label=role)
+        if payload.get("schema_version") != SOURCE_SELECTION_SCHEMA:
+            raise MissionStateError(
+                "invalid_packet_input_schema",
+                f"public packet input has an unsupported schema: {role}",
+            )
+        payloads[role] = payload
     metadata_schema = payloads["metadata_candidate_ledger"].get("schema_version")
     metadata_authority = source_authority.get("metadata_authority")
     if metadata_schema == PUBLIC_METADATA_CANDIDATE_SCHEMA_VERSION:
@@ -399,6 +414,12 @@ def validate_public_source_packet(
         role: roots[root_name] / file_name
         for role, (root_name, file_name) in REQUIRED_INPUT_FILES.items()
     }
+    expected_inputs.update({
+        role: roots[root_name] / file_name
+        for role, (root_name, file_name) in OPTIONAL_INPUT_FILES.items()
+        if (roots[root_name] / file_name).is_file()
+        and not (roots[root_name] / file_name).is_symlink()
+    })
     expected_paths = {role: str(path) for role, path in expected_inputs.items()}
     if manifest.get("input_paths") != expected_paths:
         raise MissionStateError("stale_public_source_packet", "public source packet input paths differ from current roots")

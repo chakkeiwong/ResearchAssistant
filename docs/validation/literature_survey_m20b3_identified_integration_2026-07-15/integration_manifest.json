@@ -1,0 +1,122 @@
+{
+  "schema_version": "ra-literature-survey-m20b3-identified-integration-v1",
+  "status": "passed_identified_install_and_packet_review_m20b4_exact_human_authorization_required",
+  "git": {
+    "commit": "7283a00ea64da2435ffc4ea1987c474389b6a25c",
+    "tree": "321ce60e88f7fe918a813aa0913f948f2d728b3d",
+    "parent": "ad4e2d52ab9df7198547b3cb98d8acbd1b9680a5",
+    "parent_count": 1,
+    "changed_path_count": 61,
+    "payload_manifest": "docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/payload_manifest.json",
+    "payload_allowlist_exact": true,
+    "protected_path_overlap": false
+  },
+  "isolated_clone": {
+    "path": "/tmp/research-assistant-m20b3-7283a00e",
+    "commit": "7283a00ea64da2435ffc4ea1987c474389b6a25c",
+    "tree": "321ce60e88f7fe918a813aa0913f948f2d728b3d",
+    "clean_before_build": true,
+    "build_command": "env -u OPENALEX_API_KEY CUDA_VISIBLE_DEVICES=-1 python -m build --wheel --no-isolation",
+    "network_used": false
+  },
+  "wheel": {
+    "path": "docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/artifacts/research_assistant-0.1.0-py3-none-any.whl",
+    "sha256": "f871620f5bde6c7aad073fe2b8b83dcaeb73c01d3758bf7cb64fe9240e922b34",
+    "size_bytes": 486380,
+    "member_count": 99,
+    "member_uncompressed_bytes": 2330964,
+    "build_isolation": false,
+    "dependency_download": false
+  },
+  "installed_member_manifest": {
+    "path": "docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/artifacts/installed_member_manifest.json",
+    "sha256": "641469d7b4e7ea16cd09551c46a4f0a84dabfdf6e652bec6fe4187cf8a508518",
+    "install_root": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages",
+    "install_method": "direct wheel-member extraction into a fresh venv created without pip",
+    "wheel_member_count": 99,
+    "installed_member_count": 99,
+    "complete_member_set_equality": true,
+    "byte_for_byte_equality": true
+  },
+  "runtime_modules": {
+    "research_assistant.survey.discovery_capability": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/discovery_capability.py",
+      "sha256": "317929ad18e933380efda3d9f4e11895389365953f88d65a41fe1215d42ce464"
+    },
+    "research_assistant.survey.m20_live_supervisor": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/m20_live_supervisor.py",
+      "sha256": "96890d38f984bb579fdcc79eff1487dd39925a198d5d955980099a6ba7a30fb6"
+    },
+    "research_assistant.survey.m20_live_worker": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/m20_live_worker.py",
+      "sha256": "ef873948aa3c61dea87a82a0af9d85154f7e8a2762961c4274dc941da1129157"
+    },
+    "research_assistant.survey.openalex_adapter": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/openalex_adapter.py",
+      "sha256": "e079e50a5e6024eda3425393816ecfe75e05608a1e8c99890648af3c28ffd31e"
+    },
+    "research_assistant.survey.openalex_credential_cost": {
+      "origin": "/tmp/research-assistant-m20b3-install-7283a00e/venv/lib/python3.11/site-packages/research_assistant/survey/openalex_credential_cost.py",
+      "sha256": "9fe8f51937589c07d2cfe2e03807f96834f42e14fdadde56c5b6da1423717a8c"
+    }
+  },
+  "installed_synthetic_validation": {
+    "path": "docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/artifacts/installed_synthetic_validation.json",
+    "sha256": "e7bfcee324c3d0c318da7b95cd4e02ccffddbf8e8d63697abc23fc8d5380c58a",
+    "status": "passed",
+    "scenario_count": 11,
+    "network_used": false,
+    "real_credential_accessed": false,
+    "reserved_cost_usd": "0.0011",
+    "reconciled_cost_usd": "0.0011",
+    "campaign_cost_cap_usd": "0.01",
+    "canary_prefix_matches": 0
+  },
+  "packet": {
+    "path": "docs/validation/literature_survey_m20b3_identified_integration_2026-07-15/m20b4_live_packet.json",
+    "file_sha256": "c3e250b05e2d11ac7c0281aeaa00b467a3b9e7eb90ee1da68d729dfdbfad77ce",
+    "contract_sha256": "475b15f8e3af79447608616232984744cedca53da59a90642754c5644213dfda",
+    "installed_preflight": "passed",
+    "live_root_absent": true,
+    "credential_lookup_during_preflight": false,
+    "executed": false,
+    "review_status": "agreed",
+    "review_verdict": "docs/reviews/literature_survey_north_star_m20b3_exact_packet_review_verdict_2026-07-15.md"
+  },
+  "local_checks": {
+    "source_tree_focused_worker_tests": "54 passed",
+    "source_tree_cumulative_m20_tests": "227 passed",
+    "staged_snapshot_tests": "232 passed",
+    "isolated_retained_m19_m20_tests": "288 passed",
+    "isolated_affected_m16_m17_cli_tests": "977 passed in 1315.14s",
+    "compile_json_diff_hygiene": "passed",
+    "installed_module_origin_and_hash_check": "passed",
+    "installed_packet_preflight": "passed",
+    "exact_packet_review": "AGREE"
+  },
+  "non_evidence_attempts": [
+    {
+      "attempt": "pipless installed interpreter invoking pytest",
+      "result": "failed before collection because the intentionally pipless venv has no pytest",
+      "classification": "tooling_mismatch_non_evidence"
+    },
+    {
+      "attempt": "host pytest against installed site-packages and source-tree supervisor tests",
+      "result": "worker tests passed; supervisor fixture failed because its helper hardcodes the checkout src root as its synthetic install root",
+      "classification": "source_specific_test_fixture_mismatch_non_evidence"
+    },
+    {
+      "attempt": "retained-suite command naming excluded historical M20B1 test paths",
+      "result": "stopped before test execution because the named historical paths were intentionally absent from the isolated retained payload",
+      "classification": "command_path_mismatch_non_evidence"
+    }
+  ],
+  "boundaries": {
+    "real_credential_inspected_or_used": false,
+    "provider_or_other_network_call": false,
+    "m20b4_authorized": false,
+    "source_pdf_or_full_text_access": false,
+    "push_or_release": false,
+    "m20_or_north_star_completion_claimed": false
+  }
+}

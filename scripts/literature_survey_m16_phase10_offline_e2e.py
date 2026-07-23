@@ -768,7 +768,7 @@ def _case_missing_confirmation(root: Path) -> dict[str, Any]:
     observed = {"return_code": result.return_code, "status": supervisor.get("status"), "action": supervisor.get("terminal_action_id"), "reason": supervisor.get("terminal_reason")}
     descendants = _forbidden_descendants(mission)
     passed = observed == expected and not any(descendants.values()) and sum(wires.as_dict().values()) == 0
-    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "next_action.json", "offline_skeleton"), passed=passed, extra={"forbidden_descendants": descendants, "mission_tree": _tree(mission)})
+    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "mission_plan.json", "next_action.json", "offline_skeleton"), passed=passed, extra={"forbidden_descendants": descendants, "mission_tree": _tree(mission)})
 
 
 def _case_identity(root: Path, *, changed_topic: bool) -> dict[str, Any]:
@@ -799,7 +799,7 @@ def _case_open_omission(root: Path) -> dict[str, Any]:
     observed = {"return_code": result.return_code, "status": supervisor.get("status"), "action": supervisor.get("terminal_action_id"), "reason": supervisor.get("terminal_reason")}
     descendants = _forbidden_descendants(mission)
     passed = observed == expected and descendants["reviewed_merge"] and not descendants["reviewed_packet"] and not descendants["hostile_result"] and sum(wires.as_dict().values()) == 0
-    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "next_action.json", "reviewed_evidence"), passed=passed, extra={"forbidden_descendants": descendants})
+    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "mission_plan.json", "next_action.json", "reviewed_evidence"), passed=passed, extra={"forbidden_descendants": descendants})
 
 
 def _case_missing_workflow(root: Path) -> dict[str, Any]:
@@ -814,7 +814,7 @@ def _case_missing_workflow(root: Path) -> dict[str, Any]:
     observed = {"return_code": result.return_code, "status": supervisor.get("status"), "action": supervisor.get("terminal_action_id"), "reason": supervisor.get("terminal_reason")}
     descendants = _forbidden_descendants(mission)
     passed = observed == expected and not any(descendants.values()) and sum(wires.as_dict().values()) == 0
-    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "next_action.json"), passed=passed, extra={"forbidden_descendants": descendants})
+    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "mission_plan.json", "next_action.json"), passed=passed, extra={"forbidden_descendants": descendants})
 
 
 def _case_noncanonical_root(root: Path) -> dict[str, Any]:
@@ -833,7 +833,7 @@ def _case_noncanonical_root(root: Path) -> dict[str, Any]:
     observed = {"return_code": result.return_code, "status": supervisor.get("status"), "action": supervisor.get("terminal_action_id"), "reason": supervisor.get("terminal_reason")}
     descendants = _forbidden_descendants(mission)
     passed = observed == expected and not any(descendants.values()) and sum(wires.as_dict().values()) == 0
-    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "next_action.json"), passed=passed, extra={"forbidden_descendants": descendants, "external_tree": _tree(external)})
+    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "mission_plan.json", "next_action.json"), passed=passed, extra={"forbidden_descendants": descendants, "external_tree": _tree(external)})
 
 
 def _case_malformed_merge(root: Path) -> dict[str, Any]:
@@ -851,7 +851,7 @@ def _case_malformed_merge(root: Path) -> dict[str, Any]:
     observed = {"return_code": result.return_code, "status": supervisor.get("status"), "action": supervisor.get("terminal_action_id"), "reason": supervisor.get("terminal_reason")}
     descendants = _forbidden_descendants(mission)
     passed = observed == expected and not descendants["reviewed_packet"] and not descendants["hostile_result"] and sum(wires.as_dict().values()) == 0
-    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "next_action.json"), passed=passed, extra={"forbidden_descendants": descendants})
+    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "mission_plan.json", "next_action.json"), passed=passed, extra={"forbidden_descendants": descendants})
 
 
 def _case_symlinked_packet(root: Path) -> dict[str, Any]:
@@ -888,7 +888,7 @@ def _case_symlinked_packet(root: Path) -> dict[str, Any]:
         and not descendants["readiness_view"]
         and sum(wires.as_dict().values()) == 0
     )
-    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "next_action.json"), passed=passed, extra={"outside_unchanged": outside.read_bytes() == before, "forbidden_descendants": descendants})
+    return _record_negative(root, expected=expected, observed=observed, tripwires=wires, setup_tripwires=setup["setup_tripwires"], authority_before=authority_before, mission_tree_before=mission_tree_before, allowed_changed_prefixes=(".mission_state", "mission_control.json", "mission_plan.json", "next_action.json"), passed=passed, extra={"outside_unchanged": outside.read_bytes() == before, "forbidden_descendants": descendants})
 
 
 def _case_upstream_change(root: Path) -> dict[str, Any]:

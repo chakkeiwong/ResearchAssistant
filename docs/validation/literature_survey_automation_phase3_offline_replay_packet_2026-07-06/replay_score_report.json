@@ -1,0 +1,256 @@
+{
+  "actual_dir": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase3_offline_replay_packet_2026-07-06",
+  "diagnostics": {
+    "metric_split": {
+      "citation_map_layers": {
+        "adjacent_cluster_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        },
+        "adjacent_method_edge_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        },
+        "backward_lineage_cluster_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        },
+        "backward_lineage_edge_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        },
+        "forward_citation_edge_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        },
+        "forward_method_cluster_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        }
+      },
+      "frontier": {
+        "partial_frontier_omission_recall": {
+          "actual": 0,
+          "expected": 0,
+          "extra": [],
+          "matched": 0,
+          "missing": [],
+          "score": 1.0
+        }
+      },
+      "proxy_metric_boundaries": [
+        "typed fixture recall is not proof of survey completeness",
+        "source-depth status is not proof of technical inspection unless checked anchors are present",
+        "offline fixture diagnostics are not live-web coverage or current citation counts"
+      ],
+      "seed_identity": {
+        "duplicate_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        }
+      },
+      "source_depth": {
+        "checked_anchor_paper_recall": {
+          "actual": 1,
+          "expected": 1,
+          "extra": [],
+          "matched": 1,
+          "missing": [],
+          "score": 1.0
+        },
+        "metadata_or_blocked_without_anchor_count": 3,
+        "source_depth_status_accuracy": {
+          "actual": 4,
+          "expected": 4,
+          "extra": [],
+          "matched": 4,
+          "missing": [],
+          "score": 1.0
+        }
+      }
+    },
+    "required_packet_files": [
+      "candidate_ledger.json",
+      "citation_map.json",
+      "source_support.json",
+      "claim_support.json",
+      "omission_risk.json"
+    ],
+    "required_workflow_endpoints": [
+      "search",
+      "references",
+      "citations",
+      "adjacent",
+      "download-status",
+      "source-anchors"
+    ],
+    "what_is_not_concluded": [
+      "live web coverage",
+      "real Neural OT completeness",
+      "survey prose quality",
+      "scientific priority",
+      "production readiness"
+    ]
+  },
+  "errors": [],
+  "event_log_path": "/home/chakwong/research-assistant/docs/validation/literature_survey_automation_phase3_offline_replay_session_2026-07-06/event_log.json",
+  "gold_dir": "/home/chakwong/research-assistant/tests/fixtures/surveybench/online_replay/neural_ot_seed_replay/scorer_packet",
+  "schema_version": "ra-surveybench-online-replay-score-report-v1",
+  "scores": {
+    "candidate_ledger": {
+      "duplicate_recall": {
+        "actual": 1,
+        "expected": 1,
+        "extra": [],
+        "matched": 1,
+        "missing": [],
+        "score": 1.0
+      },
+      "excluded_recall": {
+        "actual": 2,
+        "expected": 2,
+        "extra": [],
+        "matched": 2,
+        "missing": [],
+        "score": 1.0
+      },
+      "included_recall": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      }
+    },
+    "citation_map": {
+      "cluster_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "edge_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "node_recall": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      }
+    },
+    "claim_support": {
+      "claim_count": 4,
+      "claim_laundering_hits": [],
+      "forbidden_claim_hits": [],
+      "nonclaim_rows_in_claims": [],
+      "supported_claim_anchor_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "unsupported_nonforbidden_claims": []
+    },
+    "event_log": {
+      "blocked_budget_count": 0,
+      "event_count": 6,
+      "final_budget": {
+        "endpoint_calls": 18,
+        "paper_detail_calls": 12,
+        "returned_records": 58,
+        "source_anchor_calls": 4,
+        "submit_or_score_attempts": 2
+      },
+      "hidden_gold_access_count": 0,
+      "required_call_recall": {
+        "actual": 6,
+        "expected": 6,
+        "extra": [],
+        "matched": 6,
+        "missing": [],
+        "score": 1.0
+      }
+    },
+    "omission_risk": {
+      "high_severity_recall": {
+        "actual": 2,
+        "expected": 2,
+        "extra": [],
+        "matched": 2,
+        "missing": [],
+        "score": 1.0
+      }
+    },
+    "source_support": {
+      "anchor_recall": {
+        "actual": 3,
+        "expected": 3,
+        "extra": [],
+        "matched": 3,
+        "missing": [],
+        "score": 1.0
+      },
+      "paper_recall": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      },
+      "status_accuracy": {
+        "actual": 4,
+        "expected": 4,
+        "extra": [],
+        "matched": 4,
+        "missing": [],
+        "score": 1.0
+      }
+    }
+  },
+  "status": "passed",
+  "task_id": "neural_ot_seed_replay",
+  "task_path": "/home/chakwong/research-assistant/tests/fixtures/surveybench/online_replay/neural_ot_seed_replay/neural_ot_seed_replay.task.json",
+  "vetoes": []
+}

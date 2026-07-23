@@ -1,0 +1,13 @@
+{
+  "schema_version": "ra-survey-centrality-benchmark-case-v1",
+  "case_id": "particle_filtering_topic_input",
+  "topic_contract_sha256": "0f2eea2d26b5841fdfaedd02e23a877336f2a192fabe77fa056d6dbca950964d",
+  "must_find": [
+    {"paper_id": "arxiv:0805.3034", "required_role": "FOUNDATIONAL", "source_block_allowed": true},
+    {"paper_id": "arxiv:1509.09175", "required_role": "DIRECT_METHOD", "source_block_allowed": false}
+  ],
+  "must_reject": ["arxiv:2201.12220"],
+  "required_roles": ["DIRECT_METHOD", "FOUNDATIONAL"],
+  "review_provenance": ["evaluator:source-grounded-centrality:2026-07-22"],
+  "what_is_not_concluded": ["literature completeness", "universal topic recall"]
+}

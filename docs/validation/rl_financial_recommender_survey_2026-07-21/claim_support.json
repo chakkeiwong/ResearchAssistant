@@ -1,0 +1,104 @@
+{
+  "claims": [
+    {
+      "claim": "A financial-product recommender can be represented as a sequential decision problem only after states, actions, rewards, transitions, and available information are specified.",
+      "claim_id": "c01_sequential_formulation",
+      "limits": "This formalism does not prove that the chosen state is Markov-sufficient or that an RL policy is preferable.",
+      "sources": [
+        {"anchor": "Sutton and Barto, Chapter 3", "identifier": "isbn:9780262039246"},
+        {"anchor": "Alfonso and Sanchez, Section 4", "identifier": "doi:10.1016/j.ejor.2023.12.025"}
+      ],
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "status": "provisional_pending_source_safety"
+    },
+    {
+      "claim": "Offline evaluation is central when online experimentation is costly or unsafe, but logged-data methods require explicit support, behavior-policy, model, and stationarity assumptions.",
+      "claim_id": "c02_offline_evaluation",
+      "limits": "No inspected source establishes that the available finance logs satisfy these assumptions.",
+      "sources": [
+        {"anchor": "Jiang and Li, Sections 3-4 and Theorem 1", "identifier": "arxiv:1511.03722v3"},
+        {"anchor": "Thomas and Brunskill, Sections 4-5 and Appendix J", "identifier": "arxiv:1604.00923v1"}
+      ],
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "status": "provisional_pending_source_safety"
+    },
+    {
+      "claim": "Naively applying off-policy value learning to a fixed batch can fail because learned policies choose state-action regions poorly represented in the data.",
+      "claim_id": "c03_distribution_shift",
+      "limits": "BCQ and CQL benchmark evidence is not finance-domain validation.",
+      "sources": [
+        {"anchor": "Fujimoto et al., Sections 3-5", "identifier": "arxiv:1812.02900v3"},
+        {"anchor": "Kumar et al., Sections 3, 6, and 7", "identifier": "arxiv:2006.04779v3"}
+      ],
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "status": "provisional_pending_source_safety"
+    },
+    {
+      "claim": "Constraint-aware RL methods can encode cost constraints, but a constrained-MDP algorithm does not by itself establish financial regulation, fairness, suitability, or consumer-protection compliance.",
+      "claim_id": "c04_constraints_not_compliance",
+      "limits": "The inspected experiments are simulated control tasks, not financial products.",
+      "sources": [
+        {"anchor": "Achiam et al., Section 3, Propositions 1-2, Algorithm 1, Section 8", "identifier": "arxiv:1705.10528v1"}
+      ],
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "status": "provisional_pending_source_safety"
+    },
+    {
+      "claim": "The inspected direct credit-card study optimizes whether to increase an existing card's credit limit; it does not choose which product or card to recommend.",
+      "claim_id": "c05_credit_limit_scope",
+      "limits": "The reported policy comparison is simulator-based and synthetic, not live causal deployment evidence.",
+      "sources": [
+        {"anchor": "Alfonso and Sanchez, Sections 4-6 and Section 8", "identifier": "doi:10.1016/j.ejor.2023.12.025"}
+      ],
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "status": "provisional_pending_source_safety_and_version_resolution"
+    },
+    {
+      "claim": "The inspected CRM study applies deep Q-learning to direct-marketing actions and CLV approximation, but its policy-alignment analysis does not establish causal policy improvement.",
+      "claim_id": "c06_crm_evaluation_limit",
+      "limits": "The study uses KDD Cup 1998 mailing data and reports final evaluation on the full data set; it is not financial-product recommendation evidence.",
+      "sources": [
+        {"anchor": "Tkachenko, Sections 4, 6, and 8", "identifier": "arxiv:1504.01840v1"}
+      ],
+      "support_class": "PRIMARY_TECHNICAL_SUPPORT",
+      "status": "provisional_pending_source_safety"
+    },
+    {
+      "claim": "The metadata campaign nominates widely cited generic RL-recommender papers and one direct finance-title paper, but metadata alone does not establish technical relevance or correctness.",
+      "claim_id": "c07_metadata_priority_only",
+      "limits": "Citation counts are mutable OpenAlex observations dated 2026-07-21 and all selected seed sources remain locally blocked.",
+      "sources": [
+        {"anchor": "successful attempt 3 selected_candidates and descriptive fields", "identifier": "artifact:attempt3"}
+      ],
+      "support_class": "IMPLEMENTATION_EVIDENCE",
+      "status": "supported_as_metadata_behavior_only"
+    },
+    {
+      "claim": "The campaign prioritized papers from verified high-impact-factor journals.",
+      "claim_id": "c08_high_impact_priority",
+      "limits": "No verified impact-factor values were supplied.",
+      "sources": [],
+      "support_class": "SOURCE_GAP_BLOCKER",
+      "status": "unsupported"
+    },
+    {
+      "claim": "The survey covers the important recent and citing literature.",
+      "claim_id": "c09_forward_coverage",
+      "limits": "Forward snowballing was not run after the campaign budget was exhausted.",
+      "sources": [],
+      "support_class": "SOURCE_GAP_BLOCKER",
+      "status": "unsupported"
+    },
+    {
+      "claim": "RL improves financial-product recommendation relative to contextual bandits or non-RL recommenders.",
+      "claim_id": "c10_superiority",
+      "limits": "No domain-matched comparative experiment with uncertainty support was inspected.",
+      "sources": [],
+      "support_class": "SOURCE_GAP_BLOCKER",
+      "status": "unsupported"
+    }
+  ],
+  "schema_version": "ra-scholar-audit-claim-support-v1",
+  "status": "scoped_claim_map_with_blockers",
+  "topic": "Reinforcement learning for recommender systems for financial products and credit cards"
+}

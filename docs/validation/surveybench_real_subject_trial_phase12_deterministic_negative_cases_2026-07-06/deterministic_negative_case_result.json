@@ -1,0 +1,101 @@
+{
+  "baseline_packet_dir": "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_packet",
+  "case_count": 6,
+  "cases": [
+    {
+      "case_id": "omit_forward_citation_edge",
+      "description": "Remove the forward citation edge from the citation map.",
+      "details": [
+        "scores.citation_map.edge_recall.score=0.6666666666666666",
+        "status=failed"
+      ],
+      "expected_signal_observed": true,
+      "packet_dir": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/packets/omit_forward_citation_edge",
+      "score_report_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/omit_forward_citation_edge_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "omit_adjacent_cluster",
+      "description": "Remove the adjacent method node, edge, and cluster.",
+      "details": [
+        "diagnostics.metric_split.citation_map_layers.adjacent_cluster_recall.score=0.0",
+        "status=failed"
+      ],
+      "expected_signal_observed": true,
+      "packet_dir": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/packets/omit_adjacent_cluster",
+      "score_report_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/omit_adjacent_cluster_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "omit_forward_frontier_risk",
+      "description": "Remove the high-severity partial forward-frontier omission risk.",
+      "details": [
+        "diagnostics.metric_split.frontier.partial_frontier_omission_recall.score=0.0",
+        "status=failed"
+      ],
+      "expected_signal_observed": true,
+      "packet_dir": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/packets/omit_forward_frontier_risk",
+      "score_report_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/omit_forward_frontier_risk_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "overclaim_blocked_source_status",
+      "description": "Mark a blocked metadata-only citation source as downloaded and checked.",
+      "details": [
+        "scores.source_support.status_accuracy.score=0.8333333333333334",
+        "status=failed"
+      ],
+      "expected_signal_observed": true,
+      "packet_dir": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/packets/overclaim_blocked_source_status",
+      "score_report_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/overclaim_blocked_source_status_score_report.json",
+      "score_status": "failed",
+      "vetoes": []
+    },
+    {
+      "case_id": "metadata_only_claim_support",
+      "description": "Strip anchors and downgrade a supported graph claim to metadata-only support.",
+      "details": [
+        "vetoes=['unsupported_technical_claim']",
+        "status=failed",
+        "scores.claim_support.unsupported_nonforbidden_claims=['claim_forward_citation_replay']"
+      ],
+      "expected_signal_observed": true,
+      "packet_dir": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/packets/metadata_only_claim_support",
+      "score_report_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/metadata_only_claim_support_score_report.json",
+      "score_status": "failed",
+      "vetoes": [
+        "unsupported_technical_claim"
+      ]
+    },
+    {
+      "case_id": "false_completeness_claim",
+      "description": "Add a supported dominance/completeness-style forbidden claim.",
+      "details": [
+        "vetoes=['forbidden_claim']",
+        "status=failed",
+        "scores.claim_support.forbidden_claim_hits=['negative_false_complete_coverage']"
+      ],
+      "expected_signal_observed": true,
+      "packet_dir": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/packets/false_completeness_claim",
+      "score_report_path": "/home/chakwong/research-assistant/docs/validation/surveybench_real_subject_trial_phase12_deterministic_negative_cases_2026-07-06/false_completeness_claim_score_report.json",
+      "score_status": "failed",
+      "vetoes": [
+        "forbidden_claim"
+      ]
+    }
+  ],
+  "event_log_path": "/tmp/research_assistant_surveybench_phase9_codex_probe_workspace/phase11_local_subject_session/event_log.json",
+  "not_a_real_subject_trial": true,
+  "schema_version": "ra-surveybench-phase12-deterministic-negative-case-result-v1",
+  "status": "passed",
+  "what_is_not_concluded": [
+    "real model-agent reliability",
+    "live web coverage",
+    "survey prose quality",
+    "scientific correctness",
+    "product readiness"
+  ]
+}
