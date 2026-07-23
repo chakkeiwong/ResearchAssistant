@@ -269,17 +269,23 @@ This makes collaboration possible without pretending that Git solves semantic
 research disagreement. Merge conflicts and accepted-audit conflicts remain human
 review events.
 
-\chapter{How It Fits Into Current Assistant Workflows}
+\chapter{How A Real Assistant Conversation Works}
 
-The package is best understood as a local research memory and evidence layer that
-complements coding assistants.
+The most persuasive way to understand the package is not to read a command list.
+It is to imagine what a colleague would actually type after the MCP is installed,
+and what the assistant should do in response.
 
-\section{Claude Code and terminal workflows}
+The package is valuable because those conversations are not just generic chat.
+They are grounded in a local, inspectable research workspace. When a user asks
+for a paper audit, a trusted export, or a safe Git-sharing check, the assistant
+should trigger documented package capabilities that preserve provenance, surface
+uncertainty, and keep human review visible.
 
-The strongest fit today is a researcher who already uses Claude Code or ordinary
-terminal workflows. In that setting, the package provides durable local context:
-structured summaries, source records, review state, discovery output, trusted
-exports, and linkage artifacts that survive beyond a single assistant session.
+This chapter therefore shows prompt-to-capability behavior rather than a magical
+black box. The examples below are grounded in the documented workflows in the
+repository. They show the kinds of requests a colleague could realistically make,
+what tool or command sequence those requests should trigger, and what sort of
+result the user should expect.
 
 \section{Local MCP adapter for assistant clients}
 
@@ -335,22 +341,418 @@ recorded, and a duplicate rerun skipped the existing file without overwrite. Tha
 is enough for a local pilot to include the CLI path, but it is not evidence for
 large routine PDF batch defaults and it does not enable an MCP PDF tool.
 
-\section{Why this is better than assistant-only memory}
+\section{Prompt patterns and the documented behavior they should trigger}
 
-Assistant conversations are helpful, but they are not automatically the canonical
-research record. A local package helps when the user wants:
+\subsection{Local setup, demo, privacy, and diagnostics}
+
+\textbf{Prompt:} ``Initialize a workspace for me here.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra init
+\end{lstlisting}
+
+\textbf{Why this fits:} the workspace must exist before any research action.
+
+\textbf{Review boundary:} low; the user should still inspect the workspace root.
+
+\textbf{Prompt:} ``Show me whether this install is healthy.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra doctor
+ra doctor --matrix
+\end{lstlisting}
+
+\textbf{Why this fits:} these commands surface local readiness, optional tools,
+and workflow limits.
+
+\textbf{Review boundary:} low; diagnostics are informative, not approval.
+
+\textbf{Prompt:} ``Run the safest first-use demo.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra --root /tmp/research-assistant-demo demo setup
+ra --root /tmp/research-assistant-demo demo run
+\end{lstlisting}
+
+\textbf{Why this fits:} the demo gives a deterministic, non-sensitive first
+experience before a real paper is involved.
+
+\textbf{Review boundary:} no research judgment required.
+
+\textbf{Prompt:} ``Tell me whether the privacy defaults are still safe.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra privacy status
+\end{lstlisting}
+
+\textbf{Why this fits:} it confirms the offline/provider-disabled posture before
+real use.
+
+\textbf{Review boundary:} low; the user still decides whether the posture is
+sufficient.
+
+\subsection{Parser readiness and capability checks}
+
+\textbf{Prompt:} ``Check parser readiness before I trust a PDF workflow.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra doctor --matrix
+ra parser-tool-matrix
+\end{lstlisting}
+
+\textbf{Why this fits:} these commands surface local tool availability and
+workflow capability limits before ingest.
+
+\textbf{Review boundary:} yes; the user decides whether fallback quality is
+acceptable.
+
+\textbf{Prompt:} ``Benchmark parser behavior quickly before I rely on
+extraction.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra parser-benchmark-smoke
+\end{lstlisting}
+
+\textbf{Why this fits:} it provides a bounded fixture-level smoke check rather
+than pretending certification.
+
+\textbf{Review boundary:} yes; the result is still a capability signal, not
+proof of parser accuracy.
+
+\subsection{Source-first paper audit and PDF fallback}
+
+\textbf{Prompt:} ``Use source-first extraction for this arXiv paper.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra ingest --arxiv-id ... --query "..."
+ra source-fetch --arxiv-id ...
+ra source-show --paper-id ...
+ra source-sections --paper-id ...
+ra source-equations --paper-id ...
+\end{lstlisting}
+
+\textbf{Why this fits:} for mathematical audit, source is the higher-trust
+substrate when available.
+
+\textbf{Review boundary:} yes; source artifacts are still evidence, not proof.
+
+\textbf{Prompt:} ``I only have a local PDF. Show me what the parser can
+recover.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra ingest --pdf /path/to/paper.pdf --query "..."
+ra parse-pdf --pdf /path/to/paper.pdf
+ra parser-tool-matrix
+\end{lstlisting}
+
+\textbf{Why this fits:} it falls back honestly to parser output and capability
+limits.
+
+\textbf{Review boundary:} yes; parser output is explicitly not certified.
+
+\subsection{Review, trusted export, and literature exploration}
+
+\textbf{Prompt:} ``Show me this paper and tell me whether it is ready to
+trust.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra show --paper-id ...
+ra review-show --paper-id ...
+\end{lstlisting}
+
+\textbf{Why this fits:} it combines the local record with explicit review state
+and provenance.
+
+\textbf{Review boundary:} yes; trust is always a human decision.
+
+\textbf{Prompt:} ``Export only approved context for my drafting session.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra review-mark --paper-id ... --status approved
+ra export-context --review-status approved --output /tmp/paper_context.json
+\end{lstlisting}
+
+\textbf{Why this fits:} it produces bounded downstream context instead of
+exporting everything blindly.
+
+\textbf{Review boundary:} yes; approved status is the gate.
+
+\textbf{Prompt:} ``Find nearby work on transport maps and HMC.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra discover --query "transport maps hmc"
+ra citation-neighborhood --paper-id ...
+\end{lstlisting}
+
+\textbf{Why this fits:} it uses both topic discovery and citation structure to
+expand the local view.
+
+\textbf{Review boundary:} yes; nearby work can still be irrelevant or degraded.
+
+\textbf{Prompt:} ``Download open-access candidates, but do not silently add them
+to the library.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra download-paper --query "transport maps hmc"
+ra inbox-list
+ra inbox-show --proposed-name ...
+\end{lstlisting}
+
+\textbf{Why this fits:} it preserves the no-silent-final-moves posture through
+an inbox review step.
+
+\textbf{Review boundary:} yes; inbox proposals are explicitly reviewable.
+
+\subsection{Git sharing, backup, and safety}
+
+\textbf{Prompt:} ``Is this workspace safe to share with a colleague?''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra repository-hygiene check --strict
+\end{lstlisting}
+
+\textbf{Why this fits:} it checks for private/generated files and policy
+violations before sharing.
+
+\textbf{Review boundary:} yes; sharing is a trust-boundary event.
+
+\textbf{Prompt:} ``Preview what would happen if I merged this other research
+repo.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra workspace merge --source /path/to/other/repo --dry-run
+\end{lstlisting}
+
+\textbf{Why this fits:} it keeps merge conservative by showing the proposed
+actions first.
+
+\textbf{Review boundary:} yes; dry-run inspection is required before apply.
+
+\textbf{Prompt:} ``Create a backup, but do not restore anything yet.''
+
+\textbf{Likely behavior:}
+\begin{lstlisting}[language=bash]
+ra backup create
+ra backup inspect --path /path/to/backup.tar.gz
+ra --root /tmp/restore-check backup restore --path /path/to/backup.tar.gz
+\end{lstlisting}
+
+\textbf{Why this fits:} it preserves the explicit-safety posture around backup
+and restore.
+
+\textbf{Review boundary:} yes for restore; backup creation itself is low-risk.
+
+\section{Why these prompts do not all map to one command}
+
+Some requests are naturally one-tool requests: workspace initialization,
+privacy-status checks, repository-hygiene inspection, or a single trusted export.
+Those are easy because the user goal is narrow and the trust boundary is clear.
+
+Other requests are naturally multi-step. ``Audit this known paper for my chapter''
+should not be a one-shot black box. A realistic assistant should ingest the
+paper, prefer source if available, show sections or equations, surface review
+status, and only then help the user decide what to trust or export. Similarly,
+``Find nearby work'' often means discovery plus citation-neighborhood inspection,
+not a single command with implied certainty.
+
+This is one of the package's main strengths. A generic assistant chat can feel
+fluid, but it often hides where context came from or how uncertain it is. Here,
+assistant convenience is paired with explicit local artifacts, visible limits,
+and clear review boundaries. Generated artifacts remain review material, not
+approval, and the assistant should surface that boundary rather than quietly
+acting as if a derivation, synthesis, or traceability record were final truth.
+
+\section{When the assistant should \emph{not} trigger a tool}
+
+One of the most important colleague-facing distinctions is that not every good
+question should trigger MCP behavior. Sometimes the right answer is ordinary
+reasoning or explanation from the assistant, using the conversation context that
+already exists, rather than a trip through the local research workspace.
+
+A tool should usually trigger when the user is asking for:
 \begin{itemize}[nosep]
-  \item inspectable artifacts rather than hidden state;
-  \item repeatable commands rather than only conversational recall;
-  \item provenance and explicit review status;
-  \item exports that can be reused for later coding or writing.
+  \item current local research state;
+  \item source-grounded paper evidence;
+  \item explicit review status or trusted export;
+  \item parser readiness or capability limits;
+  \item repository hygiene, backup, restore, or merge-preview safety checks.
 \end{itemize}
 
-\section{What the package does not replace}
+A tool should usually \emph{not} trigger when the user is asking for:
+\begin{itemize}[nosep]
+  \item a conceptual explanation that does not depend on local artifacts;
+  \item generic advice on how to approach a research problem;
+  \item prose improvement to text already present in the conversation;
+  \item high-level comparison or brainstorming that does not require local
+        workspace inspection.
+\end{itemize}
 
-The package is not a replacement for Claude Code, Cursor, Copilot, or a PDF
-reader. It fills the space between them by preserving structured local research
-state that those tools can then consume more effectively.
+\subsection{Examples that may seem like tool triggers, but usually are not}
+
+\textbf{Prompt:} ``What is the difference between HMC and RMHMC?''
+
+\textbf{Why this usually should not trigger a tool:} this is a conceptual
+question. Unless the user explicitly asks to compare local paper records or audit
+a chapter against a stored paper, the assistant can answer directly.
+
+\textbf{Prompt:} ``Can you improve this paragraph?''
+
+\textbf{Why this usually should not trigger a tool:} if the paragraph is already
+in the conversation, this is primarily a writing task. A tool should only be
+used if the user explicitly asks to ground the revision in approved local paper
+context.
+
+\textbf{Prompt:} ``Should I trust normalizing flows for this project?''
+
+\textbf{Why this usually should not trigger a tool automatically:} this is too
+broad and judgment-heavy to silently convert into discovery or synthesis. The
+assistant should usually clarify whether the user wants local evidence, known
+paper audit, or high-level conceptual advice.
+
+\textbf{Prompt:} ``Summarize the NeuTra paper for me.''
+
+\textbf{Why this may or may not trigger a tool:} if the user wants a general
+summary, the assistant may answer directly. If the user asks for a summary that
+matches the local reviewed record or exact source-grounded equations/sections,
+then ingest/source tools should trigger.
+
+\textbf{Prompt:} ``What would be a good literature review structure?''
+
+\textbf{Why this usually should not trigger a tool first:} this is often an
+ideation question. It should only become a tool-backed workflow if the user asks
+to build that structure from local approved records or a known citation
+neighborhood.
+
+This distinction matters because the package is most valuable when it adds local,
+inspectable evidence. It is less useful if it is triggered for every general
+question that an assistant could answer well without touching the workspace.
+
+\section{Realistic conversation 1: source-first audit of a known paper}
+
+\textbf{User goal:} verify what a known paper explicitly claims before revising
+technical writing or code.
+
+\textbf{Conversation transcript:}
+
+\textbf{User:} ``I need to audit the NeuTra paper for a chapter revision. Use
+source-first extraction if possible, and show me the equations before I trust the
+summary.''
+
+\textbf{Assistant:} ``This is a known arXiv paper, so the higher-trust path is
+to fetch the source first, inspect the source-derived structure, and only then
+use the local record for downstream writing support.''
+
+\textbf{Likely tool or command sequence:}
+\begin{lstlisting}[language=bash]
+ra --root /tmp/ra-neutra-audit init
+ra --root /tmp/ra-neutra-audit ingest --arxiv-id 1903.03704 \
+  --query "NeuTra-lizing Bad Geometry in Hamiltonian Monte Carlo Using Neural Transport"
+ra --root /tmp/ra-neutra-audit source-fetch --arxiv-id 1903.03704
+ra --root /tmp/ra-neutra-audit source-sections --paper-id paper_arxiv_1903_aa33312a
+ra --root /tmp/ra-neutra-audit source-equations --paper-id paper_arxiv_1903_aa33312a
+ra --root /tmp/ra-neutra-audit source-show --paper-id paper_arxiv_1903_aa33312a
+\end{lstlisting}
+
+\textbf{Assistant:} ``The source-derived structure is available. You can now
+inspect sections, equations, and citations from the LaTeX source rather than
+relying only on PDF heuristics. This is stronger for chapter audit, but it is
+still evidence that requires human interpretation.''
+
+\textbf{Why this is persuasive:}
+\begin{itemize}[nosep]
+  \item it shows a concrete mathematical workflow;
+  \item it demonstrates why source-first is not a slogan but a practical trust move;
+  \item it keeps the review boundary explicit.
+\end{itemize}
+
+\section{Realistic conversation 2: ingest, inspect, review, and export trusted context}
+
+\textbf{User goal:} bring a paper into the workspace, inspect what was extracted,
+and export only trusted local context for a later coding or writing session.
+
+\textbf{Conversation transcript:}
+
+\textbf{User:} ``Ingest this paper and tell me whether it looks safe enough to
+use in a drafting session.''
+
+\textbf{Assistant:} ``The conservative path is to ingest it, inspect the record
+and review state, and only export approved context. That prevents unreviewed
+material from becoming downstream trusted input by accident.''
+
+\textbf{Likely tool or command sequence:}
+\begin{lstlisting}[language=bash]
+ra --root ~/ra-workspace ingest \
+  --pdf ~/papers/example.pdf \
+  --query "paper title"
+ra --root ~/ra-workspace show --paper-id paper_example
+ra --root ~/ra-workspace review-show --paper-id paper_example
+ra --root ~/ra-workspace review-mark --paper-id paper_example --status approved
+ra --root ~/ra-workspace export-context \
+  --review-status approved \
+  --output /tmp/paper_context.json
+\end{lstlisting}
+
+\textbf{Assistant:} ``The important distinction is that the export should come
+from approved records, not from everything that happened to be ingested. That is
+how the package reduces cleanup while preserving trust discipline.''
+
+\textbf{Why this is persuasive:}
+\begin{itemize}[nosep]
+  \item it shows a realistic day-to-day workflow, not just a demo;
+  \item it ties export behavior directly to review status;
+  \item it makes the value of trusted-context export concrete.
+\end{itemize}
+
+\section{Realistic conversation 3: discovery, nearby work, and safe sharing}
+
+\textbf{User goal:} explore nearby literature, then check whether the resulting
+workspace is safe to share or merge with a colleague.
+
+\textbf{Conversation transcript:}
+
+\textbf{User:} ``Find nearby work on transport maps and HMC, but do not pretend
+the discovery is reliable if the sources are degraded. Then show me the safest
+way to share the resulting workspace.''
+
+\textbf{Assistant:} ``That request naturally splits into two bounded workflows:
+first discovery plus citation-neighborhood inspection, then a repository-hygiene
+and dry-run merge check for sharing. The important behavior is visible
+degradation and explicit safety review, not silent automation.''
+
+\textbf{Likely tool or command sequence:}
+\begin{lstlisting}[language=bash]
+ra --root ~/ra-workspace discover --query "transport maps hmc"
+ra --root ~/ra-workspace citation-neighborhood --paper-id neutra_hmc
+ra --root ~/ra-workspace inbox-list
+ra repository-hygiene check --strict
+ra workspace merge --source /path/to/other/repo --dry-run
+\end{lstlisting}
+
+\textbf{Assistant:} ``Discovery may come back available, empty, or unavailable.
+That is useful because it distinguishes lack of evidence from tool failure.
+Before sharing, repository hygiene and dry-run merge keep private/generated files
+and accepted-audit conflicts visible.''
+
+\textbf{Why this is persuasive:}
+\begin{itemize}[nosep]
+  \item it shows how the package handles uncertainty honestly;
+  \item it combines literature expansion with a concrete collaboration safety story;
+  \item it demonstrates that assistant-driven use still respects explicit review gates.
+\end{itemize}
 
 \chapter{Concrete Example Workflows}
 
@@ -482,18 +884,18 @@ whose identity can be recomputed and audited.
 
 \section{Nontrivial showcase: DSGE survey chapter from a NeuTra seed}
 
-A more persuasive use case is a DSGE survey chapter from a NeuTra seed. Suppose a
-researcher wants to compare normalizing-flow and neural-transport architectures
-for difficult posterior geometry. The package does not replace the researcher or
-write the survey automatically. It gives the researcher a durable workspace for
-seed papers, citation neighborhoods, architecture taxonomies, chapter links,
-code experiments, review notes, and trusted context exports.
+The earlier assistant-conversation chapter shows what a realistic MCP-guided audit
+looks like in dialogue form. This later showcase keeps only the broader workflow
+summary: a researcher wants to compare normalizing-flow and neural-transport
+architectures for difficult posterior geometry and needs a durable local
+workspace for seed papers, citation neighborhoods, architecture taxonomies,
+chapter links, code experiments, review notes, and trusted context exports.
 
-The strongest current version of this workflow is source-first when the seed
-paper is known and available on arXiv. In that setting, the package is most
-useful not as an automatic literature engine, but as a local evidence layer that
-lets the researcher inspect what the paper explicitly says before updating code,
-notes, or chapter prose.
+The package does not replace the researcher or write the survey automatically.
+Its job is to keep those artifacts reviewable, traceable, and reusable. For
+mathematically sensitive material, the higher-trust path is still source-first
+inspection of known papers, with discovery and synthesis treated as secondary,
+reviewable aids.
 
 \begin{lstlisting}[language=bash]
 ra --root ~/ra-workspace ingest \
@@ -509,11 +911,6 @@ ra --root ~/ra-workspace export-context \
   --review-status approved \
   --output /tmp/dsge_flow_chapter_context.json
 \end{lstlisting}
-
-This broad showcase is useful for chapter planning and evidence organization. But
-for mathematically sensitive material, the higher-trust workflow is often to fetch
-and inspect source directly, then treat discovery and synthesis as secondary,
-reviewable aids.
 
 \chapter{Scope Boundaries And Non-Goals}
 
@@ -653,9 +1050,11 @@ like genuine workflow leverage rather than another source of cleanup.
 
 The release was exercised on a realistic research task: auditing a
 DSGE/HMC monograph chapter built around \emph{NeuTra-lizing Bad Geometry in
-Hamiltonian Monte Carlo Using Neural Transport}. This is a good colleague-facing
-example because it shows where the package is already genuinely useful: a
-known-paper audit with source-grounded inspection and downstream writing support.
+Hamiltonian Monte Carlo Using Neural Transport}. The detailed assistant-style
+conversation for this use case now appears earlier in the proposal. This section
+keeps the concise adoption takeaway: the package is already genuinely useful for
+a known-paper audit with source-grounded inspection and downstream writing
+support.
 
 Representative commands:
 \begin{lstlisting}[language=bash]
