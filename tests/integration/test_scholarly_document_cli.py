@@ -9,6 +9,7 @@ from research_assistant import cli
 
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "scholarly_document"
+PROVIDER = Path(__file__).resolve().parents[1] / "fixtures" / "dynaremcp_document_provider.py"
 
 
 def test_draft_document_cli_writes_bounded_scaffold(tmp_path: Path, capsys) -> None:
@@ -32,12 +33,7 @@ def test_draft_document_cli_writes_bounded_scaffold(tmp_path: Path, capsys) -> N
 
 
 def test_draft_document_cli_uses_dynaremcp_through_subprocess(tmp_path: Path, capsys) -> None:
-    dynaremcp = Path(__file__).resolve().parents[3] / "DynareMCP"
-    assert (dynaremcp / "src" / "dynaremcp" / "cli.py").is_file()
-    provider = (
-        f"env PYTHONPATH={shlex.quote(str(dynaremcp / 'src'))} "
-        f"{shlex.quote(sys.executable)} -m dynaremcp.cli"
-    )
+    provider = f"{shlex.quote(sys.executable)} {shlex.quote(str(PROVIDER))}"
     output = tmp_path / "document-run-provider"
     code = cli.main(
         [

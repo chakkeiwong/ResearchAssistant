@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from scripts.literature_survey_phase7_validation_harness import run_validation
 
 
-def test_phase7_validation_harness_positive_and_negatives() -> None:
-    result = run_validation()
+def test_phase7_validation_harness_positive_and_negatives(tmp_path: Path) -> None:
+    result = run_validation(validation_dir=tmp_path / "phase7-validation")
 
     assert result["schema_version"] == "ra-literature-survey-live-public-source-phase7-validation-v1"
     assert result["status"] == "passed"

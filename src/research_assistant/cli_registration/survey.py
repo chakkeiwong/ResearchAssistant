@@ -104,6 +104,11 @@ def register_survey_commands(sub: Subparsers, handler: Handler) -> None:
         description='Query or replay OpenAlex, Crossref, and Semantic Scholar metadata, reconcile identities, and write a seed-candidate report. Metadata ranks and provider agreement cannot establish topic centrality or paper correctness.',
     )
     survey_seeds.add_argument('--topic', required=True)
+    survey_seeds.add_argument(
+        '--seed',
+        action='append',
+        help='Known DOI, arXiv, OpenAlex, Semantic Scholar, or title authority; repeat as needed',
+    )
     survey_seeds.add_argument('--out', required=True, help='Fresh or replayable seed campaign output directory')
     survey_seeds.add_argument('--confirm-public-discovery', action='store_true', help='Allow bounded public OpenAlex, Crossref, and Semantic Scholar metadata requests')
     survey_seeds.add_argument('--resume', action='store_true', help='Replay and validate an existing completed campaign without provider calls')

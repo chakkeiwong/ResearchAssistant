@@ -1,0 +1,156 @@
+{
+  "aliases": [
+    "deep learning for solving dynamic economic models"
+  ],
+  "bundle": {
+    "accessed_at": "2026-07-29T00:00:00+00:00",
+    "benchmark_labels_consumed": false,
+    "providers": [
+      {
+        "provider": "crossref",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "diagnostic": null,
+            "endpoint_kind": "broad_search",
+            "provider_total": 5,
+            "purpose": "direct_method",
+            "query": "Maliar-style neural residual solvers for differentiable Bayesian DSGE estimation",
+            "request_url": "https://api.crossref.org/works",
+            "response": {
+              "message": {
+                "items": [
+                  {
+                    "DOI": "10.1016/j.jmoneco.2021.07.004",
+                    "URL": "https://example.test/maliar",
+                    "abstract": "A neural DSGE solution and differentiable estimation method.",
+                    "author": [{"family": "Synthetic Author"}],
+                    "container-title": ["Synthetic Venue"],
+                    "is-referenced-by-count": 100,
+                    "published": {"date-parts": [[2021]]},
+                    "title": ["Deep learning for solving dynamic economic models"]
+                  },
+                  {
+                    "DOI": "10.5555/fbm",
+                    "URL": "https://example.test/fbm",
+                    "abstract": "A highly cited reference list for dynamic economic model estimation.",
+                    "author": [{"family": "Synthetic Author"}],
+                    "container-title": ["Synthetic Venue"],
+                    "is-referenced-by-count": 100,
+                    "published": {"date-parts": [[2021]]},
+                    "title": ["Fractional Brownian Motions, Fractional Noises and Applications"]
+                  },
+                  {
+                    "DOI": "10.5555/parameters",
+                    "URL": "https://example.test/parameters",
+                    "abstract": "Parameter estimation for unrelated models.",
+                    "author": [{"family": "Synthetic Author"}],
+                    "container-title": ["Synthetic Venue"],
+                    "is-referenced-by-count": 100,
+                    "published": {"date-parts": [[2021]]},
+                    "title": ["General Parameter Estimation"]
+                  },
+                  {
+                    "DOI": "10.21033/wp-2022-26",
+                    "URL": "https://example.test/kase",
+                    "abstract": "A neural solution and estimation method for nonlinear economic models.",
+                    "author": [{"family": "Synthetic Author"}],
+                    "container-title": ["Synthetic Venue"],
+                    "is-referenced-by-count": 100,
+                    "published": {"date-parts": [[2021]]},
+                    "title": ["Estimating Nonlinear Heterogeneous Agents Models with Neural Networks"]
+                  },
+                  {
+                    "DOI": "10.2139/ssrn.6835726",
+                    "URL": "https://example.test/sequential",
+                    "abstract": "A sequential neural DSGE solution method.",
+                    "author": [{"family": "Synthetic Author"}],
+                    "container-title": ["Synthetic Venue"],
+                    "is-referenced-by-count": 100,
+                    "published": {"date-parts": [[2021]]},
+                    "title": ["Sequential solution for DSGE models with deep neural networks"]
+                  }
+                ],
+                "total-results": 5
+              }
+            },
+            "route_id": "broad_topic_high_citation",
+            "status": "available"
+          }
+        ],
+        "status": "available"
+      },
+      {
+        "provider": "openalex",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "diagnostic": {"category": "http_failed", "http_status": 503},
+            "endpoint_kind": "broad_search",
+            "provider_total": null,
+            "purpose": "direct_method",
+            "query": "Maliar-style neural residual solvers for differentiable Bayesian DSGE estimation",
+            "request_url": "https://api.openalex.org/works",
+            "response": null,
+            "route_id": "broad_topic_high_citation",
+            "status": "http_failed"
+          }
+        ],
+        "status": "http_failed"
+      },
+      {
+        "provider": "semantic_scholar",
+        "requests": [
+          {
+            "capped": false,
+            "detail": null,
+            "diagnostic": {"category": "rate_limited", "http_status": 429, "retry_after_seconds": 9},
+            "endpoint_kind": "broad_search",
+            "provider_total": null,
+            "purpose": "direct_method",
+            "query": "Maliar-style neural residual solvers for differentiable Bayesian DSGE estimation",
+            "request_url": "https://api.semanticscholar.org/graph/v1/paper/search",
+            "response": null,
+            "route_id": "broad_topic_high_citation",
+            "status": "rate_limited"
+          }
+        ],
+        "status": "rate_limited"
+      }
+    ],
+    "schema_version": "ra-survey-seed-provider-bundle-v2",
+    "seed_authorities": [
+      "doi:10.1016/j.jmoneco.2021.07.004"
+    ],
+    "topic_contract_sha256": "REBOUND_BY_TEST"
+  },
+  "exclusions": [
+    "fractional Brownian motion"
+  ],
+  "must_find": [
+    "doi:10.1016/j.jmoneco.2021.07.004"
+  ],
+  "must_reject": [
+    "doi:10.5555/fbm",
+    "doi:10.5555/parameters"
+  ],
+  "must_review_or_select": [
+    "doi:10.21033/wp-2022-26",
+    "doi:10.2139/ssrn.6835726"
+  ],
+  "provenance": {
+    "source_1_path": "docs/AIpostdoc/literature/maliar_neural_solver_foundation_corpus_2026_07_29/10_orchestration/provider_canary_retry_2026_07_29.json",
+    "source_1_sha256": "60267bf62df4cbc9fbd06c989f60029f17549179496e3326f025c860f7ab93f0",
+    "source_2_path": "docs/AIpostdoc/literature/maliar_neural_solver_foundation_corpus_2026_07_29/10_orchestration/wp1_network_retry_result_2026_07_29.md",
+    "source_2_sha256": "aea1ed627263700abe901a834f15b6bc944eb9ec13f33f5c6b8ab1fe3ab9709d",
+    "status": "minimized_synthetic_metadata_derived_from_observed_failure"
+  },
+  "required_facets": [
+    "neural DSGE solution methods",
+    "differentiable estimation"
+  ],
+  "seed": "doi:10.1016/j.jmoneco.2021.07.004",
+  "topic": "Maliar-style neural residual solvers for differentiable Bayesian DSGE estimation"
+}

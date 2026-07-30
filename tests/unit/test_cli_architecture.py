@@ -47,7 +47,7 @@ SURVEY_COMMANDS = (
     "qualitative-assessment",
 )
 
-CLI_SCHEMA_SHA256 = "62a67766090b000b4c990702199d5a1e523be4fc2493b84b3f006e0d0c06759a"
+CLI_SCHEMA_SHA256 = "cd9812da2bf601dbf59c1385c5deb502ba3f51473eef277267137903ed9a6b3e"
 
 
 def _subparsers(parser: argparse.ArgumentParser) -> argparse._SubParsersAction:

@@ -41,14 +41,22 @@ class NegativeCase:
     target_invariant: str
 
 
-def run_validation() -> dict[str, Any]:
-    if VALIDATION_DIR.exists():
-        shutil.rmtree(VALIDATION_DIR)
-    VALIDATION_DIR.mkdir(parents=True, exist_ok=True)
-    NEGATIVE_ROOT.mkdir(parents=True, exist_ok=True)
+def run_validation(*, validation_dir: Path = VALIDATION_DIR) -> dict[str, Any]:
+    validation_dir = validation_dir.resolve()
+    negative_root = validation_dir / "negative_packets"
+    if validation_dir.exists():
+        shutil.rmtree(validation_dir)
+    validation_dir.mkdir(parents=True, exist_ok=True)
+    negative_root.mkdir(parents=True, exist_ok=True)
+
+    def display_path(path: Path) -> str:
+        try:
+            return str(path.relative_to(ROOT))
+        except ValueError:
+            return str(path)
 
     positive = validate_packet_dir(PHASE6_PACKET_DIR)
-    positive_path = VALIDATION_DIR / "positive_packet_validation.json"
+    positive_path = validation_dir / "positive_packet_validation.json"
     positive_path.write_text(json.dumps(positive, indent=2, sort_keys=True))
 
     base_packet = _load_packet(PHASE6_PACKET_DIR)
@@ -56,7 +64,7 @@ def run_validation() -> dict[str, Any]:
     for case in CASES:
         packet = copy.deepcopy(base_packet)
         case.mutate(packet)
-        case_dir = NEGATIVE_ROOT / case.case_id
+        case_dir = negative_root / case.case_id
         _write_packet(case_dir, packet)
         validation = validate_packet_dir(case_dir)
         validation_path = case_dir / "packet_validation.json"
@@ -66,8 +74,8 @@ def run_validation() -> dict[str, Any]:
             "case_id": case.case_id,
             "description": case.description,
             "target_invariant": case.target_invariant,
-            "packet_dir": str(case_dir.relative_to(ROOT)),
-            "validation_report": str(validation_path.relative_to(ROOT)),
+            "packet_dir": display_path(case_dir),
+            "validation_report": display_path(validation_path),
             "expected_signal": case.expected_signal,
             "expected_signal_observed": observed,
             "validation_status": validation.get("status"),
@@ -87,7 +95,7 @@ def run_validation() -> dict[str, Any]:
         "status": "passed" if positive_ok and negatives_ok and mutation_strength["status"] == "passed" else "failed",
         "phase6_packet_dir": str(PHASE6_PACKET_DIR.relative_to(ROOT)),
         "positive": {
-            "validation_report": str(positive_path.relative_to(ROOT)),
+            "validation_report": display_path(positive_path),
             "status": positive.get("status"),
             "packet_ready_for_writer": positive.get("packet_ready_for_writer"),
             "ready_for_prose": positive.get("ready_for_prose"),
@@ -111,7 +119,7 @@ def run_validation() -> dict[str, Any]:
             "final survey prose quality",
         ],
     }
-    result_path = VALIDATION_DIR / "phase7_validation_harness_result.json"
+    result_path = validation_dir / "phase7_validation_harness_result.json"
     result_path.write_text(json.dumps(result, indent=2, sort_keys=True))
     return result
 

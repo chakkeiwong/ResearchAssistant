@@ -1,0 +1,68 @@
+{
+  "schema_version": "research-assistant-seed-relevance-heldout-v1",
+  "topic": "Graph neural networks for molecular property prediction",
+  "required_facets": [
+    "graph neural networks",
+    "molecular property prediction"
+  ],
+  "aliases": ["graph convolutional networks"],
+  "cases": [
+    {
+      "case_id": "exact_graph_molecular",
+      "title": "Graph Neural Networks for Molecular Property Prediction",
+      "abstract": "We develop graph neural networks for molecular property prediction.",
+      "label": "auto_select",
+      "label_basis": "title contains both declared technical facets"
+    },
+    {
+      "case_id": "direct_gcn_molecular",
+      "title": "Graph Convolutional Networks for Molecular Property Prediction",
+      "abstract": "A graph convolutional network predicts molecular properties.",
+      "label": "auto_select",
+      "label_basis": "controlled alias and both facets are visible"
+    },
+    {
+      "case_id": "graph_network_survey",
+      "title": "A Survey of Graph Neural Networks for Chemistry",
+      "abstract": "We review graph neural network methods used in chemistry.",
+      "label": "review",
+      "label_basis": "one facet is strong, the molecular-property target is not explicit"
+    },
+    {
+      "case_id": "molecular_random_forest",
+      "title": "Random Forests for Molecular Property Prediction",
+      "abstract": "We predict molecular properties with random forests.",
+      "label": "review",
+      "label_basis": "target domain is present but the declared graph method is absent"
+    },
+    {
+      "case_id": "unrelated_stock_network",
+      "title": "Neural Networks for Stock Return Forecasting",
+      "abstract": "A neural network forecasts stock returns.",
+      "label": "reject",
+      "label_basis": "no molecular property or graph evidence"
+    },
+    {
+      "case_id": "year_only_noise",
+      "title": "A 2021 Method for Scientific Data",
+      "abstract": "A general method for scientific data analysis.",
+      "label": "reject",
+      "label_basis": "bibliographic year and generic words are not topical evidence"
+    },
+    {
+      "case_id": "contaminated_metadata_dump",
+      "title": "Network Optimization",
+      "abstract": "References cited by Google Scholar cross ref graph neural networks molecular property prediction ",
+      "abstract_repeat": 450,
+      "label": "reject",
+      "label_basis": "bibliography-like abstract is excluded from relevance evidence"
+    },
+    {
+      "case_id": "generic_prediction",
+      "title": "Deep Learning Methods for Prediction",
+      "abstract": "A general learning method for prediction tasks.",
+      "label": "review",
+      "label_basis": "generic overlap requires human review"
+    }
+  ]
+}

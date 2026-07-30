@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shlex
+import sys
 from pathlib import Path
 
 from research_assistant import cli
@@ -8,14 +10,11 @@ from research_assistant.survey.literature_review import run_literature_review
 
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "central_papers_e2e"
+PROVIDER = Path(__file__).resolve().parents[1] / "fixtures" / "dynaremcp_document_provider.py"
 
 
 def _provider() -> str:
-    dynare = Path(__file__).resolve().parents[3] / "DynareMCP"
-    import shlex
-    import sys
-
-    return f"env PYTHONPATH={shlex.quote(str(dynare / 'src'))} {shlex.quote(sys.executable)} -m dynaremcp.cli"
+    return f"{shlex.quote(sys.executable)} {shlex.quote(str(PROVIDER))}"
 
 
 def test_topic_to_survey_cli_reports_thin_evidence_without_promotion(tmp_path: Path, capsys) -> None:

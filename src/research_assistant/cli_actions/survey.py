@@ -226,6 +226,7 @@ def _seed_papers(args: argparse.Namespace, services: SurveyServices) -> int:
         aliases=args.alias,
         exclusions=args.exclude,
         scope_note=args.scope_note,
+        seeds=args.seed,
     )
     services.print_json(report)
     return 0 if report["status"] == "seed_candidates_selected" else 1

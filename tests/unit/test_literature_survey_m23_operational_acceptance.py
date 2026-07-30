@@ -138,7 +138,11 @@ def test_wheel_build_uses_fresh_external_staging_and_not_repository_build(
         assert (build_cwd / "src" / "example" / "__init__.py").read_bytes() == (
             package / "__init__.py"
         ).read_bytes()
-        assert argv[-2:] == ["--outdir", str(dist)]
+        assert argv[-3:] == ["--wheel-dir", str(dist), "."]
+        assert argv[:4] == [acceptance.sys.executable, "-m", "pip", "wheel"]
+        assert "--no-index" in argv
+        assert "--no-deps" in argv
+        assert "--no-build-isolation" in argv
         return subprocess.CompletedProcess(argv, 0)
 
     monkeypatch.setattr(acceptance.subprocess, "run", fake_run)
