@@ -1,0 +1,119 @@
+The ten papers reviewed here answer complementary questions. Montero-Manso and Hyndman explain why many short histories can support one forecasting function. Singer and Willett, and their later multiple-spell paper, explain how to model the time until an event. Fader, Hardie, and Lee supply a parsimonious model of repeat purchases and permanent inactivity. Li, Sun, and Wilcox model dependencies between banking products. Friedman and Salinas and colleagues provide nonlinear predictive methods. Gutierrez and Gérardy distinguish response prediction from treatment response. Athey and Wager connect treatment effects to policy choice. Elkan and Noto expose the assumptions needed to learn from selectively observed positives. The survey is a focused methodological synthesis; it is not an exhaustive catalogue of commercial lead-scoring systems.
+
+For each paper, the discussion reconstructs the mathematical ingredients used in the proposal, including the likelihood or loss, fitting procedure, prediction rule, and the assumptions needed to interpret it. Additional bank-specific derivations are identified as adaptations. Published empirical results establish what the authors studied, not performance at this bank. No numerical result from a consumer, retail-demand, or simulation example is treated as a corporate-banking performance estimate.
+
+\subsection{Global forecasting: pooling does not require identical clients}
+
+\citet{montero2021global}, Sections 2--3, distinguish a local learning algorithm $A_L$, applied separately to each series, from a global algorithm $A_G$, fitted across the collection. If $X_i=(y_{i1},\ldots,y_{iT})$ denotes the available history, a local forecast is $f_i(X_i)$, where $f_i=A_L(X_i)$; a global forecast is $g(X_i)$, where $g=A_G(X_1,\ldots,X_N)$. Shared parameters do not require equal forecasts. Different histories, industries and product holdings can produce different predictions from one function.
+
+Their Proposition 1 concerns representation on a finite set of histories. To reconstruct its main argument, first suppose a global function $g$ has been supplied. A local algorithm that returns this same function for every input reproduces its forecasts. Conversely, apply a deterministic local algorithm to each observed history and form the finite set of pairs $(X_i,f_i(X_i))$. If two complete histories are identical, the deterministic algorithm returns the same fitted function and the same prediction for both. Thus these pairs define a function on the distinct observed histories, which can be extended outside that finite set in any manner. A sufficiently flexible global function can reproduce those particular local predictions. This construction proves representability, not that fitting the global function will discover the right extension or generalize well.
+
+The use of the complete history matters. If a global model receives only the last three lags, two clients with the same last three observations but different older histories can have different local predictions. A function of those three lags alone cannot reproduce both. The paper discusses this restriction in Section 2.2. Adding longer history or appropriate characteristics can distinguish the clients; adding an identifier can also distinguish them, but may encourage memorization. The theorem itself does not require client identifiers and does not justify unrestricted identifier embeddings in a short panel.
+
+\subsubsection{Why sharing parameters can reduce estimation error}
+
+A finite-class calculation makes the statistical argument precise. Consider $K$ independent series, each supplying $n$ independent loss observations in $[0,1]$. This deliberately stronger toy assumption makes every step transparent. For a fixed predictor $f$, write $Z_r=\ell_r(f)-\E\ell_r(f)$ for $r=1,\ldots,Kn$. The bounded-variable moment inequality gives $\E e^{sZ_r}\le e^{s^2/8}$. Markov's inequality and independence then imply
+\[
+ \Prb\left(\sum_r Z_r>Kn\epsilon\right)
+ \le \exp(-sKn\epsilon)\prod_r\E e^{sZ_r}
+ \le \exp(-sKn\epsilon+Kn s^2/8).
+\]
+Minimizing the exponent at $s=4\epsilon$, and applying the same argument to $-Z_r$, gives
+\[
+ \Prb\bigl(|\widehat R(f)-R(f)|>\epsilon\bigr)
+ \le 2e^{-2Kn\epsilon^2}.
+\]
+For a finite collection $\mathcal F$, the probability that any predictor exceeds this error is no greater than the sum of those probabilities. Setting this sum to $\delta$ gives
+\begin{equation}
+ \sup_{f\in\mathcal F}|\widehat R(f)-R(f)|
+ \le \sqrt{\frac{\log|\mathcal F|+\log(2/\delta)}{2Kn}}
+ \quad\text{with probability at least }1-\delta.
+ \label{eq:global-bound}
+\end{equation}
+A local system can choose a separate predictor from each class $\mathcal H_i$, so its collection has size $\prod_i|\mathcal H_i|$ and logarithmic complexity $\sum_i\log|\mathcal H_i|$. A global system chooses one predictor from $\mathcal G$ and incurs $\log|\mathcal G|$. For equally sized local classes, the former complexity grows as $K\log|\mathcal H|$. Pooling can therefore permit a richer shared function without paying separately for its complexity on every series. This reconstructs the finite-class comparison in the paper's Sections 3.1--3.3; the paper discusses an effective sample size for within-series dependence.
+
+The calculation does not supply a numerical confidence bound for the bank. Losses share clients, business groups and calendar shocks; margin loss is not bounded without further assumptions; and modern model classes are not finite enumerations. In particular, $36$ million rows cannot be substituted for $Kn$ as though they were independent. The defensible implication is to compare shared and partially pooled models, while estimating uncertainty using the actual dependence structure.
+
+For this bank, a common coefficient can learn from many importers that a change in foreign-currency payments precedes an FX transaction. Industry interactions allow exporters to behave differently. A hierarchical coefficient allows a small industry to borrow information from larger related industries. The paper's forecasting benchmarks do not establish the size of this benefit for bank sales; that remains an out-of-time comparison.
+
+\subsection{BG/NBD: repeat activity and latent permanent inactivity}
+
+\citet{fader2005counting}, Sections 2--3 and Appendix A, model repeat transactions after an initial acquisition. While active, an individual transacts according to a Poisson process with rate $\lambda>0$. Immediately after each repeat transaction the individual becomes permanently inactive with probability $p\in(0,1)$. Across individuals,
+\[
+ \lambda\sim\operatorname{Gamma}(r,\text{rate }\alpha),\qquad
+ p\sim\operatorname{Beta}(a,b),\qquad \lambda\perp p,
+\]
+where all four population parameters are positive. The gamma density is $\alpha^r\lambda^{r-1}e^{-\alpha\lambda}/\Gamma(r)$, and the beta density is $p^{a-1}(1-p)^{b-1}/B(a,b)$, with $B(a,b)=\Gamma(a)\Gamma(b)/\Gamma(a+b)$.
+
+For an observation window of length $T$, let $x$ be the number of repeat transactions and $t_x$ the time of the last repeat, measured from acquisition. The original process starts active after acquisition. In particular, with $x=0$ it has not yet encountered a repeat-transaction dropout opportunity. There are two mutually exclusive explanations for a history with $x>0$: the individual remains active through $T$, or drops out immediately after transaction $x$. Up to parameter-independent terms, the conditional likelihood is
+\begin{equation}
+ L(\lambda,p\mid x,t_x,T)
+ = (1-p)^x\lambda^x e^{-\lambda T}
+ +\mathbf 1_{\{x>0\}}p(1-p)^{x-1}\lambda^x e^{-\lambda t_x}.
+ \label{eq:bgnbd-conditional}
+\end{equation}
+The first term requires surviving all $x$ dropout opportunities and the observed arrival history through $T$. The second requires surviving the first $x-1$ opportunities and dropping out at the last arrival. There is no further no-arrival requirement after permanent dropout.
+
+\subsubsection{Integrating the heterogeneity}
+
+For any $u\ge0$, direct gamma integration gives
+\[
+ \int_0^\infty\lambda^xe^{-u\lambda}
+ \frac{\alpha^r\lambda^{r-1}e^{-\alpha\lambda}}{\Gamma(r)}\,d\lambda
+ =\frac{\alpha^r\Gamma(r+x)}{\Gamma(r)(\alpha+u)^{r+x}}.
+\]
+Similarly, integrating $(1-p)^x$ against the beta density gives $B(a,b+x)/B(a,b)$, while integrating $p(1-p)^{x-1}$ gives $B(a+1,b+x-1)/B(a,b)$. Hence the marginal likelihood is $A+D$, where
+\begin{align}
+ A&=\frac{B(a,b+x)}{B(a,b)}
+       \frac{\alpha^r\Gamma(r+x)}{\Gamma(r)(\alpha+T)^{r+x}},\label{eq:bgnbd-A}\\
+ D&=\mathbf 1_{\{x>0\}}\frac{B(a+1,b+x-1)}{B(a,b)}
+       \frac{\alpha^r\Gamma(r+x)}{\Gamma(r)(\alpha+t_x)^{r+x}}.\label{eq:bgnbd-D}
+\end{align}
+Estimate the population parameters by maximizing $\sum_i\log(A_i+D_i)$, using logarithmic parameterizations for positivity and a log-sum-exp calculation for numerical stability. Clients contribute different sufficient summaries $(x_i,t_{x_i},T_i)$; the four population parameters are shared.
+
+Bayes' rule gives
+\begin{equation}
+ P_{\rm active}=\frac{A}{A+D}
+ =\left[1+\mathbf1_{\{x>0\}}\frac{a}{b+x-1}
+       \left(\frac{\alpha+T}{\alpha+t_x}\right)^{r+x}\right]^{-1},
+ \label{eq:bgnbd-alive}
+\end{equation}
+where the ratio expression is used only for $x>0$; when $x=0$, $D=0$. Long time since the last repeat raises $D/A$ and lowers the inferred probability of remaining active. More recent activity raises it. The $x=0$ result exposes a substantive assumption: the original model cannot infer pre-first-repeat dropout. This can be implausible for a newly onboarded but unused bank account.
+
+\subsubsection{A self-contained future-count forecast}
+
+Conditional on being active at $T$, conjugacy gives independent posteriors
+\[
+ \lambda\mid\text{active, history}\sim\operatorname{Gamma}(r+x,\alpha+T),
+ \quad p\mid\text{active, history}\sim\operatorname{Beta}(a,b+x).
+\]
+For fixed $(\lambda,p)$, dropout events form a thinning of the active Poisson process with rate $\lambda p$. The probability of still being active at future elapsed time $u$ is $e^{-\lambda pu}$. Expected transaction intensity is therefore $\lambda e^{-\lambda pu}$, and integrating over $0\le u\le H$ gives $(1-e^{-\lambda pH})/p$. Averaging first over the gamma posterior, using its Laplace transform, gives the exact finite-horizon forecast
+\begin{equation}
+ \E[N(T,T+H)\mid\text{history}]
+ =\frac{P_{\rm active}}{B(a,b+x)}
+ \int_0^1 p^{a-2}(1-p)^{b+x-1}
+ \left[1-\left(\frac{\alpha+T}{\alpha+T+pH}\right)^{r+x}\right]dp.
+ \label{eq:bgnbd-forecast}
+\end{equation}
+This one-dimensional integral is directly computable. Although its first factor contains $p^{a-2}$, the bracket is asymptotic to $(r+x)pH/(\alpha+T)$ near zero, so the complete integrand is integrable for every $a>0$. It avoids requiring a reader to evaluate an unexplained special function.
+
+For completeness, the familiar closed form in the paper follows when $a>1$. Put $q=r+x$, $c=\alpha+T$ and $z=H/(c+H)$. Split the integral into its two terms and use
+\[
+ {}_2F_1(A,B;C;z)=\frac{1}{B(B,C-B)}
+ \int_0^1 u^{B-1}(1-u)^{C-B-1}(1-zu)^{-A}du,
+\]
+which can be verified by expanding $(1-zu)^{-A}=\sum_{n\ge0}(A)_nz^nu^n/n!$ and integrating each beta moment; $(A)_n=A(A+1)\cdots(A+n-1)$. The substitution $u=1-p$ then yields
+\begin{align}
+ \E[N(T,T+H)\mid\text{history}]
+ &=P_{\rm active}\frac{a+b+x-1}{a-1}\nonumber\\[-2pt]
+ &\quad\times\left[1-\left(\frac{c}{c+H}\right)^q
+ {}_2F_1(q,b+x;a+b+x-1;z)\right].
+ \label{eq:bgnbd-hypergeom}
+\end{align}
+The integral form remains the unambiguous definition at parameter values where this split-integral derivation is unavailable.
+
+\subsubsection{What transfers to monthly bank data}
+
+The useful insight is a separation between frequency while active and uncertainty about continued activity. Recency and frequency can be informative with very short histories. However, permanent inactivity with this bank is not permanent absence of financial need: the client may move activity to another bank and later return. Product adoption, seasonal corporate flows and repeated facility draws also differ from the original repeat-purchase setting. The paper's customer-base illustration cannot validate these assumptions for business clients.
+
+There is an additional measurement constraint. An exact last transaction time $t_x$ is not observed in a monthly aggregate. Inserting month-end as its exact time changes the likelihood. With exact dated transactions recovered from the underlying system, the original BG/NBD can be a benchmark. With only monthly counts, use a genuinely discrete model or integrate the unobserved timestamps under an explicitly specified observation model. The next section gives a discrete analogue. It is a new adaptation, not the original BG/NBD under a new name.

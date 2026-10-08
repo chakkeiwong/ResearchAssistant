@@ -1,0 +1,41 @@
+\subsection{A precise statement of the problem}
+
+Let $i\in\{1,\ldots,N\}$ index business clients, $j\in\{1,\ldots,J\}$ index bank products, and $t\in\{1,\ldots,36\}$ index calendar months. A product is defined at the level at which a commercial decision is made: for example, an FX hedge, a revolving credit facility, a term loan, a deposit or liquidity service, a payment or collections service, or a trade-finance service. The definition should be agreed with product owners before modelling. A vague target such as ``customer activity'' joins events with different commercial consequences and makes a score difficult to act on.
+
+Write $Y_{ijt}^{(H)}=1$ when client $i$ has a qualifying bank-observed event for product $j$ during the $H$ months after the information cutoff at month $t$. A qualifying event might be a new product opening, a funded draw, an FX transaction above a product-specific threshold, a material increase in a facility, or another event for which a salesperson can plausibly help. Let $C_{it}$ be the client information available by the cutoff: lagged transaction summaries, current products, account tenure, industry, geography, legal-entity relations, risk and eligibility fields, and any external feature whose publication date is no later than the cutoff. The forecasting target is
+\begin{equation}
+ p_{ijt}^{(H)}=\Prb\left(Y_{ijt}^{(H)}=1\given C_{it}\right).
+ \label{eq:forecast-target}
+\end{equation}
+ This is a conditional probability of an event visible to the bank. It is not the probability that the client has a need somewhere in the financial system.
+
+The product may also report a count. Let $N_{ijt}^{(H)}$ be the number of qualifying transactions in the horizon. A forecast of its conditional mean, $m_{ijt}^{(H)}=\E[N_{ijt}^{(H)}\given C_{it}]$, describes transaction intensity. Separate variables are needed for dollar amounts, balances, fees and notional volume; their units and economic meaning differ. A binary opportunity flag is often easier to calibrate; a count or value distribution is useful for ranking large opportunities. The document uses both, with the binary hazard as the primary short-panel target.
+
+The historical contact indicator $W_{it}$ records assignment to a defined sales protocol after the information cutoff. Assignment begins the outcome window; delivery occurs within its specified initial response period. Records must distinguish assignment, attempted delivery and completed contact. Define potential outcomes $Y_{it}^{(H)}(1)$ and $Y_{it}^{(H)}(0)$ under contact and no contact. For a contribution margin $M_{ijt}^{(H)}(w)$, the incremental value of a contact can be written
+\begin{equation}
+ \tau_{ijt}=\E\left[M_{ijt}^{(H)}(1)-M_{ijt}^{(H)}(0)\given C_{it}\right],
+ \label{eq:tau}
+\end{equation}
+ where margin excludes the separately recorded outreach cost $k_{it}$. Net action value is $v_{ijt}=\tau_{ijt}-k_{it}$. Equation \eqref{eq:tau} is a causal estimand. A high value of $p_{ijt}^{(H)}$ does not imply a high value of $\tau_{ijt}$: a client may transact without a conversation, or a conversation may redirect business from another bank.
+
+Finally, let $a_{it}\in\{0,1,\ldots,J\}$ denote the action assigned to a client, and let $h_{it}$ be the required salesperson hours. At a fixed cutoff $t$, with monthly capacity $B$, a simple policy solves
+\begin{equation}
+ \max_{a}\sum_i v_{it}(a_{it})
+ \quad\text{subject to}\quad
+ \sum_i h_{it}(a_{it})\le B,
+ \quad a_{it}\in\mathcal A_{it},
+ \label{eq:allocation}
+\end{equation}
+ where $v_{it}(a)$ is expected incremental contribution and $\mathcal A_{it}$ contains eligibility, ownership, conflict, and contact-frequency constraints. If calls compete only for a common pool of hours, \eqref{eq:allocation} is a knapsack problem. If a salesperson can contact several clients in a territory, or a client must receive a coordinated product bundle, the constraints become a mixed-integer program. The statistical model supplies values and uncertainty; it does not remove the business constraints.
+
+\subsection{The unit of prediction}
+
+The production table should have one row per client, product, cutoff month, and horizon. It must include the feature timestamp and the label end date. A client can have several rows at the same cutoff because FX, lending, deposits, and payments are distinct opportunities. A product event should be marked once in the horizon even if it contains many transactions, unless the commercial action is explicitly volume expansion. Product rows are therefore not independent observations merely because they are numerous. They share a client, a relationship manager, a month, and macroeconomic conditions.
+
+The target is a forward-looking event. For a cutoff at the end of March and a three-month horizon, features must be frozen at March 31 and the label covers April through June. A contact recorded in April cannot be a March feature. A web page first published in May cannot be used as March information merely because it is downloaded today. This point is operational rather than cosmetic: leakage turns a historical reconstruction into an impossible prediction task.
+
+\subsection{A concrete illustration}
+
+Consider a hypothetical product for which the event probability under usual service is $0.80$ for client A and $0.20$ for client B. Suppose the additional call leaves A's probability at $0.80$ but raises B's to $0.50$. With equal event margins and contact costs, A has no incremental response and B has a $0.30$ probability increase. Ranking by usual-service event probability puts A first; ranking by incremental response puts B first. These are assumed numbers for illustration, not effects inferred from the bank's records. The product must distinguish the two quantities.
+
+The bank should therefore expose three fields: the predicted event probability, the estimated incremental value of each eligible action, and the constraints or reason codes that produced the final assignment. Forecast reason codes are descriptive associations such as recent payment growth or an approaching facility maturity. Causal reason codes require a validated treatment model and should be labelled as estimated treatment heterogeneity, not as a mechanistic explanation.

@@ -1,0 +1,57 @@
+\chapter{Cash-flow measurement and the information the bank lacks}
+\label{ch:observation}
+\section{Define a financial boundary before fitting a model}
+For an individual account, a transfer to another account of the same company is an outflow. For the consolidated legal entity it may be internal. For a multinational group it may be an intercompany funding movement with different tax and treasury implications. The project must select the entity boundary, retain account-to-entity mappings, and flag uncertain links. Consolidating by similar names alone is inadequate: false merges can create fictitious natural hedges between unrelated firms.
+
+Native-currency gross flows should distinguish operating receipts and payments, financing, asset purchases, internal transfers, FX conversions, and settlements of existing derivatives when the bank can identify them. A sale of euros creates two currency legs; counting both as new operating activity would double count the economic event. Removing derivative settlements from the operating-flow target also prevents the model from treating its own hedge recommendations as new commercial demand.
+
+At month end, a reconciliation for a currency account is
+\begin{equation}
+B_{ic,t}-B_{ic,t-1}=Y^+_{ict}-Y^-_{ict}+J_{ict},
+\label{eq:accounting}
+\end{equation}
+where $J$ contains explicitly identified adjustments, interest, reclassifications, and any transactions excluded by the selected target definition. This is an accounting check, not a behavioral equation. FX translation changes the USD reporting value of a EUR balance without changing the number of euros. Modeling only USD-converted transaction amounts confounds volume with exchange rates.
+
+Monthly aggregation limits the product. Two offsetting payments within a month can produce zero monthly net flow while creating a large intramonth liquidity need. With only monthly data, the first release can support monthly exposure windows and conversations about future needs. A claim to optimize daily hedge execution or intramonth liquidity would require finer settlement information.
+
+\section{A simple proof of the total-wallet identification problem}
+Suppose for the moment that amounts observed at the bank satisfy
+\begin{equation}
+Y^+_{ict}=s^+_{ict}F^+_{ict},\qquad
+Y^-_{ict}=s^-_{ict}F^-_{ict},\qquad 0<s^\pm_{ict}\leq1.
+\label{eq:capture}
+\end{equation}
+These equations are an illustrative observation model, not an assertion that a bank receives a constant fraction of every transaction. They already show the problem. For any $a\geq1$, replacing $(F,s)$ by $(aF,s/a)$ leaves $Y$ unchanged. No estimator using $Y$ alone can distinguish these alternatives. In logs, the same result is
+\begin{equation}
+\log Y=\log F+\log s;
+\end{equation}
+a change in total economic activity and a change in bank share can be observationally identical.
+
+Separate capture shares for inflows and outflows are especially consequential. Observed receipts of EUR 1 million and payments of EUR 0.8 million imply a bank-observed net EUR 0.2 million. If $s^+=0.5$ and $s^-=0.8$, total receipts and payments are EUR 2 million and EUR 1 million, so total net exposure is EUR 1 million. If the shares are reversed, total receipts are EUR 1.25 million and payments EUR 1.6 million, producing a net short EUR 0.35 million. Even the sign can change.
+
+When credible capture bounds are available, they yield transparent partial identification. If $s^+\in[\underline s^+,\overline s^+]$ and $s^-\in[\underline s^-,\overline s^-]$, then
+\begin{equation}
+\frac{Y^+}{\overline s^+}-\frac{Y^-}{\underline s^-}
+\ \leq F^+-F^-\leq\
+\frac{Y^+}{\underline s^+}-\frac{Y^-}{\overline s^-}.
+\label{eq:capturebounds}
+\end{equation}
+The lower bound combines the smallest feasible receipts with the largest feasible payments; the upper bound reverses them. Correlated or jointly restricted shares may tighten this interval. Without such restrictions the wide interval is information about uncertainty, not a defect to conceal through a more flexible model.
+
+Additional evidence might include client-provided treasury forecasts, authorized consolidated statements, verified receivables and payables, or known multi-bank account data. Financial statements can constrain annual totals but usually do not reveal monthly currency exposure. Web information can classify business activities or identify a dated event; it rarely identifies bank shares. Until reliable additional observations exist, sales explanations should say ``activity visible to this bank'' and invite verification of total exposure.
+
+\section{Missingness, zeros, and dates}
+A zero means no qualifying transaction was observed in a complete month. A missing record means that the bank does not know whether activity occurred. Account opening, migration, closure, and failed ingestion create different missingness mechanisms. A model that replaces each missing value with zero teaches itself that clients become inactive when data disappear.
+
+Let $O_{ict}^{\pm}$ indicate that a flow is observed. The likelihood conditions on the recorded observation pattern when missingness is ignorable given available information. If closure depends on unobserved activity or a deteriorating relationship, this assumption may fail. A closure or capture model can then be added, but separate identification will depend on extra signals. The first product should expose observation coverage and use a fallback for incomplete clients.
+
+Every feature needs both an economic date and an availability date. GDP is typically released at quarterly frequency and revised later; carrying a released quarterly measure forward to monthly decision dates is defensible, while interpolating future unreleased GDP into past months leaks information. The same rule applies to revised industry statistics, financial statements, website content, and future sales outcomes. A present-day website cannot be treated as a historical signal unless its historical availability is established.
+
+Address and industry data help assign peers and currency-market exposure. Names are useful for entity resolution but have little economic meaning as arbitrary high-cardinality identifiers. Industry classifications, country, business size, relationship tenure, products already held, and verified export/import activity are more interpretable predictors. New or revised attributes must be dated, and uncertainty in entity matching should remain visible.
+
+\section{The data contract for the separate modules}
+The forecasting module requires native-currency receipt and payment series, observation masks, client attributes, macroeconomic vintages, and a forecast origin. Its output is a set of weighted joint paths with currency and date labels, together with a declared coverage scope: bank-observed or total-wallet under stated capture assumptions.
+
+The FX module additionally requires existing cash balances, known contractual commitments, hedge positions, netting rules, settlement dates, and product terms. The choice module requires the actual alternatives offered or available, timestamps, quoted forward points and fees, eligibility, acceptance or decline, and the outcome-observation window. The outreach module needs assignment or contact records, the information available before assignment, salesperson capacity, and realized net contribution.
+
+These contracts allow useful partial delivery. A sound flow forecast need not wait for full preference data. Conversely, the existence of transaction histories does not imply that a choice model is identified. Logging the missing offers and outcomes can begin while the forecasting system is developed.

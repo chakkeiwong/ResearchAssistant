@@ -1,0 +1,100 @@
+\subsection{The proposed model and its intended outputs}
+
+The recommended first system has three connected components: a pooled product-event forecast, an outreach-effect model, and a capacity-constrained allocation rule. These components should share timestamped features but retain distinct targets. The initial product is a ranked queue of eligible client--product opportunities, with the information cutoff, expected timing and a specified next action. Once a prospective experiment supports incremental-value estimation, the queue can be ordered by expected net contribution under capacity constraints.
+
+For product $j$, the primary forecast is a regularized pooled discrete-time logistic hazard. Industry and product effects are partially pooled; recency, frequency, activity changes, balances, holdings, maturity dates and prior contacts enter as available features. Product interactions reflect the cross-selling literature without imposing a universal product sequence. For repeatedly transacted products, a hurdle count or positive-amount model estimates intensity conditional on activity. The combined expectation is
+\begin{equation}
+ \E[V_{ijt}^{(H)}\mid C_{it}]
+ =p_{ijt}^{(H)}\E[V_{ijt}^{(H)}\mid V_{ijt}^{(H)}>0,C_{it}],
+ \label{eq:hurdle-value}
+\end{equation}
+provided the event is defined exactly as $V>0$. If a qualifying event has a threshold or includes a nonmonetary adoption, the count and amount targets must be adjusted; the identity cannot be attached to mismatched labels.
+
+A global boosted hazard is the first nonlinear challenger. DeepAR is a later challenger for products where the full count distribution has business value. Original BG/NBD enters only if precise event timestamps are recovered; otherwise the discrete analogue or simple recency/frequency features carry its useful insight. A latent maturity or multivariate-probit model is optional because its stronger product-order and data requirements are not established for corporate clients.
+
+The forecast answers what happens under the contact and market behavior represented in its training data. If the bank materially changes its sales policy, that outcome distribution may change. A historical-event probability should not be mislabeled as an untreated probability. The causal layer models the intervention explicitly and is evaluated on the policy that the bank intends to use.
+
+\subsection{Data construction and model fitting}
+
+Resolve legal entities and relationship groups before generating labels. Keep both the legal-client identifier and a group identifier so that related subsidiaries can be coordinated, and so that a parent's information does not leak into a supposedly independent subsidiary holdout. Product eligibility is evaluated at the cutoff. Existing ownership removes a pair from first-adoption risk but can create a separate expansion opportunity. Missing feeds, unobservable periods and delayed settlement records have explicit states.
+
+A practical training sequence is to create compact monthly aggregates, construct lag features using only past available data, build risk sets, and then fit one shared model per product or a multi-product model with product interactions. Thirty-six million client-month rows before eligibility and horizons is a large table, but not automatically a deep-learning problem. Partitioning by cutoff and product, reusing common features and streaming batches can keep computation manageable. Runtime and memory must be measured on a representative extract; no hardware requirement follows from row count alone.
+
+If non-event rows are sampled for computational reasons, retain sampling probabilities. An inverse-probability-weighted loss targets the original population loss: for a sampled indicator $R$ with inclusion probability $s(x,y)$, $\E[R L/s\mid x,y]=L$. With outcome-only case/control sampling, the sample log odds satisfy
+\[
+ \logit p_{\rm sample}(x)=\logit p_{\rm population}(x)+\log(s_1/s_0).
+\]
+Thus subtracting $\log(s_1/s_0)$ corrects the intercept under this specific design. Arbitrary client-dependent sampling requires appropriate weighting or a fuller correction. Unweighted oversampling followed by interpreting scores as population probabilities is wrong.
+
+Fit a calibration model on a later, disjoint calibration window. A simple logistic calibration is $p_{\rm cal}=\sigm(a+b\logit p)$, with $(a,b)$ estimated by Bernoulli likelihood. Perfect calibration would give $a=0,b=1$. An isotonic alternative fits a nondecreasing step function by minimizing squared probability error subject to ordered fitted values; adjacent blocks that violate monotonicity are pooled to their weighted mean until all blocks are ordered. Either method needs enough positive outcomes per product and independent final evaluation. Calibration cannot repair missing predictors or establish causal validity.
+
+\subsection{Learning the value of an outreach assignment}
+
+Use historical contact records first to assess support and data quality. Reconstruct who was eligible, who was assigned a call, who was actually reached, what offer was delivered, and when the outcome became observable. Estimate propensity and outcome models using cross-fitting at the appropriate entity-group level, with chronological separation for prospective claims. Regress the doubly robust scores on pre-assignment features, or fit a restricted policy directly to those scores. Individual score noise is not individual effect evidence.
+
+Historical models remain provisional where banker's private information plausibly drives selection. A prospectively randomized pilot should cover the eligible population on which the future policy will operate, stratified by product, segment and propensity band. Randomize the additional outreach protocol against the agreed usual-service condition and record assignment probabilities. Analyze assignment as the treatment. Contact completion is a useful operational diagnostic; conditioning the primary causal analysis on completed contact would undo randomization.
+
+Where overlap is absent, the system may still provide an event forecast. It should not extrapolate an experimental effect to unsupported actions as though it were measured. Product-specific eligibility restrictions can be respected in the experiment without pretending that excluded clients have comparable treatment effects. Sensitivity analyses can show how plausible unrecorded selection would change observational conclusions; they cannot prove exchangeability.
+
+\subsection{Allocate expected contribution under actual constraints}
+
+For action $a$ on client $i$, let $\widehat\tau_{ia}$ estimate incremental margin from assigning the complete protocol and $k_{ia}$ its expected outreach cost. Use
+\begin{equation}
+ \widehat v_{ia}=\widehat\tau_{ia}-k_{ia}.
+ \label{eq:action-value}
+\end{equation}
+No extra transaction-probability or delivery-probability multiplier belongs in this expression because both are already integrated into the assignment effect. A different model that separately predicts response probability and conditional margin must derive its value from those components and use a consistent baseline.
+
+At a monthly decision point, choose binary assignments $z_{ia}$ by
+\begin{align}
+ \max_z\quad &\sum_{i,a}\widehat v_{ia}z_{ia},\nonumber\\
+ \text{subject to}\quad &\sum_{i,a}h_{ia}z_{ia}\le B,\nonumber\\
+ &\sum_a z_{ia}\le1\quad\text{for each client }i,\nonumber\\
+ &\sum_{i,a\text{ assigned to }r}h_{ia}z_{ia}\le B_r
+       \quad\text{for each salesperson }r,\nonumber\\
+ &z_{ia}=0\text{ for ineligible actions},\qquad z_{ia}\in\{0,1\}.
+ \label{eq:mip}
+\end{align}
+Add territory, product-specialist capacity, contact-frequency and relationship-group coordination constraints as required. Costs in the objective and hours in the constraint serve different purposes: one values resources economically and the other prevents assigning more work than can be delivered. Bundle actions need their own incremental values when product effects interact; adding two separate effects assumes away those interactions.
+
+With identical hours and no other constraints, selecting the largest positive values up to capacity is exact. With unequal hours, value-per-hour sorting is only a heuristic for the indivisible knapsack problem. For example, with capacity four hours, an action worth five units requiring three hours has higher value per hour than each of two actions worth three units requiring two hours, yet selecting the two smaller actions yields six instead of five. An integer optimizer or a documented approximation should handle the actual constraints. The optimizer's solution is only as credible as its estimated values and constraints; it is not evidence of global economic optimality.
+
+\subsubsection{An illustrative queue}
+
+Table~\ref{tab:queue} uses hypothetical numbers to show why event propensity and outreach value should both be visible. Margin effects already include the possibility of unsuccessful contact. With three available hours, B and C yield estimated net contribution $650$, exceeding C and D at $600$. Client A has the highest event probability but a negative estimated net outreach value.
+
+\begin{table}[htbp]
+\centering
+\caption{Hypothetical assignments, in dollars and salesperson hours. No bank data were used.}
+\label{tab:queue}
+\begin{tabular}{lrrrrr}
+\toprule
+Client & Event probability & Incremental margin & Contact cost & Net value & Hours\\
+\midrule
+A & 0.80 & 40 & 50 & $-10$ & 1\\
+B & 0.30 & 500 & 100 & 400 & 2\\
+C & 0.25 & 300 & 50 & 250 & 1\\
+D & 0.40 & 430 & 80 & 350 & 2\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Estimated effects have uncertainty. A conservative value such as $\widehat\tau-\lambda\widehat s-k$ can express a deliberate aversion to estimation risk, but $\lambda$ is a business preference and this score is not automatically a valid lower confidence bound for a selected portfolio. Selection among a million noisy estimates can amplify optimism. Independent policy evaluation, limits on unsupported extrapolation, and a reserved randomized exploration allocation are more informative than displaying narrow individual intervals without adequate data.
+
+\subsection{Unusual activity as a secondary signal}
+
+A separate anomaly score can highlight an observed change that may warrant a conversation. At cutoff $t$, compare the newly observed count $n_t$ with a predictive distribution fitted using information available before that observation. A right-tail score is $u_t=\Prb(N_t\ge n_t\mid C_{t-1})=1-F_{t\mid t-1}(n_t-1)$. For unusual declines, use the lower tail. A very small tail probability means the observation was surprising under that model; it does not establish financial distress, misconduct, product need or responsiveness to contact.
+
+An anomaly can enter the next forecast as a lagged feature or trigger review together with an appropriate product signal. With a million clients, many tail observations arise even under a well-calibrated model. Thresholds should reflect the review capacity, expected false alerts and outcome validation. Do not mix this anomaly queue with a sales-value queue without measuring whether the additional calls help.
+
+\subsection{The banker interface and the feedback needed for learning}
+
+A recommendation should show the client and relationship group, product, eligible action, horizon, information cutoff, probability band, relevant magnitude forecast, owner and contact deadline. After causal validation it can add estimated incremental contribution and uncertainty. Three dated descriptive reasons might be recent cross-border payment growth, a known facility maturity and a compatible existing product. These are associations supporting the forecast, not claims that the feature causes a purchase.
+
+The banker records acceptance, override reason, attempt, completion, offer and outcome. Recommendations, overrides and withheld randomized assignments remain in the history so that later evaluation can distinguish the model's decision from delivery behavior. Outcomes must also be collected for uncontacted clients; a dataset containing only contacted successes cannot support the intended comparison. Monthly scoring and daily CRM execution can coexist, provided the interface states the actual data age.
+
+\subsection{Why this model addresses the stated problem}
+
+Pooling learns common patterns from many clients while shrinkage limits the parameters inferred from each short history. Discrete-time hazards match the monthly observation frequency and distinguish first adoption from recurring events. Product histories use cross-selling information that the bank actually has. Count and amount models add economically relevant scale. The explicit bank-observed target respects the unobserved competitor relationships. The treatment model asks whether sales attention changes the outcome, and the allocation model respects the finite sales force.
+
+These properties make the design capable of answering the requested decisions under stated assumptions. They are not a proof that it will improve sales. That conclusion requires the historical and prospective comparisons below, including simple strategies that a banker could implement without a complex model.

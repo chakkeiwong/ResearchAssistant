@@ -1,0 +1,92 @@
+\subsection{Chronological evaluation with fully matured labels}
+
+A random split of client-month rows would allow future conditions, repeated client histories and overlapping outcome windows to leak across training and testing. The main test should instead reconstruct what would have been known at each historical decision date. Client-group holdouts answer the additional cold-start question, but they do not replace temporal holdouts for existing clients.
+
+A concrete three-month-horizon design with 36 months is shown in Table~\ref{tab:time}. It is an example to adapt to event frequency and feature availability. Features at cutoff $t$ use only information available then; labels cover $t+1,t+2,t+3$. Hyperparameters and calibration are frozen after month 27. The final test uses cutoffs 27--33, whose outcomes mature by month 36. If the model is refitted during the test, the refitting rule must be fixed in advance and may use only labels that have matured at that historical date.
+
+\begin{table}[htbp]
+\centering
+\caption{Illustrative chronology for a three-month horizon.}
+\label{tab:time}
+\begin{tabular}{P{0.18\linewidth}P{0.24\linewidth}P{0.45\linewidth}}
+\toprule
+Use & Forecast cutoffs & Information and labels\\
+\midrule
+Model fitting & Earliest feasible cutoff through 21 & Lookbacks end at each cutoff; all three-month labels end by 24.\\
+Validation & 22--24 & Labels end by 27; select model complexity and fit calibration using this later information.\\
+Final testing & 27--33 & Freeze choices at 27; forecast future outcomes through 36. No test label informs selection.\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The validation window is short and selecting many models on it can overfit. Within the earlier data, use a small number of rolling-origin folds to narrow choices, and reserve the final test for one comparison. One-month targets have different label maturity and should be evaluated separately. Three-month targets at successive cutoffs overlap, so even distinct test rows can share the same transaction. Uncertainty must account for that overlap. Seven test origins do not establish robustness across many economic cycles.
+
+\subsection{Constructed practitioner baselines and model comparisons}
+
+Before inspecting final labels, define simple strategies a relationship manager could reasonably use. For this problem the comparison set should include:
+\begin{enumerate}[leftmargin=*]
+ \item Current banker prioritization, reconstructed from its actual rules and available information, to establish the operational comparator.
+ \item Random selection among eligible clients within product and territory, repeated using recorded seeds, to measure the value of targeting at the same capacity.
+ \item A fixed recency/frequency rule: prioritize clients with more active months in the last three months, breaking ties by more recent activity. This directly tests whether a complex model adds to persistence.
+ \item A product--industry base-rate rule estimated only on the fitting period, with sparse industries shrunk toward the product mean. This tests whether categories alone explain the ranking.
+ \item A seasonal-repeat rule prioritizing clients with activity in the corresponding month of the previous year, with the product base rate for unavailable history. This tests a simple annual pattern while recognizing that only three years are observed.
+ \item A known-event rule prioritizing documented facility maturities or product-renewal dates inside the horizon, using a fixed fallback for clients without such dates. This tests commercially obvious timing information.
+\end{enumerate}
+These rules are fixed before final testing. They are falsification comparisons, not a collection of final-test scores against which to tune the proposed model. Current-process records may themselves be incomplete; that limitation must be reported rather than replaced silently by a weak artificial baseline.
+
+Compare a tuned regularized logistic model, a partially pooled hazard, a boosted hazard and, if warranted, DeepAR. Each must receive the same eligible population, historical information boundary and outcome definitions. Feature-rich nonlinear models should also be compared with feature-rich classical models so that extra data are not mistaken for an architectural benefit. Count models use the same count definition and forecast horizon; event models are compared on event probabilities.
+
+Report results separately for new and established clients, sparse and frequent transactors, small and large exposures, industries, products, relationship groups and calendar periods. The salient situations should be chosen before final evaluation. A complex model losing to a simple rule in a situation it is intended to handle is a main finding and prevents promotion until understood or repaired. A small, uncertain difference is not evidence of superiority. Rare subgroups may require more data before any ranking can be defended.
+
+\subsection{Forecast scores, calibration, and usable capacity}
+
+For binary outcomes, average log loss is
+\[
+ -\frac1n\sum_i[y_i\log p_i+(1-y_i)\log(1-p_i)],
+\]
+and the Brier score is $n^{-1}\sum_i(y_i-p_i)^2$. To see why calibrated probabilities matter, suppose the true probability at a given feature value is $q$. Expected Brier loss is
+\[
+ q(1-p)^2+(1-q)p^2=q(1-q)+(p-q)^2,
+\]
+which is minimized at $p=q$. Expected log loss has derivative $-q/p+(1-q)/(1-p)$, also zero at $p=q$, with positive curvature. Thus both reward probability accuracy, not just ordering. Scores should be computed on the actual eligible population or appropriately weighted back to it.
+
+For a capacity of $K$ recommendations, define precision at $K$ as $K^{-1}\sum_{i\in\operatorname{Top}K}y_i$. Recall at $K$ divides the same numerator by all positive outcomes. Lift at $K$ divides precision at $K$ by population event prevalence. Precision--recall curves are useful for rare events, while area under a receiver-operating curve can conceal poor precision at the small fraction the bank can contact. Report the operating point matching actual salesperson hours, as well as fixed-client-count comparisons when useful.
+
+A calibration plot compares mean predicted probability with observed frequency in prespecified bins, with uncertainty and sample counts. Examine it by product, horizon and material segment. For count or amount forecasts, use predictive log scores and interval coverage together with errors in the economically relevant aggregate. Coverage without interval width can reward an uninformative distribution, and a good average error can hide failure on large exposures.
+
+Historical transaction lift is not incremental sales lift. A forecast-only queue can be assessed for probability accuracy and concentration of future transactions. The primary commercial comparison for an outreach policy is incremental contribution at matched capacity. Forecast accuracy is an intermediate diagnostic; it cannot establish that calling the selected clients creates value.
+
+\subsection{Uncertainty and policy evaluation}
+
+Compare candidate and baseline on the same held-out observations, using paired differences. Resampling entire client groups preserves within-group histories. Resampling calendar blocks can address some common shocks and overlapping horizons. With only 36 months, neither procedure creates additional regimes; intervals for performance under a new macroeconomic environment remain weakly identified. Report both segment variation and calendar variation, and state when the number of blocks is too small for reliable asymptotic inference.
+
+For a policy fixed before evaluation on independent units, Equation~\eqref{eq:policy-learning} estimates its incremental value. If $G_i=\pi(X_i)(\widehat\Gamma_i-k_i)$ and the assumptions support independent units, the usual standard error is $s_G/\sqrt n$. With clustered assignment, first aggregate to the randomization unit and use its sampling design. When comparing two fixed policies, use $(\pi_1(X_i)-\pi_0(X_i))(\widehat\Gamma_i-k_i)$ on the same observations, rather than treating their value estimates as independent. Reusing the evaluation data to choose the policy makes these simple intervals optimistic.
+
+A portfolio selected at a fixed monthly capacity couples the client decisions. Evaluate the allocation procedure at its intended operating capacity, including ownership and territory restrictions. A population rule with unrestricted contact fraction and a monthly optimizer with a fixed staff budget are not automatically the same policy. Historical replay is informative only to the extent that the recorded actions and outcomes support its counterfactual comparisons.
+
+\subsection{Two prospective experiments answer two different questions}
+
+The first experiment estimates the effect of the outreach protocol. Randomize eligible client groups within declared strata to additional contact or usual service. Record outcomes for everyone, including unsuccessful attempts. Compare assignment groups over the complete outcome horizon. This establishes whether the action has value and supplies data for heterogeneous-effect estimation.
+
+The second experiment evaluates allocation at equal resources. Assign comparable portfolios, territories or appropriately separated periods to the proposed queue or the current prioritization process, with equal salesperson hours and consistent offers. Choose the unit to limit contamination across relationship groups and bankers. Evaluate total contribution across each assigned portfolio, including clients not contacted, so that differences in who was selected do not become a post-treatment sample restriction. A switchback design needs enough periods and control of carryover; it is not automatically suitable for long-lived financing decisions.
+
+The two experiments may be combined in a carefully designed trial, but their estimands remain distinct. Comparing contacted model-selected clients with uncontacted randomly chosen clients confounds selection and treatment. Comparing conversion rates only among successfully reached clients additionally conditions on delivery. Neither establishes the value of the allocation policy.
+
+\subsubsection{Power and exposure must be planned from event rates}
+
+For an illustrative equal-size randomized binary-outcome trial, let $p$ approximate the response probability in each arm, $\Delta$ the minimum detectable difference, and $n_a$ the number of independent units per arm. The variance of the difference is approximately $2p(1-p)/n_a$. Requiring a standardized signal of $z_{1-\alpha/2}+z_{1-\beta}$ gives
+\begin{equation}
+ n_a\approx\frac{2p(1-p)(z_{1-\alpha/2}+z_{1-\beta})^2}{\Delta^2}.
+ \label{eq:power}
+\end{equation}
+Here $\alpha$ is the test's false-positive probability and $1-\beta$ its desired power. This is a normal-approximation planning formula, not a final rare-event design. For a continuous margin outcome with approximately common variance $\sigma_M^2$, replace $p(1-p)$ by $\sigma_M^2$ and express $\Delta$ in dollars. Heavy tails, unequal variances and product mix may require simulation-based planning.
+
+If a cluster contains $m$ clients with common variance $\sigma^2$ and pairwise correlation $\rho$, the variance of its sum is $m\sigma^2+m(m-1)\rho\sigma^2$, giving the familiar variance multiplier $1+(m-1)\rho$. Unequal cluster sizes and stratification need their actual design calculation. One million customers therefore does not guarantee a well-powered trial: rare product events, limited outreach, few independent bankers and long outcome windows can be the binding constraints. Historical rates, costs and margin variability are required before setting the final sample size.
+
+\subsection{Promotion criteria and operational failure conditions}
+
+The forecast release should meet predeclared probability-calibration tolerances, outperform or remain acceptably competitive with the simple baselines at operating capacity, and show no unexplained failure in material segments. The causal release should demonstrate positive incremental value against the agreed comparison with uncertainty appropriate to the trial, together with acceptable contact burden and delivery performance. A model that passes a technical screen remains a candidate; it is not thereby proven superior.
+
+Missing outcome maturity, leakage, invalid entity matching, absent treatment support or a broken randomization record invalidate the relevant comparison and require repair. Weak predictive performance rejects that candidate but need not reject the entire research direction. For example, a recurrent network failing to improve on recency does not invalidate the pooled logistic proposal. All reported comparisons should distinguish such failures from ordinary statistical uncertainty.
+
+Monitor feature availability, score distributions, event prevalence, calibration, contact volume, delivery rates, incremental margin and segment coverage. Retraining should follow a documented schedule or drift investigation, using matured labels. Preserve the model version, data cutoff and recommended action for every decision. Feedback from banker overrides can improve the product, but an override is not automatically a correct label; it may reflect capacity, private information or preferences that require separate analysis.

@@ -1,0 +1,77 @@
+\chapter{Validation, delivery phases, and commercial feasibility}
+\label{ch:delivery}
+\section{What would count as success?}
+The proposal is useful if it produces better financial decisions with the information the bank actually possesses. Low average prediction error is one piece of that evidence. A hedge application also needs calibrated uncertainty, credible covariance, honest exposure scope, and useful behavior under scenarios. A sales product ultimately needs incremental contribution at realistic capacity. These criteria should be fixed before selecting a model on the final holdout period.
+
+The main forecast comparison should use out-of-time predictive distributions of currency-specific receipts and payments, cumulative net exposure, and relevant liquidity shortfalls. The first business pilot should use incremental net contribution and client-value safeguards at the intended outreach budget. Predictive accuracy cannot serve as a substitute for that randomized commercial result.
+
+The proposed architecture addresses the problem through explicit mechanisms. Pooling reduces the number of independently estimated client parameters. State dynamics distinguish persistent activity from payment noise. A hurdle likelihood accommodates zero months and positive skew. Joint covariance preserves natural hedges. Macro response parameters permit transparent scenario changes. The independent utility module values offers from financial outcomes, and the choice module accounts for heterogeneity and available alternatives. These are reasons the design can represent the required questions. Whether it forecasts or sells well is an empirical question for the following evaluation.
+
+\section{Chronological evaluation with 36 dates}
+Use rolling forecast origins so that every fitted parameter, transform, peer statistic, and feature uses only information available at its origin. A feasible illustrative split is months 1--18 for initial fitting, origins 18--24 for development subject to label availability, and origins 25--30 for final six-month evaluation through month 36. For a six-month target, a development origin of 24 uses outcomes through month 30; those outcomes must not be used when pretending to deploy a model at month 25. One clean implementation therefore freezes hyperparameter selection before the final test origin, using only development targets already matured at that time. Another reserves a later deployment date and documents the changed test window. The precise schedule should be constructed from label-availability dates, not just row partitions.
+
+For clarity, a conservative final six-month test can freeze all selection using origins no later than 18 and outcomes through month 24, then evaluate origins 25--30 with predeclared rolling refitting rules. Shorter horizons can provide more origins, but overlapping targets create dependence. This small number of common test dates gives limited evidence about macro regimes. Client-level bootstrap intervals alone can become misleadingly narrow because all clients share the same calendar shocks. Report paired differences by origin and industry, use time-block or two-way dependence-aware uncertainty where justified, and state when the number of time blocks is too small for reliable asymptotics.
+
+Operational forecast tests must use macroeconomic information or macro forecasts available at the forecast origin. Conditioning on realized future GDP or FX is an oracle diagnostic of the conditional response model, not a deployable forecast result. Report it separately. Scenario-conditioned performance and the performance of an unconditional operational forecast answer different questions.
+
+Two generalization questions should be evaluated separately: forecasts for existing clients with prior history, and forecasts for new clients or newly active currencies. Hold out complete entities or corporate groups for the second question. Do not let related subsidiaries appear in both sides of a group-level holdout when their shared information would make the exercise unrealistic.
+
+\section{A constructed set of practical competitors}
+The initial model must face inexpensive rules that a treasury practitioner could actually use. The following competitors are defined operationally, and each should produce a comparable predictive distribution using training-only residual or pooled uncertainty estimates where needed:
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+\item \textbf{Last observed amount:} forecast the most recent complete month's inflow and outflow in each currency. It is a strong persistence rule for stable clients.
+\item \textbf{Trailing mean:} forecast each coordinate by its last six complete months' mean, with the window treated as a development choice. It resists a single unusual month.
+\item \textbf{Seasonal naive:} use the same calendar month one year earlier when available, with a pooled fallback for shorter histories. It tests whether annual scheduling alone explains the signal.
+\item \textbf{Recency--frequency--amount rule:} estimate occurrence from recent positive-month frequency and positive size from recent nonzero amounts, shrunk toward the industry/currency mean. It is a transparent intermittent-flow adversary.
+\item \textbf{Pooled lagged regression:} use industry, currency, lagged gross flows, and calendar variables with regularization. It tests the incremental value of latent states.
+\item \textbf{Transparent Gaussian state-space model:} fit a small shared level/seasonal model with explicit covariance. It tests whether the hurdle and richer hierarchy add useful information.
+\end{enumerate}
+The plain proposed model is the hierarchical hurdle state-space model without optional neural parameter generation. Enhanced candidates add residual common factors, richer macro response, or a neural generator only in controlled comparisons. DeepAR and deep state-space models are flexible literature-based challengers, with their covariate information and parameter-search budgets matched fairly to the structured model.
+
+Compare each method conditionally for stable versus volatile clients, dense versus intermittent flows, long versus short relationships, exporters versus importers, natural hedges versus one-sided currency positions, missing observations, large clients, and macro stress or structural-change periods represented in the data. An average gain cannot conceal a failure on a commercially material segment. Underperformance against a simple rule in such a segment blocks promotion for that segment until repaired or routed to an explicit fallback. The competitor set is a falsification check, not a test set to repeatedly optimize against.
+
+\section{Metrics matched to the financial task}
+For marginal distribution accuracy, use log predictive density and the continuous ranked probability score (CRPS). If $Z,Z'$ are independent draws from forecast $F$, then
+\begin{equation}
+\operatorname{CRPS}(F,y)=\E|Z-y|-\tfrac12\E|Z-Z'|.
+\end{equation}
+The first term rewards proximity to the realization; the second adjusts for the forecast's own spread. For a sample of $M$ paths it can be estimated using pairwise distances or a sorted-sample algorithm. The hurdle distribution has a point mass at zero and a continuous positive density; log-score evaluation must respect that mixed measure rather than adding an arbitrary density epsilon.
+
+For intervals, report coverage and width by currency, horizon, industry, and activity regime. For joint forecasts, evaluate realized distributions of $Y^+-Y^-$, cumulative exposure, and hedge P\&L, as well as joint scoring rules. One example is the energy score,
+\begin{equation}
+\operatorname{ES}(F,\bm y)=\E\|\bm Z-\bm y\|-\tfrac12\E\|\bm Z-\bm Z'\|.
+\end{equation}
+Currency and horizon scales must be declared before applying a vector norm. Because a joint score can be insensitive to some dependence errors in high dimensions, direct covariance and exposure-tail diagnostics remain necessary. For a decision quantile $q_\alpha$, use pinball loss
+\begin{equation}
+L_\alpha(y,q_\alpha)=(\alpha-\ind\{y<q_\alpha\})(y-q_\alpha).
+\end{equation}
+Expected pinball loss is minimized at an $\alpha$-quantile: where differentiable, its derivative with respect to $q$ is $F_Y(q)-\alpha$. At atoms, the subgradient condition gives the usual quantile interval. This supplies a direct interpretation for one-sided funding or receipt risk forecasts.
+
+For choice, evaluate held-out log likelihood, probability calibration, and substitution under observed menu variation. Choice accuracy is a weak criterion when one alternative dominates. For utility calculations, inspect realized hedge costs and P\&L, but do not treat one favorable currency move as evidence that a hedge was ex ante optimal. The objective concerns the distribution known at the decision date. For outreach, evaluate net contribution under randomized assignment, with capacity and contact costs included.
+
+Scenario validation is different from forecast validation. Test the imposed GDP monotonicity over all supported horizons, check units and lags, inspect unrestricted-response sensitivity, and test whether the specification extrapolates sensibly. Passing these checks establishes that the implementation obeys the proposed assumptions. It does not empirically validate an unobserved intervention. A causal interpretation requires separate identification evidence.
+
+\section{Phases that deliver value independently}
+\subsection{Phase 0: reliable observations and a coverage baseline}
+Deliver a dated native-currency inflow/outflow panel with entity boundaries, reconciliation checks, zero/missing distinctions, and observation coverage. Construct the six simple competitors, and begin logging complete offer sets, quotes, declines, and contact assignment. Resolve whether the earliest product speaks about bank-observed activity or supported total-wallet estimates. Exit this phase when a sampled set of entities reconciles to source systems and historical features can be reproduced at their actual availability dates.
+
+\subsection{Phase 1: cash-flow forecasts and macro scenarios}
+Deliver joint receipt/payment paths, forecast intervals, exposure summaries visible to the bank, and a scenario control for GDP and other macro inputs. Start with the small structured model and the explicit GDP response kernel. Report predictive versus imposed versus identified scenario interpretations. This phase has no dependency on estimating utility or choice. Promotion requires out-of-time calibration and usefulness against the constructed competitors, including material client segments; an unvalidated neural enhancement remains optional.
+
+\subsection{Phase 2: FX exposure and client-value calculations}
+Add verified balances, commitments, existing hedges, indicative product quotes, and settlement-bucket accounting. Deliver comparative hedge values under declared preferences and capture sensitivities. Use the analytic hedge formula as a reference case and scenario evaluation for richer exposures. Show which uncertainty comes from flows, FX, capture, or preferences. This phase can support an informed treasury discussion before behavior is estimated. Promotion requires accurate cash-flow-to-payoff accounting and economically coherent sensitivity, not a claim that assumed preferences are revealed preferences.
+
+\subsection{Phase 3: estimated choice and controlled outreach}
+Fit a parsimonious conditional logit once actual choice sets and dated prices exist. Add mixed logit only when repeated choices and heterogeneity warrant it. Design approved variation or a defensible identification strategy for price effects. Run an outreach experiment to compare the proposed queue with current coverage and simpler rules. Promotion requires uncertainty-supported incremental net value, appropriate product eligibility, and credible measurement of outcomes. A well-calibrated forecast alone cannot satisfy this criterion.
+
+\section{A production design proportionate to the project}
+Use monthly batch estimation and scoring initially, with event-triggered refreshes only when newer underlying data exist. Share group parameters, store compact client states, and simulate detailed paths for eligible currency-active clients or shortlisted opportunities. A million clients with 1,000 paths, 6 months, 10 currencies, 2 directions, and 4-byte values would require 480 billion bytes, roughly 480 GB, before exchange rates and metadata. Streaming summaries and reproducible scenario seeds reduce storage; detailed path retention should be selective and justified by downstream use.
+
+Each module should accept versioned inputs and return units, timestamps, assumptions, uncertainty summaries, and reason codes understandable to a relationship manager. A useful client view would say that observed euro receipts and supplier payments imply an uncertain net exposure in a specified period, show the effect of a selected GDP scenario, and identify the information still needed to verify a hedge amount. It should not expose model-fitting jargon in place of the financial explanation.
+
+Monitor observation coverage, entity-link changes, new-currency activity, forecast calibration, dependence errors, and choice-set recording. Track sales policy changes because they alter future labels and observed bank capture. A rise in the bank's share after outreach can look like an increase in underlying client cash flows unless capture and treatment are distinguished. Model refreshes need an as-of evaluation against the previous version and the same practical baselines.
+
+\section{What remains uncertain, and the next justified decision}
+The proposal is mathematically capable of generating the requested flow scenarios and independent product choices. Its most consequential empirical uncertainties are total-wallet visibility, the stability and identification of macro responses, tail dependence between flows and FX, and the availability of complete choice records. These should determine the first data work, rather than selecting a large architecture before seeing the observations.
+
+No empirical superiority, return on investment, or causal GDP elasticity is reported here. The immediate justified action is a bounded data audit and retrospective forecasting prototype under a predeclared evaluation plan. Exact compute budgets, training searches, random-seed replication, and promotion thresholds should be fixed after the panel dimensions, active currencies, and data quality are known. That avoids treating convenient numerical settings or calendar estimates as scientific defaults.

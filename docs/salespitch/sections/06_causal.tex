@@ -1,0 +1,157 @@
+\subsection{Define the intervention before estimating its value}
+
+Forecasting who will transact and deciding whom to contact answer different questions. A relationship manager may already know which firms have imminent transactions. A model that predicts those transactions accurately can still waste sales capacity if the transactions would arrive without a call. Conversely, a client with modest natural propensity may be highly responsive to an appropriate offer.
+
+Let $W=1$ mean assignment to a defined outreach protocol and $W=0$ mean assignment to a specified comparison, such as usual service without the additional product call. Let $M(w)$ be contribution margin over the outcome horizon under assignment $w$, before the separately recorded outreach cost. Define
+\[
+ m_w(x)=\E[M(w)\mid X=x],\qquad \tau(x)=m_1(x)-m_0(x),\qquad v(x)=\tau(x)-k(x).
+\]
+This is an intention-to-treat contrast: failed contact attempts and incomplete delivery are part of the outcome of assigning the protocol. Multiplying this $\tau$ by a contact-success probability would count delivery failure twice. If the desired effect is instead conditional on successful contact, successful delivery is a post-assignment selection event and needs a different identification argument.
+
+The horizon, product, offer content, response window and usual-service condition must be explicit. The initial experiment should use one assignment per client group within the outcome horizon, with follow-up contacts governed by the assigned protocol. Repeated adaptive assignments require a longitudinal treatment model; the single-assignment formulas below do not automatically identify their value. A five-business-day call window can follow a monthly scoring cutoff, but the underlying transaction information may already be weeks old. A monthly model cannot promise detection within a few days of an unobserved transaction. Margin should include the finance-approved costs of funding, expected credit loss and implementation where relevant. Product notional and gross revenue are not substitutes for contribution margin. Sales labor cost is subtracted once, through $k$.
+
+\subsection{Gutierrez and Gérardy: estimating heterogeneous response}
+
+\citet{gutierrez2017causal}, Sections 2--3, review uplift methods for estimating differences in treatment response. For a binary outcome $Y$, the conditional average treatment effect is $\tau_Y(x)=\E[Y(1)-Y(0)\mid X=x]$. The corresponding derivations hold for a continuous margin outcome when the required moments exist.
+
+The identification assumptions are consistency, conditional exchangeability and overlap. Consistency means the observed outcome is $Y=Y(W)$ for the defined intervention. Exchangeability means $(Y(0),Y(1))\perp W\mid X$. Overlap means $0<e(x)<1$, where $e(x)=\Prb(W=1\mid X=x)$. Under these conditions,
+\begin{align}
+ \E[Y(1)\mid X=x]
+ &=\E[Y(1)\mid W=1,X=x]=\E[Y\mid W=1,X=x],\\
+ \E[Y(0)\mid X=x]
+ &=\E[Y(0)\mid W=0,X=x]=\E[Y\mid W=0,X=x].
+ \label{eq:uplift-identification}
+\end{align}
+The first equality in each line uses exchangeability and the second consistency. Subtracting identifies the CATE. A record of past contacts establishes neither assumption. A banker's unrecorded knowledge of an impending deal can affect both treatment and outcome.
+
+\subsubsection{Separate models, a joint model, and transformed outcomes}
+
+The two-model approach fits $\widehat m_1$ on contacted observations and $\widehat m_0$ on controls, then uses their difference. Its strength is flexibility; its weakness is that two prediction errors enter the difference. If their conditional errors are $\epsilon_1$ and $\epsilon_0$, the effect error is $\epsilon_1-\epsilon_0$ and its variance is $\operatorname{Var}\epsilon_1+\operatorname{Var}\epsilon_0-2\operatorname{Cov}(\epsilon_1,\epsilon_0)$. Accurate marginal prediction does not guarantee accurate treatment-effect ranking.
+
+A single joint model fits $m(x,w)$ and subtracts predictions at $w=1$ and $w=0$. For example, $m(x,w)=g(x)+w\theta(x)$ directly parameterizes heterogeneity for a continuous outcome. With a logistic binary-outcome model, the probability difference is $\sigm(g(x)+\theta(x))-\sigm(g(x))$, not the coefficient $\theta(x)$ itself. A model with no treatment interactions imposes strong restrictions on the pattern of uplift.
+
+A transformed outcome has conditional mean equal to the effect:
+\begin{equation}
+ Y^*=\frac{W-e(X)}{e(X)(1-e(X))}Y
+     =\frac{WY}{e(X)}-\frac{(1-W)Y}{1-e(X)}.
+ \label{eq:transformed-outcome}
+\end{equation}
+Conditioning on $X=x$ and summing over treatment gives
+\[
+ \E[Y^*\mid x]=e\frac{m_1}{e}-(1-e)\frac{m_0}{1-e}=m_1-m_0.
+\]
+Thus least-squares regression of $Y^*$ on $X$ targets the CATE. But its second moment contains $\E[Y^2\mid W=1,x]/e+\E[Y^2\mid W=0,x]/(1-e)$, which becomes large near the propensity boundaries. Trimming changes the population being studied. Clipping denominators changes the estimator and generally introduces bias; neither is a free correction for absent overlap.
+
+Uplift trees choose partitions for treatment heterogeneity instead of ordinary outcome prediction. A transparent split criterion can be derived from a squared-error fit to an effect signal. If two child nodes contain $n_L,n_R$ observations and effect means $\widehat\tau_L,\widehat\tau_R$, the reduction from fitting two means instead of one is
+\[
+ \frac{n_Ln_R}{n_L+n_R}(\widehat\tau_L-\widehat\tau_R)^2.
+\]
+To verify it, use the parent mean $(n_L\widehat\tau_L+n_R\widehat\tau_R)/(n_L+n_R)$ in the between-group sum of squares and expand. This illustrates the splitting principle surveyed in the paper; it is not a claim that every reviewed uplift-tree algorithm uses this exact criterion. Both treatment arms need support in each leaf, and independent estimation or validation is needed to avoid selecting spurious heterogeneity.
+
+For binary outcomes one can imagine four individual types: responders only under contact, responders under either condition, nonresponders under either condition, and clients harmed by contact. The two marginal response probabilities do not identify these individual types because the joint distribution of $(Y(1),Y(0))$ is unobserved. The model estimates average response differences for comparable clients, not which counterfactual type a particular named firm certainly belongs to.
+
+\subsection{Athey and Wager: doubly robust scores and policy choice}
+
+\citet{wager2021policy}, their binary-treatment score and Section 2.3, estimate policy value using influence-function-based treatment scores and constrain policy complexity. Their full theory includes assumptions on sampling, nuisance estimation and policy classes. The following derivation states the binary-treatment calculation used here; it does not import an independent-sample asymptotic guarantee into a dependent bank panel.
+
+With observed margin $M$ and fitted outcome means $\widehat m_w$, define
+\begin{equation}
+ \widehat\Gamma=\widehat m_1(X)-\widehat m_0(X)
+ +\frac{W}{\widehat e(X)}[M-\widehat m_1(X)]
+ -\frac{1-W}{1-\widehat e(X)}[M-\widehat m_0(X)].
+ \label{eq:dr-score}
+\end{equation}
+The first two terms are a regression estimate of the difference. The weighted residuals correct systematic prediction errors using observed outcomes in each treatment arm. $\widehat\Gamma$ is a noisy effect score; it is not an observed individual causal effect and should not be used as a raw client ranking without estimating its conditional mean or a policy.
+
+To establish double robustness, condition on $X=x$ and on nuisance functions estimated on separate data. Let $e$ and $m_w$ denote the true propensity and means. Expanding the conditional expectation gives
+\begin{align*}
+ \E[\widehat\Gamma\mid x]
+ &=\widehat m_1-\widehat m_0
+   +\frac{e}{\widehat e}(m_1-\widehat m_1)
+   -\frac{1-e}{1-\widehat e}(m_0-\widehat m_0).
+\end{align*}
+Put $\delta_e=\widehat e-e$ and $\delta_w=\widehat m_w-m_w$. Subtracting $\tau=m_1-m_0$ and collecting terms yields
+\begin{equation}
+ \E[\widehat\Gamma\mid x]-\tau(x)
+ =\delta_e\left[\frac{\delta_1}{\widehat e}
+              +\frac{\delta_0}{1-\widehat e}\right].
+ \label{eq:dr-bias}
+\end{equation}
+If the propensity is correct, this bias is zero even with misspecified outcome models. If both outcome means are correct, it is zero even with a misspecified propensity. Small errors enter as products when denominators are bounded away from zero. This does not protect against unmeasured confounding, outcome leakage, treatment misdefinition or lack of support: those failures invalidate the identification step before this algebra applies.
+
+Cross-fitting separates nuisance fitting from score evaluation. Partition independent assignment units, fit nuisances outside each fold, and compute scores within the held-out fold. Related legal entities and repeated observations must stay together where appropriate. In a forecasting exercise, nuisance and policy training must also respect time; later outcomes cannot be used to build a model claimed to have existed earlier. Ordinary random cross-fitting of client-month rows is insufficient for either requirement. A prospective experiment with a known assignment probability removes the need to estimate that propensity, but still requires valid outcomes and policy evaluation.
+
+\subsubsection{From treatment scores to a policy objective}
+
+For a decision rule $\pi(x)\in\{0,1\}$, value relative to no additional contact is
+\begin{equation}
+ V(\pi)=\E[\pi(X)\{\tau(X)-k(X)\}],\qquad
+ \widehat V(\pi)=\frac1n\sum_{i=1}^n\pi(X_i)(\widehat\Gamma_i-k_i).
+ \label{eq:policy-learning}
+\end{equation}
+One can search a restricted class $\Pi$ for the rule maximizing this estimate, subject to budget and eligibility. The source sometimes expresses the objective with $(2\pi-1)\Gamma$. Since $\E[(2\pi-1)\Gamma]=2\E[\pi\Gamma]-\E\Gamma$, it has the same maximizer when the last term does not depend on $\pi$. Costs must be added consistently to whichever representation is used.
+
+A short derivation explains why policy-class complexity matters. Let $\pi^*$ maximize true value in $\Pi$ and $\widehat\pi$ maximize estimated value. Add and subtract estimated values:
+\begin{align*}
+ V(\pi^*)-V(\widehat\pi)
+ &=V(\pi^*)-\widehat V(\pi^*)
+ +\widehat V(\pi^*)-\widehat V(\widehat\pi)
+ +\widehat V(\widehat\pi)-V(\widehat\pi)\\
+ &\le 2\sup_{\pi\in\Pi}|\widehat V(\pi)-V(\pi)|.
+\end{align*}
+The middle term is nonpositive by empirical maximization. In a simplified setting with independent observations, unbiased known scores, finite $\Pi$, and $|\Gamma-k|\le G$, Hoeffding's inequality and a union bound give
+\[
+ \sup_{\pi\in\Pi}|\widehat V(\pi)-V(\pi)|
+ \le G\sqrt{\frac{2\log(2|\Pi|/\delta)}{n}}
+\]
+with probability at least $1-\delta$. This is an explanatory finite-class bound, not the paper's more general regret theorem. It shows how a policy can overfit noisy effects even when the scoring formula is unbiased. Nuisance error, dependent assignments and heavy-tailed margin require additional treatment.
+
+For multiple mutually exclusive actions $a$, define $e_a(x)=\Prb(W=a\mid x)$ and $m_a(x)=\E[M\mid W=a,x]$. Relative to action $0$, the analogous score is
+\[
+ \Gamma_a=\widehat m_a-\widehat m_0
+ +\frac{\mathbf1_{\{W=a\}}}{\widehat e_a}(M-\widehat m_a)
+ -\frac{\mathbf1_{\{W=0\}}}{\widehat e_0}(M-\widehat m_0).
+\]
+Expanding by assignment as above establishes its corresponding robustness. Each action needs overlap. A separate binary analysis that treats other active offers as ``no contact'' changes the comparison and can be misleading.
+
+\subsection{Elkan and Noto: learning from selectively observed positives}
+
+\citet{elkan2008pu}, Lemma 1 and Sections 2--3, distinguish the true class $D\in\{0,1\}$ from the indicator $S$ that a positive is labeled. There are no labeled negatives: $\Prb(S=1\mid D=0,X)=0$. Under selected-completely-at-random labeling (SCAR),
+\[
+ \Prb(S=1\mid D=1,X=x)=c,\quad 0<c\le1.
+\]
+Writing $f(x)=\Prb(D=1\mid x)$ and $g(x)=\Prb(S=1\mid x)$, the law of total probability gives
+\begin{equation}
+ g(x)=c f(x),\qquad f(x)=g(x)/c.
+ \label{eq:pu-lemma}
+\end{equation}
+This identity is correct under the assumptions. If $c$ is constant but unknown, $g$ preserves the ranking of $f$; it does not supply its calibrated level. If $c$ is known, the probability that an unlabeled example is truly positive is
+\begin{align}
+ w(x)&=\Prb(D=1\mid S=0,x)
+ =\frac{\Prb(S=0\mid D=1,x)\Prb(D=1\mid x)}{\Prb(S=0\mid x)}\nonumber\\
+ &=\frac{(1-c)f(x)}{1-cf(x)}
+ =\frac{(1-c)g(x)}{c[1-g(x)]}.
+ \label{eq:pu-weight}
+\end{align}
+For any classification loss $L(a,D)$, the conditional expected loss for an unlabeled observation is $wL(a,1)+(1-w)L(a,0)$. Labeled observations contribute $L(a,1)$. Averaging these terms over the observed $(X,S)$ distribution recovers the complete-data expected loss by iterated expectation, provided the probabilities used are correct. This explains the weighted-example construction without treating every unobserved bank transaction as a negative latent need.
+
+\subsubsection{A limitation of the paper's proposed labeling-rate estimator}
+
+On page 214 the paper proposes estimating $c$ by averaging $g(X)$ over held-out labeled positives and argues that this equals $c$ when $g$ is exact. Its argument substitutes $\Prb(D=1\mid X=x)=1$ for an observed labeled-positive example. That substitution requires more than knowing that this particular observation is positive: it requires its features to determine the positive class.
+
+Under SCAR with overlapping probabilistic classes, the probability limit of that average is instead
+\begin{equation}
+ \E[g(X)\mid S=1]
+ =c\E[f(X)\mid D=1]
+ =c\frac{\E[f(X)^2]}{\E[f(X)]}.
+ \label{eq:pu-c-limit}
+\end{equation}
+The second equality uses that labeling is random among positives. The third follows from $\E[f(X)\mathbf1_{\{D=1\}}]=\E[f(X)\E(D\mid X)]=\E[f(X)^2]$. Equality to $c$ requires $f(X)=1$ almost surely among positives, or another sufficient restriction; SCAR alone does not provide it.
+
+For a concrete counterexample, let $X$ carry no information, $\Prb(D=1)=0.4$ and $c=0.5$. Then $g(x)=0.2$ for everyone, including labeled positives. The proposed average converges to $0.2$, not $0.5$, and dividing $g$ by that average produces $1$, not the true $0.4$. This counterexample concerns the stated estimator justification under general overlapping classes. It does not invalidate the identity $g=cf$ or the weighted-loss derivation when $c$ is known. The distinction is important for calibrated bank probabilities.
+
+\subsubsection{Why the bank cannot assume random capture}
+
+For banking, let $D$ denote a market-wide need and $S$ an own-bank observed positive. Capture depends on relationship strength, product, geography and competitor choices. The plausible relation is $g(x)=c(x)f(x)$, with unknown $c(x)$. Even ranking can reverse: client A can have need probability $0.40$ and capture $0.20$, giving an observed probability $0.08$, while client B has need $0.15$ and capture $0.80$, giving $0.12$. Ranking own-bank events then puts B first although A has greater total-market need.
+
+An external sample with measured need and bank capture, or a defensible bound on capture, can add information. A randomized sales offer identifies its effect on observed outcomes under the experimental design; it does not by itself identify total market need or competitor wallet share. Web enrichment can improve prediction, but cannot remove this nonidentification merely by adding more covariates. The proposed product therefore labels its probabilities as bank-observed opportunities and treats total-market demand as a separate research target.

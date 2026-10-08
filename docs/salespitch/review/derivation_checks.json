@@ -1,0 +1,190 @@
+{
+  "purpose": "Deterministic algebra/numerical verification only; no bank-model experiment or performance claim",
+  "cpu_only": true,
+  "cuda_visible_devices": "-1",
+  "python": "3.10.12",
+  "scipy": "1.8.0",
+  "numpy": "1.21.5",
+  "git_commit": "9c0008f5c41b860cc958a23652aee54168248154",
+  "command": "python3 docs/salespitch/scripts/check_derivations.py",
+  "random_seeds": "N/A: deterministic quadrature and enumeration",
+  "checks": [
+    {
+      "name": "BG/NBD active likelihood integral",
+      "computed": 0.00014677822678124555,
+      "reference": 0.00014677822678111108,
+      "absolute_error": 1.3446817444251469e-16,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "BG/NBD dropout likelihood integral",
+      "computed": 0.00022594038440888794,
+      "reference": 0.00022594038440872666,
+      "absolute_error": 1.6127507315721878e-16,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "BG/NBD posterior active ratio",
+      "computed": 0.39380439391676136,
+      "reference": 0.39380439391676064,
+      "absolute_error": 7.216449660063518e-16,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "BG/NBD future-count integral vs hypergeometric form",
+      "computed": 0.36828512292643456,
+      "reference": 0.3682851229265014,
+      "absolute_error": 6.683542608243442e-14,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "BG/NBD a<1 future expectation vs intensity integration",
+      "computed": 0.9998218027683141,
+      "reference": 0.999821802768312,
+      "absolute_error": 2.1094237467877974e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "AIPW both_wrong",
+      "computed": 2.8575757575757574,
+      "reference": 2.8575757575757574,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "AIPW propensity_correct",
+      "computed": 3.0,
+      "reference": 3.0,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "AIPW outcome_correct",
+      "computed": 3.0,
+      "reference": 3.0,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "PU heldout-positive estimator counterexample",
+      "computed": 0.2,
+      "reference": 0.2,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "PU erroneous calibrated probability in counterexample",
+      "computed": 1.0,
+      "reference": 1.0,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "PU weighted Brier risk equals full-data risk",
+      "computed": 0.25,
+      "reference": 0.24999999999999997,
+      "absolute_error": 2.7755575615628914e-17,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Negative-binomial normalization",
+      "computed": 1.0,
+      "reference": 1.0,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Negative-binomial mean",
+      "computed": 12.000000000000002,
+      "reference": 12.0,
+      "absolute_error": 1.7763568394002505e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Negative-binomial variance",
+      "computed": 69.59999999999992,
+      "reference": 69.6,
+      "absolute_error": 7.105427357601002e-14,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Zero-truncated NB mean",
+      "computed": 12.149970290274155,
+      "reference": 12.149970290274153,
+      "absolute_error": 1.7763568394002505e-15,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Logistic half/full log-odds Newton conversion",
+      "computed": -0.15306303890905587,
+      "reference": -0.15306303890905582,
+      "absolute_error": 5.551115123125783e-17,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Horizon survival product",
+      "computed": 0.35199999999999987,
+      "reference": 0.352,
+      "absolute_error": 1.1102230246251565e-16,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Monthly forward recursion (0, 1, 0)",
+      "computed": 0.09925721816078828,
+      "reference": 0.09925721816078828,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Monthly forward recursion (1, 0, 0)",
+      "computed": 0.15864100523020414,
+      "reference": 0.15864100523020414,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Monthly forward recursion (1, 2, 0)",
+      "computed": 0.022233616868016573,
+      "reference": 0.022233616868016573,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Monthly forward recursion (0, 0, 0)",
+      "computed": 0.09071795328941248,
+      "reference": 0.09071795328941248,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    },
+    {
+      "name": "Worked allocation optimal net margin",
+      "computed": 650.0,
+      "reference": 650.0,
+      "absolute_error": 0.0,
+      "tolerance": 1e-08,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,28 @@
+\subsection{Information available to the bank}
+
+For each cutoff month, construct features in five groups. Transaction features include recency, frequency, amount, volatility, trend, seasonality, payment corridors, currencies, counterparties where permitted, and product-specific utilization. Relationship features include product holdings, tenure, limits, balances, prior service quality, ownership, documented pipeline, and contact history. Client features include industry, size bands, legal structure, geography, address stability, and risk or eligibility variables. Calendar features include month, holidays, rates, commodity or sector indicators, and bank-wide product changes. External web features may describe a registered activity or announced facility only when the source and publication timestamp are stored; the text itself is not evidence that the client will transact.
+
+The feature vector must include missingness indicators. A missing balance can mean that an account does not exist, that a feed arrived late, or that the client opted out. Those states have different meanings. Imputing them to a common zero silently turns data availability into a behavioural assertion.
+
+\subsection{Short panels and dependence}
+
+Thirty-six months gives at most 36 cutoff rows per client and fewer after lagging, maturity, and horizon censoring. One million clients produce many cross-sectional examples, so a model can estimate shared effects and rare categorical patterns. They do not supply one million independent realizations of a rate shock or a regulatory event. The effective number of calendar regimes is near the number of distinct months, not the number of rows. Client rows are also correlated within legal-entity groups, relationship managers, regions, products, and months. Confidence intervals and validation splits must reflect these clusters.
+
+The short panel favours low-dimensional lag summaries, hierarchical shrinkage, and direct one- or three-month forecasts. A separate model for each client's time series would estimate too many parameters from too little history. A very deep model can memorize client identifiers or month effects while appearing accurate in a random row split. The baseline should pool clients; local models and high-capacity challengers earn their place through chronological evaluation.
+
+\subsection{What the bank can identify}
+
+Let $D_{it}$ indicate a total-market product need and $S_{it}$ indicate that the bank captures it. The bank records $Y_{it}=D_{it}S_{it}$ for its own transactions. Even with perfect measurement of $q(x)=\Prb(Y=1\given X=x)$, the two factors are not identified. For example, $q(x)=0.10$ is compatible with $(\Prb(D=1\given x),\Prb(S=1\given D=1,x))=(0.20,0.50)$ and $(0.50,0.20)$. The observed product is the same. No classifier trained only on internal transactions can choose between these worlds.
+
+If an independent source supplies a defensible bound $c_L\le\Prb(S=1\given D=1,x)\le c_U$, with $0<c_L\le c_U\le1$, then, when the bounds are compatible with $q(x)$,
+\begin{equation}
+ \frac{q(x)}{c_U}\le \Prb(D=1\given x)\le \min\!\left(1,\frac{q(x)}{c_L}\right).
+ \label{eq:wallet-bounds}
+\end{equation}
+ Equation \eqref{eq:wallet-bounds} is a sensitivity interval, not an estimate of wallet share. A web signal can help predict a bank-visible opportunity or provide a prior for $c(x)$, but it cannot by itself identify the unseen denominator. A survey, consented data-sharing arrangement or representative industry panel that measures otherwise hidden need and capture can supply additional information. A randomized offer identifies effects on the observed outcome; randomization alone does not reveal the unobserved total-market denominator.
+
+\subsection{Missing labels and selective sales records}
+
+For an eligible client--product pair with complete observation, no qualifying transaction is a valid negative for the own-bank target, even if the client transacts elsewhere. It is not a negative label for total-market need. A feed gap or an unfinished outcome horizon is an unknown label, while ineligibility removes the pair from the relevant risk set. These distinctions should be represented explicitly. Sales outcomes are also selected because bankers choose whom to contact. A contacted client can have high natural propensity even if the contact has little effect, so a naive conversion comparison confounds selection with treatment. The forecasting target can use all completely observed eligible rows. The causal target additionally needs assignment, eligibility, timing and a defined outcome comparison.
+
+The first product release should use a forecast target that the bank measures reliably and present total-market need as a scenario or sensitivity range. It should not advertise ``wallet share'' from internal data alone.

@@ -1,0 +1,162 @@
+\chapter{From currency exposure to the value of an FX hedge}
+\label{ch:utility}
+\section{Define the exposure before defining preferences}
+The forecasting model produces receipts and payments. A hedge pays against a currency exposure at specified settlement dates. To connect them, define residual native-currency exposure in bucket $h$ as
+\begin{equation}
+X_{ich}=F^+_{ic,t+h}-F^-_{ic,t+h}+L_{ich}-K_{ich},
+\end{equation}
+where $L$ is a separately verified balance or commitment allocated to the bucket and $K$ is the already hedged amount. The sign convention is positive for a net foreign-currency receipt. Each balance must be allocated once; adding the entire balance to every future bucket double counts it. Commitments already included in the flow forecast must likewise be reconciled rather than added again. When total $F$ is unobserved, evaluate bank-observed exposure or a declared capture scenario from Chapter~\ref{ch:observation}.
+
+Let $S_{ch}$ denote USD per unit of currency $c$ at settlement. A forward sale of $q_{ch}>0$ units at contractual rate $K^{\rm fwd}_{ch}$ has USD payoff $q_{ch}(K^{\rm fwd}_{ch}-S_{ch})$. A forward purchase corresponds to negative $q$. If $W^0$ is the client's unhedged USD financial outcome, terminal wealth under offer $j$ is
+\begin{equation}
+W(j)=W^0+\sum_{c,h}q_{j,ch}(K^{\rm fwd}_{j,ch}-S_{ch})-C_j,
+\label{eq:wealth}
+\end{equation}
+with all cash amounts discounted or accumulated to the same valuation date. Costs $C_j$ include fees and any explicitly modeled funding, collateral, or operational costs. Existing hedge payoffs belong in $W^0$ or in the net exposure accounting, consistently. They must not appear twice.
+
+Forward rates are not generally forecasts of future spot rates. In a frictionless illustration with spot $S_0$ in USD per EUR and continuously compounded domestic and foreign rates $r_d,r_f$, borrowing EUR 1, converting to $S_0$ USD, and investing dollars creates $S_0e^{r_dH}$ USD against an obligation $e^{r_fH}$ EUR. A no-arbitrage forward therefore satisfies $K=S_0e^{(r_d-r_f)H}$. Actual executable quotes and client-specific costs should be used in the product model. Expected utility uses physical outcome probabilities; pricing relations and quoted forward points are separate inputs.
+
+\section{Why a corporation may value hedging}
+A corporate utility function should have an economic interpretation. If markets are frictionless and shareholders can diversify, reducing firm-level cash-flow variance need not create firm value. \citet{smith1985} analyze reasons why hedging can matter, including taxes, costs of financial distress, and managerial incentives. Their Sections~II--IV provide distinct mechanisms rather than a universal assertion that every firm should minimize variance.
+
+Their tax argument can be understood with state-contingent pretax firm value $V_s$, tax liability $T(V_s)$, and positive state prices $q_s$. Let $Q=\sum_s q_s$ and $\widetilde p_s=q_s/Q$. A zero-cost hedge can, in a complete-market illustration, replace $V_s$ by the constant $\overline V=\sum_s\widetilde p_sV_s$, since
+$\sum_s q_s(\overline V-V_s)=0$. If the tax function is convex,
+\begin{equation}
+T(\overline V)\leq\sum_s\widetilde p_sT(V_s).
+\end{equation}
+After-tax state-priced value therefore weakly increases under this smoothing, before hedging costs. This is Jensen's inequality applied under normalized state prices, not an assertion about physical expected taxes under an arbitrary hedge. Actual tax schedules, loss carryforwards, and market incompleteness can change the result; historical tax examples in the paper are not current tax guidance.
+
+A convex liquidity-shortfall cost provides another transparent illustration. If a required payment is $D$, let the loss be $\lambda(D-W)_+^2$. The function is convex in wealth shortfall, so a mean-preserving spread of $W$ increases expected loss under the defining convex-order comparison. Reducing variance alone is insufficient to establish this for arbitrary distributions; the full distribution matters. The cost coefficient and payment boundary require client information or sensitivity analysis.
+
+Managerial preferences add a different mechanism. If manager compensation is $w(V)$ and personal utility is $u(w)$, then
+\begin{equation}
+\frac{d^2u(w(V))}{dV^2}=u''(w)(w')^2+u'(w)w''.
+\end{equation}
+Concave personal utility gives a negative first term; convex option-like compensation can give a positive second term. The effective preference over firm value need not be concave. This distinction, emphasized in Smith and Stulz's managerial-incentive analysis, argues for estimating or constraining an effective corporate objective rather than assuming a universal risk-aversion coefficient.
+
+\section{Costly external finance generates a concave continuation value}
+\label{sec:froot}
+\citet{froot1993} connect risk management to investment and financing decisions. The locally stored NBER working paper is the 1992 version of the 1993 journal article; its basic model in Section~3 and FX extension in Section~5 motivate the following derivation. Let $w$ be internal funds available for investment, $I$ investment, and $e=I-w$ external financing. Let $f(I)$ be gross investment payoff with $f''(I)<0$, and $C(e)$ a convex incremental financing cost with $C''(e)>0$. At an interior solution with positive external financing, incremental continuation profit is
+\begin{equation}
+P(w)=\max_I\{f(I)-I-C(I-w)\}.
+\label{eq:frootvalue}
+\end{equation}
+The cost of investment is $I$; financing friction is the additional $C$. The first-order condition is
+\begin{equation}
+f'(I^*)-1=C'(I^*-w).
+\end{equation}
+Differentiating with respect to $w$ gives
+\begin{equation}
+f''(I^*)\frac{dI^*}{dw}
+=C''(e^*)\left(\frac{dI^*}{dw}-1\right),
+\qquad
+\frac{dI^*}{dw}=\frac{C''}{C''-f''}\in(0,1).
+\end{equation}
+Additional internal funds support additional investment but also substitute for costly financing. The envelope theorem and another derivative yield
+\begin{align}
+P'(w)&=C'(e^*),\\
+P''(w)&=C''(e^*)\left(\frac{dI^*}{dw}-1\right)
+=\frac{f''C''}{C''-f''}<0.
+\label{eq:frootcurvature}
+\end{align}
+Internal funds have diminishing marginal value because shortfalls force costly financing or foregone investment. If a feasible fair hedge changes $w$ without changing its expectation and reduces its risk in convex order, concavity gives a higher $\E[P(w)]$. Costs, hedge-market incompleteness, and changing investment opportunities can prevent full hedging from being optimal.
+
+The source defines $P(w)$ as net investment profit. Total value including the available internal funds is $G(w)=w+P(w)$, so $G'(w)=1+P'(w)$ and $G''(w)=P''(w)$. When a fair hedge preserves expected funds, maximizing $\E[P(w)]$ and $\E[G(w)]$ is equivalent. With fees or changes in expected payoff, the linear funds term must be retained. For an FX payoff $q(K-S)$ and deterministic transaction cost $C_H(q)$, the total-value objective is
+\begin{equation}
+\max_q\E\left[G\{w^0+q(K-S)-C_H(q),Z\}\right],
+\end{equation}
+where $Z$ can describe state-dependent investment opportunities. An interior first-order condition is
+\begin{equation}
+\E\left[(1+P_w\{w(q),Z\})\{K-S-C_H'(q)\}\right]=0.
+\label{eq:froothedge}
+\end{equation}
+The hedge is valuable when it pays in states where internal funds have high marginal value. Minimizing variance of foreign revenues alone need not accomplish that. If foreign-currency payments or attractive foreign investment opportunities rise when receipts rise, the appropriate hedge can be much smaller than gross receipts. The FX extension and Appendix of Froot and coauthors make this investment-opportunity channel explicit. Our one-period notation isolates the mechanism needed here; it does not reproduce all equilibrium cases of their model.
+
+In implementation, estimating $f$ and $C$ for every private company would require far more information than bank transaction histories. The continuation-value derivation supplies an economic reason for concavity. A parsimonious effective utility is a staged approximation to that reason, with sensitivity ranges and later estimation from choices.
+
+\section{A tractable certainty equivalent and its exact domain}
+Assume constant absolute risk aversion (CARA),
+\begin{equation}
+u_i(W)=-e^{-\gamma_iW},\qquad\gamma_i>0,
+\end{equation}
+where $W$ is measured in USD and $\gamma_i$ has units USD$^{-1}$. The certainty equivalent is the sure wealth giving the same utility:
+\begin{equation}
+\operatorname{CE}_i(W)=-\frac1{\gamma_i}\log\E[e^{-\gamma_iW}],
+\label{eq:ce}
+\end{equation}
+provided the expectation is finite. If $W\sim\N(\mu,\sigma^2)$, completing the square gives
+\begin{align}
+-\gamma w-\frac{(w-\mu)^2}{2\sigma^2}
+&=-\frac{(w-\mu+\gamma\sigma^2)^2}{2\sigma^2}
+-\gamma\mu+\frac{\gamma^2\sigma^2}{2},\\
+\E[e^{-\gamma W}]&=e^{-\gamma\mu+\gamma^2\sigma^2/2},\\
+\operatorname{CE}(W)&=\mu-\frac{\gamma}{2}\sigma^2.
+\label{eq:canormal}
+\end{align}
+Thus mean--variance utility is exact for normal terminal wealth under CARA. With nonnormal wealth, expanding the cumulant-generating function around zero gives
+\begin{equation}
+\operatorname{CE}(W)=\kappa_1-\frac\gamma2\kappa_2
++\frac{\gamma^2}{6}\kappa_3-\frac{\gamma^3}{24}\kappa_4+\cdots,
+\end{equation}
+when this expansion exists. Truncation after the variance is an approximation whose quality depends on risk aversion and higher cumulants.
+
+This distinction is material for the proposed cash-flow model. Stochastic foreign receipts multiplied by stochastic FX rates are generally nonnormal. Moreover, an unbounded lognormal payment can make $\E[e^{-\gamma W}]$ infinite: if $W=-L$ and $L$ is lognormal, the positive exponential moment $\E[e^{\gamma L}]$ diverges. A finite Monte Carlo calculation cannot establish finiteness of that population expectation. The first utility release should therefore use one of two explicitly declared specifications: a mean--variance preference functional with checked finite second moments, or exact expected utility on an economically justified bounded/default-limited wealth model with a finite exponential moment. A finite scenario distribution defines its own finite-support decision model; it is not proof that an unbounded underlying CARA expectation exists.
+
+For finite weighted scenarios, exact CARA certainty equivalent is
+\begin{equation}
+\widehat{\operatorname{CE}}(W)
+=-\gamma^{-1}\log\left(\sum_s w_s e^{-\gamma W_s}\right).
+\end{equation}
+Evaluate it with log-sum-exp arithmetic to prevent overflow. If $a=\max_s(-\gamma W_s)$, the log term equals $a+\log\sum_sw_se^{-\gamma W_s-a}$. Numerical stability does not remove model risk in extreme scenarios; inspect the states that dominate the exponential weighting.
+
+\section{Deriving hedge size under mean--variance preferences}
+Let $R=S-\E[S]$ be the centered FX price change in a single settlement bucket. Write $\delta=K-\E[S]$ and terminal wealth as
+\begin{equation}
+W(q)=W^0-qR+q\delta-C_H(q).
+\end{equation}
+Set $v=\V(R)>0$ and $c=\Cov(W^0,R)$. With a deterministic cost,
+\begin{align}
+\E[W(q)]&=\E[W^0]+q\delta-C_H(q),\\
+\V(W(q))&=\V(W^0)+q^2v-2qc.
+\end{align}
+Relative mean--variance value is consequently
+\begin{equation}
+\Delta\operatorname{CE}(q)
+=q\delta-C_H(q)+\gamma qc-\frac\gamma2q^2v.
+\label{eq:hedgegain}
+\end{equation}
+For quadratic cost $C_H(q)=\kappa q^2/2$, differentiating yields
+\begin{equation}
+q^*=\frac{\delta+\gamma c}{\gamma v+\kappa}.
+\label{eq:hedgeopt}
+\end{equation}
+This is a unique optimum when the denominator is positive. The term $\gamma c$ represents hedging demand; $\delta$ represents the physical expected carry of the quoted forward. The bank should distinguish those channels and constrain speculative positions according to the product mandate.
+
+With deterministic net receipt $X$ and $W^0=XS+\text{constant}$, $c=Xv$. A fair-in-expectation forward ($\delta=0$) with no costs gives $q^*=X$: the natural hedge is net exposure, not gross receipts. With costs the hedge is smaller. If $q$ is constrained to $[0,X]$, the scalar concave objective is maximized by clipping the unconstrained solution to that interval. A fixed participation cost creates a separate discrete decision: compare optimized hedging value less the fixed cost with zero.
+
+With uncertain receipts, the covariance must be computed jointly. Let $S=\mu_S+s$, $X=\mu_X+x$, with centered $s,x$. Since $W^0=XS$,
+\begin{equation}
+\Cov(XS,S)=\mu_X\V(S)+\mu_S\Cov(X,S)+\E[xs^2].
+\label{eq:randomexposure}
+\end{equation}
+Expanding $(\mu_X+x)(\mu_S+s)s$ and taking expectations proves the expression. The last term vanishes under centered joint Gaussianity but need not vanish for cash-flow mixtures. Substituting $\E[X]$ into a deterministic exposure formula can therefore misprice risk even if the expected flow is accurate.
+
+For several currency/maturity hedge instruments, let $R$ be a vector of centered settlement prices, $\Sigma=\V(R)$, $c=\Cov(R,W^0)$, and quadratic cost matrix $K_C\succeq0$. The value difference is
+\begin{equation}
+\Delta\operatorname{CE}(q)=q'\delta+\gamma q'c
+-\tfrac12q'(\gamma\Sigma+K_C)q,
+\end{equation}
+so
+\begin{equation}
+q^*=(\gamma\Sigma+K_C)^{-1}(\delta+\gamma c)
+\end{equation}
+when the matrix is positive definite and no constraints bind. With notional, maturity, eligibility, and collateral limits, solve the corresponding constrained concave quadratic program. Singular covariance requires explicit handling of redundant instruments, not an unexplained numerical ridge that changes the recommended position.
+
+\section{A worked exporter example}
+Return to the exporter with deterministic EUR 1 million receipts and EUR 0.8 million payments at the same date. Let the future USD/EUR rate have standard deviation $0.05$, set the forward rate equal to the physical expected spot for this illustration, and take $\gamma=10^{-6}$ USD$^{-1}$. The net unhedged position is EUR 200,000, with USD standard deviation $200{,}000\times0.05=10{,}000$ and variance $10^8$. A full net hedge removes that variance, giving mean--variance benefit
+\begin{equation}
+\frac12\gamma\sigma^2=\tfrac12\times10^{-6}\times10^8=50\ \text{USD}.
+\end{equation}
+A USD 30 fixed cost leaves USD 20 of value under these illustrative preferences. A USD 80 cost makes this offer unattractive. Hedging EUR 1 million instead leaves a net short EUR 800,000, with USD standard deviation 40,000 and a risk penalty of USD 800. Gross-flow ranking would give a poor recommendation in this example.
+
+The modest USD 50 willingness to pay is a consequence of the illustrative risk coefficient, not a claim about actual corporate willingness to pay. A firm with a binding liquidity covenant or high marginal external-financing cost may value protection much more. The standalone utility module can report sensitivity across effective risk aversion, funding-shortfall costs, capture shares, and existing hedges before enough choice data exist to estimate preferences. This is a useful phase-two analytical product even before a discrete-choice model is fitted.

@@ -1,0 +1,18 @@
+# Backward-snowball ledger
+
+Scope: relevant families identified in the ten papers' introductions, related work, methods and comparison sections. Entries below are candidates considered, not additional bibliography claims. Full technical examination is limited to the ten downloaded and cited papers. The earlier seven-source audit remains in `.localresources/bank-sales-2026-10-08/source_audit.md`.
+
+| Seed | Relevant predecessors or comparators | Classification and disposition |
+|---|---|---|
+| Global forecasting | DeepAR; grouped recurrent forecasting; local autoregression | DeepAR promoted into the survey and fully inspected. Other grouped architectures omitted pending empirical need; no claimed architectural optimum. |
+| First-event survival | Cox, Allison, Brown, Efron, Laird–Olivier | Foundational event-history alternatives. Monthly logistic likelihood is derived directly; no claim about their individual theorems. |
+| Multiple-spell survival | Singer–Willett first-event paper; Allison repeated-event/random-effects methods; continuous-time recurrent approaches | First-event source included. Heterogeneity and dependence considered explicitly. Continuous-time models deferred because exact timestamps are unavailable. |
+| BG/NBD | Pareto/NBD (Schmittlein–Morrison–Colombo); industrial purchase application (Schmittlein–Peterson) | Foundational and B2B neighbors; inspect next if exact-date customer-base analysis becomes a product component. Original-source empirical claims are not made. |
+| Cross-selling | Kamakura latent-trait, mixed-data-factor and acquisition-timing work; Knott–Hayes–Neslin next-product-to-buy | Direct predecessors and competitors. Full technical texts not inspected; omitted rather than cited through Li. A broad cross-selling history would require expansion. |
+| Gradient boosting | CART; Freund–Schapire boosting; Friedman–Hastie–Tibshirani additive logistic regression; Duffy–Helmbold geometric view; MARS | Foundational/comparator families. Functional gradient and logistic score conversion derived in the survey; specialized algorithm comparisons are outside scope. |
+| DeepAR | Chapados grouped count models; Seeger–Salinas–Flunkert intermittent demand; Snyder–Ord–Beaumont count forecasts; Croston; exponential smoothing/ARIMA; Graves sequence generation; Gers LSTM; temporal matrix factorization | Direct count-forecast competitors and architecture antecedents. Relevant to implementation-stage comparison, especially intermittent demand. The survey reconstructs recurrent computation and count likelihood but does not certify DeepAR as best. Supply-chain/image-generation examples and software-specific references are peripheral. |
+| Uplift tutorial | Rubin potential outcomes; Radcliffe/Surry; Rzepakowski/Jaroszewicz trees; causal forests | Foundational and competing effect estimators. Causal identification and representative estimation principles included; comparative tree/forest theory not claimed. |
+| Policy learning | Robins–Rotnitzky–Zhao AIPW; empirical welfare maximization; double/debiased ML | Direct predecessors. Orthogonal-score derivation included using the inspected policy paper; no uninspected predecessor theorem imported. |
+| PU learning | Earlier positive–unlabeled classifiers and missing-data approaches | Foundational context. The checked constant-c identity is enough to expose the bank's identification obstacle; no complete PU taxonomy claimed. |
+
+These choices support a focused survey of the proposed decision system. They do not constitute an exhaustive reconstruction of each source's entire bibliography. Expansion is required before claiming a comprehensive field history or a best-method benchmark.

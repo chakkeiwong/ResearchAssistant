@@ -1,0 +1,131 @@
+\subsection{Single-event discrete-time survival analysis}
+
+\citet{singer1993time}, especially the development of the hazard and person-period likelihood and their Equation (3), explain how logistic regression can model the timing of an event observed in discrete intervals. Fix a client $i$ and product $j$. Let $T_{ij}$ be the month of the first qualifying event after a clearly defined origin, such as becoming eligible for a product. At the beginning of month $t$, the pair is at risk if it is eligible, observable and has not yet experienced that event. The hazard is
+\begin{equation}
+ h_{ijt}=\Prb(T_{ij}=t\given T_{ij}\ge t,\mathcal H_{ij,t-1}),
+ \label{eq:hazard}
+\end{equation}
+where $\mathcal H_{ij,t-1}$ contains information known before that month. Conditional on a specified covariate path, the chain rule gives
+\begin{equation}
+ S_{ij}(t)=\Prb(T_{ij}>t)=\prod_{u=1}^{t}(1-h_{iju}),\qquad
+ \Prb(T_{ij}=t)=h_{ijt}\prod_{u<t}(1-h_{iju}).
+ \label{eq:survival-product}
+\end{equation}
+The product is a product of successive conditional probabilities. It does not require unconditional independence of a client's event indicators. If future covariates are random, the unconditional survival probability averages this conditional product over their possible paths; it is generally not the product of separately averaged hazards.
+
+Let $c_{ij}$ be the last observable interval and $\delta_{ij}=1$ if the event was observed by that interval. An event at $c_{ij}$ contributes $h_{ijc_{ij}}\prod_{u<c_{ij}}(1-h_{iju})$; a right-censored observation contributes $\prod_{u\le c_{ij}}(1-h_{iju})$. Writing $r_{ijt}$ for membership in the observed risk set, and $y_{ijt}$ for an event in that row, combines both cases:
+\begin{equation}
+ L=\prod_{i,j,t}\left\{h_{ijt}^{y_{ijt}}(1-h_{ijt})^{1-y_{ijt}}\right\}^{r_{ijt}}.
+ \label{eq:first-event}
+\end{equation}
+Rows after first adoption are absent from a first-adoption model. A currently owned product can still be eligible for a separately defined expansion event. Treating its ownership as an additional first adoption would give the model the wrong target.
+
+Ordinary right-censoring calculations require observation to end independently of the event process, conditional on the modeled information. A feed outage must not be recorded as a zero. A relationship closure may be an economically informative competing outcome, rather than independent censoring. For a target defined as an own-bank transaction over a fully observable horizon, a closed relationship with verified no transaction can be a genuine zero; for a target requiring continued eligibility, closure needs its own transition or a clearly changed target. These choices belong in the label specification.
+
+\subsubsection{Logistic estimation and its derivatives}
+
+Use $\sigm(z)=1/(1+e^{-z})$ and set
+\begin{equation}
+ h_{ijt}=\sigm(\eta_{ijt}),\quad
+ \eta_{ijt}=\alpha_j(k_{ijt})+x_{ij,t-1}^{\mathsf T}\beta_j
+             +b_{j,g(i)}+u_{ij}+s_j(t).
+ \label{eq:hazard-model}
+\end{equation}
+Here $k_{ijt}$ is elapsed duration, $\alpha_j(k)$ is the baseline duration effect, $g(i)$ is an industry or other segment, and $s_j(t)$ contains calendar features available for forecasting. Product index $j$, duration $k$, and calendar month $t$ play different roles. A separate unconstrained coefficient for each historical calendar month cannot forecast a new month. Month-of-year effects, known holidays and documented macroeconomic scenarios can. With three years, annual seasonality remains weakly established and should be shrunk strongly or omitted if validation does not support it.
+
+For a design row $z$ and coefficient vector $\theta$, the negative log-likelihood is
+\[
+ \mathcal L(\theta)=\sum_r\{\log(1+e^{z_r^{\mathsf T}\theta})-y_rz_r^{\mathsf T}\theta\}
+                       +\tfrac12\theta^{\mathsf T}\Lambda\theta,
+\]
+where the sum includes only risk-set rows and $\Lambda$ encodes a declared quadratic penalty. Since $\partial h/\partial\eta=h(1-h)$,
+\begin{align}
+ \nabla\mathcal L&=Z^{\mathsf T}(h-y)+\Lambda\theta,\label{eq:row-loglik}\\
+ \nabla^2\mathcal L&=Z^{\mathsf T}\operatorname{diag}\{h_r(1-h_r)\}Z+\Lambda.
+\end{align}
+A Newton step solves this Hessian system for the coefficient update. Equivalently, iteratively reweighted least squares uses weights $h_r(1-h_r)$ and working responses $z_r^{\mathsf T}\theta+(y_r-h_r)/[h_r(1-h_r)]$. Stable logistic and linear-algebra routines are necessary for rare events; literal exponentiation of large predictors and division by numerically zero weights are not acceptable implementations. Penalty strengths and any numerical modification require validation and a recorded rationale.
+
+A complementary log-log link is a useful local extension, not needed for the logistic model. Suppose the event intensity is constant at $\lambda$ during an interval of length $\Delta$. Solving $S'(u)=-\lambda S(u)$ with $S(0)=1$ gives $S(\Delta)=e^{-\lambda\Delta}$. Thus $h=1-e^{-\lambda\Delta}$ and $\log[-\log(1-h)]=\log\lambda+\log\Delta$. This provides an exposure offset when intervals differ in length. For the bank's equally spaced monthly data, a logistic hazard is the simpler initial choice.
+
+\subsection{Repeated events: the multiple-spell construction}
+
+\citet{willett1995multiple}, particularly their likelihood development through Equation (19) and the person-spell-period construction, extend the single-event approach to repeated spells. Their application concerns alternating spells in and out of teaching. The transferable idea is to define which state a subject occupies, which transition ends a spell, and which history is available at the next spell's origin. Their application is not a bank-sales validation.
+
+For FX transactions, define a spell as the wait from one qualifying event month to the next. For a client with monthly event indicators $(0,1,0,0,1)$, the first observed spell has duration two and the second has duration three, if the first month is a known risk origin. If monitoring starts mid-spell, its true duration is unknown; either condition on delayed entry with known duration or distinguish this left-truncated history from a fully observed spell. A transaction in the same month as another transaction does not create an observed one-day spell: monthly indicators cannot resolve it. Counts require the count model below.
+
+Let $s$ index spells and $k$ their elapsed months. With $\mathcal H_{ijs,k-1}$ containing previous spell lengths, previous outcomes and available time-varying features, define $h_{ijsk}=\Prb(\text{spell }s\text{ ends at }k\mid\text{not yet ended},\mathcal H_{ijs,k-1})$. The conditional likelihood is
+\begin{equation}
+ L_i(u_i)=\prod_{j,s,k}\left[h_{ijsk}(u_i)^{y_{ijsk}}
+                          (1-h_{ijsk}(u_i))^{1-y_{ijsk}}\right]^{r_{ijsk}}.
+ \label{eq:recurrent}
+\end{equation}
+Spell indicators and interactions allow first and subsequent events to have different baselines. A shared unobserved client effect introduces dependence across spells; its marginal likelihood is $\int L_i(u)f(u)du$. Without such a model, clustered uncertainty can accommodate some within-client dependence in estimation, but does not repair an incorrect conditional mean. The Bernoulli-shaped likelihood is not permission to count every person-month as an independent client in a standard-error calculation.
+
+Distinct products need not be mutually exclusive competing risks. A client can adopt a liquidity service and execute FX in the same month. Product-specific hazards permit both; their joint distribution needs a dependence model only when a joint probability or portfolio uncertainty is required. Competing-risk probabilities are appropriate only for genuinely mutually exclusive transitions under the chosen event definition.
+
+\subsubsection{From monthly hazards to a sales horizon}
+
+For a cutoff $t$, define $h_{ij,t+k\mid t}$ as the conditional probability of the first future event in month $t+k$, given no earlier future event and the information at $t$. Then
+\begin{equation}
+ p_{ijt}^{(H)}=1-\prod_{k=1}^{H}(1-h_{ij,t+k\mid t}).
+ \label{eq:horizon-hazard}
+\end{equation}
+For example, hazards $(0.10,0.20,0.10)$ imply $1-0.9\times0.8\times0.9=0.352$. Multiplying survival probabilities answers ``at least one event,'' not expected event count. Forecasts of future covariates must be integrated or generated prospectively; the realized April balance cannot be used in a forecast issued at the end of March.
+
+A practical alternative is a direct model for each horizon, $\Prb(Y_{ijt}^{(H)}=1\mid C_{it})=\sigm(f_{jH}(C_{it}))$. It avoids recursive covariate forecasting but does not automatically guarantee $p^{(1)}\le p^{(3)}$. A common sequence of nonnegative conditional hazards ensures this nesting. Compare the alternatives using calibrated horizon probabilities rather than assuming one is superior.
+
+\subsection{Partial pooling and sparse clients}
+
+A million fixed client intercepts can absorb noise from short histories. A normal prior $u_{ij}\sim N(0,\sigma_{u,j}^2)$ penalizes implausibly large client effects and supplies a population prediction for new clients. The direction of shrinkage follows exactly in a Gaussian approximation: if $z_i\mid u_i\sim N(u_i,s_i^2)$, then completing the square in
+\[
+ -\frac{(z_i-u_i)^2}{2s_i^2}-\frac{u_i^2}{2\sigma_u^2}
+ =-\frac12(s_i^{-2}+\sigma_u^{-2})
+ \left[u_i-\frac{\sigma_u^2}{\sigma_u^2+s_i^2}z_i\right]^2+\text{constant}
+\]
+gives posterior mean $\sigma_u^2z_i/(\sigma_u^2+s_i^2)$ and variance $(s_i^{-2}+\sigma_u^{-2})^{-1}$. Sparse clients have large $s_i^2$ and shrink more. This closed form illustrates the mechanism; logistic random-effect posteriors are not exactly Gaussian and require integration or an explicitly checked approximation.
+
+The initial bank model should pool industry and product effects and use observed recency/frequency features. Client random effects are an optional extension whose computational cost and cold-start behavior must be justified. Predictions for a new industry or client should integrate an appropriate group-effect distribution, rather than assign an arbitrary trained identifier. Regularization strengths are selected on past-to-future validation, not inherited as universal constants.
+
+\subsection{Counts, positive amounts, and a discrete inactivity model}
+
+A Poisson count with mean $\lambda$ has probability $e^{-\lambda}\lambda^n/n!$ and variance equal to its mean. Corporate transaction counts often require a more variable distribution. Mixing this Poisson likelihood with $\lambda\sim\operatorname{Gamma}(k,\text{rate }k/\mu)$ gives
+\begin{align}
+ \Prb(N=n)
+ &=\int_0^\infty\frac{e^{-\lambda}\lambda^n}{n!}
+   \frac{(k/\mu)^k\lambda^{k-1}e^{-k\lambda/\mu}}{\Gamma(k)}d\lambda\nonumber\\
+ &=\frac{\Gamma(n+k)}{\Gamma(k)n!}
+       \left(\frac{k}{k+\mu}\right)^k
+       \left(\frac{\mu}{k+\mu}\right)^n.
+ \label{eq:nb}
+\end{align}
+By iterated expectation, $\E N=\E\lambda=\mu$; by total variance, $\operatorname{Var}(N)=\E\lambda+\operatorname{Var}(\lambda)=\mu+\mu^2/k$. A log link for $\mu$ keeps the mean positive. As $k\to\infty$, heterogeneity vanishes and the Poisson limit returns.
+
+For a hurdle model, let $p=\Prb(N>0)$ and use a zero-truncated negative binomial for positive counts:
+\[
+ \Prb(N=0)=1-p,\quad
+ \Prb(N=n>0)=p\frac{f_{\rm NB}(n;\mu,k)}{1-f_{\rm NB}(0;\mu,k)}.
+\]
+Consequently $\E N=p\mu/[1-f_{\rm NB}(0)]$. It would be wrong to fit an untruncated count likelihood only to positive counts and retain its original mean formula. For positive monetary amounts $V$, a separate lognormal model can use $\log V\sim N(\mu_V,\sigma_V^2)$; completing the square in the normal moment integral gives $\E[V\mid V>0]=e^{\mu_V+\sigma_V^2/2}$. Counts, dollar amounts, balances and notionals must remain separate quantities. FX notional is not bank revenue.
+
+A discrete analogue of the BG/NBD idea can be written without inventing event dates. Assume an active client generates a monthly Poisson count with rate $\lambda$, and, after a positive month, becomes inactive with probability $q$. Inactive clients generate zero forever. This is an explicitly different month-end dropout mechanism. Conditional on $(\lambda,q)$, let $a_m$ and $d_m$ be joint probabilities of the observed history through month $m$ and active or inactive status. Starting with $a_0=1,d_0=0$, and writing $f_m=e^{-\lambda}\lambda^{n_m}/n_m!$,
+\begin{align}
+ a_m&=a_{m-1}f_m\left(1-q\mathbf1_{\{n_m>0\}}\right),\\
+ d_m&=d_{m-1}\mathbf1_{\{n_m=0\}}
+        +a_{m-1}f_m q\mathbf1_{\{n_m>0\}}.
+ \label{eq:monthly-forward}
+\end{align}
+The likelihood is $a_T+d_T$. Integrating it against gamma and beta mixing densities gives a population model, evaluable with bounded quadrature or another checked integration method. Each recursion is just summation over the two possible previous states. Probability of current activity is the integrated $a_T$ divided by the integrated likelihood. Permanent inactivity is still a strong assumption; return to activity would require another transition parameter. For the initial release, recency features and the hazard/hurdle model are simpler than fitting this latent-state extension.
+
+\subsection{Features that preserve the information cutoff}
+
+At cutoff $t$, compute summaries only from recorded, available months. For a complete lookback of $L$ months, examples are
+\begin{align*}
+ \operatorname{recency}_{ijt}&=t-\max\{u\le t:N_{iju}>0\},\\
+ \operatorname{frequency}_{ijt}(L)&=\sum_{u=t-L+1}^t\mathbf1_{\{N_{iju}>0\}},\\
+ \operatorname{growth}_{ijt}(2m)&=
+ \log\left(1+\frac1m\sum_{u=t-m+1}^{t}N_{iju}\right)
+ -\log\left(1+\frac1m\sum_{u=t-2m+1}^{t-m}N_{iju}\right).
+\end{align*}
+Never-observed activity needs its own indicator; its recency is not an invented zero. Count lookbacks and amount lookbacks should be named separately. Availability lags matter: a March statement finalized on April 10 was not available for an April 1 decision.
+
+Industry and geography can enter as regularized categorical effects. Client names mainly support entity resolution; free-form names are not reliable economic predictors. Addresses can supply geography and parent--subsidiary matches, with confidence and provenance. Any target encoding must be fitted inside the training fold. An industry mean computed using future conversions leaks labels. Web announcements can add dated financing, expansion, hiring or acquisition indicators, but a current website cannot be retrospectively treated as its state two years ago. Backtesting requires archived publication and availability dates, and uncertain entity matches require explicit treatment.

@@ -1,0 +1,107 @@
+\chapter{An independent discrete-choice model for FX hedges}
+\label{ch:choice}
+\section{Utility measures value; choice also reflects frictions}
+The utility module can compare a forward sale, a smaller hedge, and no new trade using the same cash-flow scenarios. A choice model adds the fact that clients have heterogeneous preferences and that the bank does not observe every consideration. It should consume scenario-derived values and offer attributes through a stable interface, so that updating a cash-flow model does not require changing the mathematical definition of choice.
+
+At decision occasion $t$, client $i$ chooses from the actual available set $\Avail_{it}$. Include an outside alternative $0$ and define deterministic utility in normalized units as
+\begin{equation}
+v_{itj}=\lambda\,\Delta\operatorname{CE}_{itj}(\gamma_i)
++\alpha_j+z_i'\Gamma a_{itj}+\theta'a_{itj}-\psi'b_{itj},
+\label{eq:choiceutility}
+\end{equation}
+where $a_{itj}$ describes product and service attributes and $b_{itj}$ describes implementation burdens. The parameter $\lambda>0$ translates dollar certainty equivalent to utility units. Fees already included in the certainty equivalent should not receive a second independent fee penalty without an explicit behavioral reason. Normalize the outside utility to zero after defining all quantities relative to it. If it includes unobserved competitor trades, its economic meaning is a composite alternative.
+
+For a first release, use a small catalog of meaningful currency/maturity/notional offers. If notional is actually a continuous client choice, a coarse catalog approximates that continuous problem. A later model can combine participation choice with conditional continuous sizing. The forecast module remains unchanged in either case.
+
+\section{Deriving McFadden's conditional logit}
+\citet[Section I, equations (12)--(13)]{mcfadden1974} derives conditional logit from random utility with independent type-I extreme-value disturbances. Let
+\begin{equation}
+U_j=v_j+\epsilon_j,\qquad
+F(\epsilon)=\exp\{-e^{-\epsilon/\sigma_\epsilon}\},\quad\sigma_\epsilon>0.
+\end{equation}
+Conditional on $\epsilon_j=e$, alternative $j$ wins when
+$\epsilon_k\leq e+v_j-v_k$ for every $k\ne j$. Thus
+\begin{align}
+P_j&=\int f(e)\prod_{k\ne j}F(e+v_j-v_k)\,de\\
+&=\int_{-\infty}^{\infty}\frac1{\sigma_\epsilon}e^{-e/\sigma_\epsilon}
+\exp\left\{-e^{-e/\sigma_\epsilon}
+ \sum_k e^{(v_k-v_j)/\sigma_\epsilon}\right\}\,de.
+\end{align}
+Substitute $z=e^{-e/\sigma_\epsilon}$, so $de=-\sigma_\epsilon dz/z$. Reversing the limits gives
+\begin{equation}
+P_j=\int_0^\infty e^{-zA_j}\,dz=\frac1{A_j}
+=\frac{e^{v_j/\sigma_\epsilon}}{\sum_{k\in\Avail}e^{v_k/\sigma_\epsilon}},
+\quad A_j=\sum_k e^{(v_k-v_j)/\sigma_\epsilon}.
+\label{eq:logit}
+\end{equation}
+The derivation needs independence and the specified disturbance distribution. Utility differences and a utility scale, rather than absolute utility levels, determine probabilities. Adding the same constant to every $v_j$ changes nothing; multiplying every $v_j$ and $\sigma_\epsilon$ by the same positive number also changes nothing. We therefore normalize $\sigma_\epsilon=1$ and an outside intercept.
+
+For a linear index $v_{itj}=x_{itj}'\theta$, define $d_{itj}=1$ for the chosen alternative and zero otherwise. The log likelihood is
+\begin{equation}
+\ell(\theta)=\sum_{i,t}\left[
+\sum_{j\in\Avail_{it}}d_{itj}x_{itj}'\theta
+-\log\sum_{j\in\Avail_{it}}e^{x_{itj}'\theta}\right].
+\label{eq:logitlik}
+\end{equation}
+Differentiation gives the score and Hessian underlying McFadden's Section~II, equations (18)--(20):
+\begin{align}
+\nabla\ell&=\sum_{i,t}\left(x_{it,y_{it}}-\overline x_{it}\right),
+\quad\overline x_{it}=\sum_jP_{itj}x_{itj},\\
+\nabla^2\ell&=-\sum_{i,t}\sum_jP_{itj}
+(x_{itj}-\overline x_{it})(x_{itj}-\overline x_{it})'.
+\label{eq:logithess}
+\end{align}
+The Hessian is negative semidefinite because each summand is a covariance matrix. Strict identification requires variation in within-choice-set differences; a client attribute identical across alternatives cancels unless interacted with an alternative attribute. Complete separation can lead to unbounded coefficients despite concavity, so finite-solution diagnostics and regularization are necessary. If $\gamma$ enters a nonlinear certainty equivalent, the objective need not remain globally concave in the enlarged parameter vector.
+
+In the simplest two-alternative illustration, let the hedge have normalized utility $0.6$ and the outside option zero. Its predicted share is $e^{0.6}/(1+e^{0.6})\approx0.646$. If a higher cost reduces hedge utility to $0.2$, its predicted share becomes about $0.550$. These calculations show how utility translates into probabilities under the assumptions; they do not identify the effect of changing prices in observational sales records.
+
+\section{Substitution patterns and mixed logit}
+Conditional logit implies
+\begin{equation}
+\frac{P_j}{P_k}=e^{v_j-v_k},
+\end{equation}
+independent of other available alternatives. This independence of irrelevant alternatives (IIA) can be implausible for several similar forward offers. With equal utilities for ``hedge'' and ``no hedge,'' each gets probability $1/2$. Adding an economically indistinguishable second hedge offer gives each of three alternatives probability $1/3$, so total hedge probability rises to $2/3$. Independent alternative shocks treat duplicate offers as independent attractions. Such a menu change may not reflect real treasury decisions.
+
+\citet[Sections I--III]{mcfadden2000} use mixtures of multinomial logits to allow flexible substitution and heterogeneity. Let $\beta_i=\mu+L\nu_i$, with $\nu_i$ drawn from a specified base density $f(\nu)$. Conditional on $\beta_i$, use the logit formula; then integrate:
+\begin{equation}
+P_{itj}=\int
+\frac{e^{x_{itj}'\beta}}{\sum_{k\in\Avail_{it}}e^{x_{itk}'\beta}}
+\,dG(\beta).
+\label{eq:mixedlogit}
+\end{equation}
+Risk aversion and price sensitivity can have sign-constrained parameterizations, such as $\gamma_i=e^{a_i}$, rather than normal coefficients that permit economically unintended signs. Such constraints are hypotheses to validate, and require sufficient variation to estimate.
+
+The mechanism for correlated alternatives is explicit: conditional tastes generate a preference for similar attributes in several offers. Integrating over shared tastes creates dependence in substitution. Theorem~1 of the paper establishes a broader approximation result for suitable random-utility models under compactness, continuity, and absence of ties. Its proof uses finite polynomial approximation and small extreme-value perturbations. For the narrower mechanism used here, a simple argument explains the flexibility. Given random deterministic utilities $V_j(\nu)$ with a unique maximizer almost surely,
+\begin{equation}
+\frac{e^{V_j(\nu)/\epsilon}}{\sum_ke^{V_k(\nu)/\epsilon}}
+\longrightarrow\ind\{j=\argmax_kV_k(\nu)\}
+\quad\text{as }\epsilon\downarrow0.
+\end{equation}
+Dividing numerator and denominator by the largest exponential proves the pointwise limit. Since the probability lies between zero and one, dominated convergence allows integration over $\nu$. This establishes approximation of the corresponding random-utility choice probabilities for a fixed finite menu; it is not a proof of every uniform-approximation condition in the paper's general theorem. Flexibility alone does not establish identifiability or predictive superiority on bank data.
+
+Repeated choices from the same client inform persistent tastes. The panel likelihood must integrate a product:
+\begin{equation}
+L_i=\int\prod_{t\in\mathcal T_i}
+P_{it,y_{it}}(\beta)\,dG(\beta).
+\label{eq:panellik}
+\end{equation}
+Using $\prod_t\int P_{it,y_{it}}(\beta)dG(\beta)$ instead redraws tastes independently each time and changes the model. With $R$ fixed draws $\nu_r$, simulated likelihood uses
+\begin{equation}
+\widehat L_i=\frac1R\sum_{r=1}^R
+\prod_tP_{it,y_{it}}(\mu+L\nu_r).
+\end{equation}
+Common draws across a client's occasions preserve taste dependence, and fixed draws across optimizer iterations reduce numerical noise. The simulated probability is unbiased under independent sampling, but $\E[\log\widehat L_i]\leq\log L_i$ by Jensen's inequality. Draw-count stability and independent simulation checks are therefore required before trusting estimated preferences or elasticities. The paper's simulated-likelihood methods motivate this estimator; they do not remove finite-simulation bias by assumption.
+
+\section{What the bank must observe to identify preferences}
+An observed hedge purchase is not sufficient to reconstruct the choice set. If the relationship manager offered only a three-month forward, the absence of a six-month purchase says little about the client's preference for six months. If a competitor trade is invisible, a no-purchase label mixes several behaviors. The initial estimable target may consequently be ``accept our recorded offer versus all other outcomes,'' conditional on offer eligibility and outcome observation, rather than market-wide hedge choice.
+
+Prices and offers are often endogenous. A salesperson may quote a better spread to a difficult client or contact a client after hearing about a private contract. Let unobserved need be $\zeta$. If quoted price depends on $\zeta$ and $\zeta$ also enters utility, then $\E[\epsilon_j\mid\text{price},x]\ne0$, contradicting the simple exogeneity assumption. Adding price to a logit does not identify a causal price response. Possible remedies are randomized variation within approved quoting practices, valid excluded cost shifters with a defensible structural treatment, or a joint offer/pricing model with explicitly justified assumptions. A statistical instrument needs relevance and exclusion; merely having a macro variable does not make it valid.
+
+There is also scale confounding. A dollar-valued certainty equivalent is translated by $\lambda$, while $\gamma$ controls the variance penalty. In a narrow dataset where every offer changes mean and variance proportionally, only combinations such as $\lambda\gamma$ may be well estimated. Variation in costs, maturity, notional, and exposure is needed to distinguish them. Initial releases can fix a small declared grid of economically interpretable risk coefficients and report sensitivity, then estimate a parsimonious preference distribution once the choice records support it. A million clients with no declined-offer data do not resolve this problem.
+
+The first choice likelihood treats scenario-derived values as inputs available at the offer date. Those values are estimates of what the bank believes about exposure, not necessarily the client's private beliefs. If the client has a large unobserved contract, the choice residual reflects both private information and preference. Separating risk aversion from belief differences requires additional data or assumptions. Parameter uncertainty from the flow model should be propagated by repeated fitted-model draws or another declared approximation. This statistical propagation preserves modular software and estimation stages; it does not force joint training of cash flows and utility.
+
+\section{Product counterfactuals can be delivered separately}
+Once preference and pricing assumptions are credible, the choice module can compare the same forecast distribution under a different fee, maturity, hedge fraction, or available menu. A price counterfactual recalculates client wealth and the utility index, then recomputes choice probabilities. It can be evaluated without refitting the time-series model if the price change does not affect the underlying operating cash flows during the horizon.
+
+That separability is an assumption of timing. A hedge could alter collateral usage or financing capacity, which in turn changes investment and later cash flows. The first product treats operating forecasts as predetermined for a short decision horizon and includes known funding effects in utility. A longer-horizon structural model can feed financing consequences back into the state equations. Such feedback would be a later research extension, with additional data requirements, rather than a hidden implication of a one-period logit.

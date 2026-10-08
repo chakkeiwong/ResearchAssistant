@@ -1,0 +1,81 @@
+\documentclass[11pt,a4paper,oneside]{report}
+\usepackage[margin=27mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,amsthm,bm}
+\usepackage{booktabs,longtable,array,graphicx,xcolor,enumitem}
+\usepackage[round,authoryear]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{bookmark}
+\hypersetup{pdftitle={Cash Flows, Macroeconomic Scenarios, and FX Hedging},pdfauthor={Research proposal}}
+\setlength{\parskip}{5pt}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{1}
+\numberwithin{equation}{chapter}
+\newcommand{\E}{\mathbb E}
+\newcommand{\V}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\N}{\mathcal N}
+\newcommand{\ind}{\mathbf 1}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\KL}{\operatorname{KL}}
+\newcommand{\softplus}{\operatorname{softplus}}
+\newcommand{\logit}{\operatorname{logit}}
+\newcommand{\sigmoid}{\operatorname{sigmoid}}
+\newcommand{\Hist}{\mathcal H}
+\newcommand{\Avail}{\mathcal A}
+\newcommand{\doop}{\operatorname{do}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newtheorem{proposition}{Proposition}[chapter]
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\vspace*{18mm}
+{\Huge\bfseries Cash Flows,\\ Macroeconomic Scenarios,\\ and FX Hedging\par}
+\vspace{8mm}
+{\Large A literature survey and phased product proposal for commercial banking\par}
+\vspace{10mm}
+{\large Version 2 \quad 9 October 2026\par}
+\vspace{15mm}
+\textbf{The decision.} Which clients are likely to face material foreign-currency exposure, which available hedge would improve their financial position, and where can a limited sales team create incremental value?
+
+\textbf{The proposed design.} A shared dynamic model forecasts currency-specific cash receipts and payments under explicit macroeconomic scenarios. An independently estimated utility and discrete-choice model translates those distributions into FX-hedging decisions. A later causal evaluation measures the incremental value of outreach.
+
+\textbf{The evidence.} Twelve primary works are reconstructed in the notation of the banking problem. All cited papers are stored locally. Algebraic checks and document compilation accompany this proposal; bank-data validation and causal identification remain work to be undertaken.
+\vfill
+Prepared for quantitative research, treasury product, relationship management, and model-risk teams. Assumed prerequisites: probability, calculus, linear algebra, and regression. Numerical examples are illustrative, not estimates for any bank or client.
+\end{titlepage}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+\chapter*{Executive proposal}
+\addcontentsline{toc}{chapter}{Executive proposal}
+A bank with one million business clients and three years of monthly observations has a large panel and a short history. Shared estimation can learn recurring differences between clients, industries, and currencies. It cannot manufacture additional business cycles. The central proposal is therefore a parsimonious, hierarchical state-space model of gross cash inflows and outflows, with a separately specified macroeconomic scenario channel and explicit uncertainty about the portion of each client's activity observed by the bank.
+
+Forecasting receipts and payments separately preserves the financial information needed for hedging. A client expecting EUR 1 million of receipts and EUR 0.8 million of payments at the same date has a different exposure from a client expecting EUR 1 million of receipts alone. Their net exposures depend on timing, existing hedges, balances, and the covariance between receipts and payments. A binary transaction forecast discards these quantities. A joint probability distribution over future flows can instead support exposure measurement, stress analysis, product design, and the eventual allocation of sales capacity.
+
+The macroeconomic input is an explicit scenario path: for example, real GDP growth, rates, inflation, and FX conditions. The requested positive GDP effect on every client's expected inflow can be imposed through nonnegative response coefficients and lag weights. That restriction makes the scenario behavior transparent. It is an economic assumption to test, not a universal empirical law. A conditional forecast becomes a causal counterfactual only after the relevant structural equations, confounding assumptions, and invariance under intervention have been justified.
+
+The FX module consumes forecast paths but does not determine the cash-flow model's training objective. Corporate-finance arguments explain why smoothing internal funds may be valuable when external finance is costly or liquidity shortfalls disrupt investment. A tractable certainty-equivalent calculation then values each feasible hedge, including its price and transaction costs. Random utility yields a discrete-choice model over actual available offers and an outside option. Choice-set records, existing hedge positions, indicative quotes, and declined offers are consequently as important as transaction histories for the second phase.
+
+Delivery proceeds through four useful increments: a reliable currency-flow data set and baselines; joint probabilistic cash-flow forecasts with scenario analysis; FX exposure and client-value calculations; and estimated choice plus randomized outreach evaluation. The first forecasting product can be delivered without waiting for preference identification. Neither model accuracy nor sales uplift is established by this document. The proposed validation compares against simple cash-flow heuristics, checks joint tail behavior and macro sensitivity, and ultimately measures incremental net contribution under real capacity constraints.
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+\input{sections/01_problem}
+\input{sections/02_observation}
+\input{sections/03_dynamics}
+\input{sections/04_joint_model}
+\input{sections/05_counterfactual}
+\input{sections/06_utility}
+\input{sections/07_choice}
+\input{sections/08_outreach}
+\input{sections/09_delivery}
+\input{sections/10_sources}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

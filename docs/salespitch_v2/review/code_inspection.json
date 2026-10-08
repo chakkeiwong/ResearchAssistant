@@ -1,0 +1,36 @@
+[
+  {
+    "model": "deepstate",
+    "local_path": ".localresources/bank-sales-v2-2026-10-08/papers/deepstate_network.py",
+    "url": "https://raw.githubusercontent.com/awslabs/gluonts/dev/src/gluonts/mx/model/deepstate/_network.py",
+    "retrieved": "2026-10-08",
+    "sha256": "d04f76d17f06d4d9620fe75d8081a4c1badb78df6a83e2afeba29d4afeb43e09",
+    "inspected_line_ranges": [
+      [
+        106,
+        134
+      ],
+      [
+        180,
+        204
+      ]
+    ],
+    "inspection_purpose": "Covariate-driven recurrent parameter generation; observations condition the latent state via LDS log probability.",
+    "scope": "Static source inspection only. Full endpoint call-chain, executable parity, historical-paper-code equivalence, and production capability: not checked."
+  },
+  {
+    "model": "deepar",
+    "local_path": ".localresources/bank-sales-v2-2026-10-08/papers/deepar_network.py",
+    "url": "https://raw.githubusercontent.com/awslabs/gluonts/dev/src/gluonts/mx/model/deepar/_network.py",
+    "retrieved": "2026-10-08",
+    "sha256": "6f0bd5f20117bf4a5302b34a65f08a0b5fffa22e578b486ffc3627e39ea1b127",
+    "inspected_line_ranges": [
+      [
+        520,
+        563
+      ]
+    ],
+    "inspection_purpose": "Lagged training targets enter the recurrent network input.",
+    "scope": "Static source inspection only. Full endpoint call-chain, executable parity, historical-paper-code equivalence, and production capability: not checked."
+  }
+]

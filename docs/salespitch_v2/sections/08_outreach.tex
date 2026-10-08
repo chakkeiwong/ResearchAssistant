@@ -1,0 +1,51 @@
+\chapter{Sales allocation and the incremental value of contact}
+\label{ch:outreach}
+\section{A likely purchase and a useful sales call are different targets}
+The utility and choice modules can identify clients likely to value an FX hedge. The bank still needs to know where a call changes the outcome. A client who routinely hedges through an automated channel may have high purchase probability but low incremental benefit from relationship-manager time. Another client with moderate exposure may act only after receiving an explanation. Contact propensity must therefore be evaluated as a treatment rather than substituted for product preference.
+
+Let $X$ contain information available before outreach, $A$ indicate assignment to outreach, and $R$ be realized net contribution over a fixed horizon. Net contribution should include spreads or fees less relevant execution, credit, funding, service, and contact costs. Define $\mu_a(x)=\E[R\mid A=a,X=x]$ and $e(x)=\Pr(A=1\mid X=x)$. Under consistency, conditional exchangeability $(R(0),R(1))\perp A\mid X$, overlap $0<e(X)<1$, and no relevant interference, the conditional effect is
+\begin{equation}
+\tau(x)=\mu_1(x)-\mu_0(x).
+\end{equation}
+These assumptions are demanding for historical discretionary sales activity. A randomized pilot creates more credible evidence than increasingly elaborate adjustment for undocumented salesperson judgment.
+
+\section{A doubly robust score and its derivation}
+\citet{wager2021policy} develops policy learning from observational data using orthogonal scores. Their equation (4) and policy-learning sections motivate the augmented inverse-propensity score
+\begin{equation}
+\Gamma=\widehat\mu_1(X)-\widehat\mu_0(X)
++\frac{A}{\widehat e(X)}\{R-\widehat\mu_1(X)\}
+-\frac{1-A}{1-\widehat e(X)}\{R-\widehat\mu_0(X)\}.
+\label{eq:aipw}
+\end{equation}
+To see the robustness, condition on $X=x$. If the propensity is correct, then
+\begin{align}
+\E\!\left[\frac A{e(x)}(R-\widehat\mu_1)\mid x\right]
+&=\mu_1-\widehat\mu_1,\\
+\E\!\left[\frac{1-A}{1-e(x)}(R-\widehat\mu_0)\mid x\right]
+&=\mu_0-\widehat\mu_0.
+\end{align}
+Substituting into~\eqref{eq:aipw} leaves $\mu_1-\mu_0$. If instead both outcome regressions are correct, each residual has zero conditional mean in its treatment group, so the augmentation terms vanish even with a misspecified propensity. With nuisance limits $\widetilde\mu_a,\widetilde e$, the conditional bias is exactly
+\begin{equation}
+\E[\widetilde\Gamma\mid x]-\tau(x)
+=(\widetilde e-e)
+\left\{\frac{\widetilde\mu_1-\mu_1}{\widetilde e}
++\frac{\widetilde\mu_0-\mu_0}{1-\widetilde e}\right\}.
+\end{equation}
+The product form explains why modest nuisance errors can be less damaging than in a direct plug-in estimate. It does not correct unmeasured confounding or absent overlap. Cross-fitting estimates nuisance functions on other folds so that each client's score is evaluated without using its own outcome to fit those functions. Time-respecting splits are additionally needed for a genuinely prospective policy evaluation.
+
+For a binary policy $\pi(x)$, incremental value relative to never contacting is
+\begin{equation}
+V(\pi)-V(0)=\E[\pi(X)\tau(X)],
+\qquad
+\widehat{V(\pi)-V(0)}=\frac1n\sum_i\pi(X_i)\widehat\Gamma_i.
+\end{equation}
+The source paper's objective written using $(2\pi-1)\Gamma$ is an affine transformation of this one and selects the same unconstrained policy class. Capacity and eligibility constraints restrict that class in the banking implementation. Learning and evaluating the policy on the same outcomes biases the reported value upward; a held-out evaluation or randomized deployment is required.
+
+\section{Capacity, product offers, and phased use}
+If every contact uses equal time and effects are additive, the solution to~\eqref{eq:capacityintro} selects the largest positive $\tau_i$ up to capacity. With unequal time costs, the binary problem is a knapsack problem; sorting by $\tau_i/d_i$ is exact for a divisible relaxation but not generally for indivisible calls. Territory ownership, language, expertise, cooldown periods, and client eligibility can be expressed as assignment constraints.
+
+The forecasting and choice models can supply useful features for $\tau$: expected unhedged exposure, uncertainty, estimated client value, acceptance probability, and timing. They do not mathematically determine the causal effect of contact. A heuristic interim queue can rank eligible clients by estimated client benefit and expected bank contribution, with its status stated clearly. The later pilot tests whether that queue generates incremental net value compared with current coverage and simpler rules.
+
+Randomize outreach assignment among eligible clients within practical strata such as salesperson, industry, and predicted opportunity. Define the outcome horizon and contact cost before starting, preserve assignment even if contact is not completed, and use intention-to-treat as the primary assignment effect. Repeated contacts need a cooldown or a sequential design. Cluster assignment or inference when clients share a corporate group or when salesperson capacity creates interference. An experimental sample-size calculation must use pilot outcome variance, economically meaningful minimum effects, and the actual clustering; no credible sample size can be supplied from client count alone.
+
+Unobserved competitor trades affect interpretation here as well. The bank can measure incremental contribution at its own institution if outcome capture is reliable. It cannot infer changes in the client's total market hedging from its own trade data. Both can be worthwhile business questions, but they require different outcome data.

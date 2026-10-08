@@ -1,0 +1,121 @@
+{
+  "scope": "deterministic algebra only; no empirical forecasting or causal validation",
+  "hardware": "CPU only; CUDA_VISIBLE_DEVICES=-1; NumPy only, no GPU framework imported",
+  "checks": [
+    {
+      "name": "filter endpoint vs joint conditioning",
+      "passed": true,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    {
+      "name": "smoothing means vs joint conditioning",
+      "passed": true,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    {
+      "name": "smoothing variances vs joint conditioning",
+      "passed": true,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    {
+      "name": "lag covariance identity vs joint conditioning",
+      "passed": true,
+      "max_absolute_error": 4.163336342344337e-17
+    },
+    {
+      "name": "EM transition update increases expected complete likelihood",
+      "passed": true
+    },
+    {
+      "name": "capture rescaling invariance",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "capture interval endpoints",
+      "passed": true,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    {
+      "name": "net variance with natural hedge",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "GDP derivative of log hurdle mean",
+      "passed": true,
+      "max_absolute_error": 1.9651502647377583e-12
+    },
+    {
+      "name": "negative autoregression reverses positive impulse",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "Froot continuation curvature",
+      "passed": true,
+      "max_absolute_error": 1.2398016502324083e-09
+    },
+    {
+      "name": "total value includes marginal internal funds",
+      "passed": true,
+      "max_absolute_error": 1.0049738818906917e-12
+    },
+    {
+      "name": "CARA normal certainty equivalent",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "exporter net hedge benefit",
+      "passed": true,
+      "max_absolute_error": 7.105427357601002e-15
+    },
+    {
+      "name": "hedge optimal first-order condition",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "logit score",
+      "passed": true,
+      "max_absolute_error": 1.314016950804131e-11
+    },
+    {
+      "name": "logit Hessian",
+      "passed": true,
+      "max_absolute_error": 4.0818459723368505e-12
+    },
+    {
+      "name": "logit common-shift invariance",
+      "passed": true,
+      "max_absolute_error": 5.551115123125783e-17
+    },
+    {
+      "name": "persistent-taste panel probability",
+      "passed": true,
+      "max_absolute_error": 5.551115123125783e-17
+    },
+    {
+      "name": "redrawn-taste panel probability",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "AIPW correct propensity",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "AIPW correct outcomes",
+      "passed": true,
+      "max_absolute_error": 0.0
+    },
+    {
+      "name": "AIPW product bias",
+      "passed": true,
+      "max_absolute_error": 1.5265566588595902e-16
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,110 @@
+\chapter{The proposed joint inflow--outflow model}
+\label{ch:joint}
+\section{A shared dynamic hurdle model}
+Cash flows have two features that the Gaussian teaching model does not capture directly: many currency-months are exactly zero, and positive amounts are skewed. We propose a dynamic hurdle model with a shared latent state. The hurdle determines whether a positive flow occurs; a continuous distribution determines its size. This is a proposed synthesis of the pooling and state-space methods already derived, rather than a claim that one cited paper supplies the entire banking model.
+
+Use $r=(c,s)$ to index currency $c$ and direction $s\in\{+,-\}$. Let $Y_{irt}$ denote the bank-observed flow in that coordinate and $D_{irt}=\ind\{Y_{irt}>0\}$. For an observed coordinate, define
+\begin{align}
+D_{irt}\mid x_{it},f_t&\sim\operatorname{Bernoulli}(p_{irt}),
+&p_{irt}&=\sigmoid(\eta^D_{irt}),\\
+\log(Y_{irt}/a_r)\mid D_{irt}=1,x_{it},f_t
+&=\eta^A_{irt}+\varepsilon_{irt},
+&\bm\varepsilon_{it}&\sim\N(0,R_{g(i)}).
+\label{eq:hurdle}
+\end{align}
+Here $a_r$ is a fixed positive unit scale, such as one thousand units of the native currency, chosen using training data or a declared unit convention. It avoids taking the logarithm of a dimensional quantity. The logistic function is $\sigmoid(v)=1/(1+e^{-v})$. Conditional on the states, hurdle indicators are initially independent across coordinates and independent of the Gaussian magnitude errors. Correlated latent states still create marginal dependence in occurrence. If simultaneous zero/nonzero patterns remain poorly described, correlated occurrence shocks are a targeted extension.
+
+The local state $x_{it}$ and common state $f_t$ obey
+\begin{align}
+x_{it}&=A_{g(i)}x_{i,t-1}+\eta_{it},&\eta_{it}&\sim\N(0,Q_{g(i)}),\\
+f_t&=A_f f_{t-1}+\xi_t,&\xi_t&\sim\N(0,Q_f).
+\end{align}
+Local and common innovations are independent in the initial specification. Common states may be global or sector-specific, with a small fixed dimension selected by validation. A client state can encode a persistent activity level and deviations from shared seasonality. For each of occurrence and magnitude, the linear predictor is
+\begin{equation}
+\eta^k_{irt}=\alpha^k_{g(i),r}+z_i'\gamma^k_r+u^k_{ir}
++b^k_{r}(t)+{h^k_r}'x_{it}+{\lambda^k_{ir}}'f_t
++B^k_{ir}(m_{1:t}),\qquad k\in\{D,A\}.
+\label{eq:predictor}
+\end{equation}
+The term $b_r^k(t)$ uses a finite set of known calendar predictors, such as month-of-year and holiday indicators; $u^k_{ir}$ is a shrunk client deviation; and $B^k_{ir}$ is the explicit macroeconomic response, constructed in Chapter~\ref{ch:cf}. Unrestricted date effects would absorb a common GDP path, so they are excluded when estimating that response. Residual common factors still require the separation restrictions discussed in Chapter~\ref{ch:dynamics}; shrinkage alone does not identify a causal GDP coefficient. Missing or sparse currency coordinates borrow information through the hierarchy rather than receiving unrestricted coefficients. An arbitrary client identifier may index a random effect but is not treated as an economically meaningful covariate.
+
+Separation between intercepts and persistent states requires a normalization. One defensible specification uses zero-mean stationary local deviations and a separate client intercept; another uses a local level with a fixed initial-mean hierarchy and no redundant free intercept. We recommend the former baseline. Stationary transitions require eigenvalues inside the unit circle; an intentional random-walk level is a different hypothesis with growing forecast uncertainty. Seasonal coefficients can satisfy a sum-to-zero constraint. Factor scale and rotation need normalization, for example a constrained loading block. These restrictions remove representational ambiguity, not economic uncertainty.
+
+\section{The likelihood and the dependence it preserves}
+Let $\mathcal O_{it}$ be the observed coordinates and $\mathcal P_{it}$ the subset with positive amounts. Write $\bm v_{it}$ for the observed log magnitudes in $\mathcal P_{it}$, and $R_{\mathcal P\mathcal P}$ for the corresponding covariance submatrix. Conditional on the latent states, the likelihood contribution is
+\begin{align}
+p(\bm Y_{it}\mid x_{it},f_t)
+={}&\prod_{r\in\mathcal O_{it}}p_{irt}^{D_{irt}}(1-p_{irt})^{1-D_{irt}}\nonumber\\
+&\times\phi_{|\mathcal P_{it}|}
+ (\bm v_{it};\bm\eta^A_{\mathcal P_{it}},R_{\mathcal P\mathcal P})
+ \prod_{r\in\mathcal P_{it}}Y_{irt}^{-1}.
+\label{eq:hurdlelik}
+\end{align}
+The Jacobian $1/Y$ converts a Gaussian log-amount density to an amount density. If there are no positive amounts, the Gaussian factor is one. Zero coordinates do not contribute a Gaussian observation of zero log amount. Missing coordinates contribute neither a Bernoulli factor nor an amount density. The covariance submatrix arises by marginalizing unobserved Gaussian log magnitudes; it is not a conditional covariance given invented zero magnitudes.
+
+For one coordinate, conditional on the states,
+\begin{align}
+\E[Y_{irt}\mid x,f]&=a_r p_{irt}
+ \exp(\eta^A_{irt}+R_{rr}/2),\label{eq:hurdlemean}\\
+\E[Y_{irt}^2\mid x,f]&=a_r^2p_{irt}
+ \exp(2\eta^A_{irt}+2R_{rr}),\\
+\V(Y_{irt}\mid x,f)&=\E[Y_{irt}^2\mid x,f]-\E[Y_{irt}\mid x,f]^2.
+\end{align}
+These equations follow from $D^2=D$, conditional independence, and the normal moment-generating function. For distinct coordinates $r,s$ under the specified conditional occurrence independence,
+\begin{equation}
+\E[Y_rY_s\mid x,f]
+=a_ra_s p_rp_s\exp\left(\eta_r^A+\eta_s^A+
+\frac{R_{rr}+R_{ss}}{2}+R_{rs}\right).
+\end{equation}
+Thus correlated magnitude noise and shared latent conditions both affect joint exposure. Integrating over states requires $\E_{x,f}[p(x,f)e^{\eta^A(x,f)+R/2}]$; replacing it by the product of separate expectations is generally wrong because occurrence and magnitude depend on the same states.
+
+For same-currency net flow $N=Y^+-Y^-$,
+\begin{equation}
+\V(N)=\V(Y^+)+\V(Y^-)-2\Cov(Y^+,Y^-).
+\label{eq:netvariance}
+\end{equation}
+If both standard deviations are EUR 100,000 and correlation is $0.9$, the net standard deviation is about EUR 44,721. Assuming independence gives EUR 141,421. The difference changes hedge sizing and the value of risk reduction. A model that fits marginal means well can still be unsuitable for hedging if it misses this covariance.
+
+Across clients, conditional independence given $f$ remains computationally useful. Unconditionally,
+\begin{equation}
+\Cov(Y_i,Y_j)=
+\E[\Cov(Y_i,Y_j\mid f)]+
+\Cov(\E[Y_i\mid f],\E[Y_j\mid f]).
+\end{equation}
+The first term is zero under the baseline independence assumptions for different clients, but the second need not be. Shared draws of future $f$ create coherent sector or portfolio shocks. Drawing a separate common factor for every client would remove the intended dependence.
+
+\section{Inference for zeros and positive amounts}
+The linear Gaussian model admits exact filtering. The hurdle model does not. A practical first implementation can use a Gaussian approximation to the latent posterior, with exact Gaussian calculations retained as a reference case.
+
+For one client conditional on common factors, stack states into $\bm x=(x_0',\ldots,x_T')'$. Its Gaussian Markov prior has a block-tridiagonal precision matrix $K$. For fixed covariance and loadings, the log posterior is a sum of the Gaussian prior, concave Bernoulli log likelihoods, and quadratic Gaussian log-magnitude terms:
+\begin{align}
+L(\bm x)={}&-\tfrac12(\bm x-\bm\mu)'K(\bm x-\bm\mu)\nonumber\\
+&+\sum_{r,t\in\mathcal O}\{D_{rt}\eta^D_{rt}-\log(1+e^{\eta^D_{rt}})\}\nonumber\\
+&-\tfrac12\sum_t(\bm v_t-\bm\eta_t^A)'R_{\mathcal P\mathcal P}^{-1}
+                  (\bm v_t-\bm\eta_t^A)+\text{constant}.
+\label{eq:laplaceobj}
+\end{align}
+With affine predictors, a Bernoulli term has gradient $(D-p)h$ and negative Hessian $p(1-p)hh'$. The Gaussian magnitude term contributes $H'R^{-1}H$. Hence the negative Hessian is the positive-definite prior precision plus positive-semidefinite local terms. With a proper prior this conditional posterior is log-concave, and a safeguarded Newton method can find its unique mode. If $\widehat x$ is that mode and $J=-\nabla^2L(\widehat x)$, the Laplace approximation is
+\begin{equation}
+q(\bm x)=\N(\widehat x,J^{-1}),\qquad
+\log p(y)\approx L(\widehat x)+\tfrac{d(T+1)}2\log(2\pi)-\tfrac12\log|J|,
+\end{equation}
+where $L$ must include the likelihood and prior normalizing constants for the marginal-likelihood formula. Keeping the band structure avoids a dense inverse of a $d(T+1)$ matrix. Nonlinear predictors or simultaneous parameter optimization can destroy this simple concavity; the statement is conditional on fixed linear-Gaussian structural parameters.
+
+An alternative is structured variational inference. For a Gaussian Markov family $q_\phi(x)$, maximize the lower bound $\mathcal L(q_\phi,\theta)$ in~\eqref{eq:elbo}. Write $x=\mu_\phi+L_\phi\epsilon$ with $\epsilon\sim\N(0,I)$ to differentiate Monte Carlo estimates of the expected log likelihood. The Gaussian prior and entropy terms can be evaluated analytically. A diagonal variational family is computationally convenient but discards temporal posterior covariance needed for cumulative exposure; a banded precision or state-space variational family is preferable. The variational sketch in \citet[Appendix A.4]{rangapuram2018} motivates this route, while the likelihood in~\eqref{eq:hurdlelik} and the proposed hierarchy are specific to the current problem.
+
+Approximate EM based on Laplace moments is a feasible engineering option, but it inherits neither exact EM monotonicity nor guaranteed interval calibration. Before scale-up, compare small problems against numerical integration or a carefully checked posterior sampler, and compare the continuous Gaussian special case against the exact filter. These are validity checks of approximation error. Predictive backtests then answer the separate question of forecasting usefulness.
+
+\section{A feasible estimation and simulation sequence}
+Begin with a transparent Gaussian transformed-flow model and shared seasonal effects as an implementation reference, then fit the hurdle likelihood on the same chronological splits. Estimate shared and group coefficients from many clients, using client-specific states and shrunk deviations. Update common factors using their joint contribution across clients, rather than plugging in a noiseless cross-sectional mean. A practical variational factorization may alternate a common-factor posterior with client-conditional posteriors; any lost dependence must be measured on a smaller joint reference problem. With only 36 dates the common-factor path is short, although each date receives many observations.
+
+For every forecast origin, simulate complete paths in this order: draw shared parameters or a parameter-uncertainty approximation; draw common future factors once for the scenario; draw each client's current state from its posterior; propagate its states; draw occurrence indicators and correlated positive log amounts; and convert to native-currency inflows and outflows. Market FX paths must be linked to the same macro scenario and, where economically material, to common innovations. Independent FX simulation is an explicit simplifying assumption, not the default meaning of a joint forecast.
+
+Parameter uncertainty matters particularly for macro slopes and sparse currencies. Plug-in predictions capture future process noise while omitting uncertainty about estimated coefficients. A hierarchical posterior, suitably clustered parameter bootstrap, or a declared sensitivity envelope can address part of this gap. No method removes the limited evidence about macroeconomic regimes absent from the training period.
+
+The output to the utility module is a reproducible collection
+\begin{equation}
+\{w_s,\;Y^{+,(s)}_{ic,t+h},\;Y^{-,(s)}_{ic,t+h},\;S^{(s)}_{c,t+h}\}_{s=1}^{M},
+\qquad w_s\geq0,\quad\sum_s w_s=1,
+\end{equation}
+with units, dates, scenario name, as-of information date, capture assumptions, and model version. Weights describe the probability measure used. Physical probabilities are appropriate for expected client outcomes; market pricing of derivative terms uses a separate pricing measure or observed quotes. The next chapters explain why those distinctions must survive the interface.

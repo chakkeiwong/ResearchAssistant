@@ -1,0 +1,14 @@
+# Omitted-paper and reviewer-risk register
+
+| Candidate or family | Why not cited as technical evidence | Reviewer concern and disposition |
+|---|---|---|
+| Chang et al. (2024), B2B-banking/green-finance cross-selling case, DOI 10.1016/j.techfore.2024.123542 | Publisher metadata located; technical full text blocked/unavailable in bounded retrieval | Most direct corporate application found. Source-blocked; no case-performance claim. Obtain and inspect for a later domain-evidence expansion. |
+| McCarthy–Oblander, selection-corrected data fusion | Author/SSRN metadata found; full method not inspected | Relevant if external wallet panels become available. Acceptable omission for a model explicitly restricted to bank-observed targets; requires expansion before proposing a specific fusion estimator. |
+| Original next-product-to-buy and latent-trait cross-selling predecessors | Listed in backward ledger; original technical texts not inspected | Survey is not a complete history of cross-selling. Acceptable for current focused proposal, not for a claim of exhaustive coverage. |
+| Pareto/NBD and original industrial purchase application | BG/NBD primary comparison inspected; no original-source empirical claim | Stronger purchase-model survey would include them. Exact-date benchmark extension should review them. |
+| Modern tabular packages, causal forests and specialized uplift algorithms | No implementation or comparative superiority asserted | Competitors must enter an implementation protocol if selected. Current recommendation is a model family and evaluation plan. |
+| Forecasting foundation models and newer contextual forecasts | Candidate follow-ups surfaced in bounded forward searches; full texts not evaluated | The survey does not claim state-of-the-art coverage as of 2026. Acceptable for foundational design; expansion needed for a contemporary architecture leaderboard. |
+| Adaptive bandits and longitudinal treatment regimes | Initial pilot restricts repeated intervention within outcome horizon | Required if the product becomes an adaptive repeated-contact policy. One-step AIPW cannot silently justify that extension. |
+| Informative missingness and competing-bank structural models | No observations identify the missing total-market denominator | Fundamental data limitation is derived. Any stronger need/share estimate requires extra data or explicit identifying assumptions. |
+
+The ten-paper bibliography is intentionally limited to locally retained and technically inspected sources. Omitted candidates are research leads, not hidden evidence. No source is known to be retracted from the inspected records, but status checks and forward neighborhoods are bounded. A human reader's assessment of readability is pending; author review and successful compilation do not certify it.

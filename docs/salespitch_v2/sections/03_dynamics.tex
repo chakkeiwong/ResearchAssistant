@@ -1,0 +1,196 @@
+\chapter{Learning dynamics from many short histories}
+\label{ch:dynamics}
+\section{Pooling is the starting point}
+The forecasting literature offers a useful change in perspective: the bank has a panel-learning problem rather than one million unrelated time-series problems. \citet{montero2021global} distinguish local models, estimated separately for each series, from global models that share a forecasting rule. Their Proposition~1 establishes an expressiveness equivalence for functions on complete finite histories under its stated construction. That mathematical result does not say that an arbitrary small global network reproduces every local rule, nor that empirical generalization follows without restrictions. Finite-memory inputs that give the same input to two clients with different desired outputs illustrate why representation matters.
+
+A hierarchical regression makes the useful statistical mechanism explicit. For one client, let $\bm y_i=X_i\beta_i+\varepsilon_i$ with $\varepsilon_i\sim\N(0,\sigma^2 I)$. Rows of $X_i$ can contain lagged flows and known calendar or macro inputs. Assume
+\begin{equation}
+\beta_i\mid g(i)\sim\N(\beta_{g(i)},\Lambda^{-1}),
+\end{equation}
+where $g(i)$ is an industry or peer group and $\Lambda$ is prior precision. Combining the Gaussian likelihood and prior yields the negative log posterior, up to constants,
+\begin{equation}
+\frac{1}{2\sigma^2}(\bm y_i-X_i\beta_i)'(\bm y_i-X_i\beta_i)
++\frac12(\beta_i-\beta_g)'\Lambda(\beta_i-\beta_g).
+\end{equation}
+Differentiating and setting the derivative to zero gives
+\begin{align}
+(X_i'X_i/\sigma^2+\Lambda)\widehat\beta_i
+ &=X_i'\bm y_i/\sigma^2+\Lambda\beta_g,\\
+\widehat\beta_i
+ &=(X_i'X_i/\sigma^2+\Lambda)^{-1}
+ (X_i'\bm y_i/\sigma^2+\Lambda\beta_g),
+\label{eq:shrinkage}\\
+\V(\beta_i\mid\bm y_i)&=(X_i'X_i/\sigma^2+\Lambda)^{-1}.
+\end{align}
+When a client has little informative history, the peer estimate carries more weight. With a well-conditioned, highly informative client history, its own data dominate. In the scalar case with information $s=X_i'X_i/\sigma^2$ and prior precision $\lambda$, the posterior mean is $s/(s+\lambda)$ times the local estimate plus $\lambda/(s+\lambda)$ times the peer mean. This is the precise sense in which pooling can help a three-year series. Equation~\eqref{eq:shrinkage} is our Gaussian derivation, motivated by the global-versus-local question; it is not a theorem attributed to the global-forecasting paper.
+
+Group definitions and shrinkage strengths should be estimated or validated, not assumed harmless. Pooling exporters and importers without currency and business-type information can average away the very differences needed for FX advice. A practical hierarchy shares most parameters while permitting industry and client deviations only where observations support them.
+
+\section{A latent state gives the forecast a financial interpretation}
+\label{sec:kalman}
+Cash receipts vary because persistent business conditions change and because individual payments arrive irregularly. A state-space model separates those components. Let $x_t\in\mathbb R^d$ be a latent state such as current activity and slowly changing seasonal conditions. Temporarily suppress client indices and assume a linear Gaussian system:
+\begin{align}
+x_t&=A_t x_{t-1}+b_t+\eta_t,&\eta_t&\sim\N(0,Q_t),\\
+y_t&=H_t x_t+d_t+\epsilon_t,&\epsilon_t&\sim\N(0,R_t).
+\label{eq:ssm}
+\end{align}
+All innovations are mutually independent over time and between equations, and $x_0\sim\N(m_0,P_0)$. The offsets $b_t,d_t$ can contain known macroeconomic and calendar inputs. The vector $y_t$ can represent transformed inflows and outflows together. A positive off-diagonal covariance can express their shared business cycle.
+
+\citet{kalman1960} derives recursive linear estimation using orthogonality and covariance propagation, particularly the main filtering theorem and covariance recursion. Under the Gaussian assumptions above, the linear estimator is the full conditional mean and the conditional distribution remains Gaussian. Here is the derivation in the notation needed for the bank.
+
+Suppose $x_{t-1}\mid y_{1:t-1}\sim\N(m_{t-1},P_{t-1})$. Applying the affine transition gives the prior at the next date:
+\begin{equation}
+a_t=A_t m_{t-1}+b_t,\qquad
+P_t^-=A_tP_{t-1}A_t'+Q_t.
+\end{equation}
+The forecast error is $v_t=y_t-H_ta_t-d_t$, with covariance $S_t=H_tP_t^-H_t'+R_t$. The joint conditional distribution of $x_t$ and $v_t$ has mean $(a_t,0)$ and block covariance
+\begin{equation}
+\begin{pmatrix}
+P_t^- & P_t^-H_t'\\
+H_tP_t^- & S_t
+\end{pmatrix}.
+\end{equation}
+To obtain the conditional mean, subtract $K_tv_t$ from $x_t-a_t$, where $K_t=P_t^-H_t'S_t^{-1}$. Its covariance with $v_t$ is $P_t^-H_t'-K_tS_t=0$. Joint Gaussianity turns zero covariance into independence. Therefore
+\begin{align}
+m_t&=a_t+K_tv_t,\\
+P_t&=P_t^- -P_t^-H_t'S_t^{-1}H_tP_t^-.
+\label{eq:filter}
+\end{align}
+The gain $K_t$ gives less weight to a noisy observation and more weight to one that sharply resolves prior uncertainty. In a scalar example with prior variance $4$ and observation variance $1$, $K=4/5$: an observed log-flow surprise of $0.10$ raises the estimated state by $0.08$.
+
+The forecast-error distribution supplies the exact Gaussian likelihood:
+\begin{equation}
+\ell(\theta)=-\frac12\sum_t
+\left[k_t\log(2\pi)+\log|S_t|+v_t'S_t^{-1}v_t\right],
+\label{eq:kalmanlik}
+\end{equation}
+where $k_t$ is the number of observed components. Missing components are removed by a selection matrix before computing $v_t,S_t$; missing all components means skipping the update. Linear solves and factorizations should replace explicit inverses in software. The equivalent Joseph covariance update,
+\begin{equation}
+P_t=(I-K_tH_t)P_t^-(I-K_tH_t)'+K_tR_tK_t',
+\end{equation}
+helps preserve covariance symmetry and positive semidefiniteness in finite precision. The formula changes the numerical evaluation, not the statistical target.
+
+For fixed future coefficients, repeated propagation gives
+\begin{equation}
+\E[x_{t+h}\mid\Hist_t]=A^h m_t+\sum_{r=0}^{h-1}A^r b_{t+h-r},
+\end{equation}
+and, with constant $A,Q$,
+\begin{equation}
+\V(x_{t+h}\mid\Hist_t)=A^hP_t(A^h)'+
+\sum_{r=0}^{h-1}A^rQ(A^r)'.
+\label{eq:multistep}
+\end{equation}
+Sampling one state path recursively preserves cross-horizon dependence. Drawing each month independently from its marginal distribution loses that dependence and can misstate cumulative exposure risk.
+
+\section{Smoothing and EM: how the parameters can be learned}
+\label{sec:em}
+Filtering uses observations only up to each date. Parameter estimation can use the whole training window to infer past states. \citet{shumway1982} combine smoothing with expectation--maximization (EM); their equations (3)--(4) give the complete-data likelihood and its conditional expectation, and their Appendix gives filtering, smoothing, and lag-covariance recursions.
+
+For a time-invariant transition $x_t=Ax_{t-1}+\eta_t$, the filtered joint distribution of $(x_t,x_{t+1})$ implies
+\begin{equation}
+\E[x_t\mid x_{t+1},y_{1:t}]
+ =m_t+J_t(x_{t+1}-a_{t+1}),\qquad
+J_t=P_tA'(P_{t+1}^-)^{-1}.
+\end{equation}
+The conditional Markov property means that future observations add information about $x_t$ through $x_{t+1}$. Taking expectations and variances conditional on all training observations gives the backward recursion
+\begin{align}
+\widetilde m_t&=m_t+J_t(\widetilde m_{t+1}-a_{t+1}),\\
+\widetilde P_t&=P_t+J_t(\widetilde P_{t+1}-P_{t+1}^-)J_t'.
+\label{eq:smoothing}
+\end{align}
+Start with $\widetilde m_T=m_T$ and $\widetilde P_T=P_T$. The same conditional decomposition gives
+\begin{equation}
+\Cov(x_t,x_{t-1}\mid y_{1:T})=\widetilde P_tJ_{t-1}'.
+\label{eq:lagcov}
+\end{equation}
+Indeed, $x_{t-1}$ equals an affine function with slope $J_{t-1}$ of $x_t$, plus a residual independent of $x_t$ and subsequent observations. Multiplying that relation by the centered $x_t$ yields~\eqref{eq:lagcov}. These moments, not products of smoothed means alone, are needed for unbiased complete-data sufficient statistics.
+
+Define sums over the $T$ transitions:
+\begin{align}
+S_{00}&=\sum_t(\widetilde P_{t-1}+\widetilde m_{t-1}\widetilde m_{t-1}'),\\
+S_{10}&=\sum_t(\widetilde P_tJ_{t-1}'+\widetilde m_t\widetilde m_{t-1}'),\\
+S_{11}&=\sum_t(\widetilde P_t+\widetilde m_t\widetilde m_t').
+\end{align}
+The part of the expected complete-data log likelihood involving $A,Q$ is
+\begin{equation}
+-\frac{T}{2}\log|Q|-\frac12\tr\left[
+Q^{-1}(S_{11}-AS_{10}'-S_{10}A'+AS_{00}A')\right].
+\end{equation}
+Differentiating with respect to $A$ gives $AS_{00}=S_{10}$. Substitution and differentiation with respect to $Q$ yield
+\begin{equation}
+A^{\rm new}=S_{10}S_{00}^{-1},\qquad
+Q^{\rm new}=\frac1T(S_{11}-S_{10}S_{00}^{-1}S_{10}').
+\label{eq:emupdate}
+\end{equation}
+For a known observation matrix $H$ and complete observations,
+\begin{equation}
+R^{\rm new}=\frac1T\sum_t
+\left[(y_t-H\widetilde m_t)(y_t-H\widetilde m_t)'
+      +H\widetilde P_tH'\right].
+\end{equation}
+Offsets are subtracted first. Exogenous regressors can be appended to the transition regression with their deterministic cross-moments. Hierarchical penalties and structural restrictions generally replace these unrestricted closed-form updates with constrained optimization. For a diagonal $R$ and missing observations, each diagonal update uses its own observed count; a general unstructured $R$ with changing missingness requires the appropriate observed-data objective, not an indiscriminate division by $T$.
+
+Why does exact EM improve likelihood? For any density $q(x)$,
+\begin{equation}
+\log p_\theta(y)
+=\underbrace{\E_q[\log p_\theta(y,x)-\log q(x)]}_{\mathcal L(q,\theta)}
++\KL\{q(x)\Vert p_\theta(x\mid y)\}.
+\label{eq:elbo}
+\end{equation}
+This follows by expanding the KL divergence and using
+$\log p_\theta(x\mid y)=\log p_\theta(y,x)-\log p_\theta(y)$.
+The E-step sets $q$ to the old posterior, making the KL term zero at the old parameter. Maximizing $\mathcal L$ over $\theta$ cannot lower the observed likelihood because the new KL term is nonnegative. Approximate smoothing removes this exact argument, and even exact EM can converge to a local stationary solution rather than a global optimum. Both distinctions matter for the non-Gaussian extension below.
+
+At bank scale, a low-dimensional filter costs roughly $O(Td^3)$ per client in a dense implementation, with observation-dimension costs in addition. The advantage is separability across clients conditional on shared factors and parameters. A million separate high-dimensional covariance models would waste data and computation. Shared low-rank covariance structures and small client states are the appropriate starting hypotheses.
+
+\section{Macroeconomic factors compress predictors but do not identify causes}
+\citet{stock2002} study forecasting with principal components from many predictors. Their Sections~2--3 set out the approximate factor representation and forecasting results under assumptions that let both the number of predictors and the time dimension grow. That asymptotic setting does not describe 36 dates merely because the bank has many clients.
+
+Let $X$ be a centered, standardized $T\times K$ matrix of macroeconomic predictors, with rows denoting dates. An approximate rank-$r$ factor representation solves
+\begin{equation}
+\min_{F,\Lambda}\|X-F\Lambda'\|_F^2
+\quad\text{subject to}\quad F'F/T=I_r.
+\end{equation}
+For fixed $F$, differentiating gives $\widehat\Lambda=X'F/T$. Substitution leaves a constant minus $\tr(F'XX'F)/T$. The maximizing $F$ consists of $\sqrt T$ times the top $r$ orthonormal eigenvectors of $XX'$. Forecasting then regresses future outcomes on these estimated factors, their lags, and suitable outcome lags.
+
+The compression is useful when many macro indicators measure overlapping conditions. It also has two limitations. First, $(F,\Lambda)$ and $(FR,\Lambda R)$ give the same fitted $X$ for an orthogonal $R$; individual factor names require additional interpretation. Second, predictive factors can incorporate movements also associated with GDP. If a free factor absorbs the GDP path, a separately named GDP loading need not be identified. A proposal requiring an interpretable GDP response should put that variable explicitly in the model and restrict residual factors, for example by a declared projection or structural exclusion. Orthogonalization defines a predictive decomposition; it does not prove causal exogeneity.
+
+Longer external macro histories can help estimate factor dynamics or prior scenario distributions. They cannot reveal a particular client's response before the bank observed that client. Vintage-consistent estimation and sensitivity to the number of factors remain necessary. With a short bank history, a small set of economically chosen exogenous inputs is the primary specification; principal components are a challenger when their incremental forecast value can be demonstrated.
+
+\section{Two neural alternatives and what they contribute}
+\subsection{DeepAR: share a distributional forecasting rule}
+\citet{salinas2020deepar} construct a global autoregressive recurrent network. Their model and likelihood sections define a hidden state updated from the previous target and current covariates,
+\begin{equation}
+h_{it}=f_\theta(h_{i,t-1},y_{i,t-1},x_{it}),\qquad
+\vartheta_{it}=g_\theta(h_{it}),
+\end{equation}
+and factor the predictive likelihood as
+\begin{equation}
+p_\theta(y_{i,1:T}\mid x_i)=\prod_t p(y_{it}\mid\vartheta_{it}).
+\label{eq:deepar}
+\end{equation}
+Training maximizes the sum of log factors across clients and time. During training the lagged targets are observed; future generation replaces them with recursively sampled targets. This distinction is essential because feeding future actual observations at evaluation would overstate forecast quality.
+
+For real-valued observations, a Gaussian output can use a positive scale $\sigma=\log(1+e^a)$. For nonnegative counts the paper also uses a negative binomial distribution. With mean $\mu>0$ and dispersion $\alpha>0$, set $r=1/\alpha$ and $p=r/(r+\mu)$, giving
+\begin{equation}
+\Pr(Y=y)=\frac{\Gamma(y+r)}{\Gamma(r)\Gamma(y+1)}
+p^r(1-p)^y,\quad
+\E[Y]=\mu,\quad\V(Y)=\mu+\alpha\mu^2.
+\end{equation}
+The moments follow from the probability-generating function
+$G(s)=[p/(1-(1-p)s)]^r$: $G'(1)=r(1-p)/p$ and
+$G''(1)+G'(1)-G'(1)^2=r(1-p)/p^2$.
+These count likelihoods are appropriate for numbers of transactions, not directly for dollar or euro amounts. Continuous positive amounts need a continuous distribution, with a separate point mass at zero if necessary.
+
+For this project, DeepAR is a meaningful flexible comparator and a source of shared distributional learning. Its basic per-series likelihood does not itself provide correlated inflow/outflow paths, a common macroeconomic shock across firms, or a structurally interpretable GDP response. Those would require an explicit multivariate or shared-factor extension. The published benchmarks establish performance in their data settings, not in this bank's partial-wallet setting. We therefore retain a structured model as the proposed first release and make neural complexity earn its place in held-out decision-relevant tests.
+
+\subsection{Deep state space: share parameters while retaining filtering}
+\citet{rangapuram2018} combine a recurrent parameter generator with a linear Gaussian state-space model. In their notation the latent state $\ell_t$ evolves linearly and observations are linear in the preceding state; an index shift maps their equations (1)--(4) to~\eqref{eq:ssm}. The shared recurrent network maps known covariates to time-varying transition, noise, and observation parameters. Crucially, in their construction the observations update the latent state through filtering; they are not inputs to the parameter-generating RNN. Conditional on the covariates and network parameters, the likelihood is the analytic Kalman likelihood~\eqref{eq:kalmanlik}.
+
+Writing $\theta_t=\Psi_\phi(x_{1:t})$ for these generated parameters, estimation maximizes
+\begin{equation}
+\sum_i\log p(y_{i,1:T}\mid\theta_{i,1:T})
+\end{equation}
+by differentiating through the filter. This creates two forms of adaptation: shared neural weights learn how covariates should change dynamics, and each client's filter updates its own state from observed transactions. The source assumes conditional independence across series in this objective. It therefore motivates shared estimation, while the bank's desired dependence across currencies and firms is an additional modeling responsibility.
+
+The official long version's Appendix~A.2 describes parameter constraints, and Appendix~A.4 sketches a variational extension to non-Gaussian observations. The latter does not make arbitrary zero-inflated observations exactly Gaussian-filterable. For this proposal, positivity of variances, stable or deliberately integrated states, and monotonic scenario effects must be designed explicitly. A recurrent parameter generator is optional after the transparent hierarchy and hurdle likelihood have been validated. Neither a neural transition nor an exogenous input label, by itself, gives a causal counterfactual interpretation.

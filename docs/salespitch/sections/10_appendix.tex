@@ -1,0 +1,50 @@
+\subsection{Notation and units}
+
+\begin{longtable}{P{0.20\linewidth}P{0.73\linewidth}}
+\toprule
+Symbol & Meaning\\
+\midrule
+\endhead
+$i,j,t$ & Business client, product, calendar-month cutoff.\\
+$k,s,H$ & Elapsed month within a spell, spell index, forecast horizon in months.\\
+$C_{it},X$ & Information available at the decision cutoff; $X$ is generic notation in method derivations.\\
+$Y_{ijt}^{(H)}$ & Indicator of a defined own-bank event during the next $H$ months.\\
+$N,V,M$ & Transaction count, monetary amount, contribution margin. These are distinct targets with different units.\\
+$h,p$ & Monthly conditional event hazard and horizon event probability.\\
+$W,M(w)$ & Assigned outreach action and margin under that assignment.\\
+$e(x),m_w(x)$ & Treatment-assignment probability and conditional outcome mean for action $w$.\\
+$\tau,v,k$ & Incremental margin before outreach cost, net incremental value, outreach cost. The symbol $k$ in a cost expression differs from elapsed time by context.\\
+$z_{ia},h_{ia},B$ & Action assignment, required hours and available salesperson hours. Here $h_{ia}$ denotes hours, not the hazard $h_{ijt}$.\\
+$D,S,c(x)$ & Latent market need, observed positive/capture indicator, probability of observing a positive need.\\
+$\lambda,p,r,\alpha,a,b$ & BG/NBD active arrival rate, post-transaction dropout probability and gamma/beta population parameters. Its $p$ differs from the horizon-event probability.\\
+$\mu,k,\alpha$ & Negative-binomial mean, shape and dispersion, with $\alpha=1/k$. These are local distribution parameters.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Where each paper enters the proposed product}
+
+\begin{longtable}{P{0.23\linewidth}P{0.33\linewidth}P{0.35\linewidth}}
+\toprule
+Source & Reconstructed contribution & Bank use and boundary\\
+\midrule
+\endhead
+\citet{montero2021global} & Finite-history representation and shared-class generalization calculation. & Pool clients; dependence and only 36 calendar periods prevent a naive sample-size guarantee.\\
+\citet{singer1993time} & Hazard, survival, censoring likelihood and person-period logistic estimation. & Predict first adoption in monthly intervals with correct eligibility and risk sets.\\
+\citet{willett1995multiple} & Multiple-spell likelihood and history-dependent risk clocks. & Handle repeated FX or transaction opportunities without treating adoption as a recurring first event.\\
+\citet{fader2005counting} & Gamma/beta mixture likelihood, active probability and future-count expectation. & Recency/frequency benchmark if exact dates exist; a separately defined monthly analogue otherwise.\\
+\citet{li2005cross} & Maturity-dependent multivariate probit, hierarchical heterogeneity and latent-utility estimation. & Motivate product-history features; competitor data and consumer order assumptions do not automatically transfer.\\
+\citet{friedman2001greedy} & Functional gradient updates, logistic leaf steps and shrinkage. & Nonlinear hazard challenger, with probability calibration and chronological selection.\\
+\citet{salinas2020deepar} & Shared recurrent likelihood, count outputs and recursive simulation. & Probabilistic count challenger; no presumption of benefit on short monthly bank histories.\\
+\citet{gutierrez2017causal} & Treatment identification, separate/joint models, transformed outcomes and splitting principle. & Estimate average outreach response rather than ordinary conversion propensity.\\
+\citet{wager2021policy} & Doubly robust score, bias cancellation and policy-value objective. & Learn and evaluate contact allocation under overlap, valid assignment assumptions and capacity.\\
+\citet{elkan2008pu} & SCAR identity and weighted unlabeled loss; labeling-rate estimator limitation derived here. & Explain partial observation and why unknown capture does not identify total-market demand.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Source versions and derivation scope}
+
+The bibliography gives complete publication metadata. The accompanying source manifest maps every citation to a downloaded full text, its retrieval address, version, checksum and technical reading anchors. Author manuscripts are retained when they are the accessible full text; in particular, the DeepAR manuscript has three named authors while the journal publication lists four. The downloaded copy is not represented as the final publisher layout. Scanned source papers remain unchanged, with extracted or OCR text retained separately for research use.
+
+The main text supplies the likelihoods, losses, prediction formulas and estimation arguments used in the proposal. It does not reproduce unrelated empirical tables or claim to prove every theorem in each cited paper. The policy-learning finite-class bound is an explanatory derivation, not a reproduction of the source's general asymptotic theorem. The cross-selling estimation construction is explicitly supplied because the article does not publish all its sampler details. The monthly inactivity model, bank allocation example, capture counterexamples and experimental design are adaptations developed for this problem.
+
+All numerical queue values are hypothetical. No bank records were supplied, no prediction model was trained and no commercial performance was measured. The proposed comparisons specify what evidence would be needed to move from a mathematically coherent design to a successful sales product.

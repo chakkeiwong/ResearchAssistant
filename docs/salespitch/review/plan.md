@@ -1,0 +1,19 @@
+# Survey and product proposal
+
+Objective: a detailed, self-contained LaTeX survey and product proposal for commercial-bank opportunity forecasting and sales allocation, with every cited paper downloaded to `dcos/papers/salespitch/` using `Title FirstAuthorSurname(Year).pdf`. Deliver a compiled and visually inspected PDF and editable sources.
+
+Audience: quantitative banking and product readers who know probability, regression and calculus. Explain event-history and causal methods from first principles. Product-specific opportunities are primary; activity anomalies are secondary. Dated outreach records exist. Bank data have not been supplied.
+
+Scientific argument: define bank-observed outcomes and available information; establish what a large, short panel supports; derive event, purchase, product-adoption and pooled-learning models; derive partial-observation limits and causal outreach value; combine these into a capacity-constrained product; specify prospective validation.
+
+Skeptical audit: passes for a document-only task after separating forecast performance, causal identification and sales value. No empirical performance or identifiability will be inferred from literature benchmarks. Monthly observations cannot support exact event timestamps. Historical contacts do not remove unmeasured confounding. Thirty-six calendar periods do not become millions of macroeconomic observations. Deep methods are challengers, not presumed winners. All numerical illustrations are hypothetical or derived.
+
+Evidence contract: primary full texts and inspected technical sections support descriptions; imported assumptions and local derivations are distinguished. Check algebra by focused CPU-only numerical identities where useful, citations against a local paper manifest, and LaTeX by pdflatex/bibtex plus PDF inspection. Successful compilation is not evidence of scientific or commercial performance. No training, scraping client information, paid compute, deployments or contact with clients is authorized by this task.
+
+Defaults: one- and three-month horizons are proposed examples requiring business confirmation; basic probability/calculus audience is an authoring assumption; regularized pooled logistic is the interpretable baseline, boosting and recurrent neural forecasts are challengers. Policy values depend on an explicitly defined contact intervention and profit horizon. Model selection requires chronological validation and a prospective experiment. Numerical budgets in the proposal will be labeled proposed bounds, not measured requirements.
+
+Source scope: a focused methodological survey, with depth prioritized over a bibliography of unread papers. Existing seven full texts will be supplemented with primary sources on boosting, recurrent event history, and probabilistic global forecasting. Additional business-specific sources enter only if their full text is available and their method can be assessed.
+
+Review: preserve six literature-audit ledgers in supporting files; check each chapter for derivation completeness, application to the bank, omitted source limitations, and natural prose. Human assessment of readability remains pending; it does not prevent the requested completed draft.
+
+Completed: ten full texts retained, relevant methods and derivations reconstructed, six literature ledgers saved, 22 deterministic mathematical checks passed, and the final 33-page PDF compiled with zero warnings and complete citation coverage. The protected first draft was compared with the revised text; substantive corrections and label changes are recorded in final_review.md and revision_comparison.json. All final pages and seven detailed pages were visually inspected. The document is ready for delivery. No bank model was fitted and no empirical performance ranking is supported.

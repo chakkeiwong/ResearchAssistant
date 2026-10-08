@@ -1,0 +1,170 @@
+\subsection{Li, Sun, and Wilcox: sequential acquisition of banking products}
+
+\citet{li2005cross}, Equations (1)--(5), model household purchases of several banking products using a latent demand-maturity measure. Let $O_j$ denote the position of product $j$ on a maturity scale. In the paper's notation, the household state is
+\begin{equation}
+ D_{Mi,t-1}=\sum_{j=1}^J O_jD_{ij,t-1}
+ \left(\lambda_1\operatorname{ACCTNBR}_{ij,t-1}
+      +\lambda_2\operatorname{BAL}_{ij,t-1}
+      +\lambda_3\operatorname{Holding}_{ij,t-1}\right).
+ \label{eq:li-maturity}
+\end{equation}
+The paper defines $D_{ij,t-1}$ as a dummy for purchasing product $j$ in the preceding month, not as an indicator of currently owning it. The other terms measure cumulative purchases, balances and elapsed holding time. Thus the source construction weights these accumulated attributes by recent purchase activity. Substituting current ownership would change the model. In particular, without any preceding-month purchase the displayed source maturity measure is zero; it is not automatically a persistent stock of financial sophistication.
+
+The latent purchase utility is
+\begin{equation}
+ U_{ijt}=\beta_i|O_j-D_{Mi,t-1}|+\gamma_{1ij}\operatorname{COMPET}_{ij}
+  +\gamma_{2ij}\operatorname{OVERSAT}_i
+  +\gamma_{3ij}\operatorname{SWIT}_{it}+\varepsilon_{ijt},
+ \label{eq:li-utility}
+\end{equation}
+with $Y_{ijt}=\mathbf1_{\{U_{ijt}>0\}}$ and contemporaneous errors $\varepsilon_{it}\sim N_J(0,\Sigma)$. The competition variable records opening the product category at another bank in the previous six months. Satisfaction comes from a survey. The source switching-cost indicator combines household characteristics; it is not a directly measured commercial switching expense. These details matter because this bank does not currently observe competitor holdings, and consumer demographic proxies should not simply be imported into a corporate model.
+
+A negative $\beta_i$ makes purchase utility smaller when the product position is far from the household's maturity. Correlated errors allow contemporaneous demand for multiple products. The paper normalizes utility error scales and fixes one product position; these are necessary conventions for latent quantities, rather than directly observed dollar values. An empirical implementation must still examine whether the chosen data and restrictions distinguish the remaining parameters.
+
+\subsubsection{From latent utility to a likelihood}
+
+Write $\mu_{it}=(\mu_{i1t},\ldots,\mu_{iJt})$ for the deterministic utilities. For one product with unit error variance,
+\[
+ \Prb(Y_{ijt}=1)=\Prb(\varepsilon_{ijt}>-\mu_{ijt})
+ =1-\Phi(-\mu_{ijt})=\Phi(\mu_{ijt}),
+\]
+where $\Phi(v)=\int_{-\infty}^v(2\pi)^{-1/2}e^{-z^2/2}dz$. For several products, let $\mathcal R(y)$ be the rectangle with coordinate $(0,\infty)$ when $y_j=1$ and $(-\infty,0]$ when $y_j=0$. The joint observation probability is
+\begin{equation}
+ p(y_{it}\mid\mu_{it},\Sigma)
+ =\int_{\mathcal R(y_{it})}
+ \frac{\exp\{-\tfrac12(u-\mu_{it})^{\mathsf T}\Sigma^{-1}(u-\mu_{it})\}}
+ {(2\pi)^{J/2}|\Sigma|^{1/2}}du.
+ \label{eq:li-probit}
+\end{equation}
+This explains why multiplying the $J$ univariate probabilities is generally wrong: that multiplication would impose a diagonal $\Sigma$. Conditional on household coefficients and the stated temporal model, multiply these rectangle probabilities over months and households. Integrate household coefficients against their population distributions to obtain the marginal likelihood.
+
+The paper makes coefficients depend on household characteristics through a hierarchical model. In compact notation this has the form $\theta_i=Bz_i+e_i$, with normal individual deviations. Conditioning on $z_i$ shares information across similar households while retaining individual variation. For a corporate adaptation, $z_i$ would contain business attributes such as industry and size; this is a new specification requiring validation, not an asserted equivalence to household demographics.
+
+\subsubsection{A complete estimation construction, with a source qualification}
+
+The published article says that detailed priors and the simulation procedure are available on request. It does not contain enough detail to reproduce the authors' exact sampler from the article alone. The following construction therefore explains how to estimate the displayed model without that missing material; its priors and sampler are an explicit reconstruction, not a claim about the authors' unpublished choices.
+
+One complete prior construction writes $\theta_i\mid B,D,R_\theta\sim N(Bz_i,DR_\theta D)$, where $D=\operatorname{diag}(\sigma_1,\ldots,\sigma_d)$. Give $\operatorname{vec}(B)$ and $\log\sigma_k$ proper normal priors with specified means and positive variances. Give free product locations and maturity coefficients proper normal priors, fixing the first product location as stated above. Give $R_\theta$ and the utility correlation matrix $\Sigma$ uniform densities over their positive-definite correlation-matrix domains; these priors are proper because those domains have finite volume in their free entries. Prior scales must be selected relative to standardized covariates and examined for sensitivity. These are reconstruction choices, not the authors' reported priors.
+
+Writing $\psi$ for the population parameters, the resulting posterior is
+\[
+ p(\psi,\{\theta_i,u_{it}\}\mid y)\propto p(\psi)
+ \prod_i\left[p(\theta_i\mid\psi)\prod_t
+ \phi_J\{u_{it};\mu_{it}(\theta_i,\psi),\Sigma\}
+ \mathbf1_{\{u_{it}\in\mathcal R(y_{it})\}}\right].
+\]
+Here $\phi_J$ is the $J$-variate normal density. This specification defines a posterior without supplying the unavailable original sampler or establishing identification from short histories.
+
+Latent utilities permit a useful conditional update. Partition a multivariate normal into coordinate $j$ and the others. Completing its quadratic form shows
+\begin{align*}
+ U_j\mid U_{-j},\theta&\sim N(m_j,v_j)\text{ restricted by }Y_j,\\
+ m_j&=\mu_j+\Sigma_{j,-j}\Sigma_{-j,-j}^{-1}(U_{-j}-\mu_{-j}),\\
+ v_j&=\Sigma_{jj}-\Sigma_{j,-j}\Sigma_{-j,-j}^{-1}\Sigma_{-j,j}.
+\end{align*}
+For bounds $(l,b)$, draw $q$ uniformly between $\Phi((l-m_j)/\sqrt{v_j})$ and $\Phi((b-m_j)/\sqrt{v_j})$, then set $U_j=m_j+\sqrt{v_j}\Phi^{-1}(q)$. This is inverse-cdf sampling from the required truncated normal. Numerically extreme bounds require stable tail routines.
+
+Conditional on product positions and maturity parameters, utilities are linear in the individual regression coefficients. Stack them as $u=X\theta+\epsilon$, with covariance $\Omega$, and suppose $\theta\sim N(m_0,V_0)$. Completing the square yields
+\[
+ V_1=(V_0^{-1}+X^{\mathsf T}\Omega^{-1}X)^{-1},\qquad
+ m_1=V_1(V_0^{-1}m_0+X^{\mathsf T}\Omega^{-1}u),
+\]
+so $\theta\mid u\sim N(m_1,V_1)$. Hierarchical means admit analogous conditional Gaussian updates. Product positions and $\lambda$ enter through absolute values and products and generally lack conjugate updates. A proposal $\psi'$ from density $q(\psi'\mid\psi)$ can be accepted with probability
+\[
+ \min\left\{1,\frac{p(\psi'\mid u,\text{others})q(\psi\mid\psi')}
+ {p(\psi\mid u,\text{others})q(\psi'\mid\psi)}\right\}.
+\]
+The conditional posterior in this ratio retains every factor involving the parameter being updated, including the individual-coefficient density when a population covariance changes. Its normalizing constant cancels. The same rule applies to a covariance parameterization constrained to remain positive definite, with transformation Jacobians when needed. Posterior purchase probabilities average Equation~\eqref{eq:li-probit} over retained draws. Convergence, prior sensitivity, identifiability and chronological prediction must be checked before treating this reconstruction as fitted evidence.
+
+The source application observes eight products for 1,201 households over twelve months in 1997--1998 and evaluates prediction with held-out households. That provides a concrete consumer-banking application to short panels. It does not establish temporal robustness across macroeconomic regimes or effectiveness of contacting corporate clients. Its strongest contribution here is the hypothesis that past products and relationship development inform future product demand.
+
+The initial proposal uses observed ownership, recent adoption, balances and interactions directly. A single latent product order is an optional challenger. Corporate clients can acquire products in different orders because of an acquisition, tender, import contract or financing maturity. A model that forces all clients onto one scale could miss those situations. No unavailable competition indicator will be silently coded as ``no competitor.''
+
+\subsection{Friedman: gradient boosting from a loss function}
+
+\citet{friedman2001greedy}, Algorithm 1, Section 4.5 and Section 5, constructs a prediction function as a sum of small fitted functions. Let $F(x)$ be the score and $L(y,F)$ its loss. Initialize with the best constant $F_0=\argmin_c\sum_i L(y_i,c)$. At iteration $m$, calculate the negative derivatives
+\begin{equation}
+ r_{im}=-\left.\frac{\partial L(y_i,F(x_i))}{\partial F(x_i)}\right|_{F=F_{m-1}}.
+ \label{eq:pseudoresponse}
+\end{equation}
+Fit a base learner $h_m$ to these pseudo-responses, choose a step size by minimizing the original loss along $F_{m-1}+\rho h_m$, and update. Why regress on derivatives? A first-order expansion gives
+\[
+ \sum_i L(y_i,F_i+\epsilon h_i)
+ =\sum_i L(y_i,F_i)-\epsilon\sum_i r_i h_i+O(\epsilon^2).
+\]
+Among unit-length changes at the observed points, alignment with $r$ gives the steepest local decrease. Fitting a small tree approximates this direction within the restricted class of tree functions. The procedure is greedy; it does not solve a global optimization over all possible tree ensembles.
+
+For bank event indicators $y\in\{0,1\}$, use full log odds $\eta$ and Bernoulli loss
+\[
+ L(y,\eta)=\log(1+e^\eta)-y\eta,\quad
+ p=\sigm(\eta),\quad L'=p-y,\quad L''=p(1-p).
+\]
+The initial score is $\log[\bar y/(1-\bar y)]$ when both classes occur. A regression tree partitions observations into leaves $R_{lm}$. In leaf $l$, the exact one-dimensional step minimizes
+\[
+ Q_l(\gamma)=\sum_{i\in R_{lm}}L(y_i,\eta_{i,m-1}+\gamma).
+\]
+Its derivative is $\sum_{i\in R_l}[\sigm(\eta_i+\gamma)-y_i]$. One Newton step from zero gives
+\begin{equation}
+ \gamma_{lm}\approx
+ \frac{\sum_{i\in R_{lm}}(y_i-p_i)}{\sum_{i\in R_{lm}}p_i(1-p_i)},\qquad
+ \eta_m(x)=\eta_{m-1}(x)+\nu\sum_l\gamma_{lm}\mathbf1_{\{x\in R_{lm}\}}.
+ \label{eq:boosting-newton}
+\end{equation}
+Here $0<\nu\le1$ is shrinkage. This is a Newton approximation to the leaf minimizer, not an identity for the exact line search. Leaves containing only one class can have an unbounded unregularized optimum; minimum support, an explicit penalty or a bounded optimization rule must be specified and validated.
+
+The paper's logistic derivation uses $y'\in\{-1,1\}$ and a half-log-odds score $F$, so $\eta=2F$. Its loss is $\log(1+e^{-2y'F})$ and its negative derivative is $2y'/(1+e^{2y'F})$. Transforming to $y=(y'+1)/2$ yields $2(y-p)$, while the second derivative becomes $4p(1-p)$. The Newton step in $F$ is therefore half the step in $\eta$. Keeping these codings distinct prevents a factor-of-two error when implementing the source algorithm.
+
+Tree depth controls interaction complexity; number of trees and shrinkage jointly control fit. The paper's simulations and regression/classification examples illustrate these trade-offs, not a universal tuning choice. For the bank, boosting can discover interactions such as industry by currency exposure by recent activity. It is a challenger to regularized logistic hazards. It does not resolve missing competitor data, prove causality, or guarantee calibrated probabilities. Its additional complexity must earn a measurable improvement under chronological and segment-level evaluation.
+
+\subsection{DeepAR: a shared recurrent probability model}
+
+\citet{salinas2020deepar}, Section 3 and its training and prediction algorithms, model a conditional distribution for each related time series using shared recurrent-network parameters. The local copy is the 2019 arXiv manuscript; the bibliography records the 2020 journal publication. For series $i$, observations $z_{it}$, and covariates $x_{it}$, the chain rule factorization is
+\begin{equation}
+ p(z_{i,t_0:T}\mid z_{i,1:t_0-1},x_i)
+ =\prod_{t=t_0}^{T}p(z_{it}\mid\theta_{it}),\quad
+ h_{it}=f_\Theta(h_{i,t-1},z_{i,t-1},x_{it}),\quad
+ \theta_{it}=g_\Theta(h_{it}).
+ \label{eq:deepar}
+\end{equation}
+All clients share $\Theta$; different histories produce different states $h_{it}$. During training, the state receives observed previous values. During forecasting, future values are unknown and must be sampled recursively from the predictive distribution. This distinction is essential for multi-step evaluation.
+
+\subsubsection{An explicit recurrent state}
+
+For clarity, a standard long short-term memory state can be written without treating the network as an unexplained box. Let $v_t$ concatenate the previous scaled observation, covariates and previous hidden state. With trainable matrices and offsets,
+\begin{align*}
+ I_t&=\sigm(W_Iv_t+b_I),& F_t&=\sigm(W_Fv_t+b_F),\\
+ O_t&=\sigm(W_Ov_t+b_O),& G_t&=\tanh(W_Gv_t+b_G),\\
+ c_t&=F_t\odot c_{t-1}+I_t\odot G_t,&h_t&=O_t\odot\tanh(c_t).
+\end{align*}
+Products are coordinatewise. The forget gate $F_t$ controls persistence, $I_t$ controls new information and $O_t$ controls the exposed state. These equations specify one standard recurrent unit for the source model; their hidden dimension and regularization are empirical choices, not consequences of having a million clients.
+
+For count data, output a mean $\mu_t>0$ and dispersion $\alpha_t>0$, with $k_t=1/\alpha_t$ in Equation~\eqref{eq:nb}. Positive outputs can be obtained using $\operatorname{softplus}(z)=\log(1+e^z)$, evaluated stably. The log-likelihood contribution is
+\begin{align}
+ \ell_t={}&\log\Gamma(z_t+k_t)-\log\Gamma(k_t)-\log\Gamma(z_t+1)\nonumber\\
+ &+k_t\log\frac{k_t}{k_t+\mu_t}
+  +z_t\log\frac{\mu_t}{k_t+\mu_t}.
+ \label{eq:deepar-nb}
+\end{align}
+This gives $\E z_t=\mu_t$ and variance $\mu_t+\alpha_t\mu_t^2$. For real-valued data a Gaussian likelihood instead contributes $-\tfrac12\log(2\pi\sigma_t^2)-(z_t-\mu_t)^2/(2\sigma_t^2)$. A Gaussian permits negative outcomes, so it should not be applied uncritically to strictly positive balances or amounts.
+
+The source rescales each series by a positive scale $\nu_i$ based on its conditioning history. Counts are fed to the recurrence as $z/\nu_i$, while the negative-binomial output mean is rescaled by $\nu_i$; its dispersion is scaled by $1/\sqrt{\nu_i}$ in the source parameterization. Scaling must use only the conditioning history for each training window. Using the future mean would leak the target. The source's sampling scheme also changes the emphasis across series; a bank must choose whether its objective weights clients, transactions, dollar margin or some explicit combination.
+
+\subsubsection{Training and prediction, step by step}
+
+Choose historical conditioning and prediction windows whose labels are fully observed. Run the recurrence through the conditioning window to establish its state, then minimize the sum of negative prediction-window log-likelihoods. For fixed dispersion, differentiating Equation~\eqref{eq:deepar-nb} gives
+\[
+ \frac{\partial\ell_t}{\partial\mu_t}
+ =\frac{z_t}{\mu_t}-\frac{z_t+k_t}{\mu_t+k_t}.
+\]
+The chain rule propagates this derivative through the output map, softplus and recurrent states. More generally, for state $s_t=f_\Theta(s_{t-1},v_t)$ and total loss $\sum_t L_t$, the backward derivatives satisfy
+\[
+ a_t=\frac{\partial L_t}{\partial s_t}
+      +\left(\frac{\partial s_{t+1}}{\partial s_t}\right)^{\mathsf T}a_{t+1},\qquad
+ \nabla_\Theta L=\sum_t\left[
+ \frac{\partial L_t}{\partial\Theta}\bigg|_{s_t}
+ +\left(\frac{\partial s_t}{\partial\Theta}\bigg|_{s_{t-1}}\right)^{\mathsf T}a_t\right].
+\]
+The terminal derivative contains only the last loss. This is backpropagation through time: later errors inform parameters that created earlier states. Automatic differentiation evaluates these derivatives; it does not choose a valid train/test split or appropriate capacity.
+
+At a forecast origin, compute the final observed state. For each simulation path, sample $z_{t+1}$ from its predicted distribution, feed that sample back to obtain the next state, and repeat through $t+H$. Path averages estimate future counts; path proportions with at least one qualifying event estimate event probabilities; empirical quantiles summarize uncertainty. Future covariates must be known, explicitly forecast or sampled under scenarios. Independently generated client paths do not capture unexplained bank-wide common shocks, so their sum does not automatically provide a calibrated aggregate-risk distribution.
+
+The source evaluates probabilistic forecasting on several nonbank time-series datasets and gives architecture and training details in its supplement. Those results show a method for learning shared dynamics and predictive distributions. They do not establish that recurrent networks outperform well-tuned tabular models on 36 monthly observations. For this bank, DeepAR is justified as a bounded challenger when repeated counts and nonlinear dynamics matter. Its extra tuning, data weighting, seed variation, calibration and computational cost must be measured on this task before promotion.

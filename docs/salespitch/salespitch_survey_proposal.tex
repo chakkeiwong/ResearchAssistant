@@ -1,0 +1,84 @@
+\documentclass[11pt,oneside]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{natbib}
+\usepackage{booktabs,longtable,array,multirow}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black}
+\setlist{itemsep=2pt,topsep=4pt}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\logit}{\operatorname{logit}}
+\newcommand{\sigm}{\operatorname{sigm}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\given}{\,|\,}
+\title{Forecasting bank product opportunities and allocating scarce sales capacity\\\large A literature survey and product proposal}
+\author{Research design note}
+\date{8 October 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+This document specifies a decision system for a commercial or corporate bank that has roughly one million business clients, only 36 monthly observations per client, internal transaction records, client attributes, and dated sales contacts and outcomes. The system must identify which client--product pairs are likely to need attention soon and decide which contacts are worth scarce salesperson time. The two decisions require different statistical quantities. A forecast estimates a future bank-observed event. An outreach model estimates the incremental outcome caused by a contact. An allocation model converts those estimates into a capacity-constrained portfolio. Treating these quantities as one score creates a predictable error: the clients most likely to transact are not necessarily the clients for whom a conversation changes the bank's result.
+
+The survey examines ten primary papers in a common notation. It derives pooled and global forecasting, discrete-time survival analysis, the beta-geometric\/negative-binomial model, a sequential cross-selling latent-maturity model, gradient boosting, DeepAR probabilistic forecasting, positive--unlabeled learning, uplift modelling, and observational policy learning. Each method is linked to the bank setting and its assumptions are tested against the short panel, selective observation across banks, repeated products, and historical sales selection. The proposal is a product-specific, pooled discrete-time hazard model with hierarchical effects and a calibrated count component, a separately estimated outreach-effect model, and a constrained policy optimizer. It uses global models to borrow strength across clients, survival likelihoods for timing, product-history features for cross-selling, and validated causal policy recommendations after an explicit contact experiment. The proposed evaluation uses chronological backtesting, constructed heuristic baselines, clustered uncertainty, and a prospective randomized pilot. No bank-specific performance claim is made without client data.
+\end{abstract}
+
+\clearpage
+\begingroup
+\footnotesize
+\setcounter{tocdepth}{2}
+\tableofcontents
+\endgroup
+\clearpage
+
+\section{The business decision}
+\input{sections/01_problem}
+
+\section{Data, estimands, and identification}
+\input{sections/02_data_estimands}
+
+\section{What the literature contributes}
+\input{sections/03_literature}
+
+\section{Forecasting event timing and transaction counts}
+\input{sections/04_forecast_methods}
+
+\section{Product adoption, boosting, and probabilistic global models}
+\input{sections/05_crosssell_global}
+
+\section{From prediction to profitable outreach}
+\input{sections/06_causal}
+
+\section{The proposed bank sales product}
+\input{sections/07_proposed_model}
+
+\section{Evaluation, operations, and governance}
+\input{sections/08_evaluation}
+
+\section{Limits, extensions, and implementation sequence}
+\input{sections/09_roadmap}
+
+\clearpage
+\appendix
+\section{Notation and derivation index}
+\input{sections/10_appendix}
+
+\clearpage
+\begingroup
+\raggedright
+\interlinepenalty=10000
+\bibliographystyle{plainnat}
+\bibliography{references}
+\endgroup
+\end{document}

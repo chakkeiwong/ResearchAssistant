@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-09",
+  "timezone": "Asia/Hong_Kong",
+  "git_commit": "9c0008f5c41b860cc958a23652aee54168248154",
+  "branch": "main",
+  "working_tree": "New document and paper files are untracked; previous proposal is preserved.",
+  "commands": [
+    {
+      "command": [
+        "bash",
+        "build.sh"
+      ],
+      "returncode": 0,
+      "wall_seconds": 1.788,
+      "log": "build/final-command-0.log"
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check_mathematics.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.109,
+      "log": "build/final-command-1.log"
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check_document.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.155,
+      "log": "build/final-command-2.log"
+    },
+    {
+      "command": [
+        "python",
+        "scripts/render_review.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 6.982,
+      "log": "build/final-command-3.log"
+    }
+  ],
+  "environment": {
+    "python": "3.11.15",
+    "python_executable": "/home/chakwong/anaconda3/envs/tftwogpu/bin/python",
+    "pdflatex": "pdfTeX 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian)",
+    "compute": "CPU only; CUDA_VISIBLE_DEVICES=-1; no GPU probe or framework import"
+  },
+  "data_version": "N/A: no bank data; primary-source versions and hashes are in source_catalog.json",
+  "random_seeds": "N/A: deterministic algebra/numerical checks; no stochastic comparison",
+  "plan": "review/plan.md",
+  "result": "review/review_result.md",
+  "artifacts": [
+    "salespitch_cashflow_fx.pdf",
+    "latex_sources.zip",
+    "review/document_checks.json",
+    "review/mathematical_checks.json",
+    "../../dcos/papers/salespitch/manifest-v2.json"
+  ]
+}

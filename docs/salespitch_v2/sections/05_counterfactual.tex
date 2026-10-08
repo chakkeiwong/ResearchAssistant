@@ -1,0 +1,118 @@
+\chapter{Macroeconomic scenarios and genuine counterfactuals}
+\label{ch:cf}
+\section{Three distinct questions}
+The time-series model should answer how future receipts and payments change when macroeconomic conditions change. Giving GDP a coefficient is a necessary piece of that design, but the interpretation of the change needs care. \citet[Sections 3.2--3.4]{pearl2009} distinguishes observing a variable, intervening on its generating mechanism, and reasoning about a counterfactual for a particular observed unit. These are different probability statements:
+\begin{align}
+&p(Y_{t+1:t+H}\mid\Hist_t,M_{t+1:t+H}=m)
+&&\text{conditional forecast},\label{eq:conditional}\\
+&p(Y_{t+1:t+H}\mid\Hist_t,\doop(M_{t+1:t+H}=m))
+&&\text{intervention distribution},\label{eq:intervention}\\
+&p(Y^{m'}_{t+1:t+H}\mid\Hist_t,\text{observed factual evidence})
+&&\text{unit counterfactual}.\label{eq:unitcf}
+\end{align}
+Here $Y^{m'}$ is the outcome in an alternative structural system, using information about the latent conditions of the factual entity. A bank may use an externally supplied GDP scenario without claiming that it or any single policymaker can directly set GDP. If the scenario is implemented by inserting $m$ into a forecasting equation while keeping residual innovations at their unconditional distribution, that operation equals~\eqref{eq:conditional} only under the corresponding exogeneity assumptions. It is otherwise a model-based forcing scenario.
+
+For an ordinary forecast in which future macroeconomic conditions are unknown, the corresponding predictive distribution integrates over an as-of-date macro forecast:
+\begin{equation}
+p(Y_{t+1:t+H}\mid\Hist_t)=\int p(Y_{t+1:t+H}\mid\Hist_t,m)\,p(m\mid\Hist_t)\,dm.
+\end{equation}
+This is the law of total probability for a coherent joint model. Fixing one macro path omits uncertainty across macro paths. A stress scenario may instead be deliberately assigned no probability; it remains a conditional financial calculation rather than an unconditional risk forecast.
+
+The distinction can be proved with a small linear example. Suppose
+\begin{equation}
+M=U+\nu,\qquad Y=\beta M+\lambda U+\varepsilon,
+\end{equation}
+where independent centered Gaussian variables have variances $\sigma_U^2,\sigma_\nu^2,\sigma_\varepsilon^2$. Because
+$\Cov(U,M)=\sigma_U^2$ and $\V(M)=\sigma_U^2+\sigma_\nu^2$,
+\begin{equation}
+\E[Y\mid M=m]=
+\left(\beta+\lambda\frac{\sigma_U^2}{\sigma_U^2+\sigma_\nu^2}\right)m.
+\label{eq:confounding}
+\end{equation}
+An intervention replaces the first equation by $M=m$ and leaves $U$ distributed as before. Consequently,
+\begin{equation}
+\E[Y\mid\doop(M=m)]=\beta m.
+\end{equation}
+The extra slope in~\eqref{eq:confounding} is not a GDP effect; it comes from the common cause. More clients measured at the same dates do not resolve this confounding.
+
+\section{Structural assumptions needed for macroeconomic interventions}
+A structural cash-flow system can be written
+\begin{align}
+M_t&=g_M(M_{<t},U^M_t),\\
+X_{it}&=g_X(X_{i,t-1},M_{\leq t},Z_i,U^X_{it}),\\
+F^\pm_{ict}&=g^\pm_F(X_{it},M_{\leq t},Z_i,U^F_{ict}),\\
+Y^\pm_{ict}&=g^\pm_O(F^\pm_{ict},S^\pm_{ict},U^O_{ict}).
+\end{align}
+The variables $S^\pm$ here denote bank capture, not exchange rates. Exogenous disturbances may share dependence unless assumptions exclude it. An intervention on $M$ replaces its structural equation and propagates through the others. The response has causal meaning only if the retained equations and disturbance distributions are invariant to that intervention and their relevant parameters are identified or explicitly assumed.
+
+For a single exposure $M$, if observed $Z$ blocks all back-door confounding paths and contains no inappropriate descendants, the adjustment formula is
+\begin{equation}
+p(y\mid\doop(m))=\int p(y\mid m,z)p(z)\,dz.
+\label{eq:backdoor}
+\end{equation}
+The derivation uses conditional exchangeability $Y(m)\perp M\mid Z$, consistency $Y=Y(M)$, and positivity. First integrate $p(Y(m)=y\mid Z=z)$ over $p(z)$; exchangeability permits conditioning additionally on $M=m$; consistency then replaces $Y(m)$ by the observed $Y$. Longitudinal interventions require the corresponding sequential assumptions and time ordering, not an undated regression adjustment. Pearl's back-door discussion gives the graphical criteria behind the statistical assumptions.
+
+In this banking application, candidate confounders include sector shocks, policy responses, commodity prices, and exchange-rate conditions. GDP is an aggregate outcome of many mechanisms, so a ``one percentage point GDP increase'' can correspond to several economically different interventions. A demand stimulus and a productivity improvement can raise GDP while affecting margins, payments, and FX rates differently. The first release should therefore label scenarios by the variables set, accompanying assumptions, and whether the response is predictive, imposed, or causally identified. Identifying a particular policy shock would be a separate econometric project.
+
+\section{How to impose the requested positive GDP response}
+The user requests a scenario in which higher GDP increases every entity's mean cash inflow. The model can satisfy this transparently. Let $g_t$ be a declared real-GDP growth measure expressed in percentage points, centered on the training mean. For inflow magnitude, use a finite distributed lag
+\begin{equation}
+B^A_{ic+}(m_{1:t})
+=\beta^A_{ic}\sum_{\ell=0}^{L}w^A_{c\ell}g_{t-\ell}
++\widetilde B^A_{ic}(m_{1:t}^{\rm other}),
+\label{eq:gdpkernel}
+\end{equation}
+with
+\begin{equation}
+\beta^A_{ic}=\softplus(b^A_{g(i),c}+z_i'\gamma^A_c)>0,
+\quad w^A_{c\ell}\geq0,\quad\sum_{\ell=0}^{L}w^A_{c\ell}=1.
+\end{equation}
+The lag normalization separates total response size $\beta$ from timing. Weights may be shared across industries or currencies; a softmax is one possible positive parameterization. An analogous occurrence term uses $\beta^D_{ic}\geq0$ and nonnegative weights, or sets that channel to zero if positivity is imposed only on amount. Exact zero responses can be permitted through a nonnegative constrained parameter rather than strict softplus.
+
+For fixed latent states, fixed residual variance, and a GDP input $g_{t-\ell}$, differentiating the conditional mean in~\eqref{eq:hurdlemean} gives
+\begin{align}
+\frac{\partial\log\E[Y^+_{ict}\mid x,f,m]}{\partial g_{t-\ell}}
+&=\frac{\partial\log p_{ict}}{\partial\eta^D_{ict}}
+      \beta^D_{ic}w^D_{c\ell}+\beta^A_{ic}w^A_{c\ell}\nonumber\\
+&=(1-p_{ict})\beta^D_{ic}w^D_{c\ell}
+       +\beta^A_{ic}w^A_{c\ell}\geq0.
+\label{eq:monotone}
+\end{align}
+The identity $\partial\log\sigmoid(v)/\partial v=1-\sigmoid(v)$ supplies the second line. If the distribution of residual states is held invariant across the paired scenarios, averaging a pointwise nondecreasing conditional mean also gives a nondecreasing marginal mean. This establishes the requested response under the stated model assumptions.
+
+For example, a one-percentage-point increase in the relevant weighted growth input, with magnitude coefficient $0.03$ and no occurrence change, multiplies expected inflow by $e^{0.03}\approx1.03045$. It implies about a 3.05\% rise, not a three-percentage-point change in transaction probability. Units must be fixed before interpreting any estimated coefficient. Applying a coefficient estimated on decimal growth to a percentage-point input would multiply the intended shock by 100.
+
+There are three important qualifications. First, the result is a ceteris paribus GDP response. A joint scenario with higher GDP, unfavorable FX moves, and changing interest rates can have a different total effect. Second, GDP-dependent volatility adds $\tfrac12\partial R_{rr}/\partial g$ to the log-mean derivative and can overturn the sign unless constrained. Third, if bank capture changes with the scenario, monotonic total receipts need not imply monotonic bank-observed receipts. The initial scenario module holds capture fixed or shows a separate capture sensitivity.
+
+\section{Why a positive one-step state loading is insufficient}
+An alternative is to put GDP directly in the state equation,
+\begin{equation}
+x_t=Ax_{t-1}+Bg_t+\eta_t,\qquad y_t=Hx_t+\epsilon_t.
+\end{equation}
+A GDP impulse at $t$ changes the expected observation $h$ periods later by
+\begin{equation}
+\frac{\partial\E[y_{t+h}]}{\partial g_t}=HA^hB.
+\label{eq:impulseresponse}
+\end{equation}
+This follows by substituting the state transition repeatedly. Positive entries in $B$ do not ensure positive $HA^hB$: in a scalar stable model with $A=-0.5$, $B=H=1$, the immediate effect is $1$ and the next effect is $-0.5$. A monotone dynamic system could impose nonnegative $H,A,B$, but that also restricts other dynamics. The explicit nonnegative lag kernel in~\eqref{eq:gdpkernel} is a simpler way to make the promised GDP scenario behavior inspectable while allowing residual states to describe other patterns.
+
+Outflow GDP coefficients should initially be unrestricted or separately constrained for a stated economic reason. Even when both expected inflows and outflows rise, net flow can fall if payments respond more strongly. A universal increase in inflows therefore does not imply greater net FX exposure or greater hedge demand. The later utility calculation is needed precisely because those implications do not follow automatically.
+
+\section{Abduction, intervention, and prediction for a client}
+Pearl's Definition~4 and equations (27)--(28) formalize a counterfactual by retaining the exogenous conditions of a unit while replacing a structural equation. In the simple structural model $Y=\beta M+U$, observing $(M=m,Y=y)$ implies $U=y-\beta m$. Under $M=m'$,
+\begin{equation}
+Y(m')=\beta m'+U=y+\beta(m'-m).
+\label{eq:unitlinear}
+\end{equation}
+This expression differs from assigning the same population mean to every client under $m'$: the factual outcome informs the client's disturbance. With noisy measurements or multiple latent states, abduction yields a posterior over $U$ rather than a single value.
+
+For the proposed model, a coherent procedure is:
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item Infer the posterior of current client states, common states, and relevant past disturbances from observations available at the decision origin.
+\item Specify which macro equations or paths change, and which capture, pricing, and behavioral mechanisms remain invariant.
+\item Draw future disturbances under the declared structural assumptions and propagate both the factual and alternative systems using paired draws.
+\item Compare flow paths, FX exposures, and client utilities, retaining uncertainty from state estimation and the macro response parameters.
+\end{enumerate}
+Paired random draws reduce simulation noise in scenario differences. They imply a particular cross-world coupling, however. Marginal observational distributions alone do not identify that coupling or individual treatment effects. If the bank has only a predictive conditional model, the product can still deliver useful conditional scenario comparisons while describing the structural interpretation as an additional assumption.
+
+Preference parameters can initially be held fixed while macro scenarios change forecast cash flows. If stress itself changes risk tolerance, financing constraints, offer availability, or the bank's pricing, those mechanisms need to change in the corresponding module. Modular design permits those extensions while making the original assumption visible.

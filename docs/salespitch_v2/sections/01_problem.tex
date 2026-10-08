@@ -1,0 +1,77 @@
+\chapter{The updated banking problem}
+\label{ch:problem}
+\section{What must be predicted, and what must be decided?}
+The bank wants to use a limited relationship-management team to reach clients before a financially consequential need arises. A scheduled payment is useful evidence, but the commercial decision concerns the client's exposure and the value of a suitable product. The first task is to forecast financial quantities; the second is to evaluate a hedge; the third is to predict a choice; and the fourth is to decide whether contacting the client changes the outcome enough to justify scarce sales time. These tasks share information but have different targets.
+
+Let $i=1,\ldots,n$ identify legal entities, with $n$ approximately one million. Let $t=1,\ldots,T$ index month ends and $T=36$ denote the available historical length. Currency is indexed by $c$, and the superscripts $+$ and $-$ denote gross receipts and payments. The monthly quantities
+\begin{equation}
+F^+_{ict}\geq0,\qquad F^-_{ict}\geq0
+\end{equation}
+are measured in native currency units. They are economic cash flows across the chosen client boundary, before financial hedges, after removing duplicate records and transfers that are internal to that boundary. Their observed portions, $Y^+_{ict}$ and $Y^-_{ict}$, are what pass through the bank. The distinction matters throughout the proposal.
+
+The information set $\Hist_{it}$ contains only information actually available when the decision is made: observed flows to date, dated static and industry attributes $z_i$, past macroeconomic releases, dated sales activity, and verified existing positions. Let $m_{t+1:t+H}$ be an externally supplied macroeconomic path over a horizon $H$. The first deliverable is a joint conditional distribution
+\begin{equation}
+\mathcal P_{it}^{m}=
+ p\left(\{Y^+_{ic,t+h},Y^-_{ic,t+h}\}_{c,h=1}^{C,H}
+ \mid\Hist_{it},m_{t+1:t+H}\right).
+\label{eq:forecasttarget}
+\end{equation}
+The notation on the right means every selected currency and every future month. It is a distribution of paths, not just a vector of independent marginal forecasts. If a separate observation model can identify total-wallet flows, $F$ can replace $Y$. Until then, a bank-observed-flow forecast is the estimable target.
+
+Three-month exposure provides a running example. Suppose an exporter expects EUR 1 million in receipts and EUR 0.8 million in supplier payments at the same settlement date. Its unhedged net operating exposure is EUR 0.2 million, before balances and existing hedges. A forward sale of EUR 1 million could substantially overhedge the position. If the supplier payments occur two months earlier, the same totals also conceal a liquidity problem. The joint forecast must retain the currency, sign, and settlement bucket of each flow to support either decision.
+
+\section{From flows to utility, choice, and sales capacity}
+Let $j$ denote an available hedge offer with currency, maturity, notional, forward rate, collateral terms, fees, and service attributes. Let $W_{it}(j,\omega)$ be the client's financial outcome under future state $\omega$. A utility specification defines
+\begin{equation}
+V_{itj}=\mathcal U_i\bigl(W_{it}(j,\cdot);\mathcal P_{it}^{m}\bigr)
+           -\text{nonfinancial friction}_{itj}.
+\label{eq:valueintro}
+\end{equation}
+The functional $\mathcal U_i$ may be expected continuation value, a certainty equivalent, or an explicitly approximate mean--variance criterion. It measures client value, in a declared unit. It is not the bank's sales margin. Random utility and the available set $\Avail_{it}$ produce probabilities
+\begin{equation}
+p_{itj}=\Pr\{j=\argmax_{k\in\Avail_{it}}(V_{itk}+\epsilon_{itk})
+                 \mid\Hist_{it},\Avail_{it}\}.
+\end{equation}
+The outside option may include waiting, accepting exposure, or dealing elsewhere. When those actions are not separately observed, their composition cannot be identified from a single ``no trade at our bank'' label.
+
+Finally, let $A_{it}\in\{0,1\}$ denote an outreach assignment and $R_{it}(a)$ the bank's net contribution under that assignment. A client can have high forecast exposure and high purchase probability but little incremental response to a call. The final commercial target is
+\begin{equation}
+\tau_{it}=\E[R_{it}(1)-R_{it}(0)\mid\Hist_{it}],
+\qquad
+\max_{a_i\in\{0,1\}}\sum_i a_i\tau_{it}
+\quad\text{subject to}\quad\sum_i d_i a_i\leq B_t,
+\label{eq:capacityintro}
+\end{equation}
+where $d_i$ is expected sales time and $B_t$ is available capacity. Eligibility, client ownership, and suitability constraints can further restrict feasible assignments. This objective explains why forecasting, product choice, and causal outreach effects should remain separate modules.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=5mm,box/.style={draw,rounded corners,align=center,text width=11.5cm,inner sep=7pt},>=Stealth]
+\node[box] (a) {As-of-date observations: receipts, payments, currency,\nobreakspace macro releases, client attributes};
+\node[box,below=of a] (b) {Joint cash-flow model\\Shared dynamics and explicit macroeconomic scenario responses};
+\node[box,below=of b] (c) {Exposure and utility module\\Settlement buckets, balances, existing hedges, feasible FX offers};
+\node[box,below=of c] (d) {Choice module\\Available alternatives, prices, preferences, outside option};
+\node[box,below=of d] (e) {Outreach policy\\Incremental bank contribution subject to sales capacity};
+\draw[->] (a)--(b);\draw[->] (b)--(c);\draw[->] (c)--(d);\draw[->] (d)--(e);
+\end{tikzpicture}
+\caption{Each stage answers a distinct question. Scenario paths and uncertainty pass forward; the forecasting stage can be delivered before preferences or outreach effects are estimated.}
+\end{figure}
+
+\section{Why a million clients do not eliminate the short-history problem}
+The cross-section helps estimate shared seasonality, industry differences, and relationships between prior activity and future flows. It does not supply a million independent realizations of GDP. To see the limitation, consider
+\begin{equation}
+y_{it}=\alpha_i+\beta g_t+u_t+e_{it},
+\qquad \E[e_{it}\mid g,u]=0,
+\end{equation}
+where $u_t$ is an unobserved common demand shock. Averaging across clients gives
+\begin{equation}
+\overline y_t=\overline\alpha+\beta g_t+u_t+\overline e_t.
+\end{equation}
+With weak cross-sectional dependence, $\overline e_t$ can shrink as $n$ grows. The common shock $u_t$ remains, as do only 36 values of $g_t$. If $g_t$ and $u_t$ are correlated, cross-sectional averaging does not remove bias. If unrestricted month effects are included, they span $g_t$ exactly and prevent separate identification of a common GDP coefficient. The proposed model must therefore state which common movements are attributed to GDP and which to residual factors.
+
+Three annual cycles also provide little evidence about stable client-specific seasonality, and potentially no evidence about a recession or a sharp exchange-rate discontinuity. Hierarchical pooling is a response to this information constraint. It should be combined with simple baselines, uncertainty intervals, and sensitivity to macroeconomic assumptions.
+
+\section{What the literature can establish}
+The survey connects four bodies of work. Global forecasting explains parameter sharing across short series. State-space estimation explains how noisy observations update latent cash-flow conditions. Structural causal models explain the assumptions that distinguish scenarios from interventions. Corporate hedging and discrete-choice theory connect exposures to economically meaningful product decisions. Policy learning supplies the final distinction between a likely customer and a customer whose outcome can be changed by outreach.
+
+The cited methods are derived at the level used in the proposal, including likelihoods, inference recursions, utility calculations, and choice estimators. The aim is a self-contained reconstruction of their relevant methods, rather than a reproduction of every theorem and empirical application in each source. Source-specific technical anchors and version differences appear alongside the derivations and in Chapter~\ref{ch:sources}. The resulting architecture is a proposed synthesis. No cited study establishes its predictive or commercial performance on this bank's data.

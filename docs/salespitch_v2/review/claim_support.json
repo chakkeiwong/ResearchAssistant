@@ -1,0 +1,98 @@
+[
+  {
+    "claim": "Pooling short panels",
+    "section": "03_dynamics.tex",
+    "sources": "montero2021global",
+    "support": "Local Gaussian posterior derivation; paper motivates shared vs local question"
+  },
+  {
+    "claim": "Exact Gaussian filtering and likelihood",
+    "section": "03_dynamics.tex",
+    "sources": "kalman1960",
+    "support": "Conditional normal projection; checked against independent joint conditioning"
+  },
+  {
+    "claim": "Smoothing, lag covariance and EM updates",
+    "section": "03_dynamics.tex",
+    "sources": "shumway1982",
+    "support": "Appendix source plus local conditional-Markov derivation and deterministic check"
+  },
+  {
+    "claim": "PCA factor extraction",
+    "section": "03_dynamics.tex",
+    "sources": "stock2002",
+    "support": "Constrained least squares derivation; no causal factor identification"
+  },
+  {
+    "claim": "Neural conditional distribution and covariate-only SSM parameter generator",
+    "section": "03_dynamics.tex",
+    "sources": "salinas2020deepar;rangapuram2018",
+    "support": "Paper model sections and bounded official-code inspection"
+  },
+  {
+    "claim": "Bank capture nonidentification",
+    "section": "02_observation.tex",
+    "sources": null,
+    "support": "PROJECT_DERIVATION: exact rescaling and interval proof"
+  },
+  {
+    "claim": "Joint hurdle likelihood, mean and covariance",
+    "section": "04_joint_model.tex",
+    "sources": null,
+    "support": "PROJECT_DERIVATION: proposed synthesis, not a cited bank implementation"
+  },
+  {
+    "claim": "Conditional posterior concavity",
+    "section": "04_joint_model.tex",
+    "sources": null,
+    "support": "PROJECT_DERIVATION under fixed parameters and affine predictors; proper Gaussian prior"
+  },
+  {
+    "claim": "Conditional vs interventional vs unit counterfactual",
+    "section": "05_counterfactual.tex",
+    "sources": "pearl2009",
+    "support": "Sections 3.2-3.4 plus linear confounding derivation"
+  },
+  {
+    "claim": "Nonnegative GDP mean response",
+    "section": "05_counterfactual.tex",
+    "sources": null,
+    "support": "PROJECT_DERIVATION with invariant residual-state law, fixed variance/capture, nonnegative lag kernel"
+  },
+  {
+    "claim": "Corporate hedging mechanisms",
+    "section": "06_utility.tex",
+    "sources": "smith1985;froot1993",
+    "support": "Tax pricing weights; compensation curvature; costly-finance value. Total value includes w+P(w)."
+  },
+  {
+    "claim": "CARA normal CE and nonnormal caveat",
+    "section": "06_utility.tex",
+    "sources": null,
+    "support": "PROJECT_DERIVATION: square completion, moments, unbounded lognormal negative-wealth warning"
+  },
+  {
+    "claim": "Covariance hedge solution",
+    "section": "06_utility.tex",
+    "sources": null,
+    "support": "PROJECT_DERIVATION: mean-variance optimization with deterministic costs"
+  },
+  {
+    "claim": "Logit and mixed panel likelihood",
+    "section": "07_choice.tex",
+    "sources": "mcfadden1974;mcfadden2000",
+    "support": "Gumbel integral, Hessian, E(product) panel integration; no endogenous-price identification claim"
+  },
+  {
+    "claim": "Outreach score",
+    "section": "08_outreach.tex",
+    "sources": "wager2021policy",
+    "support": "AIPW identity and conditional product-bias derivation; no unmeasured-confounding remedy"
+  },
+  {
+    "claim": "Forecast and sales superiority",
+    "section": "09_delivery.tex",
+    "sources": null,
+    "support": "NOT ESTABLISHED: no bank data, fitted model or randomized commercial trial"
+  }
+]
